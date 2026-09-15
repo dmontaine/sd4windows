@@ -179,6 +179,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 67, 14 Sep 2026 (late) — ***THE HARNESS WENT RED ON A THIRD DEFECT, AND ALL THREE ARE FIXED IN SOURCE WITH A FREE GUARD FOR THE CLASS. THE TREE IS STALE ON PURPOSE; A CYCLE AND A GREEN RERUN ARE OWED.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | ***red run, observed*** | `verify-nocaseupgrade` 20 PASS / 11 FAIL. The walk stopped on `0000025C: Select list number out of range at line 136 of …/UPGRADE_NOCASE` — lists 13–15, where SD allows 0–12 (`gplsrc/sd.h:43-48`). Driver exit 1, no `COMPLETE`. **Every "lost nothing" row PASSED**: all eight parts identical before and after, no temp files. ***The predicted `old.path` abort was masked, never reached***, and the row that looked only for "Unassigned variable" passed through a different abort — now it rejects any `<8 hex>: … at line n of …` |
+> | fixed in source | `UPGRADE_NOCASE`: inner lists 13/14/15 → 11 (the register walk holds 12); `old.path` set at the top of `convert.one`; the session's live VOC skipped by comparing the opened file's `FL$PATH` with `@voc`'s. **bbcmp compiles it fully** (rc 0) with only `VOID`/`FILELOCK`/`SET.TRIGGER` stubbed — the diff shows nothing else changed |
+> | class guard | new free test `gplbld/test-selectlists-units.py`: limits read from `sd.h`, every literal list number in `gpl.bp`, nine fixtures and a control. **Red on the live file first** (the six remaining 14/15 lines), green after (11/0). The sweep found no other program over the limit. CLAUDE.md's free tier is now thirty-nine; run 39/39 |
+> | still unwitnessed | the live-VOC skip — the harness cannot build a case-sensitive SDSYS VOC; the real W1.0-0 → current upgrade is its witness |
+>
+> **Owed**, in order — the cycle **elevated**, then the harness **elevated**:
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-nocaseupgrade.ps1
+> ```
+> **Expected green (conditional):** driver exit 2, `COMPLETE`, "Converted 4 of N", `zznutwin` named with `jack / JACK`, `zznuak` named as indexed, every part's ids unchanged, `zznuclean` and the three DICT parts NOCASE. *Falsified if* a runtime error row fires again (a fourth defect), or the converted count is not 4 (the walk touched a file that is not a fixture).
+>
+> *(Handoff 66 follows; its "expected red" row is superseded by the observed one above.)*
+
 > # ⇩⇩⇩ HANDOFF 66, 14 Sep 2026 (late) — ***5a STARTED: THE UPGRADE-WALK HARNESS IS BUILT AND UNRUN; READING `UPGRADE_NOCASE` FOUND TWO DEFECTS THAT WOULD FAIL EVERY REAL UPGRADE. A RED RUN IS OWED BEFORE ANY FIX (owner: red first).*** ⇩⇩⇩
 >
 > | | |

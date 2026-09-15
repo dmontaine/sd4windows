@@ -573,8 +573,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-privundetermined-units`, `test-elevonce-units`,
    `test-suitetranscript-units`, `test-basicfuncscov-units`,
    `test-promptdefaults-units`, `test-intrinsics-units.py`,
-   `test-voctwins-units.py`, `test-upgradenocase-units`.
-   ***ALL THIRTY-EIGHT. Run these on
+   `test-voctwins-units.py`, `test-upgradenocase-units`,
+   `test-selectlists-units.py`.
+   ***ALL THIRTY-NINE. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
@@ -820,6 +821,16 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    naming ids that fold to one; a shipped pair would load one and drop the
    other. It reads the three trees for a fold-collision, with a planted-twin
    mutant as the control. No SD, install, elevation or cycle.
+
+   ***`test-selectlists-units.py` JOINED IT 14 Sep 2026 IN THE COMMIT THAT
+   CREATED IT, AND IT WENT RED ON THE LIVE FILE BEFORE THE FIX.*** SD refuses a
+   select list above 12 (`HIGH_SELECT`), or above 10 outside an `$internal`
+   program (`gplsrc/sd.h:43-48`), **only when the statement runs** — so
+   `UPGRADE_NOCASE`'s lists 13–15 compiled clean and stopped the upgrade walk on
+   its first file, on a path no cycle reaches. It reads the two limits from
+   `sd.h` and every literal list number in `gpl.bp`; nine fixtures decide each
+   case, and a control requires the scan to find list uses at all. A list number
+   held in a variable is not seen.
 
    ***`test-stalebin-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT.*** It guards `gplbld/stale-binaries.ps1` — this script's own check A2,

@@ -61462,3 +61462,16 @@ called `Show` inside itself, so `$b` was text lines plus the map and every key
 lookup was `$null`. Fixed for the class - `Get-Probe` returns one object and the
 caller prints; an AST scan found no other assigned function emitting output;
 the lifted function driven 9/0 with an in-memory `Write-Output` mutant caught.
+
+**The second run measured, and the prediction was wrong about which defect
+comes first.** 20 PASS / 11 FAIL: `Select list number out of range at line 136`
+- UPGRADE_NOCASE used lists 13-15, SD allows 0-12 and 11-12 only when
+$internal (gplsrc/sd.h:43-48). Driver exit 1, no COMPLETE; every before/after
+row passed, so nothing was converted or lost. The `old.path` abort was masked,
+and the harness row that matched only "Unassigned variable" passed through a
+different abort - it now rejects any SD runtime-error line. All three defects
+fixed together (lists -> 11, `old.path` set before phase 1, live VOC skipped
+by FL$PATH against @voc); bbcmp rc 0 with the BCOMP-only statements stubbed.
+New free guard `test-selectlists-units.py` (limits from sd.h, literal list
+numbers in gpl.bp): red on the six live 14/15 lines before the last edit, green
+after; no other program over the limit. Free tier 39/39.
