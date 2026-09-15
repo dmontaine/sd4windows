@@ -179,14 +179,39 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 63, 15 Sep 2026 — ***D2's FALLOUT IS FIXED IN SOURCE: TWO PRODUCT DEFECTS MEASURED AND FIXED, NINE TESTS MIGRATED. THE TREE IS STALE ON PURPOSE; A CYCLE AND `b162` ARE OWED.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 64, 14 Sep 2026 (late) — ***`b162` RAN ON THE FIXED INSTALL: ELEVATED 32/32, UNELEVATED 25/28. BOTH WRITE-THEN-DELETE FIXES AND D2's PREVENTION ARE WITNESSED. THREE MISSES FIXED IN SOURCE; A CYCLE AND A TARGETED RERUN ARE OWED.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | cycle 14 Sep 22:16 after a 22:14 reboot; `gpl.bp.out/CATALOG` and `WRITE_INSTALL_DICTS` 22:16, installed sources carry both fixes. **Stale again on purpose**: `CATALOG` changed after it |
+> | tokens | **`b162` spent — use `b163`** |
+> | ***witnessed in `b162`*** | **`verify-twins` 10/0** — D2's prevention (Handoff 62's item 1). **`verify-dictrename` 15/0** — `TYPE`/`@ID` planted alone, both `REPLACED`, `type`/`@id` still stored, count 17→17, control kept: the `WRITE_INSTALL_DICTS` fix. **`verify-callcase` G** printed `zzcl3a deleted from the local catalogue` *after* the second `CATALOG … LOCAL`: the entry survived — the `CATALOG` fix (before it, the entry was gone). **`verify-tiers` 5b** all rows: four stored-upper ids, UPDATE.ACCOUNTS, count 420→420, no 5028. `verify-lcnames`, `-vocidcase` (32/0), `-vocverbs` green |
+> | ***the three misses*** | (1) **`verify-promptenter` leg 5 hung** (killed at 40 s): `CATALOG`'s `check.local` asks 3033 for `call.name` and for `upcase(call.name)`, and on a NOCASE VOC both are the one record, so the question came twice and the second ate the script — **a D2 regression in CATALOG, fixed in source** (the pair only on a case-sensitive VOC). (2) **`verify-callcase` E/F read 0 rows** from `LIST VOC WITH @ID LIKE "zzcl3a"` for an entry that answered a call — an instrument miss, *likely* the `3a` in the id read as a pattern code (not confirmed); now `LIKE "zzcl..."` filtered to the exact id. (3) **`verify-dictfold` 2b**: CD writes the compiled item back under the name TYPED (`CD:302`, `:316`), so `CD … XTYPE` re-stored `xtype` as `XTYPE` — one record, 4 in all, cosmetic; the row now asserts no twin and no loss |
+> | free tier | 38/38 exit 0 after these edits |
+> | also corrected | this session had dated its work "15 Sep"; it is all 14 Sep 2026 |
+>
+> **Owed:** `cycle.ps1` **elevated**; then from an **ordinary unelevated** prompt the three steps; then **elevated** `verify-catgate`, because `check.local` runs for every CATALOG mode:
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Only verify-promptenter,verify-callcase,verify-dictfold
+> ```
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b163 -Only verify-catgate
+> ```
+> *Falsified if* leg 5 still hangs (the guard did not reach `check.local`), or callcase E/F still read 0 rows (the pattern-code guess is wrong — then read ids another way). When those pass, Handoff 62's item 4 (move D2 to done in RELEASE_1.1 5) is due; item 3, the upgrade harness, is still unstarted.
+>
+> *(Handoff 63 follows; its "owed" row is done — `b162` is above.)*
+
+> # ⇩⇩⇩ HANDOFF 63, 14 Sep 2026 — ***D2's FALLOUT IS FIXED IN SOURCE: TWO PRODUCT DEFECTS MEASURED AND FIXED, NINE TESTS MIGRATED. THE TREE IS STALE ON PURPOSE; A CYCLE AND `b162` ARE OWED.*** ⇩⇩⇩
 >
 > | | |
 > |---|---|
 > | install | `b160` (14 Sep 19:26) is still installed. `WRITE_INSTALL_DICTS` and `CATALOG` changed since, so `assert-current` refuses every verifier until the cycle |
 > | tokens | **`b161` spent — use `b162`** |
 > | owed, in order | a **reboot** (b161's VI2 sweep: 4 stuck hives survived; last boot 14 Sep 19:22, before `b160`); `cycle.ps1` **ELEVATED**; `VerifyInstall1.ps1 -ThenElevated -Run b162 -ContinueOnFailure` from an **ordinary unelevated** prompt. Commands below |
-> | ***observed today*** | **b161 deleted `$savedlists`, `$hold`, `$command.stack` from the owner's VOC** (lcnames' toggles) — probed MISSING, restored with CREATEA's contents, read back. **On a NOCASE file, write-new-then-delete-old deletes the record** (scratch file: 0 records). **A second `CATALOG bp x LOCAL` leaves no entry** (scratch probe). **`LIST … WITH @ID LIKE` prints the stored id; `@ID =` and CT echo the typed one.** Details: RELEASE_1.1 5, HISTORY 15 Sep, memory `nocase-write-delete-trap` |
+> | ***observed today*** | **b161 deleted `$savedlists`, `$hold`, `$command.stack` from the owner's VOC** (lcnames' toggles) — probed MISSING, restored with CREATEA's contents, read back. **On a NOCASE file, write-new-then-delete-old deletes the record** (scratch file: 0 records). **A second `CATALOG bp x LOCAL` leaves no entry** (scratch probe). **`LIST … WITH @ID LIKE` prints the stored id; `@ID =` and CT echo the typed one.** Details: RELEASE_1.1 5, HISTORY 14 Sep, memory `nocase-write-delete-trap` |
 > | fixed in source | `WRITE_INSTALL_DICTS` deletes first on a NOCASE dictionary (bbcmp rc 0); `CATALOG`'s upper-id probe runs only on a case-sensitive VOC (bbcmp cannot compile CATALOG — no `PROMPT`/`INPUT`; stubbed, HEAD and the fix stop at the same `INPUT` 9 lines apart, past the edit — BCOMP in the cycle is the check) |
 > | migrated, parse clean, never run against the fix | `verify-lcnames`, `-vocidcase`, `-callcase`, `-dictfold`, `-vocverbs`, `-promptenter`, `-tiers` 5b, `-dictrename` (rebuilt). `verify-twins` and `verify-nocase` unchanged from `40a829b`/`ded160b` |
 > | free tier | 38/38 exit 0, 37 s |

@@ -61386,7 +61386,7 @@ FILELOCK and SET.TRIGGER stubbed (all BCOMP-only, used the same way in CONFIGF),
 block-balanced, gosub targets present; but it has never RUN - no upgrade-path
 test exists, and sd.iss is not ISCC-compiled on this machine.
 
-## 15 Sep 2026 — D2's fallout: the suite damaged the owner's VOC, two write-then-delete defects, nine tests migrated
+## 14 Sep 2026 — D2's fallout: the suite damaged the owner's VOC, two write-then-delete defects, nine tests migrated
 
 Opened on "pull continue"; both repositories up to date. Handoff 62 called the
 b161 fallout cosmetic ("verbs echo the typed case"). Reading the b161 logs
@@ -61395,7 +61395,7 @@ showed it was not all cosmetic.
 **b161 deleted three records from the owner's own account.** verify-lcnames
 §5/5a/5b renamed a shipped VOC id by "write UPPER, delete lower"; on a NOCASE
 VOC that deletes the only record (`MOVED=UP`, then `MOVED=NONE`, `Error 8206
-creating $savedlists`, `OPENED=NO`). A read-only probe on 15 Sep found
+creating $savedlists`, `OPENED=NO`). A read-only probe on 14 Sep found
 `$savedlists`, `$hold`, `$command.stack` MISSING; restored (owner: yes) with
 CREATEA's contents by a throwaway program, each read back by CT.
 
@@ -61428,3 +61428,14 @@ vocverbs entry 5, promptenter 1-2 (lower name deletes an upper record, no
 prompt), tiers 5b (one stored-upper record per id, planted delete-first; rows
 require no loss), dictrename (rebuilt as WRITE_INSTALL_DICTS's witness; cleanup
 restores via upgrade-dicts, never by deleting a shipped name). Free tier 38/38.
+
+**b162, the same evening** (reboot 22:14, cycle 22:16): elevated 32/32 exit 0,
+unelevated 25/28. Witnessed: verify-twins 10/0 (D2 prevention); verify-dictrename
+15/0 (TYPE/@ID renamed, count 17 -> 17 - the WRITE_INSTALL_DICTS fix); callcase
+G deleted zzcl3a after the second CATALOG LOCAL (the CATALOG fix); tiers 5b 420
+-> 420. Misses: promptenter leg 5 hung - CATALOG check.local asked 3033 for both
+spellings, one record under D2, fixed in source; callcase E/F's `LIKE "zzcl3a"`
+listed 0 rows for a live entry (likely `3a` read as a pattern code, unconfirmed)
+- now `LIKE "zzcl..."`; dictfold 2b - CD writes back under the typed name, so
+XTYPE became the stored id (cosmetic), row now no-twin/no-loss. This session
+had misdated its own work "15 Sep"; corrected to 14 Sep before this commit.
