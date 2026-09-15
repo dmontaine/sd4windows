@@ -61360,3 +61360,28 @@ everything NOCASE, but an upgraded machine keeps its case-sensitive data files
 (upgrade invariant), so each needs CONFIGURE.FILE NO.CASE. That is
 upgrade-path-only, untestable by cycle.ps1, and large enough to keep apart
 from the witnessed core.
+
+## 14 Sep 2026 — the upgrade-conversion walk built (UPGRADE_NOCASE)
+
+Owner ruled the full walk, with a pre-check and a warning if duplicates are
+found. gpl.bp/UPGRADE_NOCASE walks the account register by path (not LOGTO, so
+it converts a VOC nobody is logged into; SDSYS's own live VOC is skipped).
+Phase 1 scans each file read-only for a case-only duplicate record id using a
+temporary NOCASE probe file (O(records), not the O(records^2) a sorted-insert
+would cost); a file holding a pair is NOT converted, it is named with every
+pair in the report, so no conversion can lose a record. Phase 2 rebuilds the
+clean files by path, mirroring CONFIGF's copy/swap. Indexed files are left for
+manual CONFIGURE.FILE - rebuilding an AK by path needs a BUILD.INDEX this walk
+cannot resolve.
+
+upgrade-nocase.ps1 (ships) drives it, writes the full report to
+C:\ProgramData\SD\nocase-upgrade.log, and exits 0 clean / 2 duplicates left /
+1 failure / 3 no server; Get-NocaseVerdict is unit-tested 14/14
+(test-upgradenocase-units.ps1). sd.iss RefreshNocase runs it after
+RefreshAccountVocs. Messages 10178-10186. Record ids only, never field data
+(owner confirmed).
+
+Checked, not witnessed: UPGRADE_NOCASE compiles fully under bbcmp with VOID,
+FILELOCK and SET.TRIGGER stubbed (all BCOMP-only, used the same way in CONFIGF),
+block-balanced, gosub targets present; but it has never RUN - no upgrade-path
+test exists, and sd.iss is not ISCC-compiled on this machine.

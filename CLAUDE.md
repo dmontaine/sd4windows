@@ -573,8 +573,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-privundetermined-units`, `test-elevonce-units`,
    `test-suitetranscript-units`, `test-basicfuncscov-units`,
    `test-promptdefaults-units`, `test-intrinsics-units.py`,
-   `test-voctwins-units.py`.
-   ***ALL THIRTY-SEVEN. Run these on
+   `test-voctwins-units.py`, `test-upgradenocase-units`.
+   ***ALL THIRTY-EIGHT. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
