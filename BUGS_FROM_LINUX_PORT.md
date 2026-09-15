@@ -3,8 +3,10 @@
 Found 10 Sep 2026 while auditing SD Core for Linux against this port and adopting
 its code. Each is a defect **in this (Windows) tree**. Linux fixed its own copy;
 the fix below is what was done there — **except 5**, added 11 Sep, which Linux has
-not built yet, **and 9**, added 15 Sep, which neither project has fixed. Nothing
-here has been run on Windows.
+not built yet. **9** (added 15 Sep) is now fixed on both: Linux built and
+witnessed TLS on `s19-tls` (merged to `main` @ `0d58171`, release witness 256/256);
+this port has it in source as RELEASE_1.1 41 (compiles clean, not yet cycled —
+see that entry). Nothing here has been run on Windows.
 
 | # | Where | Defect | Fix (as applied on Linux) |
 |---|---|---|---|

@@ -61566,3 +61566,36 @@ cleanup: `DELETE.FILE zzdlfile FORCE` could not remove the file the dead lock
 holds. Filed as RELEASE_1.1 37 with cause undetermined (§4's two candidates:
 `kill(pid,0)` at sdwind.c:262, or `sd -cleanup` leaving the slot). The script's
 NOT-REACHED text claimed the lock goes with the slot; corrected. Cycle owed.
+
+## RELEASE_1.1 41 — the API's TLS transport, ported from Linux S.19 (15 Sep 2026)
+
+Owner ruled TLS for the plaintext-API blocker and, asked about the client,
+ruled per-OS implementations acceptable as long as the clients talk to both
+Windows and Linux servers and the capability matches. Ported from
+SDCore4Linux `s19-tls` @ `0d58171` (merged to `main`; its release witness
+256/256, all TLS checks green — reported by that session).
+
+Server side (sd.exe), a faithful port: `sd_tls.c`/`sd_tlssrv.c` copied and kept
+POSIX (MSYS2 has poll/fcntl/pthread_sigmask/OpenSSL); `linuxio.c` forks the TLS
+relay after the peer capture and before bind_sysseg, ACK moved inside TLS;
+`op_skt.c` SKT$TLS client + cbind + TLS read/write/close; `op_sdext.c`
+SD_TLS_CBIND(110); keys.h + syscom/keys.h. BASIC `apisrvr` (GS2/c= follow the
+transport) and `sdclient` (open with SKT$TLS, bind login). Two Windows deltas,
+both recorded in RELEASE_1.1 41: the relay cannot drop to `nobody` (a fork()ed
+Cygwin child keeps its LocalSystem token — so the remote-API-as-LocalSystem gap
+is unchanged), and the identity owner/mode check is replaced by `win32tls.c`'s
+DACL walk (SYSTEM+Administrators only), since the MSYS2 mount is noacl.
+`secure-tls.ps1` sets that ACL at install (sd.iss [Run], stage.py ships it).
+
+Native client, a different implementation for the same wire: `gplsrc/sdclilib/
+sd_tls.{c,h}` (Winsock + OpenSSL, no signals), `sdclilib.c` routes the socket
+transport and SCRAM c= through it. OpenSSL is STATIC-linked so the DLLs stay
+single-file and copyable (VENDORING.md) — measured: both build clean and import
+only Windows system DLLs (64-bit 7.4 MB, 32-bit 6.7 MB, no libssl/libcrypto).
+
+Free guard `test-tlsconsts-units.py` (40th) pins the wire constants across the
+five files that must agree; 14/14, mutant-checked. All C `-fsyntax-only` clean;
+BASIC tokenizes in bbcmp pass1 (pass2 is the cycle's, bbcmp lacks echo/hush/
+writepkt/class). Deps installed on the dev box and added to setup-devbox:
+openssl-devel, mingw-w64-{ucrt-x86_64,i686}-openssl. NOT cycled, NOT witnessed
+on an install; a cycle and a capture/interop witness are owed (Handoff 72).

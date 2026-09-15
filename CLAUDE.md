@@ -574,8 +574,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-suitetranscript-units`, `test-basicfuncscov-units`,
    `test-promptdefaults-units`, `test-intrinsics-units.py`,
    `test-voctwins-units.py`, `test-upgradenocase-units`,
-   `test-selectlists-units.py`.
-   ***ALL THIRTY-NINE. Run these on
+   `test-selectlists-units.py`, `test-tlsconsts-units.py`.
+   ***ALL FORTY. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
@@ -831,6 +831,19 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `sd.h` and every literal list number in `gpl.bp`; nine fixtures decide each
    case, and a control requires the scan to find list uses at all. A list number
    held in a variable is not seen.
+
+   ***`test-tlsconsts-units.py` JOINED IT 15 Sep 2026 IN THE COMMIT THAT
+   CREATED IT (RELEASE_1.1 41, Linux S.19).*** The API's TLS wire contract is
+   one fact in five files — `gplsrc/sd_tls.h` and `gplsrc/sdclilib/sd_tls.h`
+   (binding bytes, exporter label, GS2 header, handshake ms) and the three key
+   numbers in `gplsrc/keys.h` and `sdsys/syscom/keys.h` (`SKT$TLS`,
+   `SKT$INFO.TLS.CBIND`, `SD_TLS_CBIND`) — kept in step by hand and cross-checked
+   by nothing the compiler runs. A drift is silent and interop-breaking: a
+   Windows client and a Linux server derive different bindings, or a renumbered
+   `SD_TLS_CBIND` reaches the wrong SDEXT arm. The values are **pinned to the
+   contract** (not read from one file as authority) so a drift on either the
+   Windows or the Linux side fails, and a control refuses the null case. Mutant:
+   one constant changed → red naming the file; restored → green.
 
    ***`test-stalebin-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT.*** It guards `gplbld/stale-binaries.ps1` — this script's own check A2,

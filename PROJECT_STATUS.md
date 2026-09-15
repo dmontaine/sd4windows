@@ -179,6 +179,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 72, 15 Sep 2026 — ***RELEASE_1.1 41 (API TLS, Linux S.19) IS IN SOURCE, COMPILES CLEAN, AND IS NOT YET CYCLED OR WITNESSED. OWNER RULED TLS AND ALLOWED PER-OS IMPLEMENTATIONS AS LONG AS CLIENTS TALK TO BOTH SERVERS.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | unchanged from Handoff 71 (fresh clean W1.1-0). **The TLS work is NOT installed** — a cycle is owed before anything is believed |
+> | tokens | none spent this session — **use `b166`** |
+> | ***in source, compiles*** | server: `gplsrc/sd_tls.{c,h}`, `sd_tlssrv.c`, `win32tls.c` (new) + edits to `linuxio.c` (relay start, ACK moved inside TLS, `api_tls_dir`), `op_skt.c` (SKT$TLS client, cbind, TLS read/write/close), `op_sdext.c` (SD_TLS_CBIND 110), `keys.h`. All `-fsyntax-only` clean. `gpl.src` + `Makefile` (`-lssl -lcrypto`) updated. BASIC `apisrvr`/`sdclient` + `syscom/keys.h` mirror. **Native client**: `gplsrc/sdclilib/sd_tls.{c,h}` (Winsock/OpenSSL) + `sdclilib.c` wired; `sdclilib/Makefile` static-links OpenSSL. Both DLLs built & verified **fully static single-file** (no libssl/libcrypto import). Installer: `secure-tls.ps1`, sd.iss [Run], stage.py. Free guard `test-tlsconsts-units.py` (40th, green, mutant-checked). changelog + setup-devbox (3 openssl pkgs) + this dev box (`pacman` installed) |
+> | ***the port's deltas from Linux*** | (1) relay does NOT drop to `nobody` — Windows fork()ed child keeps its LocalSystem token; **the remote-API-runs-as-LocalSystem gap is unchanged and is row 41's other half, unclosed**. (2) identity owner/mode check → `win32tls.c` DACL walk (SYSTEM+Administrators only). (3) client uses static OpenSSL, not Schannel, to stay single-file |
+> | ***owed, in order*** | 1. **a cycle** (`cycle.ps1`, elevated) — it rebuilds C, compiles BASIC (BCOMP is the real check for `apisrvr`/`sdclient`; bbcmp only reached pass1), builds the installer, installs. Read the staged `usr\bin` after: does `dll_closure` copy OpenSSL's MSYS2 DLLs beside `sd.exe`? (expected, unmeasured). 2. **a live witness**: a packet capture on 4243 during an API read shows nothing readable; a client that does not encrypt is refused; a **Windows client against a Linux server** and vice-versa. Linux's witness §13i is the model. 3. uninstaller removal of `sd-tls` (ties to finding 38) |
+> ```powershell
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+> *(elevated PowerShell.)*
+>
+> *(Handoff 71 follows; its version/blocker state stands, and RELEASE_1.1 39 remains item-5's gate independent of this.)*
+
 > # ⇩⇩⇩ HANDOFF 71, 15 Sep 2026 (late) — ***THE VERSION IS W1.1-0 IN SOURCE AND THE REAL-UPGRADE TEST FOUND A REAL BLOCKER: A W1.0-0 → W1.1-0 UPGRADE HANGS ON THE OLD QM PER-LOGIN PROMPT (RELEASE_1.1 39). ITEM 5 IS GATED ON FIXING 39.*** ⇩⇩⇩
 >
 > | | |
