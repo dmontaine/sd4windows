@@ -179,6 +179,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 65, 14 Sep 2026 (late) — ***THE INSTALL IS CURRENT (22:54:54) AND EVERY STEP D2 TOUCHED IS GREEN. D2's PREVENTION IS DONE. NOTHING IS OWED EXCEPT THE UPGRADE HARNESS (NOT STARTED).*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | 14 Sep 22:54:54; `assert-current` matched source in both runners (CATALOG's `check.local` guard included) |
+> | tokens | **`b163` spent — use `b164`** |
+> | ***witnessed*** | `VerifyInstall1 -Only verify-promptenter,verify-callcase,verify-dictfold`: **61/0, 22/0, 24/0** — leg 5's 3033 run terminated and Enter kept the local entry; callcase E and F read `zzcl3a` (1 row) through `LIKE "zzcl..."`, one entry after re-cataloguing; dictfold 2b one `XTYPE` row, 4 records. `VerifyInstall2 -Run b163 -Only verify-catgate`: **33/33**. With `b162`'s 32/32 elevated and 25/28 unelevated, every step is now green on this or the previous install of the same C |
+> | residue | `verify-catgate` left `SDCATGB163`'s ACCOUNTS register record — the known `-Only` register-residue class (Handoff 58); `verify-registersweep` clears it on the next full run |
+> | open | **5**: D2's upgrade-conversion walk has no harness and has never run (Handoff 62 item 3), then 3b; **7**, **18**; recorded, not fixed: `COPY … OVERWRITING DELETING` case-only rename, 6131 unreachable |
+>
+> *(Handoff 64 follows; its "owed" is done.)*
+
 > # ⇩⇩⇩ HANDOFF 64, 14 Sep 2026 (late) — ***`b162` RAN ON THE FIXED INSTALL: ELEVATED 32/32, UNELEVATED 25/28. BOTH WRITE-THEN-DELETE FIXES AND D2's PREVENTION ARE WITNESSED. THREE MISSES FIXED IN SOURCE; A CYCLE AND A TARGETED RERUN ARE OWED.*** ⇩⇩⇩
 >
 > | | |

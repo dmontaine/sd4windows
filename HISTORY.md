@@ -61439,3 +61439,8 @@ listed 0 rows for a live entry (likely `3a` read as a pattern code, unconfirmed)
 - now `LIKE "zzcl..."`; dictfold 2b - CD writes back under the typed name, so
 XTYPE became the stored id (cosmetic), row now no-twin/no-loss. This session
 had misdated its own work "15 Sep"; corrected to 14 Sep before this commit.
+
+**Closed the same night** (cycle, install 22:54:54): `-Only` reruns green -
+promptenter 61/0 (3033 asked once, Enter kept the entry), callcase 22/0,
+dictfold 24/0, catgate 33/33 (`b163`). D2's prevention is done; its upgrade
+walk still has no harness and has never run.
