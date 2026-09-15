@@ -61551,3 +61551,18 @@ was `ZZDLREC` and the probe compared `s<1,5> = 'zzdlrec'`. Fix: `upcase()` on
 the compare, and every lock row is now printed (`OTHER-LOCK ...`) whether it
 matches or not, so a miss shows what was there. Parse 0 errors / 5 functions,
 no BOM; bbcmp on the probe rc 0. Not yet rerun.
+
+## 15 Sep 2026 — verify-deadlock run 3: killed the holder, lock and slot outlived it (RELEASE_1.1 37)
+
+Elevated, 01:20. Exit 2 "not reached", 10 passed 1 failed, a session killed.
+Instrument green: `LOCK user=66 type=RU name=[Don]`, `seen=1`, one new sd.exe
+(13464), killed by PID. Then 18 probes over 5 m 45 s all printed the same line:
+the slot stayed mapped and the lock stayed held; `(gone)` never appeared, so
+item 7's fixed line is still unwitnessed. `sdwind` up since 00:55:55, so its
+five-minute action (sdwind.c:213) fell at 01:25:55 by derivation, inside the
+window, and changed nothing; errlog has nothing after 00:56. No Forced logout
+(22 Aug's symptom did not recur); WHO answered afterwards. The one FAIL row is
+cleanup: `DELETE.FILE zzdlfile FORCE` could not remove the file the dead lock
+holds. Filed as RELEASE_1.1 37 with cause undetermined (§4's two candidates:
+`kill(pid,0)` at sdwind.c:262, or `sd -cleanup` leaving the slot). The script's
+NOT-REACHED text claimed the lock goes with the slot; corrected. Cycle owed.
