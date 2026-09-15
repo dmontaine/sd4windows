@@ -61537,3 +61537,17 @@ appeared; own transcript file. bbcmp lacks SLEEP (stubbed, rc 0).
 **b165**: `VerifyInstall2 -Only verify-pyapi` 19/19, run twice - the list leg
 (create 0, append 0, read back SDPY-42, type list, never-created control empty)
 witnesses PY_LISTCREATE.
+
+## 15 Sep 2026 — verify-deadlock, second run: holder works, probe missed the lock (case)
+
+Run elevated, 01:16, no cycle first (install still 00:30:17, assert-current
+matched). Exit 2, nothing killed. The rebuilt holder did its job: HOLD=LOCKED,
+held through the 60 s poll, released only by the zzdlrelease record. The probe
+printed `PROBE-DONE locks=1 seen=0` and the instrument check refused.
+
+Cause: `op_lock.c:630` upper-cases the id on a DHF_NOCASE file before it enters
+the lock table, and since D2 every hashed file is NOCASE, so GETLOCKS field 5
+was `ZZDLREC` and the probe compared `s<1,5> = 'zzdlrec'`. Fix: `upcase()` on
+the compare, and every lock row is now printed (`OTHER-LOCK ...`) whether it
+matches or not, so a miss shows what was there. Parse 0 errors / 5 functions,
+no BOM; bbcmp on the probe rc 0. Not yet rerun.
