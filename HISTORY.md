@@ -61898,3 +61898,56 @@ one: they read NONE CYCLED and NEXT - ONE CYCLE while the 01:43:55 cycle had
 carried all three. Corrected by measuring the installed tree, not by choosing
 between the two documents (commit a5ec534). A cycle is owed again, for the new
 sd.iss alone.
+
+## 16 Sep 2026 (later still) - 38, 50 and 51 witnessed; the instrument was wrong twice
+
+Install 11:53:16 (cycle-20260916-115222.log, CYCLE COMPLETE, its own
+assert-current matching source). No run token spent; b167 is still unspent.
+
+Built for it: gplbld/verify-uninstallchoices.ps1, which snapshots the machine
+before an uninstall and judges it after against the combination chosen, and
+test-uninstallchoices-units (61/61). Every case these two entries needed is an
+interactive uninstall - UninstallSilent is what suppresses the prompts - and
+each costs a reinstall before the next can start, so the decision was the only
+part that could be exercised cheaply, and it is the part that can be silently
+wrong. Six wizards and five uninstalls, run by the owner.
+
+38, all four clauses: /VERYSILENT removed neither (silentkeep 6/6), the two
+questions were offered separately on every interactive run, keep-database and
+delete-config (6/6), and delete-database and keep-config (7/7), whose decisive
+row is that the folder holds sd.conf ALONE rather than merely still holding it.
+
+50, both instances: deldb-delacct 6/6 removed a real SD-created account and
+kept the installing user, with the sweep log naming the candidate set it read
+against 00:52's "there is no sdusers group here"; treeabsent 4/4 showed the
+accounts question being offered on the tree-absent branch, where before the fix
+there was no dialog at all.
+
+51 on a real W1.0-0 to W1.1-0 upgrade at 11:48:39: exit 0, COMPLETE,
+trouble=False, no "exclusive access" line, with the holder condition present.
+Its PREDICTED count did not hold - 8 of 17 against a predicted 10 of 19 - and
+that is recorded as unexplained rather than explained away. Account count was
+the hypothesis and the measurement killed it: 2 accounts either way. The skip is
+by name so it accounts for one file, not three. The 01:11 log went with its
+tree and cannot be recovered.
+
+THE INSTRUMENT WAS WRONG TWICE AND BOTH WERE CAUGHT BY RUNNING IT, WHICH IS THE
+PART WORTH KEEPING. The route-group row was backwards: RemoveSdGroups is called
+above the UninstallSilent guard but carries its own (sd.iss:5158, the owner's
+2 Sep ruling that silent deliberately leaves all three). The row was inverted
+rather than deleted, so it now pins the ruling both ways. And -Check died with
+"Access is denied" on the tree deldb-keepconf leaves behind, because read access
+came through sdusers and the uninstall deleted it while DelTreeExceptOne keeps
+the folder ACL by design. The crash was the harmless half: Test-Path answers
+"absent" for a denied file, so the verdict would have been confidently wrong
+rather than missing - RELEASE_1.1 50's own shape, arriving inside the
+instrument built to witness it.
+
+Two list omissions, both found by running the cheap check rather than by
+thinking: the new units test was missing from assert-current's $neverShipped,
+and the litter sweep had no stem for the throwaway account, which no runner
+composes. CLAUDE.md's free tier now reads forty-two, and its claim that these
+need no install is corrected for test-sysmsg-units, which reads the installed
+messages directory and refuses without one.
+
+Open 1.1 rows: 7, 37, 40, 43, 47, 48, 49.

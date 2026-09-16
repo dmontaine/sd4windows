@@ -858,6 +858,22 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    contract (no password → 2, commands without account → 2, `--no-tls` to a
    dead port is never a pass). No SD, install, elevation or server.
 
+   ***`test-sysmsg-units` NEEDS THE INSTALLED TREE, AND THIS LIST SAYS THESE
+   NEED NO INSTALL — MEASURED 16 Sep 2026, IN BOTH OF THE WAYS IT CAN FAIL TO
+   GET ONE.*** It reads `C:\ProgramData\SD\sdsys\messages`. **Run between an
+   uninstall and the next install** it exits **2**, *"is not there"* — the
+   refusal working, the `test-sdpy-units` shape above rather than a new one.
+   ***RUN FROM A SHELL OLDER THAN THE LAST CYCLE IT USED TO EXIT 1 WITH A STACK
+   TRACE***, because `Test-Path` **throws** on a directory the token may not
+   read, and a check that cannot look was scoring as a check that failed. **A
+   cycle recreates `sdusers` with a new SID and Windows fixes group membership
+   at sign-in**, so any session older than the install holds none of the SIDs
+   the new ACLs grant (PRE_RELEASE 182; `assert-current` already reported this
+   condition by name, which is how it was recognised). Both now exit **2** and
+   the denied one names the cure. **Read an exit 2 from this script as "no tree
+   to measure", never as a failing check** — and if the tier is run on a torn
+   down machine, that is the one row expected to say so.
+
    ***`test-uninstallchoices-units` JOINED IT 16 Sep 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 38 and 50).*** It drives the two decisions inside
    `gplbld/verify-uninstallchoices.ps1`, and it exists because **every row that
