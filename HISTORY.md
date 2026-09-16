@@ -61641,3 +61641,18 @@ line. `verify-delaccount` always passed the keyword; this file now says `NONE`
 nothing; it now lists what it removed.
 
 Rows 44 and 45 struck; changelog entries for both; Handoff 72 gained a row.
+
+## RELEASE_1.1 42 — witnessed, `-Run b166` (15 Sep 2026, 20:53)
+
+`VerifyInstall2 -Run b166 -Only verify-peerlog,verify-scramlogin,verify-apiidentity`
+on the 20:39 install, owner's elevated terminal; `-Only` added
+`verify-registersweep` because two steps create accounts. 4 of 4 exit 0.
+`verify-peerlog` 21/21 with no change, as the entry predicted. `verify-scramlogin`
+43/43: probe proven first (20/20), then every row landed on the message the
+entry named — the three new ones (wrong binding 5272@48, `n,,` over TLS
+5272@47, plaintext no ACK) and `--replay` 5272@48. `verify-apiidentity`'s one
+probe run opened ALLOW and USER-ONLY, was refused DENY (3001), and `ZZAPI` came
+back owned by `ace\sdapiidb166`. `registersweep` found the register already
+clean: scramlogin removes its Windows user then restarts SD, and the service
+start's sweep took the dead record — the sweep working, not a gap. Row struck;
+Handoff 72 item 3 done; next token `b167`. Nothing user-visible, so no changelog.
