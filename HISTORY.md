@@ -61741,7 +61741,8 @@ Both open sites now fall back only when `process.os_error` is `EACCES` or
 `EROFS`; any other failure stays `DHE_FILE_NOT_FOUND`. `OSError` is `errno`
 (`sddefs.h:278`) and `dio_open` records it in `process.os_error`; EACCES/EROFS
 reach `dh_open.c` through its includes (checked). `gcc -fsyntax-only` clean. The
-witnessed DACL path is unchanged, so `verify-vocwrite` should still be 7/7; a
-re-cycle and re-run are owed to re-witness on current source. This is the
-peer-review half of the two-agent setup working: the defect was in a branch no
-witness on either port reaches, and only reading the diff caught it.
+witnessed DACL path is unchanged. Re-cycled 23:57 and re-witnessed
+`verify-vocwrite -Prefix sdvocw2` 7/7 on the fresh install - no regression, 46
+fully closed on current source. This is the peer-review half of the two-agent
+setup working: the defect was in a branch no witness on either port reaches, and
+only reading the diff caught it.
