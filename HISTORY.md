@@ -61805,3 +61805,77 @@ Structurally balanced (the whole if-block gone, outer if/else intact). NOT
 compile-witnessed - bbcmp aborts at login:348's `input yn`, well before the
 edit, so the cycle's BCOMP is the compile witness. Owed: a cycle, then item 5's
 real-upgrade witness (now unblocked). Row 39 stays open until cycled + witnessed.
+
+## 16 Sep 2026 - RELEASE_1.1 39 and item 5 witnessed on a real upgrade; 38's premise was false; 50 and 51 found and fixed
+
+Owner ran the cycle while switching accounts, and it compiled 39 (Compiling
+gpl.bp login, $login added to global catalogue; gcat/$login 00:30 newer than the
+installed gpl.bp/login 00:28, so the catalogue object was rebuilt rather than
+carried over). Install 00:31:49, CYCLE COMPLETE, assert-current clean.
+
+39 DONE. The real W1.0-0 to W1.1-0 upgrade ran in about 19 seconds end to end -
+install-editors 01:11:23, sdsvc 01:11:32, upgrade-dicts 01:11:37, upgrade-voc
+01:11:38, nocase 01:11:41, adopt 01:11:42 - against roughly five minutes per
+step and then failure before the fix, with no log mentioning 5025/5026 or a
+timeout. The walks did real work rather than merely finishing: upgrade-voc
+reported "2 account(s) reported updated, 2 'Updating' line(s), 2 registered",
+which is PRE_RELEASE 70's three-way agreement, and upgrade-dicts wrote and
+compiled 78 records. One clause is still unmeasured and is recorded as such: an
+ordinary interactive login not prompting.
+
+Item 5 DONE, verify-realupgrade -Compare 11/11. All three things
+verify-nocaseupgrade names as out of reach were measured: RefreshNocase firing
+on a real DataTreeUpgrade, the live SDSYS VOC skip when that VOC is genuinely
+case sensitive (left at NOCASE=0, 431 records to 431, sentinels intact), and a
+hashed file converting losslessly (fred,jack surviving a -ceq compare).
+
+THREE INSTRUMENT DEFECTS, NONE OF THEM THE PRODUCT, all in verify-realupgrade's
+own harness and each refusing with exit 2 rather than scoring a false green -
+which is the only reason any was visible. (1) The probe compared VOC ids to
+'WHO' and 'LOGIN' exactly, and a real pre-D2 VOC stores them lower case, so that
+check could never pass on the one tree it was written for; confirmed by reading
+who and login in voc_template and newvoc. (2) verify-realupgrade.ps1 was missing
+from assert-current's $neverShipped, so editing it turned the tree STALE and
+offered a full cycle MID-RUN - which would have destroyed the pre-D2 tree and
+the snapshot taken against it. The directory was swept again; it is still the
+only omission. (3) The COMPLETE anchor was blind to the "  | " gutter the driver
+relays SD's report through, so it said "no COMPLETE line" while the row beneath
+passed with Converted=10; two checks over one log contradicting each other was
+the tell.
+
+RELEASE_1.1 38'S PREMISE WAS FALSE AND THE ROW SAID "NEVER BUILT" FOR A DAY.
+Both removal prompts already existed and shipped in W1.0-0 - the v1.0-0 tag
+carries "Remove the SD Core database?" and "Remove the Windows accounts SD Core
+created?", both via KeepOrDelete with Keep as the default button, both below
+"if UninstallSilent then Exit". The owner ran unins000.exe interactively, both
+appeared, Delete removed the tree (sd-remove-database.log: database DELETED
+00:52:43). His earlier report that no options were offered was correct
+BEHAVIOURALLY and is explained: the documented teardown runs /VERYSILENT, which
+suppresses both by design. What was actually missing was separability - sd.conf
+is destroyed inside DelTree(DataPath) - and that is what was built. Owner took
+38 off deferral and raised it S to B; the 1.0 installer is not to be touched, it
+has shipped.
+
+50 (B), found by that uninstall. Choosing Delete on the database ran
+RemoveSdUsersGroup (sd.iss:5369) before the Windows accounts sweep (:5400), and
+sdusers membership is that sweep's ONLY candidate set (remove-sdaccounts.ps1:22,
+:91), so the accounts question could never remove anything - and the script
+reported success on a set it had never enumerated ("There is no sdusers group
+here", "SD created no accounts on this machine"). Benign on this machine, since
+Don was adopted rather than created and -Keep excludes him, but latent: on a
+machine with SD-created accounts, Delete+Delete leaves them enabled with the ssh
+ForceCommand already removed, which is verbatim the harm PRE_RELEASE 39 exists
+to prevent. The ordering fix needed the accounts block lifted into
+OfferAccountRemoval first - it ends in three early Exits that belonged to the
+caller while it sat inline, so nothing could be sequenced after it.
+
+51 (S). upgrade-nocase cannot lock $ipc because the installer starts the service
+five seconds before the walk (sdsvc.log 01:11:32, walk 01:11:37), so every
+upgrade reported FAILED - file trouble, and the remedy sd.iss prints meets the
+same running service and fails identically. $ipc is now skipped like the live
+VOC; converting it would buy nothing, since it holds runtime records keyed by
+session rather than ids anyone types.
+
+38, 50 and 51 are built, cycled (install 16 Sep 01:43:55, CYCLE COMPLETE,
+assert-current clean) and NOT YET WITNESSED. Their witnesses are interactive by
+design, since UninstallSilent is what skips the prompts.
