@@ -61746,3 +61746,23 @@ witnessed DACL path is unchanged. Re-cycled 23:57 and re-witnessed
 fully closed on current source. This is the peer-review half of the two-agent
 setup working: the defect was in a branch no witness on either port reaches, and
 only reading the diff caught it.
+
+## RELEASE_1.1 41 closed on the interop witness; finding 38 deferred (16 Sep 2026, owner decisions)
+
+**41 (option A).** The owner accepted the two interop runs as the live TLS
+witness rather than pursue a byte-level packet capture. Rationale recorded on
+the row: a TLS 1.3 handshake that completes with the server signature verified
+is by construction an encrypted channel — plaintext cannot cross it — and both
+directions completed across a real network (Windows→Linux and Linux→Windows,
+15 Sep, mutual signature), corroborated by verify-apiport, every probe's `wire`
+line, and the `--no-tls` no-ACK control. The literal local capture stays a dead
+end (pktmon sees only loopback drops) and a remote-peer NIC capture is blocked
+by the no-credentials-in-mail rule; verify-apiwire is kept for a future remote
+capture if ever wanted, but is no longer owed. Row 41 struck.
+
+**Finding 38 (option 2).** The uninstaller opt-in removal (accounts/database and
+config, both default-keep, silent never deletes; sd-tls removed only with the
+accounts) is deferred to the 1.1 uninstaller pass. It is S, not a blocker: the
+only gap today is that a clean removal needs a manual `Remove-Item
+C:\ProgramData\SD`. The design is settled and ready to build when that pass is
+taken up. Row 38 stays open, annotated as deferred.
