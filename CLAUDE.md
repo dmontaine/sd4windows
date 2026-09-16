@@ -575,8 +575,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-promptdefaults-units`, `test-intrinsics-units.py`,
    `test-voctwins-units.py`, `test-upgradenocase-units`,
    `test-selectlists-units.py`, `test-tlsconsts-units.py`,
-   `test-scramprobe-units.py`.
-   ***ALL FORTY-ONE. Run these on
+   `test-scramprobe-units.py`, `test-uninstallchoices-units`.
+   ***ALL FORTY-TWO. Run these on
    every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
    thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
    for thirty-two; the set got one longer and the wall clock did not, so do not
@@ -857,6 +857,23 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `verify-apiport` otherwise only proves live), and checks the exit-code
    contract (no password → 2, commands without account → 2, `--no-tls` to a
    dead port is never a pass). No SD, install, elevation or server.
+
+   ***`test-uninstallchoices-units` JOINED IT 16 Sep 2026 IN THE COMMIT THAT
+   CREATED IT (RELEASE_1.1 38 and 50).*** It drives the two decisions inside
+   `gplbld/verify-uninstallchoices.ps1`, and it exists because **every row that
+   verifier judges costs an INTERACTIVE UNINSTALL** — `UninstallSilent` is what
+   suppresses the prompts, so the thing under test cannot be reached without a
+   person pressing a button, and each case then costs a reinstall before the
+   next one can start. ***THE ROW IT PROTECTS IS THE ONE NO STATE CAN SETTLE***:
+   on the tree-absent path `sdusers` goes whether or not the accounts question
+   was ever shown, so a verdict drawn from the machine alone would have passed
+   on the **unfixed** build — the operator's answer is required rather than
+   inferred, and an unanswered one is not read as yes. **It asserts the
+   partition** by reading the case names out of the script's own `ValidateSet`,
+   so a sixth case cannot appear without somebody giving it both a precondition
+   and a verdict. **Mutant control on a COPY**, never the live file: the
+   observation row was deleted from a sandbox copy, the guard stopped failing on
+   `-Saw no`, and the live script was asserted unchanged in the same run.
 
    ***`test-stalebin-units` JOINED IT 3 Sep 2026 IN THE COMMIT THAT CREATED
    IT.*** It guards `gplbld/stale-binaries.ps1` — this script's own check A2,
