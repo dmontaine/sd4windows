@@ -61712,3 +61712,14 @@ STALE, needs the owner's cycle then the elevated run. changelog carries it
 (user-visible: ordinary accounts could not write their own files over API/ssh).
 verify-apiwire kept as the wire tool; not the 46 witness because its loopback
 capture control exits 2 before a verdict.
+
+## RELEASE_1.1 46 witnessed: fix (a) works (15 Sep 2026, 23:41)
+
+Cycle 23:36:18 installed the dh_open change (`sd.exe` `4E9AA01A...`,
+assert-current green live). `verify-vocwrite -Prefix sdvocw1` 7/7: as a non-admin
+PROGRAMMER account over the API, `WRITE VOC ZZVOCTEST: WRITTEN` and `WRITE ZZVOCW
+ZZREC: WRITTEN`, no 3018, both read back (`CT` → the markers), with `voc\%0` and
+`zzvocw\%0` still owned by `ace\Don`. So the real open honoured the DACL where
+`access()` refused — the fix works and does not over-grant (a DACL that denied
+would still fall back to read-only). Row 46 struck; changelog carries it; next
+token `b167`. Parity FYI to Linux (they offered to take fix (a)) now sendable.
