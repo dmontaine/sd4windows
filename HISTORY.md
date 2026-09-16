@@ -61723,3 +61723,25 @@ ZZREC: WRITTEN`, no 3018, both read back (`CT` → the markers), with `voc\%0` a
 `access()` refused — the fix works and does not over-grant (a DACL that denied
 would still fall back to read-only). Row 46 struck; changelog carries it; next
 token `b167`. Parity FYI to Linux (they offered to take fix (a)) now sendable.
+
+## RELEASE_1.1 46: fix (a) refined after a Linux code review (16 Sep 2026, 00:10)
+
+Linux declined to take (a) for 1.1 (their `access()` is truthful, and they log
+it in `PORT_ADOPTION.md` rather than diverge silently) and, reviewing the diff,
+flagged a real asymmetry: my fallback fired on ANY `DIO_UPDATE` failure, so a
+non-permission failure — a transient sharing violation, or fd exhaustion
+`dio_open` could not retry away — would open the file silently read-only and
+surface only as a 1431 later, away from the cause. On the Windows DACL case the
+fallback is right (the update failure is the `noacl` lie); on any other failure
+it turns a precise error into a forgiving one. An argument from the code, not a
+run — they were clear they had not reached the path, and neither had my witness,
+which only exercises EACCES.
+
+Both open sites now fall back only when `process.os_error` is `EACCES` or
+`EROFS`; any other failure stays `DHE_FILE_NOT_FOUND`. `OSError` is `errno`
+(`sddefs.h:278`) and `dio_open` records it in `process.os_error`; EACCES/EROFS
+reach `dh_open.c` through its includes (checked). `gcc -fsyntax-only` clean. The
+witnessed DACL path is unchanged, so `verify-vocwrite` should still be 7/7; a
+re-cycle and re-run are owed to re-witness on current source. This is the
+peer-review half of the two-agent setup working: the defect was in a branch no
+witness on either port reaches, and only reading the diff caught it.
