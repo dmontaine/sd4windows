@@ -61688,3 +61688,27 @@ recommended fix (a): open-for-update in `dh_open` instead of `access()`. Linux
 parity asked (message sent), not assumed. verify-apiwire moved its wire write to
 a DIRECTORY file (a known plaintext is all it needs) and reads the record back
 off the disk as well as through CT.
+
+## RELEASE_1.1 46 fix (a) built: dh_open opens for update instead of asking access() (15 Sep 2026)
+
+Owner chose fix (a). `dh_open.c` decided a hashed subfile read-only from
+`access(pathname, W_OK)`, which under the `noacl` MSYS2 mount grants write to
+the file's owner only — so an account's own user was refused writes to files SD
+created as the elevated administrator. Both open sites (`%0` primary, `%1`
+overflow) now try `dio_open(DIO_UPDATE)` and fall back to `DIO_READ`+`read_only`
+only if that fails, honouring the real DACL the way a DIRECTORY-file open
+already did. `process.os_error` is saved/restored across a fallback; the
+overflow honours an already-set `read_only`; both preserve the old
+`DHE_FILE_NOT_FOUND` path when the file cannot be opened at all. Linux's caveat
+— `access()` uses the real uid, `open()` the effective, which differ on Windows
+because the S4U session moves only the effective — is a code comment.
+`gcc -fsyntax-only` with the `sd:` flags: 0 warnings.
+
+Witness `gplbld/verify-vocwrite.ps1` written (standalone, elevated, on
+`$neverShipped`): a non-admin PROGRAMMER account writes its own VOC and an
+admin-created DATA file over a real API session, scored WRITTEN with a 3018
+disqualifier and a read-back, `%0` owners printed. Not run — C change, tree
+STALE, needs the owner's cycle then the elevated run. changelog carries it
+(user-visible: ordinary accounts could not write their own files over API/ssh).
+verify-apiwire kept as the wire tool; not the 46 witness because its loopback
+capture control exits 2 before a verdict.
