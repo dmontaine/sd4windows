@@ -61879,3 +61879,22 @@ session rather than ids anyone types.
 38, 50 and 51 are built, cycled (install 16 Sep 01:43:55, CYCLE COMPLETE,
 assert-current clean) and NOT YET WITNESSED. Their witnesses are interactive by
 design, since UninstallSilent is what skips the prompts.
+
+## 16 Sep 2026 (later) - 50's second instance, found by reading the fix back
+
+RELEASE_1.1 50's entry claimed RemoveSdUsersGroup now ran last "on both paths".
+OfferAccountRemoval had exactly one call site and the tree-absent branch of
+CurUninstallStepChanged still went straight to RemoveSdUsersGroup and Exit, so
+on that path the accounts question was never offered and the sweep's only
+candidate set was destroyed with nobody asked. It is the worse of the two
+paths: RemoveSdGroups above it has already taken sdsshonly. Now offered there
+too, silent-guarded on its own because the UninstallSilent test below that
+branch is unreachable from inside it (commit 19833a8). Trap recorded in the
+comment: {app} inside an Inno Pascal { } comment ends the comment at its own
+closing brace - caught before ISCC saw it.
+
+The handoff rows had also gone stale against the paragraph directly above this
+one: they read NONE CYCLED and NEXT - ONE CYCLE while the 01:43:55 cycle had
+carried all three. Corrected by measuring the installed tree, not by choosing
+between the two documents (commit a5ec534). A cycle is owed again, for the new
+sd.iss alone.
