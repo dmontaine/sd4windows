@@ -61766,3 +61766,19 @@ accounts) is deferred to the 1.1 uninstaller pass. It is S, not a blocker: the
 only gap today is that a clean removal needs a manual `Remove-Item
 C:\ProgramData\SD`. The design is settled and ready to build when that pass is
 taken up. Row 38 stays open, annotated as deferred.
+
+## The three pre-release tasks added; 18 merged into the documentation task (16 Sep 2026)
+
+The owner's three pre-release tasks (via the Linux mailbox, 15 Sep 18:12) are
+now tracked as RELEASE_1.1 47→48→49, sequential: 47 parity audit (once every
+other 1.1 row is closed; Linux's matching task is blocked on our "1.1 done"
+call) → 48 documentation updated with the 1.1 changes → 49 build the release
+staging directories and the zips. Row 18 (the bound-PDF `-ExecutionPolicy
+Bypass` re-bind) is merged into 48 on the owner's instruction — struck with a
+pointer, its analysis kept. Task 49 carries Linux's shared question: is a
+release zip a source snapshot (installer clones a tag) or an artifact the
+installer builds from — to settle with Linux before 48 documents an install
+procedure; the Windows installer is an .iss build of a staged tree, not a
+clone, so the shape differs. Also recorded the standing rule that items deferred
+to W1.2 are held out of the 1.1 open list; none of the current open rows are
+1.2. Open 1.1 rows now: 5, 7, 37, 38, 39, 40, 43, 47, 48, 49.
