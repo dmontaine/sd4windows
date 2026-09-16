@@ -61782,3 +61782,26 @@ procedure; the Windows installer is an .iss build of a staged tree, not a
 clone, so the shape differs. Also recorded the standing rule that items deferred
 to W1.2 are held out of the 1.1 open list; none of the current open rows are
 1.2. Open 1.1 rows now: 5, 7, 37, 38, 39, 40, 43, 47, 48, 49.
+
+## RELEASE_1.1 39 fix built: the per-login release prompt removed (16 Sep 2026)
+
+The old QM per-login release-mismatch prompt (5025/5026/5027) is removed from
+`login` (~1022-1050). It ran an unguarded `input` on the mode-0 path, so the
+installer's hidden upgrade sessions blocked on it until their driver timed out,
+failing every upgrade step. Owner chose "proceed silently" (not self-heal): on a
+mismatch LOGIN now falls through to Field 3; the installer's UPDATE.ACCOUNTS ALL
+(mode 4, update.voc) refreshes every account at upgrade, so there is nothing to
+prompt about.
+
+Two row corrections, both measured, per "a measurement beats a claim you read":
+(1) the prompt is login-ONLY - 5025/5026/5027's sysmsg calls are nowhere else,
+and login:1075's "See CPROC's copy" refers to the $command.stack read, not this
+prompt, so there is no CPROC copy; (2) $RETIRED does not apply - the wording lint
+requires a present replacement (it guards rewordings, not removals) and 5027's
+"Please answer Y or N" is shared with message 6602 (used by ed), so the phrases
+are left as-is and the messages stay for number parity with QM/Linux.
+
+Structurally balanced (the whole if-block gone, outer if/else intact). NOT
+compile-witnessed - bbcmp aborts at login:348's `input yn`, well before the
+edit, so the cycle's BCOMP is the compile witness. Owed: a cycle, then item 5's
+real-upgrade witness (now unblocked). Row 39 stays open until cycled + witnessed.
