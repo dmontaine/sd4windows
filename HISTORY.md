@@ -61617,3 +61617,27 @@ Free: `test-scramprobe-units` 20/20; mutants on scratch copies (big-endian
 fileno, wire search disabled, write after refused open) all red — the third
 first crashed with a traceback naming no row, so `quiet()` now reports
 exceptions as output. Not witnessed on an install; elevated `-Only` run owed.
+
+## RELEASE_1.1 44 and 45 — witnessed on the 20:39 install; the 10188 ELSE fired (15 Sep 2026)
+
+Picked up after the previous session ran out of credits with three commits
+unpushed and `verify-delacc-xref.ps1` written but never run. Pushed, then the
+owner cycled (20:39:02) and ran both witnesses from his terminal.
+
+**45** `verify-elevdoor`: unelevated 4/4 (20:40) — lands in DON, `LOGTO SDSYS`
+refused 10002, still DON; elevated 5/5 (20:44) — lands in SDSYS, `LOGTO DON`
+→ `DON from SDSYS`, `LOGTO SDSYS` back, audit line
+`LOGTO REFUSED account=SDSYS reason=session did not start elevated` and not an
+old-gate reason. Both rows 45 asked for, on one install.
+
+**44** `verify-delacc-xref -Prefix sddx2` (20:45, elevated): 3/3. Raw output
+has 10188 naming `sddx2b` before the confirmation, then the confirmation and
+`OS User: SDDX2A Deleted`; `accounts/SDDX2A` gone. This is the branch Linux
+warned (mailbox 19:30) had shipped there unexecuted; here it is measured.
+The first run (20:42) refused at step 1: `CREATE.ACCOUNT USER sddx2a PROGRAMMER`
+with no reach keyword gets 10082 and the piped password lands on the command
+line. `verify-delaccount` always passed the keyword; this file now says `NONE`
+(`af958fc`). Its cleanup also claimed "removed both" on a run that made
+nothing; it now lists what it removed.
+
+Rows 44 and 45 struck; changelog entries for both; Handoff 72 gained a row.
