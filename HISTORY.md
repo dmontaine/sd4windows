@@ -61656,3 +61656,35 @@ back owned by `ace\sdapiidb166`. `registersweep` found the register already
 clean: scramlogin removes its Windows user then restarts SD, and the service
 start's sweep took the dead record — the sweep working, not a gap. Row struck;
 Handoff 72 item 3 done; next token `b167`. Nothing user-visible, so no changelog.
+
+## RELEASE_1.1 46 found, and 41's local wire capture ruled a dead end (15 Sep 2026, 21:20–21:44)
+
+`verify-apiwire` was written for 41's last owed piece — a packet capture proving
+the API wire is ciphertext. Four runs settled two things.
+
+**The capture cannot be done on one box.** pktmon logs only DROP events on a
+loopback connection (header-only RSTs, `Packets total: 0` every run); Windows
+loopback does not cross a filterable NDIS component. A same-host LAN address is
+still loopback, so `-CaptureHost 192.168.0.2` (run 3) also captured nothing.
+The script's CONTROL — a plaintext marker that must appear in the capture —
+correctly refused rather than scoring an "absent" verdict on an empty capture.
+A literal server-side capture needs a remote peer (Linux→this server, pktmon on
+the NIC): a coordination item, owner's call. The encryption evidence that
+stands is the two interop runs (both directions, TLS 1.3, mutual signature) and
+every probe's `wire` line. The verifier is kept — it works against a remote
+peer, and its observation rows found the next entry.
+
+**RELEASE_1.1 46 (B).** The step-7 observation rows showed `voc\%0 owner:
+ace\Don` and, over the API as the account's own user, `WRITE VOC ZZWIRETEST:
+REFUSED ... 3018` (ER_RDONLY) and the same for a DYNAMIC file — while a
+DIRECTORY-file write with the identical ACL succeeded. `dh_open.c:120` sets a
+hashed file read-only from `access(W_OK)`, which under the noacl MSYS2 mount
+grants write to the file's OWNER only; CREATEA makes every `%0` as the elevated
+administrator and transfers no ownership (15 Aug), and the S4U session's euid is
+the user. So every non-admin account is refused every write to a hashed file it
+did not itself create — its own VOC included — over API and ssh alike, and no
+verifier caught it because every test session was the administrator. Filed 46,
+recommended fix (a): open-for-update in `dh_open` instead of `access()`. Linux
+parity asked (message sent), not assumed. verify-apiwire moved its wire write to
+a DIRECTORY file (a known plaintext is all it needs) and reads the record back
+off the disk as well as through CT.
