@@ -61951,3 +61951,11 @@ need no install is corrected for test-sysmsg-units, which reads the installed
 messages directory and refuses without one.
 
 Open 1.1 rows: 7, 37, 40, 43, 47, 48, 49.
+
+## 16 Sep 2026 (later still) - RELEASE_1.1 43 settled: option 3c is dead, the relay/session split is the direction
+
+probe-svcimp was finished and run four times, elevated, and answers 43's load-bearing question: a virtual service account CANNOT adopt a broker-minted token across fork() without SeTcb. Its seteuid refuses Win32 1314 (a required privilege is not held) with nothing granted, with SeAssignPrimaryToken+SeIncreaseQuota present, and with that pair ENABLED; only +SeTcb granted+enabled makes it carry - euid moves to the user, the adopted fork owns ace\Don, the plain-fork control owns NT SERVICE\sdprobe. SeTcb on the session is option 3a, "SYSTEM by another name," already rejected - so 3c is dead as designed. Two side questions closed with it: CW_SET_EXTERNAL_TOKEN returns 0 and is not the failure (the probe's old "< 0" check for it was dead code, cygwin_internal being unsigned; fixed to report the value), and uid stayed -1 even on the SeTcb success, so the runtime's non-mapping of the virtual service account was incidental, not the blocker - HANDOFF 75's live hypothesis is answered.
+
+Owner's decision, 16 Sep: split the relay from the session. The review finding is only that the relay parses unauthenticated bytes as LocalSystem; the relay never adopts, so it runs as a bare unprivileged account (the Linux nobody shape) and that closes the finding, while the authenticated session keeps SeTcb (LocalSystem as today, or a dedicated account). Not built.
+
+probe-svcimp.c/.ps1 are committed and added to assert-current's $neverShipped; the .exe stays gitignored. The verdict path had never run before this session, and reaching it exposed two bugs there, both fixed: Say did not accept -ForegroundColor, so the first successful adopt would have crashed the verdict AND left SeTcb granted on the account (Cleanup never reached); a script-scope trap now revokes on any terminating error. Open 1.1 rows unchanged: 7, 37, 40, 43, 47, 48, 49 - 43 stays open until the split is built.
