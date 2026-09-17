@@ -62628,3 +62628,34 @@ line - test-stemcoverage-units reads both with a regex that stops at the first
 close-paren and the first newline. The owner asked why a new script was being
 written; none was - the existing sweep was extended, and the census was a
 scratch file outside the repository.
+
+## 17 Sep 2026 - 54 ruled and built: SETPTR prints to a Windows printer, SENDMAIL refuses
+
+Owner, on "can sd print to the default windows printer": "using the default
+windows printer is what upstream open qm does i believe so that would be an
+acceptable solution, sendmail not being available is fine." Both halves of 54
+were system() calls to lpr/sendmail that returned 127 on the install (no
+/bin/sh, RELEASE_1.1 37's fact) and reported success.
+
+linuxprt.c spool_print_job() now fork/execls powershell.exe (path from the
+new sd_powershell_path() in op_sh.c, lifted from sh_execute so both callers
+find it the same way) with -NoProfile -NonInteractive -ExecutionPolicy Bypass
+-Command and a script that reads the job file and pipes it to Out-Printer
+once per copy - with -Name when SETPTR gave AT <printer>, without it for the
+user's default. It waits, and a non-zero exit is said on the terminal naming
+the printer or "the default printer ... is one set for this user?". Single
+quotes in a printer name are doubled by ps_quote(). lnx.c sdsendmail() sets
+ER_UNSUPPORTED and returns FALSE. BANNER, LANDSCAPE and the PRINTER option's
+form name are ignored, and 48's documentation has to say so.
+
+Not cycled and not witnessed. The witness is verify-print.ps1 (VerifyInstall2
+after createfilecase, prefix sdprn<Run>, declared in clean-test-profiles'
+$notProfiles): two Generic / Text Only printers on file-path local ports under
+C:\ProgramData\sdprint-<Prefix>, one made the user's default for the run and
+put back after; legs for AT <named>, the default, and a refusal to a printer
+that does not exist (the port files must not change). The harness itself is
+untried here: neither Add-PrinterPort on a path nor that driver has been
+exercised on this box, so the first run measures the harness as much as the
+product. Compiles clean with sd's flags; parse and BOM checks passed;
+test-stemcoverage, test-suiteonly, test-elevonce and the sweep's -SelfTest
+green.
