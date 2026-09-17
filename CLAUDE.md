@@ -577,10 +577,11 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-selectlists-units.py`, `test-tlsconsts-units.py`,
    `test-scramprobe-units.py`, `test-uninstallchoices-units`,
    `test-tlsrelay-units.py`, `test-installservice-units`,
-   `test-lcnameslegs-units`.
-   ***ALL FORTY-FIVE. Run these on
+   `test-lcnameslegs-units`, `test-kernelkeys-units.py`.
+   ***ALL FORTY-SIX. Run these on
    every change*** — **40 s for the whole set**, measured 16 Sep 2026 with the
-   forty-third in it, each in its own process. *(30 s was the 11 Sep figure for
+   forty-third in it, each in its own process. *(Forty-five measured 39–49 s on
+   17 Sep 2026; the forty-sixth costs 0.1 s.)* *(30 s was the 11 Sep figure for
    thirty-three and 32.6 s the 4 Sep figure for thirty-two; the set grows and
    the wall clock wanders, so do not read any of these numbers as a budget.
    `test-tlsrelay-units.py` drives `bin\sdtlsrelay.exe`, which `make sd`
@@ -878,6 +879,25 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    the denied one names the cure. **Read an exit 2 from this script as "no tree
    to measure", never as a failing check** — and if the tier is run on a torn
    down machine, that is the one row expected to say so.
+
+   ***`test-kernelkeys-units.py` JOINED IT 17 Sep 2026 IN THE COMMIT THAT
+   CREATED IT (RELEASE_1.1 55 slice 5), AND IT FOUND NOTHING ON ITS FIRST
+   RUN.*** A KERNEL() key's number lives in `gplsrc/keys.h` as `K_NAME` and in
+   `sdsys/gpl.bp/int$keys.h` as `K$NAME`, kept in step **by hand**, and nothing
+   the compiler runs compares them: BCOMP resolves the equate, `op_kernel.c`
+   switches on the C header, and ***a pair that disagrees COMPILES CLEANLY AND
+   CALLS THE WRONG KEY*** — the `test-intrinsics-units.py` shape, silent and
+   landing somewhere else. All 67 shared names already agreed, which is the
+   answer a guard over a hand-kept list wants on day one and is why **the
+   mutants are the rows that matter**: the equate drifted by one, the key added
+   to C only, and an undeclared new name, each red on its own row naming the
+   key, live files asserted unchanged by SHA-256. ***IT ASSERTS THE
+   PARTITION***: every name is shared-and-equal, a declared ALIAS
+   (`K$IS.SDVBSRVR` is the pre-rebrand spelling of `K_IS_SDAPISRVR`, same 25),
+   or a declared NON-KEY (`K$USERS.*` are field positions inside `K$USERS`'s
+   result; `K$LOGOUT` and `K$EXIT.ABORT` are other key spaces) — so a key
+   cannot be added to one file only, and a new non-key cannot appear without
+   somebody saying what it is. 0.1 s, no SD, install, elevation or cycle.
 
    ***`test-uninstallchoices-units` JOINED IT 16 Sep 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 38 and 50).*** It drives the two decisions inside
