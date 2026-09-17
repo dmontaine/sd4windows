@@ -179,7 +179,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> # ⇩⇩⇩ HANDOFF 78, 16 Sep 2026 — ***RELEASE_1.1 43: ITERATION 5 IS `ANSWERED (FULL)`, OWNER-ELEVATED — EVERY PIECE OF THE LINUX PER-CONNECTION SHAPE IS NOW MEASURED ON WINDOWS. AND THEN THE KEPT OBJECTION'S "REJECTED UNMEASURED" ALTERNATIVE WAS MEASURED AND IT WORKS: AN MSYS2 RELAY AT LOW IS NOT IMPOSSIBLE AFTER ALL. THE RUNTIME CHOICE IS REOPENED AND IS THE OWNER'S.*** ⇩⇩⇩
+> # ⇩⇩⇩ HANDOFF 79, 16 Sep 2026 — ***RELEASE_1.1 43: THE RELAY RUNTIME QUESTION IS CLOSED — NATIVE, AT LOW, PER CONNECTION — AND THE MECHANISM IS PROVEN END TO END. WHAT IS LEFT IS THE PRODUCT BUILD. DO NOT SPEND THIS SESSION ON PROBES.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | **16 Sep 11:53:16**, unchanged. ***NO PRODUCT SOURCE HAS CHANGED SINCE*** — this session and the last wrote probes, `$neverShipped` entries and the record only |
+> | tokens | `b167` **still unspent** — no cycle and no suite |
+> | git | all committed and pushed, `origin/main` at `cb35ba0` |
+> | free tier | **41 green + `test-sysmsg-units` exit 2**, four times. ***THAT IS THE DOCUMENTED NON-FAULT AND NOT 42/42***: a shell older than the 11:53 install is denied `sdsys\messages` (PRE_RELEASE 182). **`assert-current` refuses from such a shell too**, so staleness was never judged here — **a fresh shell, or the owner's, will judge it** |
+>
+> ***READ THE ⛔ BOX IN HANDOFF 78 BEFORE ANY RELAY WORK.*** The runtime was argued **fourteen** ways (3a, 3b, 3c, the split, attach-fd, `SCM_RIGHTS`, architecture B, native child, MSYS2-at-Low, iteration 5, relocated runtime, registered install, 2a, 2b) and the owner stopped it: *"we seem to be trashing between options."* **The closing constraint is the fd layer, not the runtime**: relocation forces a spawn, and a spawned Cygwin child adopts neither the socket (`EINVAL`) nor the pipe (`EBADF`), so the whole relay body is native Win32 whatever runtime it links — and "one shared source" was option 2's only purpose. **Only a measurement that a spawned Cygwin child CAN use an inherited socket or pipe as a Cygwin fd reopens it.**
+>
+> ***WHAT IS PROVEN, AND NEEDS NO REPEATING.*** `probe-relaydrop` iteration 5, owner-elevated, **`ANSWERED (FULL)`**: a LocalSystem parent S4U-mints a bare account, strips every privilege, drops to **Low**, and spawns a **native** child that waits on the **Cygwin-accepted, non-blocking** socket with `WSAPoll` (1500 ms, `revents=0x100`), reads it, answers on it, and exchanges bytes both ways over two Cygwin `pipe()` ends. Rebuild before running anything — the `.exe`s are gitignored.
+>
+> **NEXT — THE PRODUCT BUILD. Six open points, each needing its own measurement (conditional; none is designed):** (a) the TLS identity key is SYSTEM+Administrators-only (`win32tls.c`), so a Low relay cannot read it — Linux reads it as root *before* dropping, and a **spawn** cannot inherit an open handle the way a `fork` would, so the parent would likely pass the bytes over the pipe before any network byte; (b) the channel-binding bytes travel relay→`sd` first, as Linux's 32-byte preamble does (`sd_tlssrv.c:498`); (c) the relay multiplexes a **pollable** socket with **non-pollable** pipes — a thread per direction or overlapped I/O, and **this one has no Linux answer to copy**; (d) OpenSSL over a non-blocking SOCKET (`WANT_READ`/`WANT_WRITE`); (e) the dedicated relay account, created by `install-service.ps1`, no groups; (f) the S4U mint per connection versus once at start — ***and (f) is the untested scaling risk at load, not the runtime***: `probe-relayscale` measured 50 concurrent relays fine, but nothing has put `LsaLogonUser` under concurrency. **(c) and (d) are unelevated and free**, so they can be settled before a product file is touched. The build also needs `sd.c`'s start gate, the broker/IPC/SCRAM check, and `install-service.ps1`.
+>
+> ***THREE TRAPS THIS SESSION PAID FOR, ALL IN THE PROBES' OWN HEADERS.*** **(1) NEVER COUNT A PROCESS BECAUSE IT EXISTS** — a relocated `sleep.exe` was missing `msys-intl-8.dll`, ~50 copies died **in the loader**, and `HasExited` was false so they scored as **50/50 alive**: a vacuous pass that published a wrong finding. Holders must now **print** a line only a running process can print. **(2) Check a child's imports with `objdump -p` before staging copies of it** — one second, and it prevents (1). **(3) `csrss` renders and QUEUES hard-error dialogs**, so killing every child left **32** arriving one at a time on the owner's screen; they appear only as `csrss` with `MainWindowTitle = '<exe> - System Error'` and are cleared by posting `WM_CLOSE` to each dialog **window**. ***Never kill `csrss` — that bugchecks the machine.*** No reboot was needed.
+>
+> **Mailbox:** `P:\sdcore-mail\to-windows\` empty; **an FYI to Linux is owed** — the per-connection relay shape is parity and is now fully measured here.
+>
+> *(Handoff 78 follows. Its ⛔ box and its measurement rows stand; its TITLE and its "recommendation" are superseded by this one.)*
+
+> # ⇩⇩⇩ HANDOFF 78, 16 Sep 2026 — ***RELEASE_1.1 43: ITERATION 5 IS `ANSWERED (FULL)`, OWNER-ELEVATED — EVERY PIECE OF THE LINUX PER-CONNECTION SHAPE IS NOW MEASURED ON WINDOWS.*** ⇩⇩⇩
+>
+> ***TITLE CORRECTED, SAME DAY. IT READ "THE RUNTIME CHOICE IS REOPENED AND IS THE OWNER'S" — IT IS CLOSED; SEE THE ⛔ BOX BELOW AND HANDOFF 79.*** An MSYS2 relay at Low is indeed possible, which is what this handoff measured and it stands; **it is simply not worth having**, because the fd layer makes the relay body native either way. *The old title is quoted here rather than deleted, because a session that read it and stopped would have carried on arguing the runtime.***
 >
 > | | |
 > |---|---|
