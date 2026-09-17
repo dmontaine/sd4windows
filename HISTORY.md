@@ -62712,3 +62712,15 @@ LIST.PRINTERS goes to W1.2, the first entry in RELEASE_1.1_FIXES.md's
 "Deferred to W1.2" section (D1). 48's documentation must say that with "Let
 Windows manage my default printer" on, the no-AT default is the last printer
 used from any program.
+
+Then "fix powershell dump". linuxprt.c's -Command text now wraps the
+Get-Content / Out-Printer pipeline in try/catch and the catch writes only
+$_.Exception.Message to stderr and exits 1, so a wrong AT name gives the
+user Windows' one sentence and SD's one line. Driven by hand from the agent
+shell against a bogus printer and against a missing job file: one stderr
+line and exit 1 each. -fsyntax-only clean; START-HISTORY line added; the
+unshipped changelog entry amended rather than a new one written, and it
+now also tells users about "Let Windows manage my default printer".
+verify-print's refusal leg gained two checks - Windows' sentence present,
+no CategoryInfo / FullyQualifiedErrorId / "At line:N char:" - which would
+be red on the 02:30 install. A cycle is owed, then b179.
