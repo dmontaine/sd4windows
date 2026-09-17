@@ -62756,3 +62756,7 @@ found before anything is torn down. Argument refusals driven live; -Prepare
 itself not run from the agent shell (it is the teardown). sd.iss is proved
 only by ISCC, so the cycle at the head of the seven-command sequence is
 where a typo in the one added line would show.
+
+Handoff 81 written at 03:40: the owner ran out of credits before the seven
+commands could be run, so they are the next session's first thing. Tree
+stale on purpose (sd.iss), tokens to b180, inbox empty.
