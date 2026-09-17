@@ -62788,3 +62788,9 @@ install-service created sdrelay and recreated the SD service over W1.0-0's
 (exit 0, first upgrade since the relay; API not exercised); upgrade-voc 2/2;
 upgrade-dicts 78. Not measured: a first install logging no SayStep line.
 Tokens to b181. Restoring cycle owed.
+
+Restoring cycle: CYCLE COMPLETE 04:01:44, installed 04:00:54
+(cycle-20260917-035951.log, transcript WHOLE, assert-current matches source,
+sd.exe 66394A7..., no relink - bin 03:05:42). Tree current, nothing owed. 53
+put to the owner (accept and document, or test exploitability first); no
+answer yet.
