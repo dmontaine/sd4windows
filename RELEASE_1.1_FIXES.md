@@ -105,6 +105,16 @@ no elevation.
 
 ---
 
+## Deferred to W1.2
+
+Not open for W1.1 and not done; out of the open count (rule at the top).
+
+| # | What | Why 1.2 | Refs |
+|---|------|---------|------|
+| D1 | **`LIST.PRINTERS` — a verb that shows the installed Windows printers (name, port, which is the default) so the name for `SETPTR … AT <printer>` can be found from the SD prompt.** Came out of 54's witness, 17 Sep 2026: with no `AT` a job goes to the Windows default, and with "Let Windows manage my default printer" on (Windows 10+ default) that is the LAST PRINTER USED FROM ANY PROGRAM; a user with several printers has to name one, and today the name has to be looked up in Windows Settings. Shape when built: one BASIC verb running `Get-Printer` through `sd_powershell_path()` (`op_sh.c`), the path `SETPTR` already uses; Windows-only, no upstream equivalent. | Owner, 17 Sep 2026: *"there is no list.printers verb"* … *"list.printers for version 1.2"*. New capability neither port has; W1.1 documents `AT` and the Windows setting instead (48). | `gplsrc/linuxprt.c`, `gplsrc/op_sh.c`; 54; 48 |
+
+---
+
 ## 1. `tier.build.rec` still applies the type-letter transformation PRE_RELEASE 136 removed from `CREATEA`
 
 ***CONFIRMED IN THIS SOURCE 11 Sep 2026, BY READING IT. Nothing was run*** — no
