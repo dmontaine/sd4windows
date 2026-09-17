@@ -62067,3 +62067,31 @@ predates the 11:53 install, so it refuses exit 2 on the sdusers SID condition
 (PRE_RELEASE 182), as test-sysmsg-units does in the free tier - 41 green, not
 42/42. The listing's actual requirement was checked directly instead: neither
 name appears in stage.py or sd.iss.
+
+## 16 Sep 2026 (next session) - 50 simultaneous API users does NOT decide the relay runtime
+
+The owner turned the runtime choice into a load question: which option works best
+with 50 remote users on the API at once. The relay is per connection, so that is
+50 relays alive together. probe-relayscale.ps1 (unelevated, shipped runtime held
+alive throughout) measured it rather than arguing it, exit 0.
+
+Phase 1, waves of 50, both runtimes at Medium so the comparison isolates runtime
+cost rather than the already-settled integrity question: native completed 100/100
+and 150/150 across runs, relocated MSYS2 the same, neither dropping a process.
+MSYS2 ran at 1.3-1.4x the native wall clock, consistent across every wave. The
+ratio is the part that carries: Start-Process dominates the wave (launch 514 ms
+of 535 ms), so the per-process milliseconds are the launcher's floor and not the
+runtime's cost, and the script says so in its own verdict.
+
+Phase 2 is the one that matches the product, because phase 1's children start and
+exit while a real relay lives for the length of its session. 50 relocated MSYS2
+processes were held alive at once in the single shared namespace that
+probe-relockey measured: 50 of 50 survived. Cygwin's shared process table is not
+a wall at this load.
+
+So neither runtime fails at 50 and the load question does not decide the choice -
+it goes back to the security and maintenance trade. The untested scaling risk at
+this load is not the runtime at all: it is the S4U mint per connection (open
+point (f)), which is the same work whichever runtime is chosen and which nothing
+has measured at concurrency. Nothing in the probe models TLS or the socket
+handover either, and the entry says so rather than letting exit 0 imply it.
