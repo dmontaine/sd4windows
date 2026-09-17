@@ -185,13 +185,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > |---|---|
 > | install | **17 Sep 04:00:54 — the restoring cycle, `CYCLE COMPLETE` 04:01:44** (`cycle-20260917-035951.log`, transcript WHOLE, `assert-current` matches source, `sd.exe` `66394A7…`, `bin\` 03:05:42, no relink). **Current; nothing owed.** The 03:50 upgraded tree it replaced is in the 40 row |
 > | tokens | **`b167`–`b180` spent** (`b180` = 40's setup-log name). **Use `b181`** |
-> | open before 47 | **53** (a ruling; recommendation: accept the writable `shared.5` as the runtime's known limitation for W1.1 and document it). Then 47 → 48 → 49 |
+> | open before 47 | ***55, B — owner 17 Sep: "this is a blocking issue": EVERY AUTHENTICATED API SESSION IS STILL A LocalSystem PROCESS; 43 FIXED THE RELAY ONLY.*** The owner took 43's options to be removing LocalSystem from the API path. **53** is held with it (its accept-and-document recommendation withdrawn, same exposure). Then 47 → 48 → 49 |
 > | ***40 DONE AND WITNESSED, 17 Sep 03:50*** | `-Compare -SetupLog` **16/16 exit 0**: three `SayStep:` lines, in order, on screen ~0.8 s / ~0.8 s / ~7.5 s; **the owner saw them change**. Same upgrade: nocase `Converted 10 of 19`, `trouble=False`; upgrade-voc 2/2 accounts; upgrade-dicts 78 records; ***`install-service -Install` created `sdrelay` and recreated the service over W1.0-0's — the first upgrade since the relay; no API connection was made on it***. ***THE FIRST ATTEMPT WAS LOST AT (5)***: the hand-over put (5)'s command under a list of captions, it read as absent, and `cycle.ps1` was run instead — its uninstall and tree delete took the W1.0-0 tree; stopped at its wizard (trees absent, measured), redone from (2). §6 has the trap |
 > | done this session | **43** (relay, full suite green), **37** + **7**, **54** (+ the PowerShell-dump fix and the "Let Windows manage my default printer" fact, both in the changelog), **`LIST.PRINTERS` deferred to W1.2** (RELEASE_1.1_FIXES.md `## Deferred to W1.2` D1 — the section's first entry). 36 orphaned `C:\Users` profiles swept after a reboot |
 > | 48 must say | printing: default Windows printer or `SETPTR … AT <name>`; "Let Windows manage my default printer" makes the default the last printer used from any program; BANNER/LANDSCAPE/form ignored; `SENDMAIL` unavailable; `Microsoft Print to PDF` prompts on a desktop the API/SSH have none of |
 > | mail | `P:\sdcore-mail\to-windows\` **empty at 03:40, 17 Sep** (checked at hand-over); check again at start |
 >
-> **NEXT: 53's ruling** — put to the owner 17 Sep ~04:01, unanswered at 04:02: accept it as the runtime's known limitation for W1.1 and document it in 48 (the recommendation), or test first whether writing `shared.5` can influence the LocalSystem service. Then 47 → 48 → 49. *(40 is done — row above. HANDOFF 80's install and tokens rows are superseded by this table.)*
+> **NEXT: 55** — the owner chooses a direction; RELEASE_1.1 55 holds both (a launcher that starts the session as the user, or a password login that needs no `SeTcb`), each conditional, with what it leaves in place and what it costs. **Put every option for it to him against the goal — no LocalSystem in the session — and say in its own line whether it meets it.** 53 is decided with it. Then 47 → 48 → 49. *(40 is done — row above. HANDOFF 80's install and tokens rows are superseded by this table.)*
 
 > # ⇩⇩⇩ HANDOFF 80, 16–17 Sep 2026 — ***RELEASE_1.1 43 IS DONE, WITNESSED, AND THE FULL SUITE IS GREEN IN BOTH HALVES ON IT (`b173`: 28/28 + 34/35, THE ONE RED A VERIFIER'S PRE-45 WORDING, FIXED). THE TLS RELAY RUNS AS `sdrelay`, LOW, 0 PRIVILEGES, ONE PER CONNECTION. THREE CYCLES AND FOUR SUITE ATTEMPTS TO GET THERE; EVERY FAILURE NAMED BY AN INSTRUMENT. NOTHING IS OWED EXCEPT (f).*** ⇩⇩⇩
 >
@@ -3578,7 +3578,7 @@ its root — the containment gate in `op_dio2.c` plus the `USR_ADMIN` fix in
 **22/23 on the 17:18:11 install** (the 23rd is the standing N/A). §"THE GATE"
 has the six entry points and the read/write axis.
 
-**THE TOKEN HALF: OPEN, AND IT IS THE ONLY LARGE ITEM LEFT.** `sdwind` `fork()`s
+**THE TOKEN HALF: OPEN, AND IT IS THE ONLY LARGE ITEM LEFT.** *(17 Sep 2026: now RELEASE_1.1 55, B. 43 dropped the relay, not the session.)* `sdwind` `fork()`s
 the session, so it inherits the LocalSystem service token. Only the session's
 REACH was narrowed; its IDENTITY is untouched. §WHAT IS LEFT, cheapest
 first carries it.

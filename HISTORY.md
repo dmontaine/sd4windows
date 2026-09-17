@@ -62794,3 +62794,20 @@ Restoring cycle: CYCLE COMPLETE 04:01:44, installed 04:00:54
 sd.exe 66394A7..., no relink - bin 03:05:42). Tree current, nothing owed. 53
 put to the owner (accept and document, or test exploitability first); no
 answer yet.
+
+## 17 Sep 2026 - RELEASE_1.1 55 filed B: every authenticated API session is still LocalSystem; 43 fixed the relay only
+
+Owner asked whether the external vulnerability review, run again, would still
+report LocalSystem. Read from source: 43 moved the TLS relay to sdrelay at Low
+with no privileges (the review's own finding), but the session is forked with
+the service's token, runs the SCRAM exchange as LocalSystem, and after login
+adopts the user by seteuid only - real uid, earlier handles and SeTcb stay
+SYSTEM's (win32s4u.c header). 43's own row called that "by the split's
+design". Owner: "i assumed, wrongly, that the options you presented were
+within the context of not reestablishing the same problem we were trying to
+solve", then "this is a blocking issue - i thought the user did require a
+password to login through the api". It does; SCRAM checks the password without
+the server ever holding it, which is why S4U and SeTcb are needed. 55 records two
+unmeasured directions (launcher; password login via LogonUser) with what each
+leaves in place. 53's accept-and-document recommendation withdrawn - same
+exposure. Release chain 47-49 now waits on 55.
