@@ -62975,3 +62975,47 @@ losing buffered bytes, in which case the fallback is the front staying as a
 dumb plaintext byte-pump (a SYSTEM process in the path, but parsing nothing -
 weaker than parity, to be put to the owner). Tree current, tokens to b181,
 inbox empty.
+
+## 17 Sep 2026 - RELEASE_1.1 55 parity: the relay app-side CUTOVER works with no byte loss - measured. All mechanical unknowns of the fix are now closed
+
+gplbld/probe-relaycutover.c (the native relay under test) and
+probe-relaycutover-drive.c (plays client + front + session), native (no
+msys-2.0), unelevated. The relay pumps net<->appA during a mock SCRAM window;
+the front then CLOSES appA (the auth-done signal) and the client sends a
+post-auth byte WHILE the relay is standing the pipe up; the relay, on appA EOF,
+STOPS reading net (so that byte stays safe in the socket buffer), creates the
+SID-less pipe, waits for the session to connect, and resumes pumping net<->pipe.
+
+PASS: phase A both ways; the post-auth byte reached the session (no loss across
+the switch); phase B session->client, client->session, a 32 KiB burst intact;
+relay exited 0 on the session's close. So the relay can hand its app side from
+the front to the session at the post-SCRAM boundary without losing bytes, which
+lets the front LEAVE the data path - the live path becomes relay(Low) <->
+session(user), matching Linux (nobody-relay + user-session, nothing SYSTEM
+between). The cutover signal used is appA EOF (the front closing); the pipe name
+is passed to the relay at spawn. Native throughout, so it says nothing about the
+Cygwin fd layer - crux (1) already proved the Cygwin session uses the pipe.
+
+WHERE 55 STANDS: every MECHANICAL unknown of the parity build is now measured -
+crux (1) (session spawned as user, self-opened SID-ACL'd pipe, pollable, clean
+EOF, PID-bound), the SCRAM-privilege scope (Linux parses SCRAM as root, so a
+LocalSystem SCRAM front is parity), and this cutover (front leaves the path, no
+byte loss). WHAT REMAINS IS PRODUCT CODE + A CYCLE, no more probes:
+  1. The login tail (win32s4u.c AssumeUserIdentity's callers in APISRVR /
+     sd_tls path): replace the in-place seteuid adopt with - after SCRAM
+     reveals the user - mint the user token (win32_s4u_logon, already lifted),
+     create the SID-ACL'd pipe + PID bind (crux 1), CreateProcessAsUser sd AS
+     the user with the pipe name + the 32-byte tls-exporter binding, and signal
+     the relay to cut over to the pipe (win32relay.c / sd_tlssrv.c).
+  2. The session sd -n opens the pipe as its I/O (its fds 0/1), and does NOT run
+     SCRAM (already authenticated by the front) - it is handed the verified
+     username, the K_ASSUME_USER-equivalent is gone because it IS the user.
+  3. Graceful pipe close on both ends (FlushFileBuffers, not DisconnectNamedPipe
+     - the ECOMM lesson).
+  4. Verify: verify-apiidentity should now show the session's REAL identity is
+     the user with no SeTcb / no SYSTEM underneath (turn verify-relayidentity's
+     parent control round onto the session), and a cycle to prove it on the
+     install. The two owner-elevated crux-(1) confirmations (as a DIFFERENT
+     user; cross-USER DACL denial) fold into that cycle.
+This is a large change to the API auth/session path and needs the owner's go
+before the build. Tree current, tokens to b181, inbox empty.
