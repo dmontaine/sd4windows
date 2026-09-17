@@ -62350,3 +62350,29 @@ HANDOFF 80 had listed this failure code as plausible and given the wrong reason
 for it (a UCRT DLL out of reach). The row is corrected in place rather than
 deleted, because a conditional that was wrong is worth more to the next reader
 than one that was never written.
+
+## 16 Sep 2026 (same session) - third cycle: RELEASE_1.1 43 witnessed, the relay runs as sdrelay at Low with no privilege
+
+b169, 22:56, VerifyInstall2 -Only verify-relayidentity,verify-apiport,
+verify-scramlogin,verify-apiidentity: all five steps (registersweep added by
+the runner) exit 0. verify-relayidentity 15/15: while relay-hold.py held one
+connection, exactly one new sdtlsrelay.exe - ace\sdrelay, integrity 4096,
+privileges 0, the installed binary, 16 modules with no msys-* and no user32,
+parent sd.exe as NT AUTHORITY\SYSTEM (the control that the session keeps its
+token and the drop is the relay's alone) - and it was gone when the connection
+ended. The three API steps logged in through it: SCRAM bound to the relay's
+binding, the identity fixtures opened as the user.
+
+So the 15 Sep review finding - "the Windows TLS relay still runs as
+LocalSystem" - is closed on the install, one day after it was raised. The
+process that parses an unauthenticated peer's bytes is now a bare local account
+at Low integrity with every privilege removed, one process per connection, the
+Linux nobody shape by a spawn.
+
+Three cycles were spent and the shape of each is the lesson: every failure was
+in the one context the unelevated tests cannot reach (a real S4U token in
+session 0), every one was NAMED by an instrument that existed before it (the
+verifier's step 1; syslog in the Application event log), and every one was then
+reproduced unelevated before it was fixed (New-LocalUser -WhatIf for the cap;
+probe-user32desk for the desktop). Owed: the full suite before hand-off, and
+the LsaLogonUser-under-concurrency question (f), still unmeasured.
