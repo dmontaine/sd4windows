@@ -62541,3 +62541,58 @@ So fifty simultaneous API connections cost LSA about fifteen milliseconds of
 mint work, a connection's logon session goes when its relay does, and the last
 open point of the relay build is closed. RELEASE_1.1 43 has nothing open;
 53 stands beside it, unchanged.
+
+## 17 Sep 2026 - RELEASE_1.1 37 found and fixed in source: the daemon's cleanup never ran on an install, because system() has no shell
+
+The owner asked for 37 and 7 next. 37: a killed session's slot and record
+lock survived 5 m 45 s across the daemon's five-minute tick on 15 Sep, cause
+undetermined. sdwind.c:262 detects a lost user with kill(pid, 0) and then
+sdwind.c:300 runs "sd -cleanup" through system(). Three measurements, in the
+order they were taken:
+
+1. probe-killzero.c, first draft, fed the KILLED session's WINDOWS pid to
+   kill() and got ESRCH for a session that was alive. Its own pid printed as
+   883, 884, 885: this runtime's pids are its own small numbers, not Windows
+   pids, so uptr->pid is a Cygwin pid and the probe had asked the wrong
+   question. Rewritten to convert with cygwin_winpid_to_pid() while the
+   process lives. Same user, unelevated: alive -> 0, killed -> ESRCH at once,
+   with a handle to the dead process held or released. The detection works.
+
+2. probe-system.c, under SD's installed msys-2.0.dll: /bin/sh resolves to
+   C:\Program Files\SD\usr\bin\sh, which does not exist - the install ships
+   sd.exe and sdwind.exe and no shell - and system("echo alive") returns 127
+   with errno ENOENT; the -cleanup line in sdwind's own quoting the same.
+   sdwind.c:300 never tests the return. So the sweep detected and then did
+   nothing, silently, every five minutes since the install layout was fixed.
+
+3. probe-killzero.ps1, owner-elevated, the daemon's own vantage through a
+   SYSTEM scheduled task: SYSTEM in session 0 sees a live elevated console
+   session as ALIVE and the same session killed as LOST, exactly as the
+   elevated shell does, sdwind itself alive as the control. And sd -cleanup by
+   hand removed exactly the three dead slots the day's probes had left (users
+   7, 10, 12; pids 898, 910, 917) and kept the live one.
+
+Detection right, reaper right, only the link broken. Fixed in sdwind.c: fork()
+and execl() of <bindir>/sd -cleanup, no shell, waitpid() by pid so the main
+loop's reaping cannot take it first; the lost user is logged before ("Lost
+user N (pid P): running .../sd -cleanup") and any failure after ("fork
+failed", "Cleanup did not complete: exit code N"); a clean exit leaves the
+record to cleanup()'s own "Cleanup removed user" lines. Compiles clean. Not
+cycled. changelog entry added. The 22 Aug "Forced logout" run is NOT explained
+by this - the daemon could not have run cleanup then either - and stays as
+recorded, undetermined.
+
+Two things beside it. The other two system() callers in the server, print
+spooling (linuxprt.c:178) and sendmail (lnx.c:215), are broken on the install
+by the same fact and report success; filed as RELEASE_1.1 54, a decision.
+And 7: with 37 fixed the killed owner's slot and its locks go together, and
+op_getlocks() names owners under the same two semaphores remove_user() holds,
+so a lock outliving its owner's slot - the state 7's fixed line answers - is
+what PRE_RELEASE 24 removed; verify-deadlock now scores 37 (named -> none
+within a tick, with both daemon errlog lines) and reports "(gone)" without
+expecting it. Proposed to the owner that 7 close as defensive.
+
+One probe fault worth its line: probe-killzero.ps1's first elevated run died
+on "Cannot overwrite variable pid because it is read-only" - $pid is an
+automatic variable and I had named a parameter after it. The $args trap in a
+new costume; a one-off scan found no other gplbld script doing it.
