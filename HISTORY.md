@@ -61989,3 +61989,31 @@ Relay runtime, owner delegated ("the one most like the linux side on security").
 That decision lasted two elevated runs. probe-relaydrop iteration 4 (Low token, Cygwin-accepted socket, WSAPoll, report over the pipe): run 1's child died 0xC0000142 before its first line. Run 2 added trials as the bare account from session 0: a native exe at Low ran; the MSYS2 exe at Low died 0xC0000142 with the assigned desktop, an inherited desktop and a console alike; the MSYS2 exe at Medium ran. The unelevated Low test had passed only because no other process of that runtime was alive: with a Medium one holding it, a Low launch dies with "fatal error - NtCreateDirectoryObject(\BaseNamedObjects\msys-2.0S5-<key>): 0xC0000022" (probe-lowmsys.c --sleep). sd is always such a holder, so an MSYS2 relay at Low cannot start in the product. MSYS2 at Medium can write the LocalSystem runtime's shared.5 (RELEASE_1.1 53); native at Low cannot, and runs. The relay is therefore a native UCRT64 program at Low. Lesson: an isolation test of a shared-state runtime must have the runtime's other processes alive, because behaviour depends on who created the shared objects first.
 
 Iteration 5 built for the next session: probe-relaydrop.c became the MSYS2 parent only, spawning the new native probe-relaychild.c at Low after a --hello preflight. probe-relaylocal.c rehearses it unelevated (a Low copy of the caller's own token, a Medium MSYS2 parent alive): exit 0 twice - Low, WSAPoll waited 1500 ms on the Cygwin-accepted socket, PING/PONG, both pipe directions. The account switch and privilege strip are left to the owner's elevated run; iteration 3 proved them. HANDOFF 77 carries the run command and the unmeasured product-build questions.
+
+## 16 Sep 2026 (next session) - iteration 5 ANSWERED (FULL): the relay handover works as the product would do it
+
+The owner ran probe-relaydrop.ps1 elevated. ANSWERED (FULL). The child ran as
+ace\sdrelayprobe with privilege count 0 at integrity Low (0x1000), native, from
+a Low-labelled working directory; the --hello preflight exited 7 first. It
+waited on the Cygwin-accepted non-blocking socket with WSAPoll (revents 0x100
+after 1500 ms, so it really waited on an empty socket), read PING via WSARecv,
+read PLAINTEXT-to-relay via native ReadFile, wrote RELAYED:...|GOT:... up the
+pipe (the parent's Cygwin read took 602 bytes), and answered PONG on the socket,
+which the parent received. Its native CreateFile produced a file owned by
+ace\sdrelayprobe - informational, the relay writes no files.
+
+So every piece of the Linux per-connection shape is now measured on Windows: S4U
+mint of a bare account, all privileges stripped, Low integrity, a native child,
+the accepted socket handed over from a Cygwin sd, and a private two-pipe channel
+back. The rehearsal (probe-relaylocal.exe) had covered all of it except the
+account switch and the strip, and reproduced exit 0 again this session after a
+rebuild.
+
+Two hand-over hygiene notes from this run, neither a finding. parent.log printed
+"PARENT (iteration 4)" while child.log printed "iteration 5" - a banner string
+left behind when the file became the parent-only half; fixed and rebuilt, because
+a log that misnames which iteration produced it is exactly what costs a later
+reading. And the three probe .exes are gitignored, so they were rebuilt from
+source before the run and their imports checked per DLL: probe-relaychild.exe
+carries no msys-2.0.dll (native confirmed), probe-relaydrop.exe carries
+msys-2.0.dll and no WS2_32.dll (the -lcygwin-first link trap avoided).
