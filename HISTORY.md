@@ -62285,3 +62285,31 @@ Two things the build corrected in the plan as handed over: HANDOFF 79's "the
 build also needs sd.c's start gate, the broker/IPC/SCRAM check" were option
 3c's list and do not apply to the split - the session stays LocalSystem with
 SeTcb by design; and (c) needed no thread once the channel was a socketpair.
+
+## 16 Sep 2026 (same session) - first cycle of the relay build: the witness caught the install, sdrelay was never created
+
+The owner cycled at 22:22 and ran VerifyInstall2 -Run b167 -Only
+verify-relayidentity,verify-apiport,verify-scramlogin,verify-apiidentity.
+assert-current green in all four. verify-relayidentity step 1: no sdrelay
+account, STOPPED exit 1. The other three: "TLS handshake: connection closed by
+server" - the relay could not be spawned (no account to mint) and sd refused
+the connection cleanly, which is the failure shape it was built to have.
+
+Cause, reproduced unelevated in one command: New-LocalUser -Description is
+capped at 48 characters and refuses a longer one at parameter binding; the
+description was 88. The try/catch caught it and the function said so - to a
+pipeline nobody read - and returned $false in an ARRAY with its own Say lines,
+which "-not" reads as $false, so the gate passed and the service was created
+with no account behind it. Two defects with one shape: a hidden step that left
+no evidence, and a verdict that could not be false.
+
+Fixed in install-service.ps1: a 48-character description; the verdict is a
+script variable and the gate ALSO asks Get-LocalUser; the service is still
+created (without it nothing runs; with it only the API is refused, each refusal
+in the SD error log) and the script exits 1; and it now transcribes every run
+to C:\ProgramData\SD\install-service.log. test-installservice-units.ps1 (free,
+10/10) measures the cap itself with -WhatIf (49 refused, 48 not, elevated or
+not), the literal's length, that the function returns no value, that the gate
+reads state, and both -Remove call sites; mutant on a copy, live file asserted
+unchanged. Joins the free tier (44). b167 is spent; the next cycle is owed for
+one shipped file.
