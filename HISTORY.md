@@ -62449,3 +62449,30 @@ Two full-suite attempts in a row each found one more verifier that 45 had
 silently invalidated. The pattern is the one 45's own entry could have
 predicted: about twenty verifiers issue LOGTO SDSYS, and the two that did so
 from an unelevated start were the only ones the door could break.
+
+## 17 Sep 2026 - b173 reaches the elevated half; verify-sdsysgate is 45's third piece of fallout, and the owner ruled against the product change I proposed
+
+b173 (00:02) ran the whole first half green and handed over. Step 11 of 35,
+verify-sdsysgate (PRE_RELEASE 62), 10 of 11 decisive rows: the audit line for
+its non-administrator read "LOGTO REFUSED account=SDSYS reason=session did not
+start elevated" and the row wanted "reason=not an administrator". 45 asks both
+halves of the gate - started elevated, SD administrator tier - as one test with
+one reason (cproc:2774).
+
+I proposed splitting the reason in cproc, tier first, arguing a Windows
+administrator holding a standard-tier SD account who started elevated would
+otherwise be audited with the wrong reason. The owner ruled that case out:
+"a windows administrator should never hold a standard tier sd account; if they
+are an administrator created by sd then they have an sd administrator account"
+- 5.22, administrator means both. So the two halves are one fact, the single
+reason is right for a non-administrator, and the product is unchanged. The
+verifier's row now anchors on 45's wording, with the pre-45 wording as the
+control that the regate took; its substance, that the elevate call was never
+reached, is what 62 was about and is unchanged. Verifier only, $neverShipped,
+no cycle.
+
+Recorded because the hypothesis was written down in conversation before it was
+ruled on, and the ruling is the least-tested claim here: a real STANDARD-tier
+SD account for a Windows administrator would reopen the question. Nothing in
+the record says one can be made; CREATE.ACCOUNT's tier choice is the place to
+look if one ever is.
