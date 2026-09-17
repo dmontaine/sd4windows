@@ -62659,3 +62659,34 @@ exercised on this box, so the first run measures the harness as much as the
 product. Compiles clean with sd's flags; parse and BOM checks passed;
 test-stemcoverage, test-suiteonly, test-elevonce and the sweep's -SelfTest
 green.
+
+## 17 Sep 2026 - 54 witnessed on the 02:30 cycle; two harness faults in verify-print on the way
+
+The owner cycled at 02:30 and ran verify-print twice. b175 refused: "the
+Generic / Text Only driver is not on this machine". It is - staged in the
+driver store (prnge001.inf) - but Get-PrinterDriver lists only installed
+drivers, and a box that has never made a text printer has it in the store
+and not the list. Add-PrinterDriver -Name installs it from the store; the
+verifier now does that when it is absent and removes it again in cleanup.
+
+b176 was the product witness. The named leg passed whole: SETPTR AT
+sdprnb176a, LIST ... LPTR, no refusal, and the listing (WHO and the run's
+marker) read back from the file-port printer's port file - linuxprt.c
+through powershell Out-Printer -Name to the spooler, end to end on the
+install, first time. The default leg scored red and it was the harness:
+WScript.Network.SetDefaultPrinter returned and the default stayed Microsoft
+Print to PDF, because LegacyDefaultPrinterMode is 0 on this box - "Let
+Windows manage my default printer", the Windows 10+ default - and in that
+mode a programmatic SetDefaultPrinter is ignored. So SD printed to the PDF
+printer exactly as told and the leg read as a product FAIL; leg 4 then died
+reading the size of a file that never appeared. The verifier now records the
+per-user mode, sets 1 for the run, sets the default, reads it back and stops
+with exit 2 if it did not take (a leg the run does not control is not
+measured), restores both in cleanup, and reads sizes through a helper that
+answers 0 for an absent file.
+
+Then the owner attached a printer and, from an interactive session with no
+AT, "printed correctly to pdf and physical printer" - the default-printer
+path on paper. 54 is struck: named leg by the verifier, default leg by hand,
+SENDMAIL refusing by construction. b177 is owed for a green verify-print and
+is a harness debt, not a product one. Open before 47: 40 and 53.
