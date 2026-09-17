@@ -62760,3 +62760,31 @@ where a typo in the one added line would show.
 Handoff 81 written at 03:40: the owner ran out of credits before the seven
 commands could be run, so they are the next session's first thing. Tree
 stale on purpose (sd.iss), tokens to b180, inbox empty.
+
+## 17 Sep 2026 - 40 done and witnessed: -Compare -SetupLog 16/16 on a real upgrade, owner saw the captions
+
+git pull up to date at 5cfd2b8; inbox empty. Before hand-over: both scripts
+parse 0 errors with every function found, no BOM, CR 0; verify-realupgrade
+loaded and refused with no mode (exit 2); the three captions it matches are
+byte-identical to sd.iss's SayStep calls.
+
+First attempt lost. Cycle 03:33, -Prepare, W1.0-0, -Snapshot passed 03:37:58
+(pre-D2 precondition, so -Prepare's first run did its job; its own output
+not seen). At (5) the owner ran cycle.ps1: the hand-over had put (5)'s
+installer command under a numbered list of captions and it read as absent.
+The cycle rebuilt the installer (03:39:24), uninstalled and deleted both
+trees, and was stopped at its wizard - measured 03:46: both trees absent, no
+SD/setup process (tasklist 179 rows, explorer.exe control).
+
+Redone from (2). Snapshot 03:49:38; W1.1-0 over the top with /LOG at 03:50.
+-Compare: assert-current 0; sd.exe 4B40722... -> 66394A7...; nocase 10 of 19,
+trouble=False; fixture NOCASE 0 -> 1, fred,jack case for case; live SDSYS VOC
+left NOCASE=0, 431 -> 431, [who][login]; three SayStep lines in order. Owner:
+"i saw the captions change". Caption times from the setup log: 0.82 s, 0.81 s,
+~7.5 s - the "few seconds each" estimate above was high for the first two.
+SayStep paints (StatusLabel.Update) before it logs, so the log times are the
+paint times. Installer logs read before the restoring cycle removes them:
+install-service created sdrelay and recreated the SD service over W1.0-0's
+(exit 0, first upgrade since the relay; API not exercised); upgrade-voc 2/2;
+upgrade-dicts 78. Not measured: a first install logging no SayStep line.
+Tokens to b181. Restoring cycle owed.

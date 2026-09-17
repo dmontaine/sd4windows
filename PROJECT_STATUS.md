@@ -183,14 +183,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | install | **17 Sep 03:09:19** — ***STALE: `sd.iss:2913` `SayStep` gained one `Log()` line for 40 (`01ff3d3`); nothing else since.*** The seven-command sequence below begins with the cycle that clears it and ends with the cycle that restores a clean install |
-> | tokens | **`b167`–`b179` spent. Use `b180`** — already written into command (5) and (6) below as the setup-log name |
-> | open before 47 | **40** (built; the witness is the seven commands — the owner's hand, elevated) and **53** (a ruling; recommendation: accept the writable `shared.5` as the runtime's known limitation for W1.1 and document it). Then 47 → 48 → 49 |
+> | install | ***17 Sep 03:50 — AN UPGRADED TREE, NOT A CYCLED ONE*** (shipped W1.0-0 installed 03:48 onto absent trees, the 03:39 W1.1-0 installer over the top at 03:50; `assert-current` exit 0 inside `-Compare`). **The restoring cycle, command (7) below, was owed at 03:58** — read `%LOCALAPPDATA%\SD-verify\cycle-*.log` for one after 03:50 before believing this row |
+> | tokens | **`b167`–`b180` spent** (`b180` = 40's setup-log name). **Use `b181`** |
+> | open before 47 | **53** (a ruling; recommendation: accept the writable `shared.5` as the runtime's known limitation for W1.1 and document it). Then 47 → 48 → 49 |
+> | ***40 DONE AND WITNESSED, 17 Sep 03:50*** | `-Compare -SetupLog` **16/16 exit 0**: three `SayStep:` lines, in order, on screen ~0.8 s / ~0.8 s / ~7.5 s; **the owner saw them change**. Same upgrade: nocase `Converted 10 of 19`, `trouble=False`; upgrade-voc 2/2 accounts; upgrade-dicts 78 records; ***`install-service -Install` created `sdrelay` and recreated the service over W1.0-0's — the first upgrade since the relay; no API connection was made on it***. ***THE FIRST ATTEMPT WAS LOST AT (5)***: the hand-over put (5)'s command under a list of captions, it read as absent, and `cycle.ps1` was run instead — its uninstall and tree delete took the W1.0-0 tree; stopped at its wizard (trees absent, measured), redone from (2). §6 has the trap |
 > | done this session | **43** (relay, full suite green), **37** + **7**, **54** (+ the PowerShell-dump fix and the "Let Windows manage my default printer" fact, both in the changelog), **`LIST.PRINTERS` deferred to W1.2** (RELEASE_1.1_FIXES.md `## Deferred to W1.2` D1 — the section's first entry). 36 orphaned `C:\Users` profiles swept after a reboot |
 > | 48 must say | printing: default Windows printer or `SETPTR … AT <name>`; "Let Windows manage my default printer" makes the default the last printer used from any program; BANNER/LANDSCAPE/form ignored; `SENDMAIL` unavailable; `Microsoft Print to PDF` prompts on a desktop the API/SSH have none of |
 > | mail | `P:\sdcore-mail\to-windows\` **empty at 03:40, 17 Sep** (checked at hand-over); check again at start |
 >
-> **START WITH THE SEVEN COMMANDS** under *"NEXT — 40's REAL UPGRADE"* in HANDOFF 80 below (they are the owner's, elevated; the falsified-ifs are there too). When (6) is pasted: strike 40 if the three captions are in the log **and** the owner saw them change under the bar; record `-Snapshot`/`-Compare` counts; then 53's ruling. *(HANDOFF 80's install and tokens rows are superseded by this table.)*
+> **NEXT: the restoring cycle** — command (7) under *"NEXT — 40's REAL UPGRADE"* in HANDOFF 80 below, elevated — unless a `cycle-*.log` after 03:50 already says `CYCLE COMPLETE`; **then 53's ruling**; then 47 → 48 → 49. *(40 is done — row above. HANDOFF 80's install and tokens rows are superseded by this table.)*
 
 > # ⇩⇩⇩ HANDOFF 80, 16–17 Sep 2026 — ***RELEASE_1.1 43 IS DONE, WITNESSED, AND THE FULL SUITE IS GREEN IN BOTH HALVES ON IT (`b173`: 28/28 + 34/35, THE ONE RED A VERIFIER'S PRE-45 WORDING, FIXED). THE TLS RELAY RUNS AS `sdrelay`, LOW, 0 PRIVILEGES, ONE PER CONNECTION. THREE CYCLES AND FOUR SUITE ATTEMPTS TO GET THERE; EVERY FAILURE NAMED BY AN INSTRUMENT. NOTHING IS OWED EXCEPT (f).*** ⇩⇩⇩
 >
@@ -7596,6 +7597,14 @@ is the one anybody thinks to test.
 ## 6. Traps
 
 Each of these cost real time. Read before debugging anything similar.
+
+- ***AT (5) OF THE REAL-UPGRADE SEQUENCE THE COMMAND IS THE INSTALLER, NEVER
+  `cycle.ps1`.*** 17 Sep 2026, RELEASE_1.1 40. A cycle uninstalls and deletes
+  both trees, so run in place of `sd-setup-W1.1-0.exe` it destroys the W1.0-0
+  tree that (2)–(4) built and snapshotted — one attempt lost. The hand-over had
+  put (5)'s command below a numbered list of captions, and it read as missing.
+  **In a hand-over, each step's command goes directly under its heading, and a
+  step with a destructive look-alike says what not to run.**
 
 - ***A PROCESS-LIST PROBE MATCHES ITSELF, AND REPORTS A STRAY THAT IS THE
   QUESTION.*** Found 28 Aug 2026 checking whether the elevate-once helper had
