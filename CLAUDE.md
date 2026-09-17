@@ -576,8 +576,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-voctwins-units.py`, `test-upgradenocase-units`,
    `test-selectlists-units.py`, `test-tlsconsts-units.py`,
    `test-scramprobe-units.py`, `test-uninstallchoices-units`,
-   `test-tlsrelay-units.py`, `test-installservice-units`.
-   ***ALL FORTY-FOUR. Run these on
+   `test-tlsrelay-units.py`, `test-installservice-units`,
+   `test-lcnameslegs-units`.
+   ***ALL FORTY-FIVE. Run these on
    every change*** — **40 s for the whole set**, measured 16 Sep 2026 with the
    forty-third in it, each in its own process. *(30 s was the 11 Sep figure for
    thirty-three and 32.6 s the 4 Sep figure for thirty-two; the set grows and

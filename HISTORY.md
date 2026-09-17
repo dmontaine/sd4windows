@@ -62376,3 +62376,43 @@ verifier's step 1; syslog in the Application event log), and every one was then
 reproduced unelevated before it was fixed (New-LocalUser -WhatIf for the cap;
 probe-user32desk for the desktop). Owed: the full suite before hand-off, and
 the LsaLogonUser-under-concurrency question (f), still unmeasured.
+
+## 16 Sep 2026 (same session) - the full suite's first half: verify-lcnames had been latent-red since RELEASE_1.1 45, and the fix caught its own pipeline defect
+
+b170 (23:09) died on a token older than the cycle - PRE_RELEASE 182 exactly as
+recorded: sd-elevate.ps1 -Start "Access is denied", verify-credacl refused. The
+owner signed out and back in; b171 (23:16) ran the first half with the one-
+consent helper serving throughout. Eleven steps green; verify-lcnames 152/162
+stopped the run.
+
+The ten red rows were its five LOGTO SDSYS legs (sections 3 and 6: the four
+voc_template-only ids, and COPYP's type code), run UNELEVATED from
+VerifyInstall1 - and RELEASE_1.1 45 (15 Sep 17:41) refuses LOGTO SDSYS to a
+session that did not start elevated. The transcript carried "SDSYS Account
+access is restricted to privileged users". The last full unelevated half was
+15 Sep 00:32, before 45 landed, so the rows had been latent-red for a day and
+nothing in the relay work touched them. Verifier, not product.
+
+Fixed in verify-lcnames.ps1 the way verify-osusers already does it: a -Phase
+RunLegs re-entry of the same file, elevated through the runner's helper pipe
+(so the suite pays no extra consent; standalone, one prompt for all four legs
+rather than four). The parent writes the SD command lists to a request file,
+the child runs each through the same Invoke-SD and writes the raw outputs in
+sections, the parent judges exactly as before. Two controls added: the leg was
+not refused at the door, and it answered at all. $helperAware gains the script;
+test-elevonce-units checks the pairing both ways (61/61).
+
+test-lcnameslegs-units.ps1 (free, 16/16) lifts both halves out by AST and
+drives the round trip with stubs for Invoke-SD and Invoke-ElevatedScript. On
+its first run it caught the draft RETURNING the answers table through the same
+pipeline as its own Write-Output progress lines - the caller would have
+indexed an array of strings and every row would have read as "nothing
+matched", exactly what the ten red rows looked like. That is the
+install-service.ps1 defect of an hour earlier in a second file, and the same
+cure: the verdict is a script variable, the function returns nothing. The
+test also met two PowerShell-5.1 traps worth naming: inside an array literal
+the comma binds tighter than +, so 'a' + $b + 'c', 'd' splits into stray
+elements (a path came out with newlines through it); and in command-argument
+mode "(pipeline).Count -eq 0" hands the function the array and then ".Count",
+"-eq", "0" as further arguments. Both scripts are in $neverShipped, so no
+cycle is owed; the fix is unwitnessed live until b172.
