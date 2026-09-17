@@ -198,6 +198,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > **Mailbox:** `P:\sdcore-mail\to-windows\` empty; **an FYI to Linux is owed** — the per-connection relay shape is parity and is now fully measured here.
 >
+> ***ADDENDUM, SAME DAY, NEXT SESSION — (c) IS CLOSED, UNELEVATED, AND IT NEEDS NO THREAD.*** `gplbld/probe-relaysp.c` + `-cyg.c` + `-child.c`, exit 0 twice: **a Cygwin `socketpair()` end handed to the native Low relay is a pollable SOCKET** (`SO_TYPE` SOCK_STREAM, `WSAPoll` accepts it, non-blocking like the accepted socket). The child ran the relay loop minus TLS on the two sockets — a line each way, 262144/262144 bulk bytes intact, **the client's close reached sd as EOF**. So the channel is the socketpair `sd_tls_relay_start` already makes, its sd side survives, and the relay is Linux's `relay()` with `WSAPoll`. ***RUN 1 FAILED ON EOF: EVERY CYGWIN SOCKET HANDLE IS INHERITABLE, so plain `bInheritHandles=TRUE` copied the client end into the relay and the FIN never left.*** **`PROC_THREAD_ATTRIBUTE_HANDLE_LIST` is mandatory in the product** — iteration 5's spawn line has that defect; do not copy it. Detail: HISTORY.md, same date.
+>
 > *(Handoff 78 follows. Its ⛔ box and its measurement rows stand; its TITLE and its "recommendation" are superseded by this one.)*
 
 > # ⇩⇩⇩ HANDOFF 78, 16 Sep 2026 — ***RELEASE_1.1 43: ITERATION 5 IS `ANSWERED (FULL)`, OWNER-ELEVATED — EVERY PIECE OF THE LINUX PER-CONNECTION SHAPE IS NOW MEASURED ON WINDOWS.*** ⇩⇩⇩

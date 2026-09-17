@@ -62192,3 +62192,39 @@ inherited socket or pipe as a Cygwin fd.
 probe-relaybio.c, a half-built probe for 2a's custom OpenSSL BIO over native
 Winsock, was deleted rather than finished. It failed to compile on an ioctlsocket
 pointer type, was never run, and nothing was concluded from it.
+
+## 16 Sep 2026 (next session) - open point (c) closed: the relay<->sd channel is the socketpair sd already has, and the relay polls two sockets
+
+gplbld/probe-relaysp.c (MSYS2 parent, stands in for sd), probe-relaysp-cyg.c
+and probe-relaysp-child.c (native, at Low), unelevated, three runs. Every
+earlier probe handed the channel over as two Cygwin pipe()s because a native
+pipe end adopted into Cygwin read EBADF (iteration 3); a pipe is not pollable,
+which made (c) "a thread per direction or overlapped I/O, no Linux answer to
+copy". Nobody had measured the shape sd has today: sd keeps its socketpair
+end as descriptors 0 and 1, and the relay gets the OTHER end as a SOCKET.
+
+Measured: the socketpair end is SO_TYPE SOCK_STREAM in the child, WSAPoll
+accepts it, it is non-blocking like the accepted socket (recv on empty gives
+10035). The child ran the product's relay loop minus TLS - WSAPoll on both,
+copy each way - at Low: network->sd one line sent 1500 ms late, sd->network
+one line, 262144 of 262144 bulk bytes intact through a poll-driven single-
+threaded sender (so the child's WSAEWOULDBLOCK/POLLWRNORM path ran), and the
+client's close reached sd as read 0 with the child exiting 0. Twice.
+
+RUN 1 FAILED LEG 4 AND THE REASON IS A PRODUCT RULE. The child's WSAPoll slept
+10 s after the client end closed and its direct recv said 10035: the FIN never
+arrived. Every Cygwin socket handle carries HANDLE_FLAG_INHERIT (printed: the
+client end, sd's end, the accepted socket, the relay end - all 1), so a plain
+bInheritHandles=TRUE spawn had copied the CLIENT END into the relay too, and a
+socket with a live handle in another process does not close. With inheritance
+restricted to the three named handles (PROC_THREAD_ATTRIBUTE_HANDLE_LIST, the
+pattern sdclilib already uses) runs 2 and 3 exited 0. So in the product the
+handle list is not hygiene, it is correctness: without it the Low relay holds
+every socket sd holds, and a client's close never reaches sd. probe-relaydrop
+iteration 5 spawned with plain inheritance; its verdict (bytes both ways)
+stands, but its spawn line must not be copied.
+
+Consequence for the build: sd_tls_relay_start()'s sd side - the socketpair,
+the dup2 to 0 and 1, the binding-preamble read - survives as written; only the
+fork() becomes a spawn of the native relay. The relay is Linux's relay() with
+WSAPoll for poll(). Open point (c) is closed and needs no thread.
