@@ -63019,3 +63019,61 @@ byte loss). WHAT REMAINS IS PRODUCT CODE + A CYCLE, no more probes:
      user; cross-USER DACL denial) fold into that cycle.
 This is a large change to the API auth/session path and needs the owner's go
 before the build. Tree current, tokens to b181, inbox empty.
+
+## 17 Sep 2026 - RELEASE_1.1 55 parity build STARTED: win32_session_spawn() written + syntax-clean; the file-by-file spec from the trace
+
+Owner: ship at parity, start the product code. Traced the real flow first:
+sdwind.c accept+fork+execl("sd","-N",...); the sd -N process (LocalSystem) runs
+the relay (sd_tls_relay_start in linuxio.c:295 -> win32relay.c) and SCRAM
+(APISRVR vb.scram.final), and at op_kernel.c:296 K_ASSUME_USER calls
+AssumeUserIdentity (win32s4u.c, seteuid in place - the 55 defect). The BASIC
+login completes in apisrvr line 1638-1683: K$SET.USERNAME, K$ASSUME.USER, then
+response='v=':scram.ssig (SCRAM server-final), logged.in=@true, return.
+
+FIRST SLICE, written and syntax-clean (sd C flags): gplsrc/win32session.c +
+win32session.h - win32_session_spawn(username, pipename, &proc, &pid): mints the
+user's token (win32_s4u_logon, no password), primary, and CreateProcessAsUser's
+sd "-N -A <pipename>" AS the user, with NO privilege strip and NO integrity drop
+(the user's own session, like Linux setuid - unlike win32relay.c's bare relay).
+It inherits no handles; the session opens the pipe itself (probe-sessionsp: a
+raw-spawned Cygwin child cannot adopt an inherited socket). Makefile needs no
+change - gplsrc/*.c is a wildcard and -luserenv/-lsecur32 are already linked.
+Not yet called.
+
+THE REMAINING BUILD, file by file (design settled by the probes; the one new
+mechanism beyond them is the front<->relay control channel):
+  1. sd.c (arg parse ~482): add "-A <pipename>" - a sub-mode of CN_SOCKET
+     meaning "pre-authenticated API session, I/O is this pipe, skip SCRAM".
+  2. session I/O: a -A session opens the pipe (CreateFile +
+     cygwin_attach_handle_to_fd -> fds 0/1, probe-sessionpipe) instead of the
+     inherited socket, and does NOT call sd_tls_relay_start (the relay already
+     exists, spawned by the front). Its identity is its own token (it IS the
+     user), so APISRVR skips vb.scram.* and enters the logged.in loop directly.
+  3. win32relay.c / sd_tls.h: win32_relay_spawn gains a CONTROL channel (a
+     second socketpair to the relay) so the front can hand it, at cutover, the
+     pipe name + the user's SID (for the pipe DACL) + the spawned session's PID
+     (for GetNamedPipeClientProcessId). The relay app-side stays the existing
+     socketpair during SCRAM.
+  4. sdtlsrelay/sdtlsrelay.c: on a control message, the relay creates the
+     SID-ACL'd pipe as SERVER (so it persists after the front exits; the front
+     cannot be the server - it exits), waits for the session to connect,
+     verifies the client PID == the session PID, then CUTS OVER its app side
+     from the front socketpair to the pipe and pumps TLS<->pipe
+     (probe-relaycutover; the front signals by closing its app-side after the
+     server-final, graceful close = the ECOMM lesson).
+  5. op_kernel.c: a new $internal key K$HANDOFF(username) replacing
+     K_ASSUME_USER's role - it calls win32_session_spawn and signals the relay
+     over the control channel, returns 1/0. K_ASSUME_USER/AssumeUserIdentity
+     stay for now (ssh/other callers) but the API stops using them.
+  6. APISRVR vb.scram.final (~1675): after the server-final response is on its
+     way to the client, replace K$ASSUME.USER + logged.in-loop with K$HANDOFF,
+     then the FRONT exits (it no longer runs the user's BASIC - the spawned
+     session does). Order: send v=ssig, then hand off, then close the app-side.
+  7. install-service: no new account (the session is the user; sdrelay already
+     exists). verify-apiidentity: assert the held session's REAL token is the
+     user with no SeTcb and no SYSTEM underneath (turn verify-relayidentity's
+     parent control onto the session). A cycle proves it; the two owner-elevated
+     crux-(1) confirmations fold in.
+OPEN DECISION for the builder: the control channel is a second socketpair vs a
+named control pipe - socketpair is simplest and reuses win32_relay_spawn's
+handle-list machinery. Tree current, tokens to b181, inbox empty.
