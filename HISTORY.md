@@ -62313,3 +62313,40 @@ not), the literal's length, that the function returns no value, that the gate
 reads state, and both -Remove call sites; mutant on a copy, live file asserted
 unchanged. Joins the free tier (44). b167 is spent; the next cycle is owed for
 one shipped file.
+
+## 16 Sep 2026 (same session) - second cycle: the relay died before main(), 0xC0000142, because the static OpenSSL imports USER32
+
+The owner cycled again (22:41) and ran the same four steps as b168. The account
+was there (relayidentity step 1 all PASS), and the handshake still failed.
+
+Where the answer was: syslog() on this port is the Windows Application event
+log, provider sd_Log - not sdsys\errlog, which is log_message()'s. It is
+readable unelevated, so from this shell: "SD API TLS: relay could not
+initialise (0xC0000142: a DLL it needs is missing)" on every connection, and
+the first cycle's "cannot log the relay account sdrelay on" before it. Both
+cycles were diagnosed from that log without touching the install.
+
+The cause was not a missing DLL. The relay's imports were all system DLLs, and
+probe-relaychild.exe, spawned the same way, had run at Low as the bare account.
+The one difference in the import tables: the static libcrypto imports USER32
+(GetProcessWindowStation, GetUserObjectInformationW, MessageBoxW - the
+OPENSSL_isservice/showfatal path). USER32's initialisation connects the process
+to a window station, and a bare account's fresh S4U logon session in session 0
+has no right to the service's WinSta0\Default. The loader gives up before
+main(): STATUS_DLL_INIT_FAILED.
+
+Reproduced unelevated by gplbld/probe-user32desk.c, no bare account needed: a
+Low copy of the caller's token on winsta0\default ran both the relay (exit 6)
+and probe-relaysp-child (exit 7); on winsta0\zz-no-such-desktop the unfixed
+relay died 0xC0000142 and the child still exited 7. Fixed by defining the three
+__imp_* pointers in sdtlsrelay.c as local stubs so libuser32.a is never pulled;
+objdump shows USER32 gone. The probe then became the regression check: the
+fixed relay exits 6 on both desktops while whoami.exe (a USER32 importer) dies
+0xC0000142 on the bad one - the control that the desktop really was
+unreachable. stage.py's NATIVE_ONLY forbids user32 for the relay; verify-
+relayidentity requires no user32 module; test-tlsrelay-units still 27/27.
+
+HANDOFF 80 had listed this failure code as plausible and given the wrong reason
+for it (a UCRT DLL out of reach). The row is corrected in place rather than
+deleted, because a conditional that was wrong is worth more to the next reader
+than one that was never written.
