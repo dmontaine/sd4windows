@@ -62811,3 +62811,21 @@ the server ever holding it, which is why S4U and SeTcb are needed. 55 records tw
 unmeasured directions (launcher; password login via LogonUser) with what each
 leaves in place. 53's accept-and-document recommendation withdrawn - same
 exposure. Release chain 47-49 now waits on 55.
+
+Comprehensive handoff written (HANDOFF 82) at the owner's request, covering the
+history, the issue and the solution. The history, from HISTORY.md's own S4U
+entries: the ssh/Linux "become the user" template was the guide; S4U works and
+43 used it for the relay; AssumeUserIdentity (seteuid + CW_SET_EXTERNAL_TOKEN)
+is the in-place adopt that leaves the token SYSTEM; the measured dead end was a
+non-SYSTEM/service account adopting the token (probe-svcimp, 1314 without
+SeTcb) - that 1314 wall is the "everything failed". Not tried: (a) a broker
+that spawns the session as the user (deferred as too large); (b) LogonUser over
+TLS (ruled out 23 Aug for want of a channel and a server-side password, which
+41 has since provided). Prior art recorded (LogonUser-with-password as SD's own
+sshd does, privilege separation as RDP/OpenSSH/IIS do, Kerberos S4U). Owner's
+constraint on any fix: keep point-to-point encryption AND give the session no
+system access, matching the Linux port. Linux parity: (a) needs no Linux
+change; (b) is a shared-protocol change Linux does not need for security, so it
+would perturb a correct port for Windows' benefit - an argument for (a). Next
+is a LogonUser-without-SeTcb probe before any product code. Tree current,
+tokens to b181, inbox empty.
