@@ -62095,3 +62095,53 @@ this load is not the runtime at all: it is the S4U mint per connection (open
 point (f)), which is the same work whichever runtime is chosen and which nothing
 has measured at concurrency. Nothing in the probe models TLS or the socket
 handover either, and the entry says so rather than letting exit 0 imply it.
+
+## 16 Sep 2026 (next session) - the shared-namespace finding is RETRACTED: it was a vacuous pass, the key IS per-path, and the relay runtime recommendation reverses
+
+The entry above and its predecessor both leaned on "3 copies produced 1 relocated
+key", which was wrong, and wrong in the way this file exists to prevent.
+
+probe-relockey held each copy alive with a relocated sleep.exe. sleep.exe imports
+msys-intl-8.dll as well as msys-2.0.dll; only msys-2.0.dll was copied, and msys64
+is not on PATH. So every holder died in the LOADER. Two consequences, and the
+second is the lesson. The dialogs are rendered by CSRSS, not by the failing
+program, and CSRSS queues them - so ~50 blocked processes from probe-relayscale
+phase 2 left 32 dialogs that kept arriving on the owner's screen one at a time,
+and killing every child did not clear them. They showed up only as csrss with
+MainWindowTitle "sleep.exe - System Error", and were cleared by posting WM_CLOSE
+to each dialog window; csrss itself must never be killed. No reboot was needed.
+And a process blocked on a hard-error dialog has NOT exited, so HasExited was
+false and both scripts counted them alive: phase 2 reported 50/50 and relockey
+reported a shared namespace, for runtimes that never executed an instruction.
+
+The rule out of it is not "copy the other DLL". It is that a process may never be
+counted because it EXISTS - it must say something only a running one can say.
+Every holder now prints "msyshello: started, pid N, integrity 0xNNNN" or the run
+refuses, and a child's imports are checked with objdump -p before copies of it
+are launched.
+
+probe-relocattr.ps1 is the corrected instrument, and it asks the question the two
+artefacts cannot corrupt: how many NEW keys appear when N copies at N FRESH paths
+each prove they ran. 1 gave 1, 2 gave 2, 3 gave 3 twice, the last naming the
+owning PID and directory for every key. The key is per-path, and a relocated
+relay runtime gets a PRIVATE namespace.
+
+Both artefacts are now measured rather than assumed, because each had already
+produced a confident wrong answer. An object directory outlives the run that made
+it: with -Count 0 one key is present and the scan finds no live runtime at all,
+so a scan is never a census - and the once-"unexplained" fourth key
+dd50a72ab4668b33 was simply a leftover from a copy staged earlier in the session.
+And an unelevated token cannot read ExecutablePath for another account's process
+- 121 unreadable in the clean run - which is why 11f4a83b0f193bff looked
+ownerless when its owner is the SD service, a LocalSystem MSYS2 process.
+
+So the options collapse from three to two, and the recommendation reverses
+HANDOFF 77. A registered second install is moot, having existed only to buy a
+private key. Native at Low is proven end-to-end and starts a relay about 1.35x
+faster, but costs two relay sources forever. Relocated MSYS2 at Low keeps ONE
+source shared with Linux, starts at Low beside sd, and has its own namespace -
+and native had won only because an MSYS2 relay was believed impossible at Low.
+RELEASE_1.1 53 is unaffected either way: it is sd's own runtime that is writable
+at Medium, which no relay-side choice touches. Recommended, not decided; the
+falsified-ifs are the relay's OpenSSL against a relocated runtime, and staging a
+second msys-2.0.dll without colliding with sd's on PATH.
