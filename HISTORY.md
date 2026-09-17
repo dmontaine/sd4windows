@@ -62145,3 +62145,50 @@ RELEASE_1.1 53 is unaffected either way: it is sd's own runtime that is writable
 at Medium, which no relay-side choice touches. Recommended, not decided; the
 falsified-ifs are the relay's OpenSSL against a relocated runtime, and staging a
 second msys-2.0.dll without colliding with sd's on PATH.
+
+## 16 Sep 2026 (next session) - the relay runtime question is CLOSED: native, option 1; 2a was option 1 with baggage
+
+The owner stopped it: "we seem to be trashing between options - this has to be
+over 10 times through options - is 2a really different than things that have
+already been tried." It was not, and the answer had been on disk for hours, in
+two lines that had been read as separate dead ends rather than as one constraint.
+
+The count is real: 3a, 3b, 3c, the relay/session split, the attach-fd handover,
+SCM_RIGHTS, architecture B, the native child, MSYS2-at-Low, iteration 5, the
+relocated runtime, a registered second install, 2a, 2b.
+
+The closing argument, four steps, every one already measured. Relocating the
+runtime forces a SPAWN, because a fork()ed child shares the parent's msys-2.0.dll
+and its token and so can be neither relocated nor dropped. A spawned Cygwin child
+can adopt NEITHER thing the relay needs: the socket gives EINVAL and the pipe
+gives EBADF through cygwin_attach_handle_to_fd. So the socket, the pipes to sd,
+and relay()'s poll() loop must all become native Win32 - the whole body of the
+relay. What would remain shared with Linux is sd_tls_restrict_ctx and the binding
+export, when identity loading is already Windows-only (win32tls.c's DACL walk
+replaced Linux's st_uid/st_mode) and Linux is a separate repository anyway, so
+sd_tlssrv.c is two parallel copies whatever is chosen.
+
+So "one shared source" - the only thing option 2 was ever bought for - was never
+available for a dropped, relocated relay. 2a is option 1 plus an MSYS2 emulation
+layer inside the process that parses hostile bytes, plus a second msys-2.0.dll to
+ship and stage, plus about 1.35x slower relay start, for zero sharing. Strictly
+worse on every axis including security, since it adds code to the hostile-parsing
+process and removes nothing.
+
+The relay is native, at Low, per connection, and iteration 5 already proved that
+end to end (ANSWERED FULL). Next is the product build, not another probe.
+
+The relocation measurements stand as true and none of them bears on the decision:
+probe-relocrt (a relocated runtime starts at Low beside sd), probe-relockey and
+probe-relocattr (the object-directory key is per path, 1->1, 2->2, 3->3), and
+probe-relayssl (OpenSSL 3.6.3 builds a TLS 1.3 context at Low with all three
+modules loaded from the relay's own directory). They were worth taking - they
+killed a false "impossible" - but the blocker was always the fd layer, not the
+runtime. That is the lesson: when a decision keeps reopening, look for the
+constraint that survives every variant instead of re-testing the variants. Only
+one thing reopens this - a measurement that a spawned Cygwin child CAN use an
+inherited socket or pipe as a Cygwin fd.
+
+probe-relaybio.c, a half-built probe for 2a's custom OpenSSL BIO over native
+Winsock, was deleted rather than finished. It failed to compile on an ioctlsocket
+pointer type, was never run, and nothing was concluded from it.
