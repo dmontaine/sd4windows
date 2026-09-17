@@ -62596,3 +62596,35 @@ One probe fault worth its line: probe-killzero.ps1's first elevated run died
 on "Cannot overwrite variable pid because it is read-only" - $pid is an
 automatic variable and I had named a parameter after it. The $args trap in a
 new costume; a one-off scan found no other gplbld script doing it.
+
+## 17 Sep 2026 - 37 witnessed on the 01:26 cycle; 7 closed as defensive; the C:\Users census
+
+The owner cycled at 01:26 and ran verify-deadlock at 01:27. It killed its
+holder at 01:27:41 and probed every twenty seconds: "named" twelve times, and
+at the daemon's first tick - sdwind had started 01:26:36, so 01:31:36 - errlog
+received both lines in the same second, "Lost user 8 (pid 1100): running
+/usr/bin/sd -cleanup" and "Cleanup removed user 8 (pid 1100, Don).", and the
+next probe read "none". 15 of 15, exit 0; no hang, no Forced logout, a fresh
+session ran WHO afterwards, fixtures removed. The first time the daemon's
+cleanup has run on an install. The owner thought the run was stuck at
+01:30:25; it was waiting for the tick, and the errlog was readable from the
+agent's shell, so the two lines were seen live before the script reported.
+
+7 closed the same way the row proposed: the (gone) line answers a lock whose
+owner's slot is unmapped, a reaped slot's locks go with it under the same two
+semaphores GETLOCKS reads under, and the run showed exactly "named" then
+"none". The fix stays as defence. RELEASE_1.1's open rows are 40, 53, 54 and
+the release chain 47-49.
+
+Beside it, the owner asked whether 36 leftover C:\Users directories could be
+cleaned. A read-only census: all 36 orphans with ProfileList entries, 29 with
+hives still loaded (PRE_RELEASE 185 - a restart releases them), and six that
+matched no sweep stem because they came from hand-run tools in no runner
+(verify-vocwrite, verify-apiwire, interop-account). clean-test-profiles.ps1
+gained sdvocw and sdwire as stems and zzinteropw as a bare name, with the
+real names as fixtures. Two shapes the coverage guard imposes on that file,
+met the hard way: no parentheses inside the $stems literal, and $bare on one
+line - test-stemcoverage-units reads both with a regex that stops at the first
+close-paren and the first newline. The owner asked why a new script was being
+written; none was - the existing sweep was extended, and the census was a
+scratch file outside the repository.
