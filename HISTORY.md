@@ -62842,3 +62842,45 @@ EINVAL/EBADF crux, measured for a Cygwin child but not for a user-spawned
 session). Crux (2), moving the SCRAM parse to an unprivileged front so nothing
 is SYSTEM even pre-auth (the OpenSSH-privsep / Linux-nobody shape), is the
 larger design half. RELEASE_1.1 55 and HANDOFF 82 updated.
+
+## 17 Sep 2026 - RELEASE_1.1 55 (a) crux (1) MEASURED: the socketpair-inheritance handover is dead for a user-spawned Cygwin session
+
+gplbld/probe-sessionsp.c (MSYS2 parent, stands in for sd's LocalSystem front +
+relay), probe-sessionsp-cyg.c (the Cygwin socket helpers) and
+probe-sessionsp-child.c (a Cygwin program, stands in for the user-spawned
+session), unelevated. The parent makes a Cygwin socketpair, puts the session
+end on the child's std handles (STARTF_USESTDHANDLES, inheritance restricted to
+that one handle + a NUL for stderr via PROC_THREAD_ATTRIBUTE_HANDLE_LIST), and
+drives the other end as the relay would: greeting, ack, 256 KiB echoed both
+ways, then close for EOF.
+
+SPAWN TEST (CreateProcess, exit 1): the child's fd 0 came up SO_TYPE 0 (not a
+socket), poll revents 0, and read() returned EFAULT (errno 14); the parent's
+recv on the relay end got ECONNRESET (104). The account was never reached - the
+fd fails under the SAME token, so CreateProcessAsUser cannot do better. CONTROL
+(--forkctl, fork()+dup2-to-0/1+execl - sd's real handover today, exit 0): the
+IDENTICAL child came up SO_TYPE 1 (SOCK_STREAM), poll worked, 262144/262144
+echoed intact, clean EOF. So the child code is sound and the FAIL is
+spawn-vs-fork, not the harness.
+
+The cause is Cygwin's, not this project's: a Cygwin socket fd is reconstructed
+only across Cygwin's own fork/spawnve (which carries the cygheap and does the
+internal socket-duplication); a raw Win32 spawn - which CreateProcessAsUser
+necessarily is, to run as another user - hands the child a bare handle its
+Winsock never registered, so it is a non-socket that read()s EFAULT. This is
+the SAME wall 43 hit from the other side (cygwin_attach_handle_to_fd -> EINVAL
+on an inherited socket); the constant across every variant is that no inherited
+handle becomes a working Cygwin socket in a raw-spawned child.
+
+CONSEQUENCE, CONDITIONAL. Direction (a) stands, but its handover cannot reuse
+the existing socketpair: the user-spawned session must OPEN ITS OWN channel to
+the front/relay - a loopback listener the front owns and the session connect()s
+to (the architecture-B shape, where the socket is created inside the session's
+own runtime and so is a real fhandler_socket), or a named pipe (untested;
+43 measured an inherited native pipe adopted into Cygwin reads EBADF, but a
+pipe the session opens itself is a different question). That reconnect probe -
+plus how the front authenticates the loopback connection and hands the session
+its tls-exporter binding - is the next measurement. Crux (2) (moving SCRAM to an
+unprivileged front) is unchanged and still the larger design half. Falsified-if
+(reopens this): a raw-spawned Cygwin child is shown to use an inherited socket
+or pipe end as a working Cygwin fd. Tree current, tokens to b181, inbox empty.

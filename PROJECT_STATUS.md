@@ -179,6 +179,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> # ⇩⇩⇩ HANDOFF 83, 17 Sep 2026 — ***RELEASE_1.1 55 (a) CRUX (1) MEASURED: THE OBVIOUS HANDOVER IS DEAD. A USER-SPAWNED CYGWIN SESSION CANNOT REUSE THE RELAY'S SOCKETPAIR — A RAW WIN32 SPAWN (WHAT `CreateProcessAsUser` IS) HANDS IT A BARE HANDLE ITS WINSOCK NEVER REGISTERED, SO THE fd READS `EFAULT`. (a) IS NOT DEAD; ITS HANDOVER MUST INSTEAD HAVE THE SESSION OPEN ITS OWN CHANNEL TO THE FRONT. NO TREE CHANGE, NO RUN TOKEN SPENT.*** ⇩⇩⇩
+>
+> | | |
+> |---|---|
+> | install | unchanged from HANDOFF 82 — **17 Sep 04:00:54, current, nothing owed**. This session built and ran probes only (`gplbld/probe-sessionsp*`, unelevated gcc + local runs); no cycle, no `bin\` change |
+> | tokens | **`b181` still unspent** — the probe is unelevated and needs no run token |
+> | mail | `P:\sdcore-mail\to-windows\` **empty**, checked at start |
+> | ***WHAT WAS MEASURED (observed)*** | `probe-sessionsp` (HISTORY.md 17 Sep). SPAWN TEST (`CreateProcess`, the session end on the child's std handles, handle-list restricted): child `fd 0` came up `SO_TYPE 0`, `poll` dead, `read()` **EFAULT (14)**; parent recv **ECONNRESET (104)**. CONTROL (`--forkctl`, `fork()`+`dup2`→0/1+`execl`, sd's handover today): the **identical child** came up `SO_TYPE 1`, poll worked, **262144/262144 echoed, clean EOF**. So the child code is sound and the FAIL is spawn-vs-fork. ***The account was never reached — the fd fails under the SAME token, so `CreateProcessAsUser` cannot do better.*** Cause is Cygwin's: a socket fd survives only Cygwin's own fork/spawnve; a raw spawn (which running-as-another-user requires) cannot carry it. Same wall as 43's `cygwin_attach_handle_to_fd`→`EINVAL` |
+> | ***NEXT — THE RECONNECT PROBE (conditional; nothing here is measured)*** | (a) stands; the handover just cannot reuse the socketpair. The session must OPEN ITS OWN channel so the socket is created inside its own runtime: a loopback listener the LocalSystem front owns and the user-spawned session `connect()`s (the architecture-B shape), or a pipe the session opens itself. The probe: a raw-spawned Cygwin child `connect()`s a loopback listener and runs the relay-side exchange — does the session's *self-made* socket work where the *inherited* one did not (it should — it is a real `fhandler_socket`), and can the front match the accepted loopback connection to the session it spawned and hand it the 32-byte tls-exporter binding? *Falsified-if:* the self-opened channel also fails, or the front cannot bind an accepted loopback connection to the right session. Crux (2) (SCRAM to an unprivileged front) is unchanged and the larger design half |
+> | ***DO NOT RE-SPEND*** | the socketpair-inheritance handover — measured dead, both directions (this session's `EFAULT`; 43's `EINVAL`/`EBADF`). The variant worth a run is the session opening its OWN channel, not another way to inherit one |
+>
+> *(HANDOFF 82 follows; its issue/history/Linux/prior-art rows are the measured facts (a) rests on and are still current.)*
+
 > # ⇩⇩⇩ HANDOFF 82, 17 Sep 2026 — ***RELEASE_1.1 55 IS THE BLOCKER, AND IT IS THE ONE THE PORT HAS CIRCLED SINCE AUGUST: EVERY AUTHENTICATED API SESSION IS STILL A LocalSystem PROCESS. 43 CARRIED THE FIX THROUGH FOR THE RELAY ONLY. THE TWO CLEAN ROUTES FOR THE SESSION WERE EACH CLOSED OFF BY A CONSTRAINT THAT HAS SINCE CHANGED. ***OWNER CHOSE OPTION (a), 17 Sep 2026 — THE BROKER THAT SPAWNS THE SESSION AS THE USER, PROTOCOL UNTOUCHED, NO LINUX CHANGE.*** NOTHING IS OWED ON THE TREE; TOMORROW STARTS WITH (a)'s FIRST PROBE, NOT A CYCLE.*** ⇩⇩⇩
 >
 > | | |
