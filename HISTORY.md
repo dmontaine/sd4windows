@@ -62519,3 +62519,25 @@ audit line read live - "LOGTO REFUSED account=SDSYS reason=session did not start
 elevated", the pre-45 reason absent, the elevate call never reached. Every red
 row the four suite attempts found is closed and witnessed. Tokens b167-b174
 spent.
+
+## 17 Sep 2026 - (f) measured: the S4U mint holds at 50 and 100 concurrent, and leaks nothing
+
+The owner asked for it directly. gplbld/probe-s4uload.c (native, UCRT64) and
+probe-s4uload.ps1, which runs it as a SYSTEM scheduled task - SeTcb is what S4U
+needs - against the INSTALLED sdrelay, the account the product mints. Four
+shapes and a leak check, every mint printing its status, the null case refused
+(no SeTcb, or an account that will not mint once). Unelevated control: --mint
+refuses 0xC0000041 from LsaRegisterLogonProcess.
+
+Owner-run, n = 50, ANSWERED with nothing falsified. SERIAL 0.4/0.5/0.6 ms a
+mint. THREADS, fifty released together and every token held until all had
+minted: 50/50, 15 ms wall, per-mint 12.5/17.6/19.6 ms - LSA queues the fifty
+and refuses none. PROCS, the product's shape: 50 processes 50/50 in 219 ms,
+100 processes 100/100 in 359 ms, process start dominating and the mint 1 to
+13 ms inside it. Logon sessions 20 before, 70 with fifty tokens held - exactly
+plus fifty, so the peak was real - and 20 again after the last token closed.
+
+So fifty simultaneous API connections cost LSA about fifteen milliseconds of
+mint work, a connection's logon session goes when its relay does, and the last
+open point of the relay build is closed. RELEASE_1.1 43 has nothing open;
+53 stands beside it, unchanged.
