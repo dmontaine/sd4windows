@@ -62513,3 +62513,9 @@ issued LOGTO SDSYS from an unelevated start, and the one that anchored on the
 pre-45 audit reason. The 10 stuck hives at the top of the run are PRE_RELEASE
 185. Open: the sdsysgate fix is unwitnessed until b174 -Only verify-sdsysgate;
 (f), LsaLogonUser under concurrency; RELEASE_1.1 53.
+
+b174 (00:34), -Only verify-sdsysgate: 11 of 11 decisive. The non-administrator's
+audit line read live - "LOGTO REFUSED account=SDSYS reason=session did not start
+elevated", the pre-45 reason absent, the elevate call never reached. Every red
+row the four suite attempts found is closed and witnessed. Tokens b167-b174
+spent.
