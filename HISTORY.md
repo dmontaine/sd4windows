@@ -62731,3 +62731,28 @@ lines intended - Windows' "Settings to access printer 'zz-no-such-printer'
 are not valid." and SD's "Print job not sent ... (exit 1) - is the name
 right?" - with none of the dump. Read from the step transcript, not the
 summary alone. Tree current; nothing owed for 54. Open before 47: 40, 53.
+
+## 17 Sep 2026 - 40's witness instrumented ("do 40"): captions into the setup log, -Prepare and -SetupLog on verify-realupgrade
+
+40 was built 16 Sep (SayStep before each of the three hidden upgrade steps)
+and owed a real W1.0-0 -> W1.1-0 upgrade with the captions seen. The whole
+upgrade takes ~19 s here, so each caption is on screen for a few seconds;
+eyes alone would be a thin record. SayStep now also calls Log('SayStep: '
++ S), so an install run with /LOG=<file> keeps every caption it painted, and
+a first install - where the calls sit after DataTreeWasAbsent - keeps none.
+
+verify-realupgrade.ps1: -Compare takes -SetupLog <file> and requires the
+three captions present, exactly three SayStep lines, in the order the steps
+run (RefreshDictionaries, RefreshAccountVocs, RefreshNocase - sd.iss
+:4213/:4219/:4233); a missing log is exit 2. The judge was driven on
+synthetic Inno logs before it went in: good PASS; one missing, wrong order,
+fresh-install log each FAIL. -Prepare replaces handoff 73's four hand steps
+(stop, uninstall, delete, install W1.0-0) up to the install: it stops SD
+with cycle.ps1's own shape, runs unins000 /VERYSILENT and waits for the
+Program Files tree to go rather than on the process (Inno's uninstaller
+copies itself and returns), deletes both trees, and first hash-checks the
+shipped W1.0-0 installer (b7d37fb6..., matched here) so a wrong file is
+found before anything is torn down. Argument refusals driven live; -Prepare
+itself not run from the agent shell (it is the teardown). sd.iss is proved
+only by ISCC, so the cycle at the head of the seven-command sequence is
+where a typo in the one added line would show.
