@@ -62017,3 +62017,53 @@ reading. And the three probe .exes are gitignored, so they were rebuilt from
 source before the run and their imports checked per DLL: probe-relaychild.exe
 carries no msys-2.0.dll (native confirmed), probe-relaydrop.exe carries
 msys-2.0.dll and no WS2_32.dll (the -lcygwin-first link trap avoided).
+
+## 16 Sep 2026 (next session) - the relay runtime reopens: a relocated msys-2.0.dll DOES start at Low, and the obvious explanation for it is wrong
+
+HANDOFF 77 recorded the native relay's cost as a kept objection - a second relay
+source beside Linux's sd_tlssrv.c - and named one alternative that keeps a single
+source, a separately-pathed copy of msys-2.0.dll, which it rejected UNMEASURED.
+It is now measured, unelevated, no token and no cycle.
+
+probe-relocrt.ps1, exit 0. With a Medium process of the shipped C:\msys64 runtime
+held alive: the shipped runtime's own program died 0xC0000142 naming
+\BaseNamedObjects\msys-2.0S5-11f4a83b0f193bff (control A, the condition under
+test reproduced), while a copy of msys-2.0.dll in %TEMP% ran at Low, integrity
+0x1000, fork ok, pipe ok. Control B ran the same copy at Medium first, so a Low
+failure could not have been blamed on a broken copy, and PATH excluded C:\msys64
+for the relocated runs so the copy was the only reachable DLL. An MSYS2 relay at
+Low is therefore not impossible, and the native-only conclusion rested on an
+assumption nobody had tested rather than on the trials that produced it.
+
+The obvious explanation - that the object-directory key is derived from the DLL's
+path - was then falsified by its own control. probe-relockey.ps1 put copies at
+three shapes (a plain directory, a deeper one, and a real <root>\usr\bin layout)
+and held all three alive beside the shipped runtime, scanning the namespace once:
+3 copies produced 1 relocated key, dd50a72ab4668b33, not three. So the key
+separates registered installs, and every unregistered copy on the machine shares
+one namespace. A relocated relay would share it with any other software shipping
+an msys-2.0.dll - RELEASE_1.1 53's class of exposure moved rather than removed,
+and 53 is what made the Low drop mandatory in the first place.
+
+That leaves a trade rather than an answer, and it is the owner's: native at Low
+with two relay sources maintained; relocated MSYS2 at Low with one source and a
+shared namespace; or a properly registered second install, which would dominate
+both and is unmeasured - what makes a layout "registered" was not established,
+and the usr\bin shape alone did not do it.
+
+Two harness traps, both Windows PowerShell 5.1, both caught by running the driver
+rather than by reading it, and both are now in probe-relocrt.ps1's header. "2>&1"
+on a native exe wraps each stderr line in a NativeCommandError and sets $? false
+even on exit 0 - fatal here, because these children are EXPECTED to write to
+stderr - so both streams go to redirect FILES instead. And a PowerShell function
+returns everything it emits, so narration inside one landed in the caller's
+exit-code variable; that produced a verdict line reading "control B failed
+(exit )" and the script refused with exit 2 rather than scoring it, which is the
+only reason it was visible.
+
+Both probes were listed in assert-current's $neverShipped in the commit that
+created them. assert-current could not be run to confirm it: this session's shell
+predates the 11:53 install, so it refuses exit 2 on the sdusers SID condition
+(PRE_RELEASE 182), as test-sysmsg-units does in the free tier - 41 green, not
+42/42. The listing's actual requirement was checked directly instead: neither
+name appears in stage.py or sd.iss.
