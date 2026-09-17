@@ -63077,3 +63077,47 @@ mechanism beyond them is the front<->relay control channel):
 OPEN DECISION for the builder: the control channel is a second socketpair vs a
 named control pipe - socketpair is simplest and reuses win32_relay_spawn's
 handle-list machinery. Tree current, tokens to b181, inbox empty.
+
+## 17 Sep 2026 - RELEASE_1.1 55 CORRECTION: the session must get the pipe as STD HANDLES, not cygwin_attach_handle_to_fd - probe-sessionpipe validated a mechanism sd cannot use
+
+Writing slice 2 (the -A session's pipe I/O) surfaced a MEASURED warning already
+in the tree: sd.c:460 and PROJECT_STATUS §7 step 11 record that a descriptor
+built by cygwin_attach_handle_to_fd() from a raw HANDLE is reported PERMANENTLY
+READY by select() ("sel.always_ready 1"), which makes sd's poll-driven input
+layer spin - alive, silent, never replying. win32pipe.c (the attach path) is NOT
+called; the shipping SDLocal client uses sd.c's -C1!0, handing the pipe over as
+STD HANDLES, which Cygwin wraps as a real fhandler_pipe with working select.
+
+probe-sessionpipe used cygwin_attach_handle_to_fd and NEVER tested the
+empty-poll case (it always had data or EOF), so its "pollable, PASS" was against
+the wrong mechanism - the one sd cannot use. This corrects that claim.
+
+gplbld/probe-pipestd.c + probe-pipestd-child.c, unelevated: the parent creates a
+native duplex pipe (server), opens the client end itself, and raw-spawns the
+Cygwin child with the client end on its STD HANDLES (two DuplicateHandle copies,
+one per descriptor - win32pipe.c's rule, needed here too or read-after-write on
+the shared handle stalls). The child tests the EMPTY-poll FIRST, before the
+parent sends anything (the parent waits for the child's READY line):
+  EMPTY-POLL: poll(0,0ms)=0 revents=0x0 -> not ready when empty (REAL select,
+  not the always-ready trap)
+then greeting/ack/echo/EOF all held (8192-byte messages, 32768 round-tripped).
+So a native pipe on std handles is the mechanism sd's session must use.
+
+WHAT CHANGES IN THE BUILD (this replaces the "session opens the pipe by name"
+half of the earlier spec; the topology and the relay/cutover are unaffected):
+  - The FRONT (LocalSystem) opens the pipe CLIENT end (CreateFile) and passes it
+    to the spawned session as its std handles (STARTF_USESTDHANDLES + a handle
+    list, TWO dups). The session does NOT open the pipe and does NOT attach - it
+    just uses fds 0/1, like -C1!0's no-op dup2.
+  - So win32_session_spawn (slice 1) is REVISED: it takes the pipe client HANDLE
+    (void*), not a pipe name, and passes it as the session's std handles. The
+    "-A" flag needs no pipe-name argument - 0/1 already are the pipe.
+  - SECURITY BIND changes accordingly and is SIMPLER: the front (LocalSystem)
+    opens the sole client end and hands it only to the session it spawned;
+    single-instance + the pipe's SID-DACL (so no other process can open the
+    client before the front) give the bind. GetNamedPipeClientProcessId is not
+    used (it would see the front, the opener) and is not needed.
+  - The RELAY stays the pipe SERVER (it persists; the front exits); probe-
+    relaycutover's cutover is unaffected - it already had the relay create the
+    pipe as server.
+Tree current, tokens to b181, inbox empty.
