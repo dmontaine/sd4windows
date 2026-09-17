@@ -62829,3 +62829,16 @@ change; (b) is a shared-protocol change Linux does not need for security, so it
 would perturb a correct port for Windows' benefit - an argument for (a). Next
 is a LogonUser-without-SeTcb probe before any product code. Tree current,
 tokens to b181, inbox empty.
+
+Owner chose option (a) - the broker that spawns the session as the user -
+17 Sep 2026, after confirming the API still requires a password either way
+(SCRAM proves it without sending it; only (b) would move the password onto the
+server). (a) keeps TLS+SCRAM untouched, needs no Linux change, keeps the
+password off the server; (b) rejected for perturbing a correct Linux port and
+putting the password on the server. So the next step is no longer the LogonUser
+probe; it is (a)'s connection-handover probe - whether a session spawned as the
+user with CreateProcessAsUser can use the relay's socketpair end (the
+EINVAL/EBADF crux, measured for a Cygwin child but not for a user-spawned
+session). Crux (2), moving the SCRAM parse to an unprivileged front so nothing
+is SYSTEM even pre-auth (the OpenSSH-privsep / Linux-nobody shape), is the
+larger design half. RELEASE_1.1 55 and HANDOFF 82 updated.
