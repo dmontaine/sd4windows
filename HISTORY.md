@@ -62724,3 +62724,10 @@ now also tells users about "Let Windows manage my default printer".
 verify-print's refusal leg gained two checks - Windows' sentence present,
 no CategoryInfo / FullyQualifiedErrorId / "At line:N char:" - which would
 be red on the 02:30 install. A cycle is owed, then b179.
+
+The owner cycled (installed 03:09:19, bin built 03:05:42) and ran b179 at
+03:10: verify-print 15 of 15. The refusal leg's session text is the two
+lines intended - Windows' "Settings to access printer 'zz-no-such-printer'
+are not valid." and SD's "Print job not sent ... (exit 1) - is the name
+right?" - with none of the dump. Read from the step transcript, not the
+summary alone. Tree current; nothing owed for 54. Open before 47: 40, 53.
