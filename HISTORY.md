@@ -62472,7 +62472,16 @@ reached, is what 62 was about and is unchanged. Verifier only, $neverShipped,
 no cycle.
 
 Recorded because the hypothesis was written down in conversation before it was
-ruled on, and the ruling is the least-tested claim here: a real STANDARD-tier
-SD account for a Windows administrator would reopen the question. Nothing in
-the record says one can be made; CREATE.ACCOUNT's tier choice is the place to
-look if one ever is.
+ruled on. The owner then stated the model in full: an SD administrator has a
+personal administrator account and reaches SDSYS only by starting elevated,
+never by logto sdsys from an unelevated session; and nobody who is not an SD
+administrator reaches SDSYS at all, elevated or not. The code does exactly
+that at both doors - LOGIN:844 lands in SDSYS only on K$ADMINISTRATOR and
+K$OS.ADMINISTRATOR and sd_admin_tier(@logname), everyone else falling through
+to their own account; CPROC:2774 refuses logto sdsys before elevate('START')
+unless K$OS.ELEVATED and sd_admin_tier. PRE_RELEASE 91's note in LOGIN records
+that a Windows administrator WITHOUT the SD tier can exist by action outside
+SD (a domain group, a hand net localgroup) and is then refused SDSYS at both
+doors - so the case I raised is handled correctly, and only its audit reason
+reads "did not start elevated" where "not an administrator" would be exact.
+Not worth a product change; the ruling stands.
