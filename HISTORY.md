@@ -62416,3 +62416,36 @@ elements (a path came out with newlines through it); and in command-argument
 mode "(pipeline).Count -eq 0" hands the function the array and then ".Count",
 "-eq", "0" as further arguments. Both scripts are in $neverShipped, so no
 cycle is owed; the fix is unwitnessed live until b172.
+
+## 16 Sep 2026 (same session) - b172: lcnames green live; verify-sdsyswrite retired, verify-elevdoor joins both runners
+
+b172 (23:39): 27 of 28 first-half steps exit 0, verify-lcnames among them - the
+elevated re-entry works live. The 28th, verify-sdsyswrite (PRE_RELEASE 73),
+exited 2 from its own control: "the unelevated session did not reach SDSYS, so
+the write rows below measure nothing". Its whole question was whether a session
+that reached SDSYS by LOGTO from an UNELEVATED start could write $cred and
+os.users - the hole 68 lived in. RELEASE_1.1 45 abolished that session: an
+unelevated start cannot reach SDSYS at all now, so the verifier would refuse on
+every run for ever, correctly, and measure nothing.
+
+Retired rather than re-aimed. Run elevated it would pass every row and prove
+nothing 45 did not already prove; kept as a file it would be a step that exits
+2 by design. Deleted, removed from $helperAware and $neverShipped; the sdsw
+sweep stem stays because a leftover account from an old run is still worth
+sweeping (test-stemcoverage reads it as a retired stem, like sdunin).
+
+What replaces it is the thing that made it moot. verify-elevdoor.ps1 - 45's
+witness, run by the owner both ways on 15 Sep - was in NEITHER runner, PRE_
+RELEASE 112's gap again. It decides its half by its own token, so it goes in
+both: the unelevated half last in VerifyInstall1 (lands in the personal
+account, LOGTO SDSYS refused 10002, session stays, refusal written to the
+audit), the elevated half FIRST in VerifyInstall2 (lands in SDSYS, round-trips,
+reads the audit for "session did not start elevated" and Skips rather than
+passes if no refusal line is there). -ThenElevated guarantees the order. It
+creates nothing and takes no prefix. Guards: test-elevonce 60/60 (one taker
+fewer), test-stemcoverage, test-suiteonly green; elevdoor -SelfTest green.
+
+Two full-suite attempts in a row each found one more verifier that 45 had
+silently invalidated. The pattern is the one 45's own entry could have
+predicted: about twenty verifiers issue LOGTO SDSYS, and the two that did so
+from an unelevated start were the only ones the door could break.
