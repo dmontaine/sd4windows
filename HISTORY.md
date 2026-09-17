@@ -62926,3 +62926,52 @@ parse to an unprivileged front so nothing is SYSTEM even pre-auth (the
 OpenSSH-privsep / Linux-nobody shape) - is unchanged and is the larger design
 half that remains. Falsified-if (reopens this): the elevated as-a-different-user
 run cannot open or poll the pipe. Tree current, tokens to b181, inbox empty.
+
+## 17 Sep 2026 - RELEASE_1.1 55: Linux parses pre-auth SCRAM as ROOT, so crux (2) is beyond parity - measured from the clone; owner chose to ship at parity
+
+The handoffs framed crux (2) - move the SCRAM parse to an unprivileged front -
+as needed to match Linux ("Linux parses the stranger as nobody"). Checked
+against the live clone (SDCore4Linux @ 86fc2a2) and that premise is wrong for
+the SCRAM layer. op_kernel.c:322-327 (K_ASSUME_USER, Linux's AssumeUserIdentity
+equivalent) says it in its own comment: "HERE THE API SERVER IS A ROOT PROCESS
+(sdclient@.service, sd -n -q) AND BECOMING THE USER IS ... initgroups, then
+setgid, then setuid, in that order, WHILE STILL ROOT"; the case guards on
+geteuid()==0. sd_tlssrv.c:477-486: the relay is a fork() child that drops to
+nobody for TLS ONLY; the PARENT stays root and runs the session, INCLUDING the
+whole SCRAM exchange, then setuid()s at K_ASSUME_USER.
+
+So the privilege split on Linux is: untrusted TLS bytes -> nobody (Windows: the
+sdrelay Low relay, 43 - parity); untrusted SCRAM plaintext -> ROOT (Windows:
+the LocalSystem session today - also parity). Windows parsing pre-auth SCRAM as
+LocalSystem is NOT a gap from Linux; it is the same posture. Crux (2) (nothing
+SYSTEM even pre-auth) is a Windows-only hardening BEYOND Linux, not something
+the owner's constraint ("no system access for the SESSION, matching Linux")
+requires.
+
+Owner's decision, 17 Sep: ship at Linux parity, drop crux (2). So the remaining
+work to close 55 is the product build of direction (a) at parity: keep the
+LocalSystem front doing relay(43) + SCRAM (= Linux root), and REPLACE the
+in-place AssumeUserIdentity (seteuid, which leaves SYSTEM underneath - the whole
+55 finding) with a real CreateProcessAsUser spawn of the session AS the user,
+reaching it over the crux-(1) named pipe. That makes the authenticated session
+genuinely the user with no SYSTEM underneath, exactly as Linux's setuid session
+is - true parity, not just files-owned-by-the-user.
+
+PARITY ARCHITECTURE (conditional; the cutover below is not yet measured). Three
+parts, by privilege: the RELAY (native, Low, sdrelay) does TLS<->app as now
+(43); a minimal FRONT (LocalSystem, SeTcb) does the relay spawn + SCRAM, and on
+success mints the user token, creates the SID-ACL'd pipe (crux 1), and
+CreateProcessAsUser's sd AS the user with the pipe name + the 32-byte
+tls-exporter binding; the SESSION (the user) connects to the pipe and runs with
+no SYSTEM underneath. To be TRUE parity (no SYSTEM in the authenticated data
+path, as Linux has only nobody-relay + user-session), the front must LEAVE the
+data path after auth: the relay's app-side, a socketpair to the front during
+SCRAM, must CUT OVER to the session's pipe post-auth (the relay is native, so
+opening the pipe and switching its app fd is cheap) so the live path is
+relay(Low)<->session(user) with the front gone. NEXT PROBE: that cutover -
+socketpair->pipe on a post-auth signal with no byte loss and clean teardown -
+before any product code. Falsified-if: the app-side cannot be switched without
+losing buffered bytes, in which case the fallback is the front staying as a
+dumb plaintext byte-pump (a SYSTEM process in the path, but parsing nothing -
+weaker than parity, to be put to the owner). Tree current, tokens to b181,
+inbox empty.
