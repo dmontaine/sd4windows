@@ -184,7 +184,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***NEXT = SLICE 6, APISRVR — IT IS BASIC, SO IT NEEDS THE CYCLE, AND IT IS THE ONLY THING LEFT.*** HISTORY.md 17 Sep carries the trace so it is not re-derived; the two parts that cost the tracing: **the handoff cannot happen inside `vb.scram.final`** — the dispatcher sends the response at [apisrvr:420](sdb_ai/sd64/sdsys/gpl.bp/apisrvr:420) *after* the gosub returns, so calling `K$HANDOFF` in the handler would close the app side with the server-final unsent; it goes immediately **after** that `writepkt`, setting `done` either way. And **the spawned session reads `K$API.PREAUTH`** at start-up rather than being told over the wire.
 >
 > ⚠️ ***TWO THINGS ARE MEASURED BUT NOT ON AN INSTALL, AND THE CYCLE IS WHAT CLOSES THEM.*** (1) `gplbld/probe-lowpipe.c` measured that a token at **Low integrity with every privilege removed** can `CreateNamedPipe` — but as the **same user**, not `sdrelay` in its session-0 S4U logon session. (2) Every cutover row is the **unit test playing the front and the session**, not `sd` doing it. Both are "not ruled out", not "proved".
+
+> # ⇩⇩⇩ HANDOFF 84, 17 Sep 2026 — ***RELEASE_1.1 55's PARITY BUILD IS DONE EXCEPT SLICE 6 (BASIC). THE CUTOVER IS DRIVEN END TO END BY A FREE GUARD. NO CYCLE, NO ELEVATION, NO RUN TOKEN SPENT.*** ⇩⇩⇩
 >
+> | | |
+> |---|---|
+> | install | **unchanged from HANDOFF 83 — 17 Sep 04:00:54.** ***THE TREE IS NOW STALE AGAINST IT ON PURPOSE***: `gplsrc` C and `gpl.bp/int$keys.h` have both moved past `bin\`, and slice 6 needs a cycle anyway. **`bin\sdtlsrelay.exe` was rebuilt by hand** (`make sdtlsrelay`) so the guard could drive the real binary — `cycle.ps1` step 0 undoes that by deleting every binary and relinking, so nothing is owed |
+> | tokens | **`b181` still unspent.** Nothing this session needed an install, an elevation or a run token |
+> | mail | ***THE OWNER TURNED THE LINUX BOX OFF — "you do not need to poll for mail" (17 Sep).*** `P:\sdcore-mail\to-windows\` read once at start, **empty**. **No watcher and no `ScheduleWakeup` were started, deliberately.** CLAUDE.md's watcher section is written unconditionally; do not re-arm it on that wording alone while the box is off |
+> | free tier | **46/46 green, ~40 s.** `test-kernelkeys-units.py` is the new one, listed in CLAUDE.md and in `assert-current`'s `$neverShipped` in the commit that created it |
+> | git | seven commits, `origin/main` |
+>
+> *(HANDOFF 83 follows; its measured rows — crux (1), the reconnect, the SCRAM-scope cut and the cutover — are the facts this build rests on and are still current.)*
+
 > # ⇩⇩⇩ HANDOFF 83, 17 Sep 2026 — ***RELEASE_1.1 55 (a) CRUX (1) MEASURED: THE OBVIOUS HANDOVER IS DEAD. A USER-SPAWNED CYGWIN SESSION CANNOT REUSE THE RELAY'S SOCKETPAIR — A RAW WIN32 SPAWN (WHAT `CreateProcessAsUser` IS) HANDS IT A BARE HANDLE ITS WINSOCK NEVER REGISTERED, SO THE fd READS `EFAULT`. (a) IS NOT DEAD; ITS HANDOVER MUST INSTEAD HAVE THE SESSION OPEN ITS OWN CHANNEL — AND THAT RECONNECT IS NOW MEASURED PASS: A SID-ACL'd NAMED PIPE THE SESSION OPENS ITSELF, POLLABLE, CLEAN EOF, CONNECTION KERNEL-BOUND TO THE SPAWNED PID — NO LOCAL HOLE. AND CRUX (2) IS DROPPED — MEASURED THAT LINUX PARSES PRE-AUTH SCRAM AS ROOT, SO IT IS BEYOND PARITY; OWNER CHOSE TO SHIP AT PARITY. THE CUTOVER IS NOW ALSO MEASURED PASS (RELAY SWITCHES FRONT→SESSION WITH NO BYTE LOSS), SO EVERY MECHANICAL UNKNOWN IS CLOSED. WHAT REMAINS IS PRODUCT CODE (SPAWN THE SESSION AS THE USER, RELAY CUTS OVER TO ITS PIPE) + A CYCLE — NO MORE PROBES. THE BUILD IS NOW STARTED: `win32session.c` (spawn-as-user) IS WRITTEN AND SYNTAX-CLEAN; THE FILE-BY-FILE SPEC FOR THE REMAINING SLICES IS IN HISTORY.md 17 Sep. NO OTHER TREE CHANGE, NO RUN TOKEN SPENT.*** ⇩⇩⇩
 >
 > | | |
