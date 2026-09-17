@@ -62484,4 +62484,32 @@ that a Windows administrator WITHOUT the SD tier can exist by action outside
 SD (a domain group, a hand net localgroup) and is then refused SDSYS at both
 doors - so the case I raised is handled correctly, and only its audit reason
 reads "did not start elevated" where "not an administrator" would be exact.
-Not worth a product change; the ruling stands.
+Not worth a product change; the ruling stands. The owner also confirmed, on
+being shown cproc:2757 and verify-elevdoor's round-trip row, that logto sdsys
+for a session that STARTED elevated stays as it is - the only route into
+SDSYS is starting elevated, and that route may drop to the personal account
+and return.
+
+## 17 Sep 2026 - b173 complete: the full suite is green in both halves on the relay build
+
+00:02 to 00:24. First half 28 of 28 (verify-lcnames fixed live, verify-elevdoor
+in its new last slot). Elevated half 34 of 35 exit 0; read from the per-step
+logs, 1,150 PASS rows and one FAIL, the verify-sdsysgate wording row that
+entry 45's third note covers and that was fixed in the verifier after the step
+ran. verify-fold's four "FAIL" words are expected-FAIL rows.
+
+Witnessed in a runner for the first time: verify-elevdoor's elevated half, 5/5,
+including the cross-half row - it read the audit line the unelevated half had
+written twenty minutes earlier, "session did not start elevated". And every
+API step through the new relay: apiremote 15, apiadmin 22, apiname 16, apiport
+14, relayidentity 15/15 (ace\sdrelay, integrity 4096, 0 privileges, parent sd
+as SYSTEM), scramlogin 63, apiidentity 28, tierapi 16, pyapi 19, pygate 40.
+
+So RELEASE_1.1 43 is closed with the full suite behind it, as CLAUDE.md asks
+before a hand-off. Four suite attempts were needed - b170 a pre-cycle token,
+b171 lcnames, b172 sdsyswrite, b173 sdsysgate - and every one of the three
+verifier failures was RELEASE_1.1 45's, not the relay's: the two scripts that
+issued LOGTO SDSYS from an unelevated start, and the one that anchored on the
+pre-45 audit reason. The 10 stuck hives at the top of the run are PRE_RELEASE
+185. Open: the sdsysgate fix is unwitnessed until b174 -Only verify-sdsysgate;
+(f), LsaLogonUser under concurrency; RELEASE_1.1 53.
