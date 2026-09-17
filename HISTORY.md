@@ -62884,3 +62884,45 @@ its tls-exporter binding - is the next measurement. Crux (2) (moving SCRAM to an
 unprivileged front) is unchanged and still the larger design half. Falsified-if
 (reopens this): a raw-spawned Cygwin child is shown to use an inherited socket
 or pipe end as a working Cygwin fd. Tree current, tokens to b181, inbox empty.
+
+## 17 Sep 2026 - RELEASE_1.1 55 (a) reconnect MEASURED: a SID-ACL'd named pipe the session opens itself works, with no local hole
+
+gplbld/probe-sessionpipe.c (native parent, stands in for the front + relay) and
+probe-sessionpipe-child.c (the Cygwin session, raw-spawned), unelevated. Since a
+user-spawned session cannot inherit the socketpair (probe-sessionsp), it must
+OPEN its own channel. This measures the channel chosen for having no local
+security hole: a named pipe whose server (1) carries a SID-scoped DACL so no
+other user can open it and (2) calls GetNamedPipeClientProcessId to bind the
+connection to the exact spawned PID - both kernel-enforced, no app-level secret.
+The open question was the mechanics: sd's I/O is poll-based, so the pipe is only
+usable if the Cygwin runtime wraps a self-opened pipe handle into a POLLABLE fd
+with a clean EOF.
+
+PASS. The child CreateFile'd the pipe, cygwin_attach_handle_to_fd adopted it,
+poll(0) returned revents 0x1 (POLLABLE - the thing 43's inherited-pipe EBADF
+left in doubt), read got the greeting, write sent the ack, 262144 bytes
+round-tripped in 32 poll+blocking ping-pong rounds, and read() returned 0 on the
+server's close. The server's GetNamedPipeClientProcessId matched the spawned PID
+(the no-spoof bind). So the reconnect handover works at the fd layer.
+
+PRODUCT LESSON, paid for here: the front must close its pipe handle GRACEFULLY
+(FlushFileBuffers + CloseHandle). A forcible DisconnectNamedPipe makes the
+session's read error ECOMM (errno 70) instead of seeing EOF (0) - the first run
+failed leg 4 exactly this way, and the graceful close fixed it. sd's session
+detects a client hangup as read()==0, so the front must not disconnect
+forcibly.
+
+WHAT THIS SETTLES AND WHAT IT DOES NOT. Crux (1) of (a) - the connection
+handover - now has a working, hole-free shape: the session runs as the user,
+opens the pipe itself, and only that session (SID DACL + PID bind + single
+unpredictable instance) is on it. A same-user process cannot impersonate the
+session (PID check) and a different user cannot open the pipe at all (DACL);
+the residual is a same-user local-DoS (grabbing the single instance), which is
+not a privilege gain since such a process already holds the user's rights.
+NOT yet done: cross-USER DACL denial is a kernel guarantee but was not exercised
+unelevated (same-user run); and the whole chain under CreateProcessAsUser as a
+DIFFERENT user is the owner-elevated confirmation. Crux (2) - moving the SCRAM
+parse to an unprivileged front so nothing is SYSTEM even pre-auth (the
+OpenSSH-privsep / Linux-nobody shape) - is unchanged and is the larger design
+half that remains. Falsified-if (reopens this): the elevated as-a-different-user
+run cannot open or poll the pipe. Tree current, tokens to b181, inbox empty.
