@@ -63121,3 +63121,148 @@ half of the earlier spec; the topology and the relay/cutover are unaffected):
     relaycutover's cutover is unaffected - it already had the relay create the
     pipe as server.
 Tree current, tokens to b181, inbox empty.
+
+## 17 Sep 2026 (next session) - RELEASE_1.1 55 slices 3-5 built and the cutover DRIVEN; slice 6 is all that is left and it is BASIC
+
+Owner: the Linux box is off, so no mail this session. Picked up at slice 3 and
+carried the parity build to the end of what can be verified without a cycle.
+Six commits; every C file compiles to a real object, 0 warnings under
+-Wall -Wformat=2; the free tier is 46/46.
+
+FOUND BEFORE ANYTHING WAS BUILT - THE SPAWNER PASSED -A, NOT -H. Slice 2's
+commit message said "win32_session_spawn spawns sd -N -H" and that commit
+touched kernel.h, sd.c and linuxio.c only; win32session.c still built "-N -A".
+sd.c folds the option letter with UpperCase() and case 'A' with nothing after
+it is CMD_QUERY_ACCOUNT, so the session would have asked for an account name
+with api_preauth FALSE - then identified its socket peer (descriptor 0 is a
+pipe), started a second relay and sent a second ACK, the three things slice 2
+exists to skip. Nothing had run the path, so no measurement was void; it would
+have failed on the first integration cycle pointing anywhere but here.
+
+SLICE 3 - the front<->relay control channel. A second socketpair, inherited as
+a third handle; relay argv is now <net> <sp> <ctl> <ms>. Protocol at the end of
+sd_tls.h: one opcode byte, u16 length, payload, both ways. SD_RELAY_CTL_PIPE
+out, READY or FAILED back. The cutover needs no message - the front's graceful
+close of its app side is the signal (probe-relaycutover). sd_tls_relay_pipe()
+is the front's one use of it and MAKES the pipe name rather than taking one:
+it must carry the prefix the relay checks and be unpredictable, because the
+relay refuses a second instance of a name.
+
+SLICE 4's TOPOLOGY QUESTION WAS UNMEASURED AND IS NOW MEASURED. The relay is
+the pipe's SERVER (it outlives the front; an instance dies with its last
+server handle) - but probe-relaycutover ran the relay as the ordinary caller
+at MEDIUM, so whether the relay's real token could CreateNamedPipe at all had
+never been tested. gplbld/probe-lowpipe.c, unelevated: a token at integrity
+Low with EVERY PRIVILEGE REMOVED created a single-instance overlapped pipe
+with an explicit DACL and a client opened it, with a Medium control beside it
+so a NO would have been attributable. Same user, not sdrelay, not session 0 -
+so "the token does not forbid it", not "proved on the install".
+
+SLICE 4 - the relay stands up the pipe and cuts over. It stops reading the net
+AT THE HANDOVER REQUEST, not at the cutover: after the request, SCRAM is over
+and every client byte belongs to the session, so forwarding one to a front
+that is about to exit would lose it. Phase B is OVERLAPPED, not polled - the
+net side is a socket and the session side is a pipe and no single Windows wait
+covers both, so WSAEventSelect gives the socket an event and one
+WaitForMultipleObjects covers them. probe-relaycutover used a 200 ms poll and
+said itself that the product would use overlapped; it would have put up to
+200 ms on every API response. FD_READ is edge-triggered, so SSL_read is
+drained until WANT_READ.
+
+THE SID TRAVELS ON THE CONTROL CHANNEL rather than the relay assuming "SY".
+The front reads its own user SID from its token (win32_my_sid) and sends
+name + NUL + SID. Two reasons and the second is the one that matters: an
+assumption nothing checks is one nothing reports when it stops holding, and a
+hard-coded SY would make the handover reachable only by a test running as
+LocalSystem - so the cutover would have had no free guard at all.
+
+test-tlsrelay-units.py now drives the whole cutover - it is the front through
+SCRAM, asks for the pipe, opens the client end, closes the app side, and is
+then the SESSION. 54 checks, 0 failed (was 27). Rows include the byte the
+client sends DURING the switch arriving at the session, 256 KiB each way
+through the pipe, clean EOF, and four control-channel refusals with a
+connection that still carries bytes afterwards.
+
+***A ROW PASSED AGAINST A MUTANT BUILT TO DEFEAT IT, AND THAT IS THE FINDING
+WORTH KEEPING.*** The arity row asserted only "exit 6". A relay that accepts
+the pre-55 argv reads the TIMEOUT as the control handle, and the control-handle
+check then refuses it with exit 6 - the right number for the wrong reason.
+Same class as anchoring on a string the failure also carries. It now tells the
+two apart by what the relay DID: the arity refusal happens before the app side
+is touched, so it is "not a command" on stderr AND no status frame at all.
+
+MUTANTS, ALWAYS ON A COPY IN THE SCRATCHPAD, LIVE FILES ASSERTED BY SHA-256:
+  A control-handle check deleted -> 3 rows red, naming it
+  B arity relaxed to the pre-55 form -> 2 rows red (after the fix above)
+  C the net-read stop removed -> the during-the-switch byte never arrives
+  D THE PRE-LOOP DRAIN IN PHASE B REMOVED -> EVERY ROW STILL PASSED
+D is recorded as a pass and the comment was corrected to match: it shows
+WSAEventSelect signals FD_READ for data already waiting in the SOCKET, so the
+measured path does not need that line. The case it covers is bytes OpenSSL has
+already pulled off and is holding, where no FD_READ is coming - two records in
+one segment at one moment, which cannot be produced to order. It stays,
+described as reasoning rather than as something measured.
+
+The test's blocking reads now have deadlines. Both defects these rows exist to
+catch show up as a byte that NEVER ARRIVES and a pipe has no read timeout, so
+without this mutant C hung the suite instead of failing a row.
+
+SLICE 5 - K$HANDOFF (66). Three steps, 0 unless all three happen: the relay
+stands up the pipe, the client end is opened, CreateProcessAsUser starts sd as
+the user on it. $internal only, fails closed, and EVERY REFUSAL IS SYSLOGGED
+WITH THE USERNAME - the BASIC caller gets 1 or 0 and there is nowhere for a
+reason to go on the wire, so a silent 0 would present as a connection that
+closed for no reason. STEP THREE IS THE CALLER'S: the front must get the SCRAM
+server-final out before it goes, so APISRVR's order is send v=ssig, call this,
+return.
+
+gplbld/test-kernelkeys-units.py, the 46th free guard, listed in CLAUDE.md and
+in assert-current's $neverShipped in the commit that created it. A kernel key's
+number lives in gplsrc/keys.h and in sdsys/gpl.bp/int$keys.h, kept in step BY
+HAND, and nothing the compiler compares - BCOMP resolves the equate,
+op_kernel.c switches on the C header, so a pair that disagrees compiles cleanly
+and calls the wrong key. It found NOTHING on its first run; all 67 shared names
+already agreed, which is why the mutants are the rows that matter (equate
+drifted by one; key added to C only; undeclared BASIC name - each red on its
+own row naming the key). It asserts the partition: every name is
+shared-and-equal, a declared ALIAS (K$IS.SDVBSRVR is the pre-rebrand spelling
+of K_IS_SDAPISRVR, same 25) or a declared NON-KEY (K$USERS.* are field
+positions; K$LOGOUT and K$EXIT.ABORT are other key spaces).
+
+K$API.PREAUTH (67) - THE SPAWNED SESSION'S HALF, AND THE TRAP IT AVOIDS.
+***ImpersonatingUser() CANNOT ANSWER "WHO AM I" FOR THIS SESSION AND LOOKS
+LIKE IT CAN.*** It calls OpenThreadToken, so it reports an IMPERSONATION; a
+session spawned AS the user is not impersonating anybody - it IS the user, by
+its PROCESS token - so it returns 0 with an empty name for exactly the session
+that needs it, and it formats "DOMAIN\user" where an SD account name is bare.
+Two silent wrong answers from the call whose name makes it the obvious choice.
+ProcessUserName() (win32s4u.c) is the right one. The key returns two fields,
+<1> pre-authenticated?  <2> the bare name, deliberately independent - one is
+how the process was STARTED, the other what Windows says its token IS - so
+"pre-authenticated but cannot name itself" reports 1 with an empty name and
+APISRVR can refuse it instead of being asked to run SCRAM over a pipe.
+
+WHAT IS LEFT IS SLICE 6 AND IT IS BASIC, SO IT NEEDS THE CYCLE (conditional -
+none of this is built, and the tracing below is what a session should not have
+to re-derive):
+  - vb.scram.final would set response = 'v=':scram.ssig and a flag, NOT
+    logged.in, and return. The handoff CANNOT happen inside the handler: the
+    dispatcher sends the response with the writepkt at apisrvr:420, after the
+    gosub returns, so calling K$HANDOFF there would close the app side with the
+    server-final still unsent.
+  - The handoff would go immediately AFTER that writepkt, and set done either
+    way - on success the session has the connection, on failure closed is the
+    only safe end. The relay forwards the app side to EOF, so the server-final
+    is already on its way before the cutover; that ordering is the measured
+    part (probe-relaycutover and the guard's handover rows).
+  - A pre-authenticated session would read K$API.PREAUTH at start-up, refuse
+    field 1 = 1 with field 2 empty, set logname and K$SET.USERNAME from field
+    2, set logged.in, and enter the request loop without SCRAM.
+  Falsified-if: an API login over the real installed server does not come back
+  with a session whose sd.exe runs as the user with no SeTcb (verify-apiidentity
+  turned round, the row RELEASE_1.1 55 names).
+
+Tree is STALE on purpose - gplsrc C and int$keys.h have both moved past bin\.
+bin\sdtlsrelay.exe was rebuilt by hand for the guard, which cycle.ps1 step 0
+undoes by deleting every binary and relinking. Tokens still at b181: nothing
+this session needed an install, an elevation or a run token.
