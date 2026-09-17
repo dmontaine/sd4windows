@@ -575,12 +575,16 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-promptdefaults-units`, `test-intrinsics-units.py`,
    `test-voctwins-units.py`, `test-upgradenocase-units`,
    `test-selectlists-units.py`, `test-tlsconsts-units.py`,
-   `test-scramprobe-units.py`, `test-uninstallchoices-units`.
-   ***ALL FORTY-TWO. Run these on
-   every change*** — **30 s for the whole set**, measured 11 Sep 2026 with the
-   thirty-third in it, each in its own process. *(32.6 s was the 4 Sep figure
-   for thirty-two; the set got one longer and the wall clock did not, so do not
-   read either number as a budget.)* A whole suite run has already been spent twice discovering
+   `test-scramprobe-units.py`, `test-uninstallchoices-units`,
+   `test-tlsrelay-units.py`.
+   ***ALL FORTY-THREE. Run these on
+   every change*** — **40 s for the whole set**, measured 16 Sep 2026 with the
+   forty-third in it, each in its own process. *(30 s was the 11 Sep figure for
+   thirty-three and 32.6 s the 4 Sep figure for thirty-two; the set grows and
+   the wall clock wanders, so do not read any of these numbers as a budget.
+   `test-tlsrelay-units.py` drives `bin\sdtlsrelay.exe`, which `make sd`
+   builds, and exits 2 on a checkout with no `bin\` — the `test-sysmsg-units`
+   shape, not a failure.)* A whole suite run has already been spent twice discovering
    what one
    of them names in a second. **`test-retired-wording-units` is the wording
    lint**: it scans every message file and shipped script for phrases that were

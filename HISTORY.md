@@ -62228,3 +62228,60 @@ Consequence for the build: sd_tls_relay_start()'s sd side - the socketpair,
 the dup2 to 0 and 1, the binding-preamble read - survives as written; only the
 fork() becomes a spawn of the native relay. The relay is Linux's relay() with
 WSAPoll for poll(). Open point (c) is closed and needs no thread.
+
+## 16 Sep 2026 (same session) - RELEASE_1.1 43: the product relay is built, driven over real sockets, not yet cycled
+
+What was written, and why each piece is where it is:
+
+- gplsrc/sdtlsrelay/sdtlsrelay.c - the relay, native UCRT64 with the static
+  OpenSSL the client DLLs link. Its own directory for the sdsvc/sdpy reason
+  (TEMPSRCS' wildcard would sweep it into the POSIX build). Reads the identity
+  frame from the socketpair, loads it from a memory BIO and wipes the bytes,
+  SSL_accept with a WSAPoll deadline, exports the binding, then Linux's relay()
+  loop on two non-blocking sockets. Sets FIONBIO itself so a harness handing
+  over blocking sockets still gets the deadlines. Refusals go back to sd as a
+  status frame with text, because a Low process has nowhere else to say so.
+- gplsrc/win32relay.c - the spawn: win32_s4u_logon (lifted verbatim out of
+  AssumeUserIdentity in win32s4u.c so the LSA incantation and its two paid-for
+  traps stay one copy), DuplicateTokenEx to primary, every privilege
+  SE_PRIVILEGE_REMOVED and then RE-READ to require 0 (AdjustTokenPrivileges can
+  return TRUE having done part of the job), Low label, handle list of exactly
+  two, cwd = the exe's directory (sd's cwd may be one the bare account cannot
+  open), CreateEnvironmentBlock for the account (no SystemRoot, no UCRT start).
+  The exe is found with GetModuleFileName, not exe_directory(): that returns a
+  POSIX path (sdpy_session.c's trap) and its bool is sd.h's int16_t.
+- gplsrc/sd_tlssrv.c - fork gone; identity read/created as LocalSystem and its
+  BYTES sent as the first frame; the preamble read grows a status byte; relay
+  exit codes mapped to text for syslog. sd_tls.h holds the protocol, the
+  account name and the exe name so both processes read one copy.
+- Makefile: sdtlsrelay target in sd's deps; -luserenv. gpl.src: win32relay.
+  stage.py: sdtlsrelay.exe in PROGRAM_FILES_BIN and a NATIVE_ONLY check that
+  refuses a build whose relay or service imports msys-*.
+- gplbld/install-service.ps1: creates sdrelay before the service starts (no
+  group, random unused password, four deny-logon rights via LsaAddAccountRights,
+  enabled because S4U refuses a disabled account, swept out of any group it
+  was put in) and removes it with the service - on both -Remove paths.
+- gplbld/test-tlsrelay-units.py, 27/27: the real binary, real sockets, the
+  TLS client from scram-probe.py. The row that matters is the binding the
+  relay hands sd equalling the client's own exporter value; a mutant relay
+  built with a wrong label went red on that row alone and nothing else. Also
+  EOF both ways, 256 KiB both ways, and three refusals with their text. Joins
+  the free tier (43 now); exits 2 on a checkout with no bin\.
+- gplbld/verify-relayidentity.ps1 + relay-hold.py, in VerifyInstall2 after
+  verify-apiport: the install witness for WHO the relay is. Parse-checked, its
+  C# token peek validated against this shell (Medium, 5 privileges = whoami),
+  refused unelevated as designed. NOT YET RUN AGAINST AN INSTALL.
+
+Measured this session: sd_tlssrv.c, win32relay.c and win32s4u.c compile clean
+with the sd flags; sd links with the new objects (scratch link, USERENV.dll
+imported); the relay builds through make sdtlsrelay with 17 imports and no
+msys-*; the free tier is 42 green + test-sysmsg-units exit 2 from this shell.
+NOT measured: any of it on an install - make sd from this shell fails at the
+sdpy target (build-sdpy.ps1 sees no compiler exit code under the nested MSYS
+bash; the cycle's own step 0 has built it daily), so bin\sd.exe is still the
+15 Sep one. The next session's first act is a cycle.
+
+Two things the build corrected in the plan as handed over: HANDOFF 79's "the
+build also needs sd.c's start gate, the broker/IPC/SCRAM check" were option
+3c's list and do not apply to the split - the session stays LocalSystem with
+SeTcb by design; and (c) needed no thread once the channel was a socketpair.
