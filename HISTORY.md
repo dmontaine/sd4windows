@@ -62690,3 +62690,25 @@ AT, "printed correctly to pdf and physical printer" - the default-printer
 path on paper. 54 is struck: named leg by the verifier, default leg by hand,
 SENDMAIL refusing by construction. b177 is owed for a green verify-print and
 is a harness debt, not a product one. Open before 47: 40 and 53.
+
+b177 (02:54): named and default legs 9/9 - the owner had meanwhile turned
+"Let Windows manage" off himself and made his Epson the default, so the mode
+read 1 before and was put back to 1 - then the refusal leg killed the
+verifier: Out-Printer's "Settings to access printer 'zz-no-such-printer'
+are not valid" travels from SD's PowerShell child through sd.exe's stderr
+into the job's error stream, and Receive-Job re-raises that under
+$ErrorActionPreference = 'Stop'. The one leg that expects stderr could not
+read it. Fixed by 2>&1-and-stringify inside the job; the leg driven alone
+from an unelevated shell showed both SD's line and Windows' sentence with no
+terminating error. b178 (02:57): 13 of 13, exit 0, every leg on the 02:30
+install, default printer and mode restored, driver removed again. Left
+alone and offered: a wrong AT name shows the user PowerShell's six-line
+error dump before SD's own line; catching it in the script linuxprt.c
+builds would leave one sentence, at the price of a cycle.
+
+The owner also ruled on printer discovery: there is no list.printers verb
+in W1.1 - the AT name comes from Windows Settings, as upstream - and
+LIST.PRINTERS goes to W1.2, the first entry in RELEASE_1.1_FIXES.md's
+"Deferred to W1.2" section (D1). 48's documentation must say that with "Let
+Windows manage my default printer" on, the no-AT default is the last printer
+used from any program.
