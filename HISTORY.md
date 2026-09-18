@@ -64334,3 +64334,39 @@ milestone coverage is still owed - nothing about this touched the product.
 Also worth keeping from the same moment: the .claude hook refused a heredoc
 append to this file and was RIGHT to - CLAUDE.md's "never reach for Python to
 edit a file" covers exactly that form, and the editing tools were used instead.
+
+17 Sep 2026 22:05 - THE FREE GUARD 55 OWED: test-groupmember-units.py, 21/21,
+5.9 s. Free tier now 47, all green, 48 s.
+
+WHAT IT DOES. Builds gplbld/probe-groupmember.c against the LIVE
+gplsrc/win32group.c with the sd target's own compiler and flags (MSYS2 gcc
+through its bash, the way cycle.ps1 runs make) into a temp dir, and asks it:
+empty user/group -> told=0 member=0; a group that does not exist -> told=0
+naming 2220; a user not in a real group -> told=1 member=0; the current user
+against Administrators and Users by SID, by NAME, as DOMAIN\user and in the
+wrong case, each compared with whoami /groups - an oracle sharing no code with
+the C. Then the kernel case (starts from -1, takes the answer once) and
+is_grp_member (-1 -> @false with status 1) read from source, and a walk of
+gpl.bp asserting every is_grp_member caller reads status() or is declared
+fail-closed with a reason.
+
+THREE THINGS IT FOUND BEFORE IT WENT GREEN:
+  1. Its own first run printed a [FAIL] row and exited 0 - the counter was
+     never incremented. The vacuous pass, in the guard written to forbid it.
+     Fixed; the BASIC mutant below is the proof.
+  2. Seventeen call sites, not seven. The hand-typed file list used to read
+     them had left off login and modifya. A walk does not make that miss.
+  3. Two declared sites still conflate the answers in their AUDIT REASON:
+     apisrvr's sdapi gate writes 'not in sdapi' and LOGIN writes 'not a member
+     of sdusers' on a could-not-tell as well as a real no. Both refuse
+     correctly; each is the vb.account shape before 55 split branch=4.
+     DECLARED, NOT FIXED - on record rather than hidden by a green row.
+
+MUTANT CONTROLS, both layers, both on copies: the run itself builds a copy of
+win32group.c whose lookup-failure branch answers like a no and requires
+told=1 from it; a copy of is_grp_member with set.status 1 removed went red on
+the named row, exit 1. assert-current exit 0 after the edits (both new files
+in $neverShipped, same commit). Exits 2 without C:\msys64.
+
+STILL OWED: 55's elevated milestone coverage (b194, owner's prompt) and
+RELEASE_1.1 56.

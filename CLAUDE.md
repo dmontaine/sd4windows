@@ -577,11 +577,14 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-selectlists-units.py`, `test-tlsconsts-units.py`,
    `test-scramprobe-units.py`, `test-uninstallchoices-units`,
    `test-tlsrelay-units.py`, `test-installservice-units`,
-   `test-lcnameslegs-units`, `test-kernelkeys-units.py`.
-   ***ALL FORTY-SIX. Run these on
+   `test-lcnameslegs-units`, `test-kernelkeys-units.py`,
+   `test-groupmember-units.py`.
+   ***ALL FORTY-SEVEN. Run these on
    every change*** — **40 s for the whole set**, measured 16 Sep 2026 with the
    forty-third in it, each in its own process. *(Forty-five measured 39–49 s on
-   17 Sep 2026; the forty-sixth costs 0.1 s.)* *(30 s was the 11 Sep figure for
+   17 Sep 2026; the forty-sixth costs 0.1 s; the forty-seventh ~6 s, two gcc
+   builds, and it exits 2 without `C:\msys64` — the `test-sysmsg-units`
+   shape.)* *(30 s was the 11 Sep figure for
    thirty-three and 32.6 s the 4 Sep figure for thirty-two; the set grows and
    the wall clock wanders, so do not read any of these numbers as a budget.
    `test-tlsrelay-units.py` drives `bin\sdtlsrelay.exe`, which `make sd`
@@ -898,6 +901,30 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    result; `K$LOGOUT` and `K$EXIT.ABORT` are other key spaces) — so a key
    cannot be added to one file only, and a new non-key cannot appear without
    somebody saying what it is. 0.1 s, no SD, install, elevation or cycle.
+
+   ***`test-groupmember-units.py` JOINED IT 17 Sep 2026 IN THE COMMIT THAT
+   CREATED IT (RELEASE_1.1 55), AND ITS OWN FIRST RUN PRINTED A `[FAIL]` ROW
+   AND EXITED 0.*** The counter was never incremented — the vacuous pass §0
+   forbids, in the guard written to forbid it; fixed before it landed, and the
+   BASIC mutant below is what proved the fix. It guards the three-valued
+   contract behind `K$GROUP.MEMBER` at all three layers, because **a lookup
+   that failed arriving as "not a member" is what cost seven runs** (b184–b190):
+   the C (`win32group.c`, built against the LIVE file with the sd target's own
+   MSYS2 gcc and flags and driven by `probe-groupmember.c` — a missing group
+   is `told=0` naming 2220, a missing user is `told=1 member=0`, real rows agree
+   with `whoami /groups`, which shares no code with it), the kernel case
+   (starts from −1, takes the answer once), and `is_grp_member` (−1 → `@false`
+   **with status 1**). ***IT WALKS `gpl.bp` FOR EVERY CALLER AND ASSERTS THE
+   PARTITION*** — each site reads `status()` or is declared fail-closed with
+   its reason — and the walk found **seventeen** where a hand-typed list had
+   found seven; `login` and `modifya` were simply not on the list. Two of the
+   declared sites (the sdapi gate, the LOGIN sdusers gate) still write an
+   audit reason that conflates "could not tell" with "no"; declared, not fixed.
+   **Mutant controls, both layers**: a COPY of `win32group.c` whose
+   lookup-failure branch answers like a no is built in the run and must
+   answer `told=1`; a copy of `is_grp_member` with `set.status 1` removed went
+   red on the named row, exit 1. ~6 s (two gcc builds); exits 2 without
+   `C:\msys64`. No SD, install, elevation or cycle.
 
    ***`test-uninstallchoices-units` JOINED IT 16 Sep 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 38 and 50).*** It drives the two decisions inside

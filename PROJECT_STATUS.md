@@ -179,7 +179,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ PICK UP HERE (17 Sep 2026, later still).*** ***`cycle.ps1` COMPLETED
+> ***⏸ PICK UP HERE (17 Sep 2026, 22:10).*** State, in one table; the blocks
+> below it are this day's record and the top one (`b181`) is superseded by
+> the `# ✅ RELEASE_1.1 55 IS DONE` heading further down.
+>
+> | | |
+> |---|---|
+> | install | **17 Sep 21:08:08**, the cleaned tree; `assert-current` exit 0 at 22:05 after this session's edits (nothing here ships) |
+> | tokens | `b181`–`b193` SPENT. **Next: `b194`.** Three leftover profiles from `b193` (`C:\Users\sdtub193`, `sddrb193a`, `sddrb193b`) wait for a restart; a fresh token sidesteps them |
+> | mail | inbox read once at start, empty; box off, no watcher, no wakeup (HANDOFF 84) |
+> | done | the free guard 55 owed: `gplbld/test-groupmember-units.py` + `probe-groupmember.c`, 21/21, 5.9 s; **free tier 47/47, 48 s**; RELEASE_1.1 55's row and CLAUDE.md's list updated |
+> | owed 1 | **55's ELEVATED milestone coverage** — the `b194` command below, ordinary unelevated prompt, owner's hands (§4.0.1). `verify-doors-suite` red is 56, any other red is 55's |
+> | owed 2 | **RELEASE_1.1 56**, two decisions for the owner (TLS in `sd_connect.c`'s pre-check vs. drop it; drive `scram-probe.py` from the doors leg) and one unisolated half (`QMConnect → Connection closed by server` on the DLL path) |
+> | found | two callers still write a conflating audit reason on a could-not-tell — apisrvr's sdapi gate, LOGIN's sdusers gate. Declared in the guard, not fixed; the vb.account shape before 55 |
+
+> ***⏸ (superseded) PICK UP HERE (17 Sep 2026, later still).*** ***`cycle.ps1` COMPLETED
 > CLEAN (attempt 3) AND SLICE 6 COMPILES — BUT `verify-apiidentity` (token
 > `b181`, now SPENT) FOUND A REAL DEFECT: THE HANDOFF DOES NOT WORK.*** This
 > is the opposite of what the previous pick-up block expected — read this
