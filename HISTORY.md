@@ -64717,3 +64717,80 @@ sdusers group. Both sent to the Linux agent as a measured report. UPSTREAM
 sdb64 is deliberately NOT filed: the clone is gone, and this record already
 carries two withdrawn upstream reports that were one step from being sent on
 unverified claims.
+
+18 Sep 2026, end of session. THE OWNER DECIDED TO RIP OUT THE TIERED ACCOUNT
+STRUCTURE - RELEASE_1.1 64, which supersedes 58, 62 and 63. One administrator
+account, SDSYS, bound to a Windows account of the same name, reachable only
+from an elevated session of that one identity and not by LOGTO; every other
+Windows administrator refused; no STANDARD level; every other account, USER and
+GROUP, at today's PROGRAMMER access; ssh and the API for all; OS limits are
+Windows' limits on a standard account; keep the embedded Python and the
+encrypted tunnel; remove the rest; then evaluate the security model. His words
+are in the entry verbatim because every clause is load-bearing.
+
+THE DECISION CAME OUT OF EXPLORATION, NOT OUT OF A BUILD, and the exploration
+is the part worth keeping. Over one exchange the options examined were: publish
+the trust model and encrypt only; mandate a VPN; make remote access API-only;
+delete the administrator tier. What each would buy was measured rather than
+argued, and three of the measurements changed the answer:
+
+  - net_path_permitted returns TRUE for anything that is not CN_SOCKET
+    (op_dio2.c:1489, sd.h:322, sd.c:498), so an ssh session is ungated where an
+    API session is confined. That made "extend the gate to remote sessions" look
+    like a cheap route to "no remote vulnerabilities" - and os-on killed it.
+
+  - OS.EXECUTE runs through powershell -NoProfile -NoLogo (op_sh.c:440), so
+    os-on IS arbitrary code execution and the sh/os split limits convenience,
+    not capability. Native code is outside SD's path gate entirely, so no gate
+    extension can hold while os-on is granted - and the owner said remote apps
+    need it.
+
+  - sdpy.exe imports no user32 and sdpy_session.c has no connection-type check,
+    so the Python helper plausibly starts where OS.EXECUTE cannot - in an API
+    session. The shipped changelog tells users an API session cannot start a
+    program. That is the finding that killed "API-only remote access" as a
+    shortcut, and it is UNMEASURED end to end: verify-pyapi only ever runs
+    elevated, so the API + os-on combination has never been exercised.
+
+ALSO MEASURED WHILE ANSWERING "what does standard-Windows-user status buy": the
+ACL hardening is real but INCONSISTENT. gcat, gpl.bp.out, os.users, accounts,
+newvoc, messages, bp, cat and batch.jobs are sdusers:(RX) with inheritance
+broken, and $cred has no sdusers ACE at all - but tier.policy, voc_template,
+sd.voclib, voc, bp.out, pcode.out, syscom and gpl.bp are sdusers:(M). newvoc is
+read-only while sd.voclib is writable, and the containment gate names those two
+TOGETHER as the pair that shapes what future accounts get. Not filed as its own
+entry because 64 deletes tier.policy and much of the rest; what should outlive
+64 is the lesson that the hardening list lives in several scripts and is
+asserted by none.
+
+AND THE GROUP-ACCOUNT MECHANISM WAS TRACED, because it looked like an answer to
+the administrative-GUI-app requirement and only half is. A group account gets a
+Windows GROUP (sdg_<name>) and NO Windows user (createa:1046-1054 never calls
+create_user), which is why MODIFYA refuses remote access for one with 10087. It
+cannot be logged into, but it CAN be worked in: apisrvr:760 tests
+is_grp_member(K$USERNAME, ACC$GROUP), so a user authenticated as themselves and
+in sdg_<name> attaches to it - shared account, no shared password, real
+identity in the audit trail. The half that does not work: make.account is
+common to USER and GROUP (createa:1058, after end case) and a group account is
+created tier='STANDARD' (:345, written on every path at :1093), so its VOC is
+trimmed by omit.standard - a PROGRAMMER entering one LOSES basic, run, edit,
+micro, copy and 37 others, and CREATE.ACCOUNT GROUP takes no tier keyword to
+say otherwise. Nothing in the suite drives an attach to a group account, only
+the 10087 refusal, so all of that is read from source.
+
+b197 WAS THE CITABLE RUN AND IT WAS GREEN EXCEPT THE ONE ROW THAT MATTERED: 35
+of 36 elevated steps exit 0, 28 of 28 unelevated, and the single red was
+verify-accountrules scoring "an ADOPTed account has NEITHER route: expected
+none, got ssh+api" - 63's migration gap, on the owner's own account, found by a
+row inverted the night before. Both of 58's halves were witnessed by that run
+before 64 deleted them, which is worth knowing if the tier question is ever
+reopened.
+
+WHAT IS LEFT IN THE TREE, AND IT IS A TRAP FOR THE NEXT SESSION: the 62 and 63
+build is committed and never cycled, so assert-current refuses. It is all
+deleted by 64. Reverting the product half to b197's state is a legitimate
+opening move; DisableForwarding in allow-ssh-groups.ps1 and assert-current's
+corrected hand-over line are the two pieces that must survive whatever else
+goes. 59, 53 and 60 are untouched by the decision - 60 is fixed and cycled, and
+59 and 53 become MORE exposed if os.users retires with the framework, which is
+the first thing the promised evaluation should look at.

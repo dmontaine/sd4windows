@@ -179,11 +179,54 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ PICK UP HERE (18 Sep 2026 — THE OWNER REVISED THE RULING AFTER `b197`:
-> RELEASE_1.1 62. AN ADMINISTRATOR GETS NO ssh AT ALL (58's ssh HALF STANDS) BUT
-> KEEPS THE API FROM THIS MACHINE ONLY. AND 63: NEITHER 58 NOR 62 MIGRATES AN
-> EXISTING ACCOUNT — `b197` MEASURED THAT ON THE OWNER'S OWN ACCOUNT. NOTHING
-> FOR 62 OR 63 IS BUILT.)***
+> ***⏸ PICK UP HERE (18 Sep 2026 — THE OWNER HAS DECIDED TO RIP OUT THE TIERED
+> ACCOUNT STRUCTURE. RELEASE_1.1 64 IS THE DECISION AND IT SUPERSEDES 58, 62 AND
+> 63. NOTHING FOR 64 IS BUILT. DO NOT FINISH 62 OR 63 — THAT WORK IS DELETED BY
+> THIS RULING.)***
+>
+> ***READ RELEASE_1.1_FIXES.md 64 BEFORE TOUCHING ANY ACCOUNT CODE.*** It holds
+> his words verbatim, the measured footprint of what comes out, what must NOT be
+> swept up with it, and the consequence the post-removal evaluation has to face.
+> The short form:
+>
+> | the ruling | |
+> |---|---|
+> | one administrator | **`SDSYS`**, and only it — bound to a **Windows account of the same name** |
+> | how it is reached | an **elevated session of that one Windows identity**. Every other Windows administrator is **refused**. **Not reachable by `LOGTO`** |
+> | tiers | **gone.** No STANDARD level. Every non-SDSYS account, USER **and** GROUP, gets today's **PROGRAMMER** access, so no tier boundary remains to cross |
+> | remote access | **ssh and the API for every account** |
+> | OS limits | **Windows' limits on a standard account**, and nothing of SD's own |
+> | what stays | the **embedded Python**, and the **encrypted data/password tunnel** |
+> | then | **evaluate the resulting security model** — part of the decision, not an afterthought |
+>
+> ***THE TREE IS STALE AND CARRIES HALF-BUILT 62/63 WORK — DECIDE WHAT TO DO WITH
+> IT BEFORE ANYTHING ELSE.*** Committed, never cycled: `createa`/`modifya` (62's
+> posture), `messages/10083`+`10175`, four `sd.iss` wizard strings,
+> `sync-route-groups.ps1` (63's migration), `test-retired-wording-units`
+> registrations, and six re-aimed verifiers. ***`assert-current` WILL REFUSE.***
+> **Reverting the product half to `b197`'s witnessed state is a legitimate
+> opening move** — all of it is deleted by 64 anyway, and a green tree is easier
+> to remove from than a half-built one. **Two things must NOT be reverted**:
+> `DisableForwarding` in `allow-ssh-groups.ps1` (it closes the `ssh -L`
+> peer-test forgery whatever the account model becomes) and `assert-current`'s
+> corrected hand-over line.
+>
+> ***WHAT SURVIVES THE REMOVAL AND MUST NOT BE SWEPT UP***: **60** (the two
+> bounded copies in `clopts.c` — memory safety, cycled, nothing to do with
+> tiers); the TLS/SCRAM tunnel (41, 42); **55**'s session-as-the-user handover
+> and its SID-ACL'd pipe; the `secure-*.ps1` ACL hardening.
+>
+> ***AND THE ONE THING THE EVALUATION MUST FACE — IN THE CONDITIONAL, BECAUSE IT
+> IS A CONSEQUENCE AND NOT YET A MEASUREMENT.*** The Python helper's authority is
+> `os.users` field 2, and `sdpy_session.c` has **no** connection-type check
+> (measured). If `os.users` retires with the rest of the framework, **every
+> account including every remote one could start an interpreter** — arbitrary
+> native code with that user's token. That is precisely the premise under which
+> **59** (the user-writable system segment a LocalSystem process reads and acts
+> on) and **53** (MSYS2's `shared.5`) are *remote* escalations rather than local
+> ones. **64 touches neither, and a simpler model makes them more exposed, not
+> less.** Whether an interpreter should be reachable from a network session is
+> the first question the evaluation should ask.
 >
 > ***THE RULING, 18 Sep 2026:*** *"the administrator should not be able to reach
 > the machine through ssh or api, but should be able to use the api locally."*
