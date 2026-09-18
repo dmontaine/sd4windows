@@ -196,7 +196,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | fix | K$HANDOFF split into PREPARE (`"<user><FM>P"`: pipe up, name kept in a static) + COMMIT (plain `<user>`: spawn on it) — `op_kernel.c`, `keys.h`; APISRVR prepares BEFORE the `writepkt` and commits after it, gated on `handoff.ready`; a commit with no standing pipe refuses (syslog). C compiled clean (`make sd` exit 0, `sd.exe` relinked 23:39 — note: my shell chain hit a `sdpy` env quirk, worked around with `make -o sdpy sd`; the cycle builds it normally); **the BASIC's compile witness is the cycle's BCOMP** |
+> | fix | K$HANDOFF split into PREPARE (`"<user><FM>P"`: pipe up, name kept in a static) + COMMIT (plain `<user>`: spawn on it) — `op_kernel.c`, `keys.h`; APISRVR prepares BEFORE the `writepkt` and commits after it, gated on `handoff.ready`; a commit with no standing pipe refuses (syslog). C compiled clean (`make sd` exit 0, `sd.exe` relinked 23:39 — note: my shell chain hit a `sdpy` env quirk, worked around with `make -o sdpy sd`; the cycle builds it normally); **the BASIC's compile witness is the cycle's BCOMP** (the changed dispatcher shapes also pass a reduced `bbcmp` snippet check — `comp finish`) |
 > | owed | **a cycle** (`assert-current` is stale), then **one suite run that measures BOTH client kinds in ONE run** — the DLL verifiers AND `verify-apiidentity` — the confound above must not survive the fix |
 > | if a close survives `b195` | the named next build is the **session-liveness wait** (nothing waits on the spawned session; a session that dies at start is invisible and presents as a mystery close). Detail at the end of RELEASE_1.1_FIXES.md **57** |
 > | tokens | through `b194` SPENT. **Next: `b195`** |
