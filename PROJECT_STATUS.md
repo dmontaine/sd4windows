@@ -179,10 +179,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ PICK UP HERE (18 Sep 2026 — RELEASE_1.1 58 IS RULED, BUILT, CYCLED, AND
-> ITS API HALF IS MEASURED WORKING. `b196` RAN AND FOUND 58's OWN DOWNSTREAM IN
-> SEVEN VERIFIERS, ALL NOW FIXED AND NONE WITNESSED. `b197` IS OWED AND NEEDS NO
-> CYCLE — `assert-current` IS GREEN. THREE ROWS FILED: 59, 60, 61.)***
+> ***⏸ PICK UP HERE (18 Sep 2026 — THE OWNER REVISED THE RULING AFTER `b197`:
+> RELEASE_1.1 62. AN ADMINISTRATOR GETS NO ssh AT ALL (58's ssh HALF STANDS) BUT
+> KEEPS THE API FROM THIS MACHINE ONLY. AND 63: NEITHER 58 NOR 62 MIGRATES AN
+> EXISTING ACCOUNT — `b197` MEASURED THAT ON THE OWNER'S OWN ACCOUNT. NOTHING
+> FOR 62 OR 63 IS BUILT.)***
+>
+> ***THE RULING, 18 Sep 2026:*** *"the administrator should not be able to reach
+> the machine through ssh or api, but should be able to use the api locally."*
+> **62 has the whole consequence set and what is owed; 63 has the migration.**
+> ***IT IS SAFE ONLY BECAUSE 58's `DisableForwarding` IS IN THE BUILD*** — the
+> peer test reads `accept()`'s address and an `ssh -L` forward makes a remote
+> connection arrive from `127.0.0.1`, so without that line this posture would
+> rest on a forgeable signal. ***AND IT RESTORES PRE_RELEASE 157***, so most of
+> 61 dissolves. **`verify-sshadmin`'s 58 re-aim stands; `verify-apiremote`'s
+> inverts BACK** (LEG A admitted, LEG B refused with 10174).
 >
 > ***THE ONE COMMAND OWED, FROM AN ORDINARY UNELEVATED PowerShell*** (it refuses
 > an elevated one and raises UAC itself for the handover):
