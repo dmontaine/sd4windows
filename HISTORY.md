@@ -63266,3 +63266,1071 @@ Tree is STALE on purpose - gplsrc C and int$keys.h have both moved past bin\.
 bin\sdtlsrelay.exe was rebuilt by hand for the guard, which cycle.ps1 step 0
 undoes by deleting every binary and relinking. Tokens still at b181: nothing
 this session needed an install, an elevation or a run token.
+
+17 Sep 2026, later - SLICE 6 (APISRVR) WRITTEN, FOLLOWING THE TRACE ABOVE
+EXACTLY. Three changes, all in sdb_ai/sd64/sdsys/gpl.bp/apisrvr:
+
+  1. First-time init, right after "logname = kernel(K$USERNAME, 0)": reads
+     kernel(K$API.PREAUTH, 0) into api.preauth. <1>=1 with <2>='' refuses
+     (new message 10189) - the trap the key exists to report. Otherwise calls
+     kernel(K$SET.USERNAME, api.preauth<2>), refuses on mismatch reusing
+     10160 (the same wording vb.scram.final already uses for the identical
+     condition), then sets logname and logged.in = @true. No K$ASSUME.USER
+     call - this process IS the user by its own Windows process token
+     (win32session.c spawned it that way), so there is no S4U identity left
+     to assume.
+  2. vb.scram.final's success tail no longer sets logged.in. It sets a new
+     state var scram.handoff (declared with the other scram.* vars, @false),
+     same response = 'v=' : scram.ssig, same return.
+  3. The dispatcher's main loop, right after the writepkt and before "until
+     done": if scram.handoff then clear it, void kernel(K$HANDOFF,
+     scram.user), done = @true. Matches the trace's ordering exactly - the
+     writepkt at this point in the loop is the same statement the trace
+     names as apisrvr:420 in the pre-edit file.
+
+NOT CYCLED, NOT COMPILED BY THE REAL BCOMP, NOT RUN. gplbld/bbcmp.py cannot
+swallow apisrvr whole - stubbing forward from the top hit ECHO, then HUSH,
+then WRITEPKT as "statement not coded", none of them anywhere near this
+change and all pre-existing. Rather than stub the whole file, the four
+changed shapes (the preauth if/end, the dispatcher's if/end before "until
+done", vb.scram.final's tail, and the <1>/<2> dynamic-array field syntax on
+api.preauth) were reproduced in a standalone snippet at
+%TEMP%\claude\...\scratchpad\bbcmp-slice6\synmin\sdsys\gpl.bp\synmin (not
+part of the repo) and compiled clean - "comp finish", no errors. The <1>/<2>
+syntax was checked against the existing id.state<1>/id.state<2> idiom at
+apisrvr:2356 (kernel(K$IMPERSONATING,0)'s caller), same shape. This proves
+the edited fragments parse; it does not prove the whole file compiles under
+the real BCOMP, and nothing has actually run K$HANDOFF or K$API.PREAUTH from
+BASIC. git status after the check showed only apisrvr and the new message
+touched - no sdsys/gcat object leaked from the scratch compile.
+
+New message sdsys/messages/10189, "Authentication succeeded but the session
+could not determine its own user name" - single line, LF only, no BOM,
+checked with xxd. 10160 is reused rather than a second new message, for the
+K$SET.USERNAME-mismatch case, which is identical in the preauth path and the
+SCRAM path.
+
+What is owed to actually close RELEASE_1.1 55: cycle.ps1 elevated (rebuilds
+the C and relinks bin\sdtlsrelay.exe from source - the by-hand build for the
+slice 5 guard is superseded), then a real API login, then verify-apiidentity
+turned round: a session that logged in over the API should now be sd.exe
+running as the user, no SeTcb, not LocalSystem - the falsified-if the slice 6
+trace above names. Tokens still at b181; this session spent none.
+
+17 Sep 2026, later still - OWNER RAN cycle.ps1 ELEVATED, IT STOPPED AT STEP
+0's "make sd": undefined reference to win32_session_spawn and
+win32_session_close, both called from op_kernel.c (lines 364 and 372). Real
+observed failure, not reasoning.
+
+ROOT CAUSE: sd's link list comes from gpl.src (sdb_ai/sd64/gpl.src), a plain
+text file read with $(shell cat ...) into SDSRCS/SDOBJS - NOT from the *.c
+wildcard (TEMPSRCS/OBJS in the Makefile), which only feeds the header-
+dependency line ($(OBJS): $(SDHDRS)) and the .c.o suffix rule. win32session.c
+was written for slice 1 (17 Sep, earlier), compiled cleanly under the
+wildcard - its .o sat in gplobj/ - but nothing had added its bare name to
+gpl.src, so SDOBJS never carried win32session.o into the sd: target's
+prerequisite list or the final link line. This falsifies HANDOFF 83's own
+claim in PROJECT_STATUS.md, "Makefile needs no change (wildcard;
+-luserenv/-lsecur32 linked)" - the library flags part was right (both are
+already in L_FLAGS and cover every WinAPI call win32session.c makes:
+CreateProcessAsUserA, DuplicateTokenEx - advapi32; DestroyEnvironmentBlock -
+userenv), the "Makefile needs no change" part was wrong. That entry is left
+as written in PROJECT_STATUS.md - it is the record of what was believed at
+the time - and corrected in the current PICK UP HERE block instead, per
+CLAUDE.md's rule that a measurement taken beats a claim read.
+
+FIX: added "win32session" to gpl.src, line 89, after win32vt (the last of
+the existing win32* group - not alphabetical, gpl.src is append-ordered).
+Added a dated comment in the Makefile beside the SDSRCS/SDHDRS block naming
+the trap for the next file added to gplsrc/: TEMPSRCS's wildcard makes a new
+.c file compile and get header-dependency tracking automatically, but never
+makes it link into sd - that still needs its name in gpl.src by hand, and a
+file that compiles but is never called from anything already in gpl.src's
+closure would not even fail the link, only sit unused in gplobj/.
+
+Not yet re-run. Owner needs to re-issue the same elevated cycle.ps1 command;
+this fix only touches step 0's C build, nothing in slice 6's BASIC.
+
+17 Sep 2026, later still - OWNER RE-RAN THE SAME cycle.ps1 COMMAND. Step 0
+now said "bin\ built 17 Sep 14:21:21, no source newer - nothing to compile"
+and skipped rebuilding entirely; step 2 (staging) then refused: "bin/ is
+missing sd.exe - run make sd first". Checked bin\: every OTHER target from
+the attempt-1 failed run was present and dated 14:21:21 (sdwind.exe,
+sdclilib.dll, sdsvc.exe, etc. - the sd: target's dependencies, all of which
+built before the final link line failed) - sd.exe itself was genuinely
+absent, never produced.
+
+ROOT CAUSE: gplbld/stale-binaries.ps1's Get-BinaryStaleness decides whether
+step 0 rebuilds by scanning gplsrc\ RECURSIVELY for anything newer than the
+oldest file in bin\. gpl.src (sd64/gpl.src, the file just fixed) is a SIBLING
+of gplsrc\, not a file under it, so the scan cannot see it change - by
+construction, not by an oversight in the exclusion list. My gpl.src edit
+(adding win32session) was invisible to the very check that decides whether
+"make sd" gets called again, so step 0 read the tree as current when the one
+thing that had changed since the failed link was exactly the file nothing
+was watching. Confirmed with stat: gpl.src mtime 1789680615 vs
+bin\sdwind.exe 1789680088 - gpl.src IS newer, and Get-BinaryStaleness still
+said not-stale before the fix below.
+
+FIX: Get-BinaryStaleness now also checks sd64/gpl.src's own LastWriteTime
+against $oldest, as a single file (Test-Path + Get-Item), not folded into the
+recursive gplsrc\ scan - gpl.src is not a place source lives, it is the list
+of what does. Comment added dated 17 Sep in stale-binaries.ps1's header and
+inline at the new check. test-stalebin-units.ps1 gained four rows in a new
+"gpl.src is source too" section: baseline current with no gpl.src present,
+stale and named when gpl.src is newer than the oldest binary, and not tripped
+when gpl.src is older. Ran directly (unelevated, no install):
+test-stalebin-units.ps1, 44 passed, 0 failed, including the four new rows.
+Then dot-sourced stale-binaries.ps1 against the REAL sd64 tree and called
+Get-BinaryStaleness directly: ok=True stale=True, uncompiled names exactly
+gpl.src at 09/17/2026 14:30:15 - the real defect this fix targets, confirmed
+gone rather than assumed fixed from the unit test alone.
+
+Not yet re-run against a real cycle. What is expected next time: step 0 sees
+gpl.src as stale, calls make sd, which should now link cleanly (win32session
+is in gpl.src from the attempt-1 fix) and produce bin\sd.exe; the cycle can
+then proceed to staging. This is the second build-tooling defect found by
+actually running the cycle rather than by reasoning about it; neither touches
+slice 6's BASIC, which still has not been compiled by the real BCOMP.
+
+17 Sep 2026, later still - ATTEMPT 3: cycle.ps1 COMPLETED CLEAN. Owner ran it
+a third time after the stale-binaries.ps1 fix. Transcript:
+C:\Users\Don\AppData\Local\SD-verify\cycle-20260917-144604.log (read in full,
+not sampled).
+
+Step 0: "1 source file(s) newer than bin\sdclilib.dll (17 Sep 14:21:21): 17
+Sep 14:30:15 gpl.src" - the new check working, naming the exact file and
+reason. "removed 12 of 12 binary/ies for a full relink". make sd then
+compiled win32session.o and every other object and linked sd with no
+undefined references - "Linking sd" with nothing after it, no error exit.
+
+BASIC: "Compiling gpl.bp apisrvr" ... "0 error(s)" ... "$apisrvr added to
+global catalogue" - slice 6 compiled clean under the REAL BCOMP for the first
+time; every prior check of this session's apisrvr edit was bbcmp on a
+snippet, never the file itself. Checked the log is not just claiming this:
+211 hits for "error" in the whole log, all either "0 error(s)" (one per
+compiled program - grepped and spot-checked apisrvr's own block, lines
+244-249) or benign field/variable names (error.msg, server.error, ON ERROR,
+sysmsg) - no compiler error, no "not assigned a value" (0 hits, the ERRGEN
+trap CLAUDE.md's Building section names).
+
+Fresh install: gcat 153 (staged 153), GPL.BP.OUT 213 (staged 213), 3,780
+files staged, TRANSCRIPT COMPLETENESS: WHOLE. Closing lines: "sd.exe matches:
+0052CE973ECA617B", "assert-current: the installed tree matches source",
+"CYCLE COMPLETE - the install matches source."
+
+This proves slice 6 COMPILES. It does not prove slice 6 WORKS - no API login
+has been attempted against this build, and neither of the two things HANDOFF
+84 left measured-not-proved (probe-lowpipe's integrity level, the cutover
+being sd rather than a unit test) has moved. Next and last step to close
+RELEASE_1.1 55: gplbld/verify-apiidentity.ps1, elevated (it creates a
+throwaway account and refuses itself otherwise), driving a live SCRAM login
+through scram-probe.py and checking the session is sd.exe running as the
+user - the falsified-if the slice 5 trace names. Not yet run.
+
+17 Sep 2026, later still - FIRST HAND-OVER OF verify-apiidentity.ps1 WAS
+WRONG: handed over bare, elevated, no -Prefix. Owner ran it and it refused
+correctly - "COULD NOT RUN - pass -Prefix, e.g. -Prefix sdapiidb18." - after
+first printing assert-current's own current-tree confirmation, so the refusal
+cost nothing but did show the install is still the same one from the earlier
+cycle.
+
+-Prefix is not just missing, it should never be hand-picked for this script:
+CLAUDE.md's verify suite section says exactly this case - "-Run is still
+required for a targeted elevated step and still derives every prefix...
+because a fixed prefix passes once and fails every later run" (PRE_RELEASE
+54). VerifyInstall2.ps1:260 derives it as "sdapiid$Run"; :767 passes it to
+verify-apiidentity.ps1 as -Prefix. The right invocation was always
+VerifyInstall2.ps1 -Run <token> -Only verify-apiidentity, not the verifier
+called by hand - the same shape CLAUDE.md's own example already gives for
+verify-delaccount. Corrected in PROJECT_STATUS.md's PICK UP HERE block: use
+the next unspent token, b181 (b167-b180 already spent, per the table further
+down this file). Not yet run with the correction.
+
+17 Sep 2026, later still - VerifyInstall2.ps1 -Run b181 -Only verify-apiidentity
+RUN, TWICE (owner ran it, then reran it - same result both times). Logs:
+VerifyInstall2-20260917-181153.log and -181305.log, both read in full.
+RELEASE_1.1 55 IS NOT CLOSED - the handoff does not work end to end.
+
+What ran: account sdapiidb181 created, fixtures built (ZZIDALLOW/ZZIDDENY/
+ZZIDUSER), ACLs applied and read back correctly. scram-probe.py logged in:
+request 47 -> server-first; request 48 -> server_error 0, status 3, 46
+byte(s); client-side check "SCRAM: server signature VERIFIED" - the SCRAM
+math is genuinely correct, apisrvr computed a valid server signature. Then:
+"connection failed part way: connection closed by server after 0 of 10
+bytes" on the very next request (account select, request 3).
+verify-apiidentity refused to call this a result: "SrvrAccount attach to
+SDAPIIDB181 failed - the probe's reason is above ... so nothing here is a
+result", exit 2 COULD NOT RUN - the instrument working correctly, this is not
+a false pass and not a false fail, it correctly reports "nothing measured".
+Account cleaned up (DELETE.ACCOUNT succeeded, fixtures removed) - no litter.
+
+THIS IS THE EXPECTED SHAPE OF A WORKING HANDOFF'S FIRST SYMPTOM IF IT FAILS,
+so it does not by itself prove anything is wrong with SCRAM - the front is
+SUPPOSED to close the connection right after 48 (scram.handoff -> K$HANDOFF
+-> done=@true, apisrvr:462-479), and if K$HANDOFF's relay cutover had
+actually worked, the client's next request would have been answered by the
+spawned session with no visible interruption. Seeing the connection close
+instead is exactly what "the handoff did not complete" looks like from the
+client's side.
+
+DIAGNOSIS ATTEMPTED, INCONCLUSIVE. op_kernel.c's K_HANDOFF case syslogs on
+every one of its four outcomes: two early refusals (no username / not
+$internal), sd_tls_relay_pipe() failure, win32_session_spawn() failure, or
+success ("SD API: session for %s started as pid %lu on %s"). Read the
+Application event log for the whole test window (provider sd_Log,
+18:12:00-18:13:00, via Get-WinEvent with a client-side ProviderName filter
+since a hashtable-based ProviderName filter combined with StartTime/EndTime
+errored "The parameter is incorrect") - NONE of the four appear anywhere.
+Cross-checked: every sd process's own logged command line in that window is
+"-n -q" (the front, LocalSystem) or a bare "sd" (console commands from the
+elevated setup script) - never "-N -H" for the pre-authenticated session,
+so win32_session_spawn was not merely refused, its target process was never
+even created. Checked for a crash: no Application-Error/WER event, no System
+log Service Control Manager crash entry, no unusual Reliability-relevant
+event in either log for the window. C:\ProgramData\SD\sdsys\stacks\Don was
+touched in the window but is the ordinary per-account command-recall stack
+(the console commands used to build the fixtures), not a crash trace -
+checked and ruled out, not assumed.
+
+Re-read the four changed code blocks in apisrvr (the preauth block, the
+scram.handoff init, the dispatcher's post-writepkt check, vb.scram.final's
+tail) against the currently-installed source; found nothing wrong on this
+pass - the structure matches what was intended and what bbcmp's snippet
+already validated. Re-read sd_tlssrv.c's control-channel setup
+(win32_relay_spawn call, relay_ctl_fd assignment at line 523) - this runs as
+part of the ordinary TLS-relay start for every connection, which DID succeed
+for this test ("SD API TLS: created server identity" logged), so
+relay_ctl_fd should have been valid when sd_tls_relay_pipe() ran, making the
+"no relay control channel" refusal an unlikely (though not disproven) cause -
+and that refusal, like every other K_HANDOFF exit, would itself have
+syslogged and did not.
+
+STRONGEST READING, NOT PROVEN: kernel(K$HANDOFF, scram.user) was never
+reached or its result was never observed - not "K$HANDOFF ran and refused
+silently", because every one of its exits, including refusal, calls syslog.
+A silent crash inside the call (before any syslog) was considered and has no
+positive evidence for it either (no WER/crash event), so it is not ruled in,
+only not ruled out.
+
+WHAT WOULD ACTUALLY ANSWER THIS AND WAS NOT DONE: add a syslog checkpoint (or
+take the return value of kernel(K$HANDOFF, ...) instead of discarding it with
+void, and log it) immediately around the call in apisrvr, then run the cycle
+again and repeat this test. That costs a full elevated cycle (~20 min) and
+was not spent this session without asking first - two cycles and one verify
+run were already spent today, and the next step is a design/diagnostic
+decision (what to instrument, whether the cause might be upstream in slices
+1-5's C rather than slice 6's BASIC) rather than a mechanical retry.
+
+RELEASE_1.1 55's parity build compiles (all six slices) but does not achieve
+parity yet - the one thing it exists to prove, that an authenticated API
+session ends up running as the user rather than as LocalSystem, is not yet
+true of anything that actually ran. Tokens: b181 spent on this. Tree
+unchanged from the last commit-worthy state (apisrvr, messages/10189,
+gpl.src, Makefile, stale-binaries.ps1, test-stalebin-units.ps1 all still
+uncommitted).
+
+17 Sep 2026, later still - THE DIAGNOSTIC, ASKED FOR BY THE OWNER ("add the
+diagnostic and I'll run another cycle"). apisrvr:475-490, three changes
+inside the existing handoff block and nothing else in the tree:
+
+  - void removed from the K$HANDOFF call; its return goes into handoff.ok.
+  - void kernel(K$AUDIT, 'HANDOFF ATTEMPT user=' : scram.user) BEFORE it.
+  - void kernel(K$AUDIT, 'HANDOFF RESULT user=' : scram.user : ' ok=' :
+    handoff.ok) AFTER it.
+
+K$AUDIT RATHER THAN syslog, AND THE CHOICE IS THE POINT: the Event Log
+showed none of K_HANDOFF's four syslog lines last run, so adding a fifth
+syslog line would be instrumenting through the channel already suspected of
+losing them. K$AUDIT is the trail this same file already writes successfully
+(the 21 Aug work; verify-apiname measured it growing), audit_message()
+appends per record through win32audit.c with a CreateFile asking for
+FILE_APPEND_DATA alone (k_error.c:716), so a record already written survives
+whatever the next statement does - including a crash inside the K$HANDOFF
+call - and it lands in C:\ProgramData\SD\sdsys\audit, a plain file readable
+without elevation.
+
+THE FOUR READINGS, decided before the run so the answer cannot be fitted to
+a preference afterwards:
+  - neither record -> the dispatcher block is not reached at all, though the
+    client demonstrably received the reply written three lines above it.
+    Points at compiled control flow, not at K$HANDOFF.
+  - ATTEMPT, no RESULT -> kernel(K$HANDOFF, ...) never returned: hung or took
+    the process down. Points into slices 1-5's C - win32session.c, or
+    sd_tls_relay_pipe()'s blocking control-channel read (sd_tlssrv.c:705).
+  - both, ok=0 -> refused cleanly, and the C's own syslog line is being lost;
+    the `why` text inside sd_tls_relay_pipe()/win32_session_spawn() is then
+    the next thing to surface.
+  - both, ok=1 -> the spawn worked and the RELAY CUTOVER is the defect - the
+    row HANDOFF 84 already flagged as never driven by real sd.
+
+Marked TEMPORARY in its own comment; both audit calls come out once the cause
+is found. Syntax checked the way the earlier slice-6 edit was: the minimal
+standalone snippet in the scratchpad, updated to mirror these three lines,
+compiled under bbcmp - "comp finish", no errors. The concatenation shape is
+copied from the existing void kernel(K$AUDIT, 'API REFUSED user=' : ...)
+call in this same file, so it is a pattern already proven under the real
+BCOMP rather than a new one. Not cycled - that is the owner's next step, and
+the token after it is b182 (b181 spent; a reused token derives a prefix whose
+Windows account and register record the previous run already made).
+
+17 Sep 2026, b182 - THE DIAGNOSTIC ANSWERED, AND IT FALSIFIED THE b181
+READING. Owner cycled and ran VerifyInstall2 -Run b182 -Only
+verify-apiidentity. The audit file (C:\ProgramData\SD\sdsys\audit) carries
+both records, at 18:30:42, from pid 839:
+
+  HANDOFF ATTEMPT user=sdapiidb182
+  HANDOFF RESULT user=sdapiidb182 ok=0
+
+So K$HANDOFF IS reached, DOES run, and REFUSES - in the same second, which
+rules out sd_tls_relay_pipe()'s blocking control-channel read (sd_tlssrv.c:705,
+SD_TLS_HANDSHAKE_MS) and says the failure is immediate. pid 839 is the front
+(syslog: "sd -n -q", "API connection from 127.0.0.1 port 58827", 18:30:40).
+
+***THE b181 CONCLUSION WAS WRONG AND IS WORTH KEEPING WRONG IN THE RECORD.***
+b181 said "K$HANDOFF was never reached", reasoning that every K_HANDOFF exit
+syslogs and none of the four lines appeared. The reasoning was valid; the
+premise was not. syslog itself was the broken instrument - see below. A
+verifier's silence is evidence only if the verifier can speak, and nothing in
+this tree was checking that one could.
+
+ROOT CAUSE (read from source, consistent with every measurement, NOT yet
+confirmed by a passing run): vb.scram.final still called
+kernel(K$ASSUME.USER, scram.user). Slice 6 added the handoff and left that
+call in place. 61 adopts the user IN PLACE - CW_SET_EXTERNAL_TOKEN + seteuid
+- so from that statement on the process's effective identity is the ordinary
+user. K$HANDOFF then has to S4U-mint that same user's token to spawn the
+session: win32session.c:126 calls win32_s4u_logon(), whose own error text
+asks "is this process LocalSystem (SeTcb)?" - S4U is granted on
+SeTcbPrivilege, which LocalSystem's token carries and the user's does not. So
+the front dropped the one privilege the handoff needs, one statement before
+needing it. Immediate refusal, same second, nothing spawned - which matches
+the measured timing exactly, and matches "no sd -N -H process ever appeared"
+from b181.
+
+THE DESIGN ALREADY SAID SO. int$keys.h:171, written with slice 5: 66
+"Replaces K$ASSUME.USER for the API ... 61 stays, for ssh and the other
+callers." Slice 6 built the replacement and did not perform the replacing.
+
+SECOND DEFECT, SEPARATE FROM THE FIRST AND NOT FIXED HERE: every K_HANDOFF
+syslog call happens after that K$ASSUME.USER, i.e. from a process that is no
+longer LocalSystem, and none of them reaches the Application log. The earlier
+syslog lines from the SAME pid ("API connection from", "created server
+identity") all predate the identity change, which is why syslog looked
+healthy while being useless exactly where K_HANDOFF's "fails closed and says
+why in syslog" design depends on it. K$AUDIT is unaffected (audit_message()
+appends through win32audit.c) and is what produced the answer. Whether
+K_HANDOFF should write its `why` to the audit trail instead of, or as well
+as, syslog is left as a decision rather than taken here.
+
+THE FIX, IN THE TREE AND UNCYCLED: the six-line K$ASSUME.USER if-block is
+removed from vb.scram.final, with comments in its place recording the
+measurement and the reason. 61 untouched for ssh. Checked rather than
+assumed: sysmsg 5277 now has NO caller anywhere in gpl.bp - it was this
+block's only one - and the message record is left in sdsys/messages rather
+than deleted, since removing a shipped message is an upgrade question of its
+own. Structure checked mechanically: the count of line-ending "then" against
+bare "end" moved by the same amount in both (HEAD 67/77, working tree 70/80 -
+delta 10 unchanged), so removing a complete if-block left the nesting
+balanced; and the minimal bbcmp snippet, updated to mirror the diagnostic
+lines, compiled clean ("comp finish", no errors).
+
+The K$AUDIT pair is DELIBERATELY LEFT IN for the next run - it is what
+confirms or refutes the S4U diagnosis, and the record to want is ok=1. Next
+token b183 (b181 and b182 both spent). AND A GREEN ok=1 STILL WOULD NOT CLOSE
+RELEASE_1.1 55: it moves the question to the relay cutover, which HANDOFF 84
+already flagged as never having been driven by real sd rather than by the
+unit test playing both ends.
+
+17 Sep 2026, b183 - THE HANDOFF WORKS, THE CUTOVER WORKS, AND THE FAILURE HAS
+MOVED. Owner cycled with the K$ASSUME.USER removal in and ran -Run b183.
+Audit file, 18:43:00, pid 624:
+
+  HANDOFF ATTEMPT user=sdapiidb183
+  HANDOFF RESULT user=sdapiidb183 ok=1
+
+Three things measured that never had been:
+
+1. ok=1 - the S4U diagnosis was right. With K$ASSUME.USER gone the front kept
+   SeTcbPrivilege long enough to mint the user's token and spawn the session.
+
+2. THE SYSLOG DIAGNOSIS IS NOW CONFIRMED BY A POSITIVE CONTROL RATHER THAN BY
+   REASONING. The K_HANDOFF success line reappeared in the Application log
+   after two runs of total silence: "SD API: session for sdapiidb183 started
+   as pid 13548 on \\.\pipe\sd-api-624-be75739c205eab7b" (18:43:00.389, pid
+   624). So syslog was mute in b181/b182 BECAUSE the calling process was no
+   longer LocalSystem, measured in both directions. The spawned session's own
+   Windows pid is 13548; note it never logs a start banner of its own, which
+   is worth remembering if the session is ever suspected of dying early.
+
+3. THE RELAY CUTOVER HELD, DRIVEN BY REAL sd. The probe's next requests were
+   ANSWERED where b182 got "connection closed by server after 0 of 10 bytes":
+   "request 3 -> server_error 3, status 1, 0 byte(s)" then "request 2 ->
+   server_error 0, status 0, 37 byte(s)". A DIFFERENT PROCESS - the spawned
+   session - picked up the live connection and served it. This is the row
+   HANDOFF 84 flagged as never having been driven by anything but the unit
+   test playing both ends; it has now been driven end to end by the product.
+
+WHAT IS LEFT IS A NEW DEFECT. The spawned session refuses the account:
+"account SDAPIIDB183: REFUSED: User not allowed in requested account",
+sysmsg(10003) from vb.account. verify-apiidentity still exits 2 COULD NOT RUN,
+correctly - without the attach there is no account VOC and nothing below it
+could mean anything.
+
+LIKELY SHAPE, NOT PROVEN: the session is now a REAL ORDINARY USER and
+vb.account was written for a LocalSystem one, so everything that routine reads
+or runs has to be reachable as that user. ALL FIVE of its refusals return
+10003 deliberately (so a caller cannot tell "no such account" from "not
+granted" from "suspended"), which is right against an attacker and useless for
+diagnosis. Cheap checks done rather than guessed: C:\ProgramData\SD\sdsys\
+accounts grants sdusers:(OI)(CI)(RX), so the register should be readable by a
+user in sdusers; ProcessUserName() (win32s4u.c:466) returns the BARE name via
+LookupAccountSidA, so K$USERNAME should carry the right string. The suspect
+left standing is is_grp_member, which is '!ps_script' (op_sh.c:379) and runs
+PowerShell through C:\ProgramData\SD\sdsys\pstmp - a directory that would not
+yield its ACL even to an unelevated read. If that route is unreachable as the
+user, is_grp_member answers @false and the false refusal is indistinguishable
+from a real one.
+
+DIAGNOSTIC ADDED, UNCYCLED: vb.account now writes K$AUDIT records naming the
+branch - ACCOUNT ENTRY (user, account, whether the register opened, path,
+group, tier), ACCOUNT GROUP (the is_grp_member answer captured on its own,
+before it is acted on), ACCOUNT REFUSED branch=1..5, and ACCOUNT ENTERED on
+the way through. The HANDOFF pair stays in as well. All marked TEMPORARY.
+Checked the same two ways as before: block balance unchanged against HEAD
+(then/end delta 10 both), and a bbcmp snippet mirroring the new shapes -
+including the deffun assignment acc.member = is_grp_member(...) - compiled
+clean, "comp finish".
+
+Next token b184. The record to read first is ACCOUNT GROUP ... member=:
+member=0 beside a healthy ACCOUNT ENTRY is is_grp_member giving a false
+refusal, and the fix is then about that check rather than about the grant.
+
+17 Sep 2026, b184 - BRANCH 4 NAMED, AND THE REFUSAL IS A FALSE ONE. Audit
+records, 18:51:56:
+
+  pid=1605 HANDOFF RESULT user=sdapiidb184 ok=1
+  pid=1607 ACCOUNT ENTRY user=sdapiidb184 account=SDAPIIDB184
+           register.opened=1 path=C:/ProgramData/SD/user_accounts/SDAPIIDB184
+           group=sdu_SDAPIIDB184 tier=PROGRAMMER
+  pid=1607 ACCOUNT GROUP user=sdapiidb184 group=sdu_SDAPIIDB184 member=0
+  pid=1607 ACCOUNT REFUSED branch=4 not.in.group
+
+Everything except the group answer is healthy: the register OPENED as the
+ordinary user (so the sdusers RX grant is sufficient and that suspect is
+dead), the path/group/tier are all correct, and K$USERNAME carries the right
+bare name. The pids are worth noting - handoff on 1605 (the front), account
+work on 1607 (the spawned session) - the cutover holding again.
+
+THE CONTROL IS INSIDE THE SAME RUN. is_grp_member answered @TRUE for the same
+user against the sdapi group minutes earlier, in vb.scram.final, in the
+LocalSystem front - the login could not have completed otherwise. Same
+function, same run, same user, @false in the spawned session. The difference
+is the calling process, not the data.
+
+***AND THE FIRST EXPLANATION FOR THAT WAS WRONG, WHICH IS WORTH RECORDING
+BECAUSE IT WAS WRITTEN DOWN BEFORE IT WAS CHECKED.*** The obvious reading was
+"the session is unprivileged, so os.execute is refused". IT IS NOT:
+os_permitted()'s TEST 1 (op_sh.c:215) returns TRUE for any $internal program
+before it looks at the user at all, and is_grp_member is $internal. So the
+PowerShell is permitted in both processes and the privilege story is dead.
+(Also corrected: is_grp_member uses os.execute directly, not !ps_script as
+the b183 entry said, so pstmp's ACL is not in the path either.)
+
+WHAT IS ACTUALLY MISSING IS WHAT THE PowerShell DID. is_grp_member collapses
+three different things into @false: exit 2 (Get-LocalGroupMember threw), a
+shell that never started, and a genuine "not a member". Only the last is an
+answer, and vb.account reads all three as "not granted". That is the
+instrument rule violated in the product rather than in a verifier - a check
+that could not run scoring as a refusal - and it is a defect in its own right
+whatever the immediate cause turns out to be.
+
+DIAGNOSTIC ADDED, UNCYCLED, in gpl.bp/is_grp_member: os.execute now uses
+"capturing grp.out", the catch emits $_.Exception.Message instead of
+swallowing it, and one K$AUDIT record carries GRPMEMBER user= group= stat=
+out=. stat separates the three causes (0 member, 1 not a member, 2 the cmdlet
+threw with its message in out=, anything else the shell never ran). The
+function is SHARED, so the front's sdapi call writes a record too and the
+next run prints the working and failing cases side by side. $include
+int$keys.h added for K$AUDIT - the file had no include at all. Checked: the
+whole file compiles under bbcmp with its two unsupported statements
+(OS.EXECUTE, VOID) stubbed in a scratch copy - "comp finish", no errors; the
+live file is unchanged apart from the diagnostic.
+
+Next token b185. If stat=2 the captured message is the finding. If stat=1 the
+grant or the group naming is real after all - note the register holds
+sdu_SDAPIIDB184 upper-case while CREATE.ACCOUNT makes the group lower-case,
+which should be a red herring since Windows group names are case-insensitive,
+but stat=1 is where that stops being true. Anything else points at the
+environment the spawned session gives its children (win32session.c,
+CreateEnvironmentBlock).
+
+17 Sep 2026, b185 - stat=127. THE SESSION CANNOT EXEC A CHILD AT ALL, and the
+control is two lines away in the same run:
+
+  19:02:25 user=SYSTEM      pid=943 GRPMEMBER user=sdapiidb185 group=sdapi
+                                    stat=0 out=
+  19:02:25 user=sdapiidb185 pid=945 GRPMEMBER user=sdapiidb185
+                                    group=sdu_SDAPIIDB185 stat=127 out=
+
+Same function, same user, seconds apart: the LocalSystem front (943) ran the
+PowerShell and got 0; the spawned session (945) got 127. out= is EMPTY, so
+the catch never fired - Get-LocalGroupMember never ran, nothing ran. 127 is
+"command not found".
+
+WHAT THIS RULES OUT, which is most of the field: not an OS.EXECUTE refusal
+(already dead - os_permitted test 1), not the cmdlet throwing (that is exit 2
+with a message in out=), and NOT a genuine "not a member" (stat=1). So the
+upper/lower-case sdu_ naming question is a dead red herring, as suspected,
+and the grant itself is not in question. The fault is that the session cannot
+start a child process.
+
+SUSPECT: the environment the spawn hands the session. win32session.c:196
+builds it with CreateEnvironmentBlock(&env, prim, FALSE) and falls back to
+env = NULL if that call fails. op_sh.c runs powershell.exe BY BARE NAME,
+resolved through PATH, and Cygwin's system() needs /bin/sh - both answer 127
+when missing, which is why the next diagnostic measures both rather than
+picking one.
+
+DIAGNOSTIC ADDED, UNCYCLED, AND IN C THIS TIME: os.execute is precisely what
+does not work in that session, so it cannot be used to probe itself.
+op_kernel.c's K_API_PREAUTH - which APISRVR reads exactly ONCE at start-up,
+so it fires once per pre-authenticated session and never for an ordinary one
+- now writes one audit_message():
+
+  PREAUTH ENV who= sh= SystemRoot= COMSPEC= PATH=
+
+sh= is access("/bin/sh", X_OK), which separates the two 127 causes; PATH is
+truncated to 700 bytes to keep the record sane. audit_message() rather than
+syslog() deliberately: the session's own ACCOUNT records reached the trail
+from this very process on b184, and syslog has already been caught silent on
+this path once. Compile-checked with the sd target's own flags
+(-std=gnu17 -Wall -Wformat=2 -fsyntax-only): 0 errors, 0 warnings.
+
+READINGS, fixed before the run: sh=UNREACHABLE means Cygwin's /bin/sh is not
+visible to the session and the runtime/mount environment is the fault; sh=ok
+with a thin or (unset) PATH means powershell.exe cannot be found, and the fix
+is either to give the session a real environment or to stop resolving
+PowerShell by bare name in op_sh.c (the sibling of PRE_RELEASE 173, the same
+line missing -ExecutionPolicy Bypass); sh=ok WITH a full PATH falsifies this
+whole reading and sends the next session back to op_sh.c to find what it
+actually execs. Next token b186.
+
+NOTE FOR WHOEVER FIXES IT: is_grp_member conflating "could not run" with "not
+a member" is a defect in its own right, independent of this cause, and
+vb.account ignoring the status() it sets is the other half. Whatever fixes
+127 should not leave that conflation standing - a check that could not run
+must not read as a refusal.
+
+17 Sep 2026, b186 - THE SESSION'S ENVIRONMENT IS MEASURED AND IT DOES NOT
+EXPLAIN THE 127. From the spawned session itself (pid 2079, 19:10:27):
+
+  PREAUTH ENV who=sdapiidb186 sh=UNREACHABLE SystemRoot=(unset)
+    COMSPEC=C:\WINDOWS\system32\cmd.exe
+    PATH=...:/cygdrive/c/WINDOWS/System32/WindowsPowerShell/v1.0:...:/usr/bin
+
+***sh=UNREACHABLE IS A RED HERRING THIS DIAGNOSTIC INTRODUCED.*** SD ships no
+sh.exe at all - checked, neither usr\bin\sh.exe nor bin\sh.exe exists in the
+install - so /bin/sh is unreachable for EVERY sd process, including the front
+whose os.execute works. It was simply the wrong thing to measure: op_sh.c runs
+no shell, it execv()s PowerShell directly (op_sh.c:595). Recorded so the next
+session does not read that word as a finding.
+
+WHAT IS REAL: SystemRoot is unset in the session and set in the front, and
+sd_powershell_path() (op_sh.c:386) reads exactly that variable to build
+argv[0]. ***BUT THAT LINK IS NOT ESTABLISHED, AND IT WAS TESTED RATHER THAN
+ASSUMED***: the function FALLS BACK to "C:/Windows" when SystemRoot is
+missing, and both C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+and the C:/WINDOWS spelling are present and executable on this machine (NTFS
+is case-insensitive; the mixed drive-letter form resolves too). So the
+computed path is valid either way and the missing SystemRoot has no proven
+connection to the 127. PATH is healthy and even contains PowerShell's
+directory, which is moot since execv never consults PATH. One lead, not a
+finding: COMSPEC resolving in UPPER case suggests CreateEnvironmentBlock's
+block may be upper-cased, which would mean SYSTEMROOT exists under a spelling
+getenv("SystemRoot") cannot see.
+
+THIS IS THE THIRD THEORY IN A ROW THAT LOOKED SOUND AND DID NOT SURVIVE
+CHECKING (os.execute permission, then group naming, now SystemRoot-to-path),
+so the next step stopped guessing and instrumented the failing call itself.
+127 is a SHELL's "not found" convention and SD runs no shell here, so it was
+never established that execv failed at all.
+
+DIAGNOSTIC ADDED, UNCYCLED: op_sh.c:595's child now ends with
+_exit(70 + errno), errno capped at 50, instead of returning from execv and
+falling through. Readings: 72 ENOENT, 83 EACCES, 78 ENOEXEC, any 70-120 value
+decodes as errno - and a PERSISTENT 127 proves execv SUCCEEDED and PowerShell
+itself exited 127, which moves the question inside PowerShell's start-up with
+SystemRoot as the first suspect and a mechanism behind it at last.
+
+AND IT COVERS A REAL LATENT DEFECT WHILE IT IS THERE: execv() returns only on
+failure, and the forked child previously FELL THROUGH into the parent's
+cleanup code - a child running the parent's path. That is a defect independent
+of this investigation and the _exit() is the right shape to keep whatever the
+127 turns out to be. An exit code rather than an audit line deliberately: this
+is a forked Cygwin child and audit_message() takes ERRLOG_SEM and writes a
+file, so a child deadlocked holding that semaphore would hang the session -
+worse than the bug being chased. Compile-checked with the sd target's flags,
+0 errors 0 warnings. Next token b187.
+
+17 Sep 2026, b187 - THE _exit(70+errno) WAS NEVER REACHED, THE CHILD STILL
+EXITED 127, AND THE READING I PRE-DECLARED FOR THAT WAS WRONG. Session
+GRPMEMBER group=sdu_SDAPIIDB187 stat=127, unchanged (19:24:11, pid 1241).
+
+THE INSTRUMENT WAS VERIFIED PRESENT RATHER THAN ASSUMED, which is the part
+worth keeping: op_sh.c edited 19:18:00; the 19:21:13 cycle log contains
+"Compiling op_sh.o" and "Linking sd"; bin\sd.exe linked 19:21:20; the verify
+ran 19:24. And the only 127 literals in op_sh.c are my own comment - the value
+is the child's real WEXITSTATUS via process.os_error. So the child genuinely
+exited 127 and the new _exit genuinely did not run.
+
+***THE WITHDRAWN CLAIM.*** b186's entry said "a PERSISTENT 127 proves execv
+SUCCEEDED and PowerShell itself exited 127". THAT IS NOT TRUE ON CYGWIN: an
+exec that fails past the point of commit cannot return to the caller, so
+Cygwin exits the child itself and 127 is what it uses. _exit never running is
+therefore EQUALLY consistent with "PowerShell ran and exited 127" and
+"PowerShell never started". The claim was written as decisive before the
+mechanism was checked. That is the fourth theory this investigation has had to
+withdraw - os.execute permission, group naming, SystemRoot-to-path, and now
+this - and every one of them was withdrawn by checking rather than by a run
+going wrong, which is the only reason the cost stayed at one cycle each.
+
+SO THE NEXT ROUND IS AN EXPERIMENT AND NOT AN INFERENCE. op_kernel.c's
+K_API_PREAUTH diagnostic now, in the pre-authenticated session only, forks and
+execv()s THE REAL sd_powershell_path() BINARY with a command whose only
+possible exit is 3 - "-NoProfile -Command \"exit 3\"" - waits for it, and
+writes:
+
+  PREAUTH PROBE psh= access= accerrno= exit3=
+
+exit3=3 means PowerShell started, and the 127 is then about what it did next
+(SystemRoot back as prime suspect, this time with a mechanism). exit3=127
+means it never started and Cygwin's spawn is the fault. exit3 in 70..120
+decodes as 70+errno from an execv that did return. access= is recorded beside
+it because the front's success cannot answer reachability for the session's
+own token. Compile-checked with the sd target's flags, 0 errors 0 warnings.
+Next token b188.
+
+17 Sep 2026, b188 - ANSWERED, AND THERE IS A FIX IN THE TREE FOR THE FIRST
+TIME SINCE THE 127 APPEARED. From the spawned session (19:39:16, pid 1938):
+
+  PREAUTH PROBE psh=C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+                access=0 accerrno=0 exit3=127
+
+access=0 - the image IS reachable and executable as that user. exit3=127 on a
+command whose only possible exit is 3 - SO POWERSHELL NEVER STARTED. That is
+the pre-declared reading for this value, unchanged after the fact.
+
+THE CAUSE NOW HAS ALL THREE THINGS IT PREVIOUSLY LACKED: a measured absence
+(SystemRoot=(unset), b186), a MECHANISM (a Windows child cannot initialise
+without SystemRoot, so CreateProcess fails and Cygwin exits the child 127 -
+which is also why op_sh.c's _exit(70+errno) was never reached, the failure
+being past the point of commit), and this tree's OWN RECORDED PRECEDENT for
+the sibling spawn: win32relay.c:287 and the Makefile both say the relay
+"needs that account's environment (SystemRoot at least) or the UCRT refuses
+to start". Everything else is ruled out by measurement rather than opinion:
+the path (access=0), permissions (access=0), PATH (execv never consults it),
+the register data (ACCOUNT ENTRY was healthy), and the OS.EXECUTE gate
+($internal is exempt at op_sh.c:215).
+
+WHY CreateEnvironmentBlock DID NOT SUPPLY IT, which also explains why the
+relay never hit this: its output depends on the user's registry hive being
+loadable, and a brand-new account that has never signed in has no loaded
+profile. sdrelay has existed long enough to have one.
+
+THE FIX: env_with_systemroot() in win32session.c, called on the block before
+the spawn. It repairs ONLY SystemRoot, and takes the value from
+GetSystemWindowsDirectoryW() rather than from the front's environment.
+DELIBERATELY NOT CreateEnvironmentBlock(..., TRUE) AND NOT A NULL BLOCK: both
+would pour the LocalSystem service's environment into the user's session, and
+a stray USERPROFILE or TEMP pointing into the service profile is a new
+breakage rather than a fix. Two allocators, two releases - the repaired block
+is malloc'd while the original still needs DestroyEnvironmentBlock, and the
+first version of this leaked whichever pointer it did not keep. Built against
+the MSYS2 POSIX runtime, so wcsncasecmp rather than the MSVC _wcsnicmp, and
+<wchar.h> added because windows.h does not bring those in here.
+Compile-checked with the sd target's flags: 0 errors, 0 warnings.
+
+THE PROBE IS LEFT IN ON PURPOSE - it is what confirms or refutes the fix. On
+the next run the record to want is exit3=3 with SystemRoot no longer (unset).
+IF exit3 IS STILL 127 THE ENVIRONMENT WAS NOT THE CAUSE AND THIS FIX SHOULD BE
+REVERTED rather than kept "just in case". Next token b189.
+
+STILL OWED WHATEVER HAPPENS TO THE 127: is_grp_member conflating "could not
+run" with "not a member", and vb.account ignoring the status() it sets. Those
+two are why a 127 read as "not granted" for five consecutive rounds, and they
+are a defect independent of the environment.
+
+17 Sep 2026, b189 - THE FIX WAS BUILT, CHANGED NOTHING, AND IS REVERTED. And
+the reason it changed nothing is what kills the theory. SystemRoot=(unset) and
+exit3=127, both unchanged (19:50:56, pid 1051).
+
+IT WAS GENUINELY IN THE BINARY, checked the way b187 taught: win32session.c
+edited 19:43:00, the 19:47:33 cycle log carries "Compiling win32session.o" and
+"Linking sd", bin\sd.exe 19:47:46, verify 19:50. Not another absent
+instrument.
+
+***AND THAT IS THE DEDUCTION.*** env_with_systemroot() writes literally
+"SystemRoot=", so had it fired, getenv("SystemRoot") in the session could not
+still answer (unset). It did. Therefore env_has() found the variable ALREADY
+PRESENT under another case, Windows could always see it, and b186's
+SystemRoot=(unset) WAS AN ARTIFACT OF THE PROBE rather than a fact about the
+session: Cygwin's getenv is case-sensitive and the block is upper-cased. The
+tell was in the same record from the start - getenv("COMSPEC") SUCCEEDED,
+where Windows and the registry both spell it ComSpec.
+
+REVERTED per the rule written before the run. win32session.c is back at HEAD
+(git checkout of that one file, after saving the attempt to
+%TEMP%\claude\...\scratchpad\win32session-systemroot-attempt.diff) rather than
+left in the tree as dead code on a dead theory.
+
+FIVE THEORIES WITHDRAWN ON ONE 127 NOW, and the last two were withdrawn
+because THE INSTRUMENT MISLED RATHER THAN THE CODE: op_sh.c's execv cannot
+report a failure past the point of commit, and getenv was asked in the wrong
+case. THE STANDING LESSON FOR THIS PATH: do not believe a POSIX-layer answer
+about a Windows fact.
+
+NEXT INSTRUMENT, IN THE TREE AND UNCYCLED: win32_session_probe() in
+win32session.c, declared in win32session.h, called from op_kernel.c's
+K_API_PREAUTH block. It asks WINDOWS: CreateProcessA on the real PowerShell
+image with a command whose only exit is 3, reporting GetLastError() - the
+number Cygwin has been swallowing as 127 - and GetEnvironmentVariableA for
+SystemRoot, which is CASE-INSENSITIVE and so settles that question for good.
+New record: PREAUTH WIN32 sysroot= create= wexit=. No fork, no execv, no
+shell.
+
+READINGS, fixed before the run: create=ok wexit=3 means Windows starts
+PowerShell from this session perfectly well and the fault is in CYGWIN's
+spawn/execv layer - which would make op_sh.c's fork+execv the thing to change
+for a raw-spawned session. create=<error N> names the real cause at last.
+sysroot=(ABSENT to Windows too) revives the environment theory, this time on a
+reader that cannot give a false negative. Both files compile clean with the sd
+target's flags, 0 warnings. Next token b190.
+
+## RELEASE_1.1 55 - b190, 17 Sep 2026: THE 127 IS ANSWERED. 0xC0000142.
+
+  PREAUTH WIN32 sysroot=C:\WINDOWS create=ok wexit=3221225794
+
+3221225794 = 0xC0000142 = STATUS_DLL_INIT_FAILED, exact (0xC0000000 + 0x142).
+Three findings in one line:
+
+  1. sysroot=C:\WINDOWS - THE ENVIRONMENT WAS NEVER THE PROBLEM. Read
+     case-insensitively by Windows itself, so b186's SystemRoot=(unset) is
+     conclusively an artifact of a case-sensitive Cygwin getenv, and b189's
+     reverted fix was correctly reverted.
+  2. create=ok - CreateProcess SUCCEEDED. PowerShell was launched. Nothing
+     about the path, the permissions or PATH was ever wrong (access=0 had
+     already said so).
+  3. wexit=0xC0000142 - it died during DLL INITIALISATION.
+
+THE MECHANISM, WHICH EXPLAINS EVERY OBSERVATION OF THE PRECEDING SEVEN ROUNDS.
+0xC0000142 from a process started on a NON-INTERACTIVE S4U token pointed at a
+window station is the textbook symptom of that token having no access to the
+window station/desktop: user32.dll's initialisation fails when it cannot
+attach. The front hands the session exactly that - win32session.c:274,
+six.StartupInfo.lpDesktop = "winsta0\\default" - and the session inherits the
+association and passes it to its own children.
+
+WHY sd.exe SURVIVES WHERE POWERSHELL DIES, the question that made this look
+impossible: sd.exe is a POSIX-runtime CONSOLE program and never loads user32,
+so it never attaches to a station. PowerShell (.NET, hence user32) does. So
+the session runs perfectly while anything loading user32 dies at init, and
+Cygwin renders that dead child to the caller as 127.
+
+***THE SCOPE IS WIDER THAN is_grp_member.*** A pre-authenticated session cannot
+run ANY PowerShell helper; is_grp_member is only the first one it reaches.
+Every os.execute and !ps_script path an API session can take is in the same
+position, so this is a class and not one call site.
+
+THE FIX IS A RULING, NOT A DISCOVERY. Three candidates, with what each costs:
+
+  (a) STOP DEPENDING ON A CHILD PROCESS - do the group test in C.
+      RECOMMENDED. ***THE RECORDED OBJECTION TO K$IN.GROUP IS NOW VOID***:
+      apisrvr's own comment rejects it because "an API session runs as
+      LocalSystem ... so in_group() behind K$IN.GROUP would answer for SYSTEM
+      and admit everybody" - and under 55 the session's token genuinely IS the
+      user's, which is the whole point of the change. Needs no window station,
+      no PowerShell and no privilege. TRADE-OFF: a token test is a snapshot
+      from logon, so a grant revoked mid-session is honoured until the next
+      login, where the present live SAM query takes effect on the next
+      connection. Implementing it as a live lookup in C
+      (LookupAccountName + NetLocalGroupGetMembers) keeps today's semantics and
+      is the more faithful version of (a).
+  (b) GRANT THE SESSION'S USER ACCESS TO winsta0\default (or spawn it into the
+      service's own station with a grant). Keeps every existing helper working
+      unchanged. COST: widens window-station access to every API user, and it
+      is fiddly ACL code on a securable object nothing else in this tree
+      touches.
+  (c) lpDesktop = NULL instead of "winsta0\\default". Cheapest to try, and it
+      may simply move the same error, since the user's token is unlikely to
+      have access to the service station either. Worth one probe before
+      spending anything on (b).
+
+AND WHICHEVER IS CHOSEN, TWO THINGS ARE STILL OWED: is_grp_member conflating
+"could not run" with "not a member", and vb.account ignoring the status() it
+sets. Those are why a DLL-init failure read as "not granted" for seven rounds.
+
+DIAGNOSTICS STILL IN THE TREE, all marked TEMPORARY and to be removed when the
+fix lands: the HANDOFF pair and ACCOUNT/GRPMEMBER records in gpl.bp (apisrvr,
+is_grp_member), PREAUTH ENV/PROBE/WIN32 in op_kernel.c, win32_session_probe()
+in win32session.c/.h, and op_sh.c's _exit(70+errno) - that last one being a
+real defect fix (the forked child previously fell through into the parent's
+cleanup) and worth keeping in some form.
+
+TOKENS b181-b190 spent on this investigation; next free is b191.
+
+## RELEASE_1.1 55 - 17 Sep 2026: THE FIX FOR THE GROUP CHECK, option (a)
+
+Owner said continue, so option (a) was taken in the form with NO behavioural
+trade-off: the same live question, in C, with no child process. Uncycled.
+
+WHAT WAS WRITTEN:
+  - gplsrc/win32group.c + .h - win32_group_has_member(), a live
+    NetLocalGroupGetMembers lookup BY NAME (level 3, so members arrive as
+    DOMAIN\name and no per-member SID lookup is needed), honouring the resume
+    handle so a group larger than one page does not answer "not a member" for
+    everyone past the first page. A SID-named group is resolved first, because
+    "is this user an administrator" has to be asked by SID on a localised
+    Windows (the 15 Aug reason, which survives the mechanism that carried it).
+  - Kernel key K_GROUP_MEMBER / K$GROUP.MEMBER = 68, argument "user<FM>group",
+    ANSWERING 1 / 0 / -1 where -1 is COULD NOT TELL. Not $internal-gated: it
+    answers about Windows groups, which any caller can already read.
+  - gpl.bp/is_grp_member asks the key instead of running PowerShell, and keeps
+    its contract: @false with status 1 when the answer is unknown.
+  - apisrvr's vb.account reads status() and refuses on a failed lookup with a
+    DISTINCT audit record (group.lookup.failed) rather than scoring it as
+    not.in.group. Still fails closed - an access check must - but the two are
+    no longer the same event.
+  - gpl.src += win32group; Makefile L_FLAGS += -lnetapi32 (its
+    ConvertStringSidToSid/LookupAccountSid halves are advapi32, already there).
+
+***TESTED FOR REAL WITHOUT A CYCLE, WHICH ALSO PROVED THE LIBRARY NAME.*** The
+function was built with the same MSYS2 gcc and driven directly from a
+throwaway main (scratchpad tgrp.c):
+
+  Don / sdusers          told=1 member=1   - matches the audit trail
+  Don / S-1-5-32-544     told=1 member=1   - the SID branch works
+  Don / sdapi            told=1 member=1
+  NoSuchUser1234 / sdusers  told=1 member=0   ANSWERED: not a member
+  Don / NoSuchGroup1234     told=0            COULD NOT TELL (status 2220)
+  "" / sdusers              told=0            refused
+
+The last two rows are the whole point: "answered no" and "could not tell" are
+now different values. That distinction is what was missing for seven runs.
+
+CHECKS: test-kernelkeys-units.py green on the new pair (69 shared keys, all
+agreeing, no duplicate numbers in either file); every changed C file compiles
+clean with the sd target's flags, 0 warnings; is_grp_member now compiles WHOLE
+under bbcmp with no stubbing at all, because the unsupported OS.EXECUTE is
+gone; apisrvr's then/end delta unchanged at 10.
+
+STALE COMMENTS CORRECTED RATHER THAN LEFT, per this project's own rule that a
+false reason is one the next session argues with. is_grp_member's description
+explained the PowerShell mechanism and PREDICTED this fix ("the fast answer is
+getgrnam() behind a KERNEL key ... but that is new C code and this is not") -
+it now records that the C was written, and that getgrnam was NOT the route,
+because in_group() answers only about the calling process's own groups. The
+-SID note described PowerShell behaviour; the valid_os_name check was
+justified by shell quoting that no longer exists and is KEPT WITH ITS REASON
+CORRECTED rather than deleted with its reason. The $include added as a
+diagnostic aid is now load-bearing and says so.
+
+WHAT THIS DOES NOT FIX, stated plainly because "nothing else should break" has
+been said and been wrong on this defect: the window-station cause is untouched,
+so ANY other helper an API session reaches through os.execute is still
+unavailable to it. That is now a bounded and documented limitation rather than
+a mystery, and the diagnostics still in the tree will name the next one.
+
+Next token b191. If verify-apiidentity's own rows go green - ALLOW opens, DENY
+refused, ZZAPI owned by ace\sdapiidb191 - that is 55's falsified-if answered
+and the temporary diagnostics come out.
+
+## RELEASE_1.1 55 - DONE AND WITNESSED, b191, 17 Sep 2026 20:57
+
+verify-apiidentity.ps1 -Prefix sdapiidb191 EXIT 0. PASSED. The falsified-if
+this entry was filed with is answered, and it is answered by the decisive row
+rather than by a green summary:
+
+  logged in over the API as sdapiidb191
+  attached to account SDAPIIDB191
+  ZZIDALLOW opened=True  serverError=0
+  ZZIDDENY  opened=False serverError=1
+  ZZIDUSER  opened=True  serverError=0
+  [PASS] ALLOW fixture opens over the API:            expected True,  got True
+  [PASS] DENY fixture is REFUSED over the API:        expected False, got False
+  [PASS] USER-ONLY fixture opens over the API:        expected True,  got True
+  -- ownership probe --
+  ZZLOCAL (written by the local elevated session): ace\Don
+  ZZAPI   (written by the API session)           : ace\sdapiidb191
+  [PASS] the API session writes as the authenticated user: expected True, got
+         True        <- the one DECISIVE check in the table
+
+***WHAT THAT MEANS, AGAINST WHAT 55 WAS FILED FOR.*** The entry opened "EVERY
+AUTHENTICATED API SESSION IS STILL A LocalSystem PROCESS ... files come out
+owned by the user (verify-apiidentity); a compromised session still holds
+SYSTEM's token". It no longer does. The session is a separate process running
+AS the user by its own process token, and the containment is measured in BOTH
+directions: the DENY fixture is SYSTEM + Administrators only with inheritance
+broken - exactly sdsys\$cred's shape - and it is now REFUSED, where a
+LocalSystem session would have opened it. The ALLOW and USER-ONLY controls
+open, so the refusal is a real denial and not a broken path (the script VOIDs
+itself if ALLOW fails, which is why those rows matter).
+
+The audit trail for the same run: HANDOFF RESULT ok=1, then ACCOUNT ENTRY with
+a healthy register read, then ACCOUNT ENTERED account=SDAPIIDB191 - and NO
+"GROUP.MEMBER could not tell" line, which is the group fix working in the
+session that could not run PowerShell.
+
+registersweep green alongside it; the throwaway account, its Windows user and
+sdu_sdapiidb191 all removed, fixtures removed - no litter.
+
+WHAT THE WHOLE INVESTIGATION COST AND WHERE IT WENT: ten run tokens, b181 to
+b191, and eight cycles. Six theories were raised and withdrawn (os.execute
+permission; group naming/case; SystemRoot to path derivation; "still 127
+proves execv succeeded"; SystemRoot absent at all; and the b189 fix that was
+built and changed nothing). EVERY ONE was withdrawn by checking rather than by
+a later run going wrong, which is the only reason each cost one cycle instead
+of several - and twice the thing that misled was the INSTRUMENT rather than
+the code: op_sh.c's execv cannot report a failure past the point of commit,
+and getenv() is case-sensitive where the Windows environment is not. THE
+STANDING LESSON FOR THIS PATH: do not believe a POSIX-layer answer about a
+Windows fact.
+
+STILL TO DO BEFORE THIS IS COMMITTABLE: the temporary diagnostics come out.
+They are inventoried in the b190 entry above.
+
+## RELEASE_1.1 55 - the diagnostics removed, 17 Sep 2026 (uncycled)
+
+REMOVED: PREAUTH ENV / PREAUTH PROBE / PREAUTH WIN32 from op_kernel.c's
+K_API_PREAUTH; win32_session_probe() entirely (win32session.c and .h are back
+at HEAD); the HANDOFF ATTEMPT/RESULT pair, ACCOUNT ENTRY and ACCOUNT ENTERED
+from apisrvr; the GRPMEMBER record from is_grp_member (it went with the
+os.execute block it measured); and op_sh.c's 70+errno encoding.
+
+op_kernel.c was restored from HEAD and the two keepers re-applied with the
+editing tools, rather than hand-reproducing a hundred-line deletion - the
+diagnostic version is kept at scratchpad/op_kernel.c.with-diagnostics in case
+the next round needs it back.
+
+***THREE THINGS WERE KEPT ON PURPOSE, AND EACH IS A JUDGEMENT CALL RATHER
+THAN AN OVERSIGHT:***
+
+  1. op_sh.c's _exit(127). execv() returns only on failure and the forked
+     child previously FELL THROUGH into the parent's cleanup - closing the
+     parent's pipes, reporting to the parent's caller. A real defect, found
+     sideways while chasing the 127. 127 rather than the errno encoding
+     because that is the value every os.error() caller already reads as
+     "could not run it", and is_grp_member's old three-way test was written
+     against it.
+  2. The five ACCOUNT REFUSED branch=N audit records, including branch=4 split
+     into group.lookup.failed and not.in.group. The CLIENT still gets one
+     indistinct sysmsg(10003) for all five - that property is deliberate and
+     unchanged - but the TRAIL is not the wire: it is readable by an
+     administrator and nobody else. Its absence is precisely what turned a
+     failed group lookup into eight cycles.
+  3. API HANDOVER FAILED on a refused handoff, because K$HANDOFF's own syslog
+     was measured SILENT for two entire runs (b181, b182) while K$ASSUME.USER
+     still preceded it. Nothing is written on success - the new session's own
+     LOGIN record is the evidence, and this path runs on every API login.
+
+AND ONE STALE COMMENT CORRECTED RATHER THAN DELETED: the 24 Aug note beside
+vb.account's check.identity call explained itself by "is_grp_member is
+'!ps_script' and that fork()s ... a fork silently reverts this thread to the
+service's token". is_grp_member no longer forks, so that reason is gone - but
+a forked LocalSystem session still has an impersonation to lose while a
+pre-authenticated one does not, and BOTH routes reach that line. The check is
+kept with its reason rewritten, because deleting it on the strength of one
+changed caller is how a check stops covering the caller that never changed.
+
+CHECKED AFTER THE CLEANUP: op_kernel.c, op_sh.c, win32group.c and
+win32session.c all compile clean with the sd target's flags, 0 warnings;
+test-kernelkeys-units.py 6 checks 0 failed; is_grp_member compiles whole under
+bbcmp ("comp finish"); apisrvr's then/end delta unchanged at 10; and a grep
+for every diagnostic name (PREAUTH ENV/PROBE/WIN32, win32_session_probe,
+GRPMEMBER user=, acc.opened) finds nothing left in gplsrc or gpl.bp.
+
+NOT RE-RUN. b191's green was measured WITH the diagnostics in, so one
+confirmation run on the cleaned tree is owed before this is committable:
+cycle, then -Run b192 -Only verify-apiidentity, expecting exit 0 again. If it
+is red, the cleanup broke something the diagnostics were masking and the three
+kept items are the first suspects. Then the FULL suite before any handoff -
+op_sh.c, op_kernel.c and is_grp_member are on many paths, so a targeted pass
+is not enough - and a changelog line is owed, because a user would notice that
+an API session's files are now owned by the user.
+
+17 Sep 2026 - 46/46 FREE TIER, THE UNELEVATED SUITE, AND A FAILURE THAT IS NOT
+OURS: RELEASE_1.1 56.
+
+Free tier 46/46 green, run individually. WORTH RECORDING HOW THE LIST WAS
+BUILT, because two things nearly went wrong: VerifyInstall1's own step list
+contains only TWO of the unit tests (test-tiercounts, test-stemcoverage), so
+"I ran VerifyInstall1" does NOT satisfy CLAUDE.md's "all forty-six on every
+change"; and the list must come from CLAUDE.md rather than from globbing the
+directory, which that section says outright (test-sdpy-units matches the shape
+and is deliberately excluded - it needs a built helper and exits 2). The names
+were extracted from CLAUDE.md itself; the first extraction pattern silently
+dropped multi-word names like test-retired-wording-units, and it was checking
+the count against CLAUDE.md's stated 46 that caught it. Also dropped from the
+extraction: check-client-sync.py, which PRE_RELEASE 161 deleted and which the
+prose only mentions.
+
+Unelevated suite (21:16): every step exit 0 EXCEPT verify-doors-suite, exit 1,
+which correctly refused to hand over to VerifyInstall2 - so the elevated half
+has not run and 55's milestone coverage is still owed.
+
+THE FAILURE IS RELEASE_1.1 56, FILED, AND IT IS NOT 55's. Door 3, the API leg:
+sd-connect reports "FAILED no ACK within 5 seconds - connection accepted,
+server silent" and the decisive check scores expected 0, got 1.
+gplsrc/sdclilib/tools/sd_connect.c opens its OWN raw socket()/connect() and
+waits for a one-byte plaintext ACK with recv() (lines 114-158); there is no TLS
+in that file. RELEASE_1.1 41 moved the ACK INSIDE TLS and its own entry lists
+"plaintext gets no ACK" as an expected row it added to verify-scramlogin. So
+the diagnostic has been unable to pass since 15 Sep, and nothing noticed
+because 41 says outright "Not witnessed on an install; elevated -Only run
+owed" - verify-doors-suite is in the unelevated half and this is the first full
+run since.
+
+CHECKED RATHER THAN ASSUMED, IN BOTH DIRECTIONS. The shipped client is fine:
+sdclilib.c calls sd_tls_client_start() and then reads the ACK THROUGH TLS
+(4074, 4088), and sd_tls.c is compiled into all four DLL variants
+(sdclilib/Makefile 29, 186). And the OWNER ASKED WHETHER THIS WAS BEING CHECKED
+AGAINST THE LINUX SERVER, WHICH IT WAS NOT - the first reading here was simply
+"the C client must be plaintext". Checking the clone killed that: SDCore4Linux
+@ 86fc2a2 (15 Sep; point-in-time, the box is off, so not a live reading) has a
+gplsrc/sdclilib.c identical to ours in this respect - 0 direct SSL_connect, 9
+hits each for the shared sd_tls_client/exporter helper. So this is a
+Windows-only gap in a DIAGNOSTIC, not a divergence in the shared wire
+contract, which is the distinction that decides whether the Linux agent needs
+telling.
+
+NOT 55's: nothing in 55 touches the pre-ACK path, and in the same run the ssh
+and logto doors PASSED - including "logto: it was NOT refused for group
+membership", which is 55's new C group lookup answering correctly on a second
+path that is not the API.
+
+NOT EXPLAINED AND NOT CLAIMED AS FINE: the same leg also failed QMConnect with
+"Connection closed by server", which is the DLL path and should have done TLS.
+It may follow from the pre-check having just abandoned a connection, or be its
+own defect. Not isolated; 56 says so.
+
+NEXT: hand the suite over anyway with -ContinueOnFailure so the ELEVATED half
+runs and 55 gets its milestone coverage. VerifyInstall1 is the UNELEVATED
+runner - it elevates the second half itself - so that command goes in an
+ordinary prompt, not an elevated one. Next token b193.
+
+17 Sep 2026 - THE b193 RE-RUN DIED AT ITS FIRST STEP AND THE CAUSE WAS THE
+HAND-OVER, NOT THE PRODUCT. b193 had ALREADY been spent by the 21:16 unelevated
+run (245 mentions in VerifyInstall1-20260917-211657.log; prefixes sdtub193 and
+sddrb193), so CREATE.ACCOUNT refused the non-administrator test account:
+"Cannot create sdtub193: a Windows profile directory is already there -
+C:\Users\sdtub193". THAT IS PRE_RELEASE 36 WORKING RATHER THAN A DEFECT - the
+account was deleted while Windows still held its registry hive, SD recorded the
+directory, and the service sweeps it at the next restart of the computer. Three
+are waiting: sdtub193, sddrb193a, sddrb193b. A FRESH TOKEN SIDESTEPS ALL OF IT,
+which is the whole reason prefixes derive from -Run (PRE_RELEASE 54); a restart
+would also clear them and is not needed. NEXT TOKEN b194. 55's elevated
+milestone coverage is still owed - nothing about this touched the product.
+
+Also worth keeping from the same moment: the .claude hook refused a heredoc
+append to this file and was RIGHT to - CLAUDE.md's "never reach for Python to
+edit a file" covers exactly that form, and the editing tools were used instead.
