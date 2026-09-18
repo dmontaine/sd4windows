@@ -179,7 +179,62 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ PICK UP HERE (18 Sep 2026, later — RELEASE_1.1 57 DONE AND WITNESSED,
+> ***⏸ PICK UP HERE (18 Sep 2026, later still — RELEASE_1.1 58 IS RULED AND
+> BUILT IN SOURCE; A CYCLE AND A `b196` SUITE ARE OWED. TWO NEW ROWS FILED, 59
+> AND 60. NO CYCLE, NO ELEVATION, NO RUN TOKEN SPENT THIS SESSION.)***
+>
+> **THE OWNER RULED, 18 Sep 2026:** *"get to the most secure solution that is
+> possible"*, and — asked whether allowing remote administrators would help —
+> ***no: it is strictly worse, and that was put to him and agreed.*** He also
+> gave up the thing that had blocked the strongest posture: *"ssh on the local
+> machine is a convenience for us, but we can use a virtual machine to test ssh
+> instead. I don't have any problem with it not being available on the local
+> computer."* **So an administrator now has NO remote door — not ssh, not the
+> API, from any address including loopback.** RELEASE_1.1_FIXES.md **58** has
+> the build and the reasoning; it supersedes his own 21 Aug rule and the 5 Sep
+> refinement, both quoted in place rather than deleted.
+>
+> | | |
+> |---|---|
+> | install | **unchanged — 17 Sep 23:46:32** (the `b195` cycle). ***THE TREE IS NOW STALE ON PURPOSE AND `assert-current` WILL REFUSE***: `gplsrc/clopts.c`, `sdsys/gpl.bp/createa`+`modifya`, `sdsys/messages/10083`+`10175`, `gplbld/sd.iss` and the shipped `gplbld/allow-ssh-groups.ps1` have all moved past it |
+> | tokens | `b195` spent. **Use `b196`** |
+> | free tier | ***47 of 47 GREEN, 49.5 s, nothing refused*** (measured this session, each in its own process). `test-fixlist-units` **347/0** with 58/59/60 registered and NEXT FREE ID 61; `test-retired-wording-units` **52/52** with three new registrations; `verify-allowgroups` **exit 0** |
+> | 58, what is BUILT | `allow-ssh-groups.ps1` drops the administrators group from `AllowGroups` and writes **`DisableForwarding yes`**; `CREATEA` sets `access.ssh`/`access.api` **false** for the tier **and refuses `ADMINISTRATOR BOTH` (10083) instead of silently overriding it**; `MODIFYA` needed no logic change (it already refused every route change for an administrator) — only 10083's wording inverted; 10175 rewritten; four `sd.iss` wizard strings; `changelog` has both user-visible entries |
+> | 58, what is OWED — ***AND EVERY BEHAVIOUR CLAIM IS CONDITIONAL UNTIL IT RUNS*** | a cycle (BASIC + C + installer + the shipped script), then `b196`. **`verify-apiremote` has four inverted rows and a new one** (10174 must be ABSENT — the sdapi gate now stands in front of the peer test, `apisrvr:1685` before `:1744`); **`verify-routes` has two new rows**. ***THE ssh HALF CAN NO LONGER BE TESTED ON THIS MACHINE, BY DESIGN*** — it needs the VM he offered |
+> | ***59 — NEW, AND IT IS THE REAL ONE*** | **SD's own system segment is writable by every SD user and a LocalSystem process reads it and acts on it.** Measured unelevated with a control: `C:\ProgramData\SD\shm\sd_shm_716d0301` (created `0666`, `sysseg.c:326`) carries `ace\sdusers:(RX,W)`, an ordinary Medium account **opened it for write**, the control was refused, the mtime did not move. `sdwind.exe` imports `msys-2.0.dll` and runs under the LocalSystem service; `check_lost_users()` walks that table, `kill(pid,0)`s a pid out of it and fork/execs `sd -cleanup` as LocalSystem. **Reachable remotely by a PROGRAMMER over ssh** — an ssh session is `CN_CONSOLE`, and `net_path_permitted()` returns TRUE for every path unless `CN_SOCKET`. ***NOT CLAIMED: code execution from it.*** Remedy is a design, in the conditional, in the entry |
+> | ***60 — NEW, FIXED IN SOURCE*** | two unbounded `strcpy`s out of that segment into 33-byte **stack** buffers (`clopts.c:274`, `:333`); `cleanup()` is the sharp one because `sdwind` runs it as LocalSystem. Bounded now; `gcc -Wall -Wformat=2` on the sd target's flags gives **0 diagnostics**, with a deliberate-error control exiting 1. ***The bound is not the fix for the class*** — `UPtr(n)` takes base, stride AND count from the same writable segment — and the comment at the site says so |
+> | 53 | **still open and still the owner's**, unchanged by any of this; 59 answers its unmeasured half on a DIFFERENT object. ***AND 59 KILLS 1265's UNTRIED CHEAP OPTION***: a separately-pathed `msys-2.0.dll` copy cannot work, because SD's segment and semaphores live in that namespace |
+> | mail | `P:\sdcore-mail\to-windows\` **checked and EMPTY, 18 Sep 2026**. No watcher and no `ScheduleWakeup` started |
+>
+> ***THE TWO COMMANDS, IN ORDER. Both carry the policy switch; his shells read
+> `Undefined`.***
+>
+> **(1) The cycle — ELEVATED PowerShell:**
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> **(2) The full suite — an ORDINARY, UNELEVATED PowerShell** (it refuses an
+> elevated one; it raises UAC itself for the handover):
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b196
+> ```
+>
+> ***WHAT TO EXPECT THAT IS NEW, so a red is read correctly:*** `verify-apiremote`
+> should now score **LEG A as a REFUSAL** (10073, *"is not permitted to use the
+> API"*) where it used to demand an admitted session, with **10174 absent from
+> both legs**; its CONTROL row is the only one that can now fail for the right
+> reason, so a failed control voids the step rather than passing it. If **10174
+> comes back**, an administrator reached the peer test and the sdapi grant
+> regressed.
+>
+> *(The box below is still true and is no longer the pickup: it is `b195`'s
+> witness of 57, which is done.)*
+>
+> ***⏸ (superseded as the pickup — still the record of `b195`) PICK UP HERE
+> (18 Sep 2026, later — RELEASE_1.1 57 DONE AND WITNESSED,
 > `b195`: THE CYCLE RAN, THE FULL SUITE IS GREEN IN BOTH HALVES, AND 55'S
 > ELEVATED MILESTONE COVERAGE IS DELIVERED).*** The cycle ran 17 Sep 23:45
 > (`bin\` built 23:39:06 from the fixed sources; installed 23:46:32;
@@ -1051,7 +1106,7 @@ powershell -ExecutionPolicy Bypass -Command "Select-String -Path C:\ProgramData\
 > | ⛔ ***THE OWNER'S CONSTRAINT ON ANY FIX (17 Sep) — READ BEFORE PROPOSING ONE*** | Every option must hold **BOTH** at once: **point-to-point encryption** (do not weaken 41), **AND no system-level access for the session** (match the Linux port — the session runs as the user, not SYSTEM). **A fix that trades one for the other is not a fix.** The Linux port is the reference for what "done" looks like, and each option put to the owner says in its own line whether it meets both |
 > | ***THE TWO DIRECTIONS, CONDITIONAL — OWNER CHOSE (a), 17 Sep*** | ***(a) broker + spawn-as-user — CHOSEN.*** The token side is proven; its two unproven cruxes: (1) the SD session is MSYS2/Cygwin and 43 measured a spawned Cygwin child inherits **neither socket (`EINVAL`) nor pipe (`EBADF`)** — the same wall that forced the relay native — so handing the user-spawned session its connection to the relay is the real unsolved problem; (2) SCRAM runs *in* the session today, but spawning-as-the-user needs the identity **before** the spawn, so the SCRAM exchange must move to a front — and to meet the constraint fully (no SYSTEM even pre-auth, as Linux parses the stranger as `nobody`) that front must be **unprivileged**, with only a verified username crossing to a minimal `SeTcb` broker that mints the token and `CreateProcessAsUser`s the session. That is the OpenSSH-privsep shape. **(b) `LogonUser` over TLS — REJECTED, kept because the reason matters**: it needs no `SeTcb` and sidesteps both cruxes, but it makes the server see the password during login, changes the shared login protocol (a Linux parity change Linux does not need), and needs clients to verify the server cert (today `SSL_VERIFY_NONE`, `sd_tls.c:237`). The owner chose not to perturb a correct Linux port or move the password onto the server |
 > | ***DOES LINUX HAVE TO CHANGE? — IT DEPENDS ON THE DIRECTION, AND THIS IS AN ARGUMENT ABOUT (a) vs (b)*** | **(a) changes nothing Linux sees**: it is a Windows-only way to run the session as the user (Linux already does this with `setuid`), and the wire protocol — TLS + SCRAM — is untouched. **No Linux change.** **(b) changes the LOGIN PROTOCOL** (password inside TLS, so the server can `LogonUser`), which is shared wire contract, so it is a **parity decision coordinated by mail** (CLAUDE.md: a sameness decision approved in one port binds both). ***Linux does not NEED (b)*** — it is already safe (`nobody` relay, `setuid` session) — so (b) would perturb a port that has no security reason to change, purely for Windows' benefit; whether Linux must actually move depends on whether (b) is **additive** (the server keeps SCRAM and adds a password login; Linux clients unaffected) or **replaces** SCRAM (both ports move together). ***On the "do not disturb the correct port" axis this favours (a);*** on simplicity-for-Windows it favours (b). Put both to the owner with this named |
-> | ***NEXT — (a)'s FIRST PROBE, THE CONNECTION HANDOVER, BEFORE ANY PRODUCT CODE*** | (a) is chosen, so the gating unknown is crux (1): **can a session spawned as the user with `CreateProcessAsUser` be handed its end of the relay's Cygwin `socketpair` and use it?** 43's relay work has the pieces to reuse — native spawn, `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`, the socketpair `sd` already keeps — but every measurement so far spawned the relay as a *bare* account for the front, not the user for the *session*, and the Cygwin-fd inheritance (`EINVAL`/`EBADF`) was measured only for a Cygwin child. Probe it as a Cygwin session spawned as the user. *Falsified-if:* the user-spawned session cannot read/write the handed socketpair end. Crux (2), the SCRAM-to-an-unprivileged-front relocation, is design not probe, and is the larger build. **53** rides on 55's fix (only dangerous while a SYSTEM process uses SD's MSYS2 runtime). Everything about (a) is conditional until these are measured; the History, Linux and Prior-art rows are the measured facts |
+> | ***NEXT — (a)'s FIRST PROBE, THE CONNECTION HANDOVER, BEFORE ANY PRODUCT CODE*** | (a) is chosen, so the gating unknown is crux (1): **can a session spawned as the user with `CreateProcessAsUser` be handed its end of the relay's Cygwin `socketpair` and use it?** 43's relay work has the pieces to reuse — native spawn, `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`, the socketpair `sd` already keeps — but every measurement so far spawned the relay as a *bare* account for the front, not the user for the *session*, and the Cygwin-fd inheritance (`EINVAL`/`EBADF`) was measured only for a Cygwin child. Probe it as a Cygwin session spawned as the user. *Falsified-if:* the user-spawned session cannot read/write the handed socketpair end. Crux (2), the SCRAM-to-an-unprivileged-front relocation, is design not probe, and is the larger build. **53** rides on 55's fix (only dangerous while a SYSTEM process uses SD's MSYS2 runtime). ***[FALSE, AND CORRECTED 18 Sep 2026 — RELEASE_1.1 59. READ THIS BEFORE ACTING ON THE SENTENCE IT IS ATTACHED TO.*** 55 is done and 53 is untouched by it, because **the SYSTEM process using SD's MSYS2 runtime is `sdwind.exe`, which is permanent**: measured 18 Sep, its import table names `msys-2.0.dll` and `sc qc SD` gives `sdsvc.exe` / `LocalSystem`. 43 made the relay native and 55 made the session the user; **neither can reach the daemon's own runtime**, and the pre-auth front is a second LocalSystem MSYS2 process per connection. So the condition this clause makes 53 conditional on **holds whenever SD is installed and running.** HANDOFF 81's "held with it … same exposure" was the same error and **was already corrected in place earlier on 18 Sep**; this clause is the copy that was missed, which is why one document can argue two ways.***] Everything about (a) is conditional until these are measured; the History, Linux and Prior-art rows are the measured facts |
 >
 > *(HANDOFF 81 follows; its 40 and 54 work is done and witnessed, and its install/tokens rows are carried into the table above.)*
 

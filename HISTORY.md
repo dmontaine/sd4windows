@@ -64599,3 +64599,62 @@ product source, so it needs a cycle, and it is filed rather than edited.
 
 Suite run this session: none - no token spent, no product source touched, and
 b196 is unspent. assert-current was not judged from this shell.
+
+18 Sep 2026, later still. RELEASE_1.1 58 ruled and built; 59 and 60 filed.
+Owner's ruling: "get to the most secure solution that is possible", and remote
+administrator access was put to him as an option and rejected as strictly worse
+(a non-interactive logon is not UAC-filtered, so a remote administrator holds an
+unfiltered token with no defect required). He gave up local admin ssh - "we can
+use a virtual machine to test ssh instead" - which unlocked the hardening
+allow-ssh-groups.ps1's header had refused for a year of sessions on the grounds
+that AllowGroups cannot tell loopback from remote. An administrator now has no
+remote door: dropped from AllowGroups, DisableForwarding written, access.ssh and
+access.api false for the tier, CREATE.ACCOUNT refusing ADMINISTRATOR BOTH rather
+than overriding it silently, MODIFYA's 10083 inverted in wording only (its guard
+already refused every route change). Built in source, NOT cycled.
+
+WHAT THE MEASUREMENTS ADDED TO THE RULING, in the order they were taken. The
+other AI's report that 53 is not closed by 55 was checked here rather than
+believed and is right: sdwind.exe's import table names msys-2.0.dll and sc qc SD
+gives sdsvc.exe/LocalSystem, so the LocalSystem MSYS2 runtime is permanent, and
+the pre-auth front is a second one per connection - a correction to its "route 2
+is sdwind" framing. PROJECT_STATUS 1109's "53 rides on 55's fix" is therefore
+false and is corrected in place; 1063 had already been corrected earlier the
+same day, so one document argued both ways. Then sysseg.c:326 turned the question
+over: SD's own segment is shm_open 0666, C:\ProgramData\SD\shm\sd_shm_716d0301
+carries ace\sdusers:(RX,W), an ordinary Medium account opened it for write with
+sd.exe refused as the control, and sdwind reads that table and acts on it
+(kill(pid,0), then sd -cleanup as LocalSystem). Reachable remotely by a
+PROGRAMMER over ssh, because net_path_permitted returns TRUE unless CN_SOCKET
+and only -N sets that. Filed as 59 with the broker design in the conditional;
+60 is the two unbounded strcpys out of that segment, fixed and compile-clean.
+59 also kills 1265's untried separately-pathed-runtime option: SD's segment and
+semaphores live in that namespace, so splitting it splits the segment.
+
+THREE INSTRUMENT FAILURES OF MY OWN, EACH CAUGHT BY A CONTROL RATHER THAN BY
+INSPECTION, recorded because the shapes recur. (1) The first import check used
+strings, which is not on PATH here, so grep found nothing and all six binaries
+scored "native" - the comfortable answer from a dead tool; redone with objdump
+and a DLL count. (2) A parse-check printed "parse errors: 0" from a call that
+had thrown because [ref]$t named a variable that did not exist. (3) The new
+verify-allowgroups row asserting the administrators group is gone matched the
+function's SOURCE TEXT and went red on my own comment explaining why the lookup
+was removed - a check reading prose as code; moved onto the AST, where comments
+do not exist, with a control requiring string constants to be found at all.
+Also: "gcc exit=0" was head's status through a pipe, and grep -c $'\r' reported
+a CR in two message files that have none (tr -dc counted 0).
+
+THE LINT EARNED ITS KEEP. R1.1-58c registered "SD Core users and
+administrators" and immediately named two copies in sd.iss (4945, 4951) that
+reading the file had missed. And the tunnel gap that started this - an ssh -L
+forward makes an API connection arrive from 127.0.0.1, so LOGIN's peer test
+reads it as local - was already written down in verify-apiremote:54-58 on 5 Sep
+and never acted on, because the caveat sat inside an entry struck through as
+DONE and had no open row; the live sshd_config still read "#AllowTcpForwarding
+yes" when measured. A caveat inside a closed entry is tracked by nothing.
+
+Free tier 47/47 green, 49.5 s, nothing refused; fixlist 348/0; wording lint
+52/52. assert-current REFUSES by design - the tree is stale on purpose - and
+its own hand-over line was printing a bare cycle.ps1 path, which is the
+PSSecurityException the owner met on 12 Sep; it now prints the policy switch.
+Suite run this session: none, b196 unspent, no cycle, no elevation, no token.
