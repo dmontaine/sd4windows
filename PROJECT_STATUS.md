@@ -204,7 +204,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > register write (`voc.delta` and the seven tier routines deleted); CREATEA's
 > register tier write gone; messages 10108/10111/10113/10126/10128/10129/
 > 10157/10174 deleted, 10114 and 10159 reworded; the changelog entry is in.
-> **Free tier 47/47 GREEN on the edited tree. NOT COMPILED: no cycle has run.**
+> **NOT COMPILED: no cycle has run. (A 47/47 claim for this slice was captured
+> with a broken exit-code harness; the FOURTH PASS re-measured honestly.)**
+>
+> **THEN (SLICE 4): the administrator route/OS refusals and their wording leave
+> with 58 and 62.** MODIFYA's `route.set`/`os.set` refusals gone; 10083/10106/
+> 10175 deleted; the three sd.iss wizard strings rewritten to the per-account
+> model; `allow-ssh-groups` keeps sdssh-alone for the 64 reason (comment only).
+> ***MEASURED: `test-retired-wording-units` 64/64; the free tier is 45/47 —
+> `test-tiercounts-units` and `test-sdtestuser-units` are RED BY DESIGN since
+> slice 1-2 deleted `tier.policy`, and both retire/rewrite in the verifier
+> slice below.*** **NOT COMPILED: no cycle has run.**
 >
 > ***READ RELEASE_1.1 64'S "PROGRESS" CLAUSES BEFORE ADDING TO THIS***, not just
 > its decision clauses: they carry the measured dictionary format and its answer
@@ -230,15 +240,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | what stays | the **embedded Python**, and the **encrypted data/password tunnel** |
 > | then | **evaluate the resulting security model** — part of the decision, not an afterthought |
 >
-> ***THE TREE IS STALE AND CARRIES 64'S SLICES 1-3, NONE CYCLED.*** Committed,
+> ***THE TREE IS STALE AND CARRIES 64'S SLICES 1-4, NONE CYCLED.*** Committed,
 > never compiled: slice 1-2 (tiergate, tier.policy, the promotion report, the
-> tier keywords, UNSUSPENDED) and slice 3 (the register fields, `sdadmin`,
+> tier keywords, UNSUSPENDED), slice 3 (the register fields, `sdadmin`,
 > `peer_local`, the administrator gates, MODIFYA's collapse, eight messages,
-> the changelog entry) — RELEASE_1.1_FIXES 64's THIRD PASS has the exact file
+> the changelog entry) and slice 4 (the route/OS refusals, 10083/10106/10175,
+> the wizard strings) — RELEASE_1.1_FIXES 64's FOURTH PASS has the exact file
 > list. ***`assert-current` WILL REFUSE — THE CYCLE IS THE OWED COMMAND, AND IT
 > MOVES THE BASELINES TO `gpl.bp.out` 183 AND `gcat` 124.*** The half-built
 > 62/63 work below this box is historical record, superseded by 64.
-> ***MEASURED THIS SESSION: the FREE TIER is 47/47 GREEN on the edited tree.***
+> ***MEASURED THIS SESSION: `test-retired-wording-units` 64/64, the free tier
+> 45/47 with the two reds named above red BY DESIGN.***
 > `DisableForwarding` in `allow-ssh-groups.ps1` stays whatever the model
 > becomes (it closes the `ssh -L` forgery), and so does `assert-current`'s
 > corrected hand-over line.
@@ -299,7 +311,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > |---|---|
 > | install | **unchanged — 17 Sep 23:46:32** (the `b195` cycle). ***THE TREE IS NOW STALE ON PURPOSE AND `assert-current` WILL REFUSE***: `gplsrc/clopts.c`, `sdsys/gpl.bp/createa`+`modifya`, `sdsys/messages/10083`+`10175`, `gplbld/sd.iss` and the shipped `gplbld/allow-ssh-groups.ps1` have all moved past it |
 > | tokens | `b195` spent. **Use `b196`** |
-> | free tier | ***47 of 47 GREEN on the slice-3 tree*** (measured 18 Sep 2026, each in its own process, powershell 5.1 + python 3.14). `test-fixlist-units` **352/0** with 58/59/60/61/62/63/64 registered; `test-retired-wording-units` **56/56** with the R1.1-64 row replacing R1.1-3's |
+> | free tier | ***45/47 on the slice-4 tree, measured 18 Sep 2026 with correct exit capture.*** `test-retired-wording-units` **64/64**; `test-fixlist-units` **352/0**. `test-tiercounts-units` and `test-sdtestuser-units` are **RED BY DESIGN** — they guard `tier.policy`, deleted by slices 1-2 — and both retire/rewrite in the verifier slice. `test-groupmember-units.py` caught the slice-3/4 site deletions by name and is green after its list moved with them |
 > | 58, what is BUILT | `allow-ssh-groups.ps1` drops the administrators group from `AllowGroups` and writes **`DisableForwarding yes`**; `CREATEA` sets `access.ssh`/`access.api` **false** for the tier **and refuses `ADMINISTRATOR BOTH` (10083) instead of silently overriding it**; `MODIFYA` needed no logic change (it already refused every route change for an administrator) — only 10083's wording inverted; 10175 rewritten; four `sd.iss` wizard strings; `changelog` has both user-visible entries |
 > | ***58's CYCLE AND `b196` HAVE RUN — 18 Sep 2026, AND THE API HALF IS MEASURED WORKING*** | Cycle green, install **18 Sep 09:1x**, `assert-current` **exit 0 live and STILL exit 0** (everything changed since is on `$neverShipped`, so ***`b197` NEEDS NO NEW CYCLE***). ***`verify-apiremote` exit 0 — THE RESULT THAT MATTERS***: `CONTROL: a non-administrator connects over the LAN address` PASS, both admin legs `did NOT get a session` + `message 10073 was returned` PASS, `NEITHER leg reached the peer test (10174 absent)` PASS. **Unelevated half: 28 of 28 exit 0.** Elevated: **5 of 36 did not exit 0 — every one of them 58's own downstream, now fixed (row below)** |
 > | ***`b196` IS NOT CITABLE AS A CLEAN RUN, AND THE CAUSE WAS ME*** | I edited verifier scripts **while the suite was reading them**, so `verify-delaccount` ran the FIXED script mid-run and passed — its log shows the command without `BOTH`. §"A CYCLE ENDS AT THE NEXT SOURCE CHANGE" makes every result after a source change void rather than probably-still-valid. **The reds are real and diagnosed; greens taken after the first edit describe a different tree state than greens before it.** ***`b197` IS THE CITABLE RUN, AND NOTHING MAY BE EDITED WHILE IT RUNS.*** |
@@ -326,7 +338,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `verify-logtoaccess`, parts of `verify-routes` and `verify-accountrules`,
 > `verify-privundetermined`'s composition leg and `test-tiercounts-units`.
 > Until that lands, those verifiers are EXPECTED RED on a 64 tree — they score
-> structures the decision deletes. Run the suite only after the verifier slice.
+> structures the decision deletes — and the same is true of the two free
+> guards `test-tiercounts-units` and `test-sdtestuser-units`. Run the suite
+> only after the verifier slice.
 >
 > ***WHAT THE 62-ERA BLOCK BELOW PREDICTED (10174 absent, 10073 on LEG A) IS
 > SUPERSEDED WITH IT*** — 10174's message file is deleted and the API gate is

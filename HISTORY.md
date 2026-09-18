@@ -64913,3 +64913,43 @@ window; the suite waits for the verifier slice, which is expected red on a 64
 tree until it lands.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64 SLICE 4 IS CUT IN SOURCE: THE ADMINISTRATOR ROUTE
+AND OS REFUSALS AND THEIR WORDING LEAVE WITH 58 AND 62. NOT COMPILED - NO CYCLE
+HAS RUN. 6 files, +72/-66.
+
+MODIFYA's route.set and os.set lose their S-1-5-32-544 refusals: a Windows
+administrator's SD account is an ordinary account and sets its routes and its
+OS.USERS fields like any other, the only limit being Windows' own.  Messages
+10083, 10106 and 10175 are DELETED; CREATEA's dead ADMINISTRATOR arms still
+name them in unreachable code, which leaves with ADOPT.
+
+THE THREE sd.iss WIZARD STRINGS that said an administrator cannot sign in over
+ssh are rewritten to the per-account model - the registered replacement is
+"Every account decides its own ssh and API access".  allow-ssh-groups.ps1
+keeps its sdssh-alone AllowGroups, now for the 64 reason rather than 58's
+(comment only - the list is exactly what the per-account model wants, and
+DisableForwarding stays under either model).
+
+MEASUREMENT CORRECTED.  The third pass claimed 47/47 free-tier green; that was
+captured with a broken exit-code harness that read the pipeline's status rather
+than the test's.  Re-measured with correct capture on the slice-4 tree:
+test-retired-wording-units 64/64, test-fixlist-units 352/0, and the free tier
+45/47.  The two reds are BY DESIGN and predate this session's work:
+test-tiercounts-units and test-sdtestuser-units guard tier.policy, deleted by
+slices 1-2, and both are on the 64 verifier-retirement list.  The third red,
+test-groupmember-units.py, was this session's: its declared is_grp_member site
+list caught the slice-3/4 deletions by name (route.set's refusal, tier.set's
+was.admin) - the two entries were removed and it is green again.
+
+NEXT SLICE (64 SLICE 5): THE VERIFIERS.  Retire or rewrite verify-tiers,
+verify-tierchange, verify-tierapi, verify-sshadmin, verify-apiremote,
+verify-sdsysgate, verify-logtoaccess, parts of verify-routes and
+verify-accountrules, verify-privundetermined's composition leg, and
+retire/rewrite the two red free guards test-tiercounts-units and
+test-sdtestuser-units (with sdtestuser.ps1's tier expectations).  After it, the
+remaining unit is the installer slice: sd -internal binding, ADOPT, make.admin
+and the dead ADMINISTRATOR arms together, plus elev.obtained.  THE CYCLE
+REMAINS THE OWED COMMAND and needs the owner's elevated window.
+
+====
