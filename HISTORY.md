@@ -65059,3 +65059,39 @@ every driver in that idiom uses is refused - which is slice 5b's re-aim rather
 than a rule to copy.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, SLICE 6 HALF CUT: ADOPT IS OUT OF THE PRODUCT.
+
+ADOPT existed for one caller - gplbld/adopt-account.ps1, giving the installing
+Windows administrator an SD account - and 64 forbids exactly that, so the
+keyword goes.  createa loses the one-shot marker variable, its two assignments,
+the 'if adopt then' exception in the is_user arm, the 'case adopt' arm, the
+adopt term in the make.admin test, and the keyword case itself, which now falls
+through to case 1 as an unrecognised token like any other dead keyword.  The
+dead 'tier = ADMINISTRATOR' arm stays, with its note corrected: nothing can set
+that tier any more, so it is unreachable rather than install-reachable.
+
+WHY IT MATTERED THAT IT WENT FIRST: adopt-account.ps1 calls
+'CREATE.ACCOUNT USER <user> ADOPT', and createa's USER arm refuses a USER
+account that names no route (10082 - the prompt the 15:07:23 install stopped
+at).  The tier that used to set access.given, and so made that call complete, is
+gone; removing the keyword changes the REASON the install fails, not the
+outcome.  The install still produces no SD account, and no run token should be
+spent until the installer half lands.
+
+MEASURED, NOT COMPILED.  Across sdsys/gpl.bp the only live reference to 'adopt'
+was the marker assignment itself, now a comment; and a token-count diff against
+HEAD shows deltas of exactly the blocks removed (if -2, end -2, end else -1,
+case -2), so nothing was left unclosed.  Only a cycle can prove the compile.
+
+OWED TO FINISH: gplbld/install-sdsys.ps1 - the local Windows account SDSYS on
+install-service.ps1's relay pattern (generated password, printed at the end, in
+Administrators and sdusers, in NO ssh/api group) - the sd.iss step and the
+RunFinishingStep whose premise was an adopted account with no credential,
+stage.py's ship list, assert-current's $shipCanaries, test-stripcomments-units's
+canary row, and deleting gplbld/adopt-account.ps1.  AND 'sd -internal' IS NOT
+BOUND YET, ON PURPOSE: the cycle runs five sd -internal steps from the owner's
+elevated window, so binding that door to SDSYS now would refuse the compile.
+That binding and the Windows SDSYS account are one change.
+
+====

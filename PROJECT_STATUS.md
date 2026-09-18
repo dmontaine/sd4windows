@@ -248,6 +248,19 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `verify-privundetermined`'s composition leg, `VerifyInstall1/2`'s remaining
 > rows, and the SDSYS-run re-aim of every elevated script.
 >
+> ***SLICE 6 IS HALF CUT: ADOPT IS OUT OF `createa` AND THE INSTALLER HALF IS
+> OWED.*** No live reference to `adopt` survives anywhere in `sdsys/gpl.bp`, and a
+> token diff against HEAD shows only the blocks removed (`if` -2, `end` -2,
+> `end else` -1, `case` -2 - nothing left unclosed). `'ADOPT'` is now an
+> unrecognised token like any other dead keyword. ***THE COMPILE IS OWED.***
+> What remains: `gplbld/install-sdsys.ps1`, the `sd.iss` step and its
+> `RunFinishingStep`, `stage.py`'s ship list, `assert-current`'s `$shipCanaries`,
+> `test-stripcomments-units`'s canary row, and deleting `adopt-account.ps1`.
+> ***UNTIL THEN THE INSTALL STILL PRODUCES NO SD ACCOUNT - what changes is the
+> reason it fails.*** ***AND `sd -internal` IS NOT BOUND YET, ON PURPOSE:*** the
+> cycle runs five `sd -internal` steps from the OWNER's elevated window, so
+> binding that door to SDSYS now would refuse the compile. That binding and the
+> Windows SDSYS account are one change, and it is the next one.
 > ***READ RELEASE_1.1 64'S "PROGRESS" CLAUSES BEFORE ADDING TO THIS***, not just
 > its decision clauses: they carry the measured dictionary format and its answer
 > (the THIRD PASS made the change rather than guessed at it), the three findings
