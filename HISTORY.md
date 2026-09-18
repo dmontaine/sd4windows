@@ -64409,3 +64409,78 @@ PROCESS: -ContinueOnFailure handed over to the elevated half despite the
 unelevated failure (the flag working), but VerifyInstall1 printed "NOT handing
 over ... fix these first" and then handed over - reword the unconditional
 message.
+
+17 Sep-18 Sep 2026 - RELEASE_1.1 57: THE STEER "SERVER SIDE NOT CLIENT SIDE"
+WAS RIGHT; THE TRACED DEFECT IS THE HANDOVER'S ORDER, AND THE FIX IS IN
+SOURCE. (Cycle + b195 owed.)
+
+THE STEER. The owner's words over the b194 pickup: "the problem is server side
+not client side." The previous block had read the Python probe's greens as the
+server's acquittal ("The server is correct"); the steer sent the trace through
+the server path, and the server path is where the answer was.
+
+WHAT THE SESSION MEASURED, IN ORDER. The b194 per-step logs (apiname,
+apiadmin, apiremote, apiport, privundetermined) all said the same thing:
+login completes (server signature verified), the attach is sent, and the
+client reads a close. The preserved client-packets trace
+(client-packets-20260917-223810.log) showed the attach written at Type 3 and
+nothing read back - no header, no error. sd_Log for the window showed every
+failing login's handoff SUCCEEDED ("SD API: session for <acct> started as pid
+N"), and the refusals that arrive BEFORE the handoff (wrong password, not in
+sdapi, admin-from-remote) all came back as proper refusals. So the defect
+lives exactly between "server-final verified" and "attach answered".
+
+THE DEFECT, TRACED. APISRVR writes the SCRAM server-final (writepkt,
+apisrvr:473) and only THEN calls K$HANDOFF, which has the relay stand up the
+handover pipe (sd_tls_relay_pipe -> SD_RELAY_CTL_PIPE). Asking the relay is
+what sets its reading_net = 0 (sdtlsrelay.c) - the relay stops reading the net
+so a post-auth client byte can never be forwarded to the front. But that stop
+only happens when the REQUEST arrives. Between the server-final's forward and
+the request, the relay is still reading the net, and a client byte arriving in
+that gap is forwarded to the FRONT - the exact thing sd_tlsrelay.c's own
+comment forbids: "Forwarding one of those to the front would lose it: the
+front is about to exit and will never read it." A C client that verifies the
+server signature and sends SrvrAccount immediately (sdclilib.c:1260-1263)
+lands in the gap; scram-probe.py, which prints between requests, lands after
+it. That is the entire "DLL dies, Python lives" asymmetry - a client-speed
+race against the server's own call order.
+
+AND IT IS REPRODUCIBLE, FREE. test_handover had always driven the SAFE order
+(request first, then the server-final - its "byte sent during the switch
+reached the session" row). The product had silently inverted the order and
+nothing compared them. test-tlsrelay-units.py now carries
+test_handover_pre_request_byte, which drives APISRVR's order through the real
+relay: the rows read "THE BYTE SENT BEFORE THE REQUEST REACHED THE FRONT" and
+"and the session did NOT receive it - the byte was consumed by the front."
+59 checks, 0 failed. A deterministic witness of the hazard, in the relay's own
+guard, belonging to the relay the design wrote.
+
+ONE THING NOT CLAIMED. The b194 terminal message was a CLOSE; the in-window
+loss alone leaves the connection quiet. So whether b194 hit this window, or
+the failing logins also exercised a session-startup fault (nothing waits on
+the spawned session; a session that dies at start is invisible), is left to
+measure - and the post-fix suite run must measure BOTH client kinds IN ONE RUN
+(every green so far was a quiet -Only run; every red a loaded suite - that
+confound must not survive).
+
+THE FIX, IN SOURCE 18 Sep 2026, NOT CYCLED. K$HANDOFF (op_kernel.c, keys.h)
+now takes a mode in its argument: "<user><FM>P" PREPARES - stands the pipe up
+via sd_tls_relay_pipe and keeps its name in a file-static - and plain
+"<user>" COMMITS, spawning the session on the standing pipe. A commit with no
+standing pipe, or an unknown mode, refuses with syslog (fails closed, and the
+caller gets 1/0 as before). APISRVR calls the prepare BEFORE the writepkt
+(when vb.scram.final has set scram.handoff) and the commit after it, gated on
+handoff.ready; a failing prepare keeps the old fail-closed shape and gains a
+distinct K$AUDIT wording. Prepared first, no client byte can exist before the
+request - the window is gone by construction. C compiled clean in this
+session's check (make sd exit 0, sd.exe relinked; op_kernel.o recompiled, no
+warnings); the BASIC's compile witness is the cycle's BCOMP. Note for the
+next session's shell: a bare `make sd` from a git-bash->msys chain hit a sdpy
+env quirk ("the compiler produced no exit code at all"); `make -o sdpy sd`
+completed the build normally and the owner's cycle builds sdpy fine.
+
+OWED: a cycle, then b195 - one suite run, both client kinds, watching
+apiremote/apiadmin/apiname/apiport/privundetermined AND verify-apiidentity in
+the SAME run. If a close survives, the named next build is the
+session-liveness wait (wait on the spawned session, syslog its exit code, fail
+the login with a record) - RELEASE_1.1_FIXES.md 57 carries it.

@@ -179,7 +179,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ PICK UP HERE (17 Sep 2026, 22:40 — b194 RAN). THE SINGLE OUTSTANDING
+> ***⏸ PICK UP HERE (18 Sep 2026 — RELEASE_1.1 57 IS TRACED TO THE SERVER
+> AND FIXED IN SOURCE; A CYCLE AND A `b195` SUITE RUN ARE OWED).***
+> The user's steer — *"the problem is server side not client side"* — was
+> right and the trace proves it: APISRVR wrote the SCRAM server-final and
+> only THEN asked the relay for the handover pipe, so a C-speed client's
+> first post-login request (`SrvrAccount`) could arrive while the relay was
+> still reading the net, be forwarded to the front, and die there — the
+> front never reads again. `sdtlsrelay.c`'s own comment forbids exactly
+> that; `test_handover` had always driven the SAFE order; nobody compared
+> the two. **Measured, free, deterministic:** `test-tlsrelay-units.py`'s new
+> `test_handover_pre_request_byte` shows the byte reaching the FRONT and
+> never the session (59 checks, 0 failed). The old "probe survives" claim
+> was a confound: `verify-apiidentity` only ever ran `-Only` (quiet), the
+> DLL verifiers only ever in full suites (loaded).
+>
+> | | |
+> |---|---|
+> | fix | K$HANDOFF split into PREPARE (`"<user><FM>P"`: pipe up, name kept in a static) + COMMIT (plain `<user>`: spawn on it) — `op_kernel.c`, `keys.h`; APISRVR prepares BEFORE the `writepkt` and commits after it, gated on `handoff.ready`; a commit with no standing pipe refuses (syslog). C compiled clean (`make sd` exit 0, `sd.exe` relinked 23:39 — note: my shell chain hit a `sdpy` env quirk, worked around with `make -o sdpy sd`; the cycle builds it normally); **the BASIC's compile witness is the cycle's BCOMP** |
+> | owed | **a cycle** (`assert-current` is stale), then **one suite run that measures BOTH client kinds in ONE run** — the DLL verifiers AND `verify-apiidentity` — the confound above must not survive the fix |
+> | if a close survives `b195` | the named next build is the **session-liveness wait** (nothing waits on the spawned session; a session that dies at start is invisible and presents as a mystery close). Detail at the end of RELEASE_1.1_FIXES.md **57** |
+> | tokens | through `b194` SPENT. **Next: `b195`** |
+> | evidence | `client-packets-20260917-223810.log` (the attach written, nothing read back); sd_Log for b194 (`session for <acct> started as pid …` on every failing login); `test-tlsrelay-units.py` 59/59; `test-kernelkeys-units.py` 6/6 |
+
+> ***⏸ (superseded) PICK UP HERE (17 Sep 2026, 22:40 — b194 RAN). THE SINGLE OUTSTANDING
 > ISSUE IS RELEASE_1.1 57: THE 55 HANDOFF BROKE THE C DLL CLIENT'S API
 > LOGIN.*** The cycle-then-suite ran. `verify-doors` door-3 TRANSPORT is now
 > green (`server sent ACK through TLS`), so **56 is fixed and witnessed**. But
@@ -187,7 +210,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > | | |
 > |---|---|
-> | issue | **RELEASE_1.1 57 (new, B).** Every DLL-based API login now fails `QMError(): Connection closed by server`. GREEN at `b173` (before 55), RED at `b194`: `verify-apiremote`, `verify-apiadmin`, `verify-apiname`, `verify-privundetermined` (its 3 reds are all API composition), and `verify-doors` door-3 `QMConnect`. The Python probe (`scram-probe.py`/`verify-apiidentity`) survives the same handoff, so the **server is correct** and the gap is the C client's post-SCRAM `SrvrAccount` read across the handoff. Full analysis + first trace: RELEASE_1.1_FIXES.md **57** |
+> | issue | **RELEASE_1.1 57 (new, B).** Every DLL-based API login now fails `QMError(): Connection closed by server`. GREEN at `b173` (before 55), RED at `b194`: `verify-apiremote`, `verify-apiadmin`, `verify-apiname`, `verify-privundetermined` (its 3 reds are all API composition), and `verify-doors` door-3 `QMConnect`. The Python probe (`scram-probe.py`/`verify-apiidentity`) survives the same handoff. ***THAT BLOCK'S "the server is correct" CALL WAS WITHDRAWN 18 Sep — see the block above: the server's handover ORDER is the defect.*** Full analysis + first trace: RELEASE_1.1_FIXES.md **57** |
 > | 56 | **FIXED, witnessed on the install** — door-3 transport `server sent ACK through TLS`. `verify-doors-suite` stays red only for 57 (the `QMConnect` half) |
 > | run | b194: unelevated stopped at `verify-doors-suite` (exit 1); handed over anyway (`-ContinueOnFailure`) — see the ⚠️ process note below. Elevated half **stopped/was interrupted at `[23/36] verify-apiport`**; steps 24–36 UNRECORDED, so a clean full run is still owed once 57 is fixed |
 > | install | cycled clean this run; the tree matches the two committed C fixes (56, and 55 already in) |
