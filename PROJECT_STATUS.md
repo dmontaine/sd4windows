@@ -280,13 +280,39 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 10083/10106/10175, the wizard strings) — RELEASE_1.1_FIXES 64's FOURTH PASS has
 > that exact file list — and slice 5a (the three tier verifiers and the free
 > count guard deleted, `sdtestuser` and the harness lists moved with them; 64's
-> FIFTH PASS has that list). ***`assert-current` WILL REFUSE — THE CYCLE IS THE OWED COMMAND, AND IT
-> MOVES THE BASELINES TO `gpl.bp.out` 183 AND `gcat` 124.*** The half-built
-> 62/63 work below this box is historical record, superseded by 64.
+> FIFTH PASS has that list).
+>
+> ***THE CYCLE HAS NOW RUN, GREEN — 18 Sep 2026 15:07:23. `assert-current` IS
+> EXIT 0 LIVE, `sd.exe` `0BC0ACDED4CABDA3`, AND THE TIER RESIDUE IS GONE FROM
+> THE INSTALL***: `sdsys/tier.policy` absent, no `TIER*` record in `gpl.bp.out`
+> or `gcat`, and the five BASIC programs slices 1–3 rewrote COMPILED. The staged
+> counts are **`gcat` 150 and `GPL.BP.OUT` 210** — the cycle prints them and
+> compares them with the staged tree, and they match. ***THE FIRST PASS'S
+> PROJECTION OF `gcat` 124 / `gpl.bp.out` 183 DID NOT REPRODUCE: STRIKE IT.***
+> It was arithmetic from an earlier tree rather than a measurement.
+>
+> ***AND THE INSTALL IS GREEN WITH NO WAY IN, WHICH IS MEASURED RATHER THAN
+> PREDICTED.*** `/ProgramData/SD/adopt-account.log` reads *"CREATE.ACCOUNT USER
+> Don ADOPT did not create an account"*, and the output it captured ends at
+> CREATE.ACCOUNT's own route prompt — *"Say who may reach this account: SSH,
+> API, BOTH or NONE"*. ***THE TIER THAT USED TO STATE THAT ROUTE IS GONE, SO
+> THE VERB ASKS AND NOTHING ANSWERS.*** The consequences, all measured: the
+> register holds `sdsys` alone, `user_accounts/` is EMPTY, and `WHO` into
+> `sd.exe` answers ***"Account DON not in register" / "Connection terminated"***.
+>
+> SO THE MACHINE CURRENTLY HAS NO USABLE SD SESSION. The free tier CANNOT RUN
+> (do not spend a token), and neither can the elevated half. ***THAT MAKES THE
+> ADOPT/INSTALLER UNIT THE ONE THAT RESTORES A WAY IN RATHER THAN A TIDY-UP***,
+> and it is the next thing to cut — with the Windows SDSYS account it owes,
+> since that is the only identity 64 lets in.
+>
+> The half-built 62/63 work below this box is historical record, superseded by
+> 64.
 > ***MEASURED THIS SESSION: `test-retired-wording-units` 64/64; then slice 5a
 > retired one of the free tier's two reds and fixed the other, so the list is 46
-> rows with NEITHER red — BUT VERIFYINSTALL1 HAS NOT BEEN RE-RUN, and the tree is
-> stale, so DO NOT QUOTE 46/46 AS EVIDENCE.***
+> rows with NEITHER red — BUT VERIFYINSTALL1 HAS NOT BEEN RE-RUN:*** it cannot
+> run on this install at all, for the reason in the paragraph above. Do not quote
+> 46/46 as evidence.
 > `DisableForwarding` in `allow-ssh-groups.ps1` stays whatever the model
 > becomes (it closes the `ssh -L` forgery), and so does `assert-current`'s
 > corrected hand-over line.

@@ -65012,3 +65012,50 @@ elevated script.  Then the installer slice.  THE CYCLE REMAINS THE OWED COMMAND
 and needs the owner's elevated window.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, THE CYCLE RAN GREEN.  THE TEARDOWN COMPILES AND
+INSTALLS, AND THE INSTALL HAS NO WAY IN.
+
+THE GREEN HALF, MEASURED.  assert-current exit 0 live; sd.exe 0BC0ACDED4CABDA3;
+installed 15:07:23; sdsys/tier.policy ABSENT from the install and no TIER*
+record in gpl.bp.out or gcat - the tier teardown is out of the installed tree,
+and the five BASIC programs slices 1-3 rewrote compiled with no build error.
+The staged counts are gcat 150 and GPL.BP.OUT 210, printed by the cycle itself
+and compared against the staged tree.  THE FIRST PASS'S PROJECTION OF gcat 124
+/ gpl.bp.out 183 DID NOT REPRODUCE and is struck: it was arithmetic from an
+earlier tree rather than a measurement.
+
+THE HALF THAT MATTERS.  /ProgramData/SD/adopt-account.log, on this install:
+"adopt-account: CREATE.ACCOUNT USER Don ADOPT did not create an account", and
+the output it captured ends at CREATE.ACCOUNT's own route prompt - "Say who may
+reach this account: SSH, API, BOTH or NONE".  THE TIER THAT USED TO STATE THAT
+ROUTE IS GONE, so the verb asks and nothing answers: adopt-account.ps1 invokes
+sd -internal with separate arguments and feeds it no stdin, and createa's ADOPT
+branch no longer carries a route of its own.  What that leaves, measured rather
+than inferred: sdsys/accounts holds sdsys alone, user_accounts/ is EMPTY, and
+
+    printf '\nWHO\nOFF\n' | "C:\Program Files\SD\usr\bin\sd.exe"
+
+answers "Account DON not in register" and then "Connection terminated".  An
+elevated Windows administrator - the owner - therefore has NO SD SESSION AT ALL
+on this machine, and neither has anybody else: 64's only door is the Windows
+SDSYS account, and no such local user exists (Get-LocalUser, checked).
+
+CONSEQUENCE FOR THE PLAN.  The verifier slice cannot be measured: the free tier
+needs an account for its elevated half to run as, and the elevated half needs
+LOGTO SDSYS, which is refused outright.  NO RUN TOKEN SHOULD BE SPENT.  ***THE
+ADOPT/INSTALLER UNIT MOVES FROM LAST TO NEXT*** - it is no longer a tidy-up of a
+path 64 deletes, it is what restores a way in, and it carries the Windows SDSYS
+account with it because that is the only identity 64 lets into SD.
+
+Also noted, and owed to whoever touches the lists next: VerifyInstall1's header
+ledger re-derives to 67 / 25 / 33 with ten files unaccounted for and
+verify-elevdoor.ps1 named in BOTH tables - six of the ten have no reason I
+checked, so the block records the measurement and asserts no cause.  And the
+fourteen "verify-tiers.ps1's Invoke-SD" cross-references were re-pointed in the
+same session: they now say where that write-up was, that its TERM-after-LOGTO
+trap still applies and is written down nowhere, and that the LOGTO SDSYS prefix
+every driver in that idiom uses is refused - which is slice 5b's re-aim rather
+than a rule to copy.
+
+====
