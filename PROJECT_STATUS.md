@@ -189,8 +189,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | tokens | `b181`–`b193` SPENT. **Next: `b194`.** Three leftover profiles from `b193` (`C:\Users\sdtub193`, `sddrb193a`, `sddrb193b`) wait for a restart; a fresh token sidesteps them |
 > | mail | inbox read once at start, empty; box off, no watcher, no wakeup (HANDOFF 84) |
 > | done | the free guard 55 owed: `gplbld/test-groupmember-units.py` + `probe-groupmember.c`, 21/21, 5.9 s; **free tier 47/47, 48 s**; RELEASE_1.1 55's row and CLAUDE.md's list updated |
-> | owed 1 | **55's ELEVATED milestone coverage** — the `b194` command below, ordinary unelevated prompt, owner's hands (§4.0.1). `verify-doors-suite` red is 56, any other red is 55's |
-> | owed 2 | **RELEASE_1.1 56**, two decisions for the owner (TLS in `sd_connect.c`'s pre-check vs. drop it; drive `scram-probe.py` from the doors leg) and one unisolated half (`QMConnect → Connection closed by server` on the DLL path) |
+> | done 56 | **RELEASE_1.1 56 FIXED** — `sd_connect.c`'s transport probe now speaks TLS; built and proven against the live server (`ACK through TLS`, exit 0). It needs a **cycle** to reach `bin\client32`, so the b194 run below must be a full cycle first |
+> | owed | **one run closes both**: a full cycle (rebuilds `sd-connect.exe` + reinstalls), then the suite. It witnesses 56's transport fix AND gives 55 its owed elevated milestone coverage. Watch the door-3 API leg: transport should read `server sent ACK through TLS`. If `QMConnect` alone is still red past a green transport, that is a DLL-vs-handoff question to open fresh — the transport bug that masked it is gone |
 > | found | two callers still write a conflating audit reason on a could-not-tell — apisrvr's sdapi gate, LOGIN's sdusers gate. Declared in the guard, not fixed; the vb.account shape before 55 |
 
 > ***⏸ (superseded) PICK UP HERE (17 Sep 2026, later still).*** ***`cycle.ps1` COMPLETED
@@ -289,17 +289,31 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***TO GET 55's MILESTONE COVERAGE, hand over anyway*** — the doors failure is
 > known, filed as 56, and blocks a half of the suite that has nothing to do
-> with this change. **ELEVATED is wrong for this one: `VerifyInstall1` is the
-> UNELEVATED runner and hands over to the elevated half itself.** Ordinary
-> unelevated prompt:
+> with this change. ***UPDATED 17 Sep 22:15 — 56 IS FIXED, SO THIS IS NOW A
+> CYCLE THEN THE SUITE, and `verify-doors-suite` is expected GREEN.*** The fix
+> is in `sd_connect.c` (C), which the install carries only after a rebuild, so
+> a bare `VerifyInstall1` would test the OLD plaintext binary.
+>
+> STEP 1 — the cycle, **elevated PowerShell** (its step 0 rebuilds
+> `sd-connect.exe` into `bin\client32` and reinstalls):
+
+```
+powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+```
+
+> STEP 2 — the suite, **ordinary unelevated prompt** (`VerifyInstall1` is the
+> unelevated runner and elevates the second half itself):
 
 ```
 powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b194 -ContinueOnFailure
 ```
 
-> Expect `verify-doors-suite` red again (56) and everything else green. A
-> PARTIAL/failed banner from that step is not a 55 regression; any OTHER red
-> step is.
+> Expect **every step green now, including `verify-doors-suite`** — its door-3
+> transport should read `server sent ACK through TLS`. `-ContinueOnFailure` is
+> kept only so one surprise does not cost the whole elevated half; any red step
+> is now a real finding. **If `QMConnect` alone is red under a green transport,
+> open it fresh** (DLL vs the 55 handoff) — do not read it as 55 or as this fix
+> regressing.
 >
 > ⚠️ ***USE `b194`, NOT `b193` — I HANDED OVER b193 AND IT WAS ALREADY SPENT.***
 > The 21:16 unelevated run had used it (245 mentions in
