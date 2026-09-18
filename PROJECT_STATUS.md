@@ -194,13 +194,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > keywords deleted with **`UNSUSPENDED` added** — without it SUSPEND was a
 > one-way door.
 >
+> **THEN (SLICE 3): the register fields and the administrator predicate.** The
+> suspension state is now `ACC$SUSPENDED` (field 5) and `ACC$PRIOR.TIER` (6) is
+> gone; the FILES_DICTS fragments move with them (`^suspension` in, `^tier` and
+> `^prior.tier` out, PH list `path descr suspension BY @id`); `sdadmin` and
+> `peer_local` deleted with every `sd_admin_tier` caller (LOGIN's remote-session
+> gate, CPROC's administrator-as-themselves bypass, APISRVR's remote-API gate);
+> MODIFYA's `tier.set` collapsed to equality guard + self-suspend guard + one
+> register write (`voc.delta` and the seven tier routines deleted); CREATEA's
+> register tier write gone; messages 10108/10111/10113/10126/10128/10129/
+> 10157/10174 deleted, 10114 and 10159 reworded; the changelog entry is in.
+> **Free tier 47/47 GREEN on the edited tree. NOT COMPILED: no cycle has run.**
+>
 > ***READ RELEASE_1.1 64'S "PROGRESS" CLAUSES BEFORE ADDING TO THIS***, not just
-> its decision clauses: they carry the measured dictionary format, the three
-> findings that change the plan (`sd -internal` and `ADOPT` must move WITH the
-> installer or the compile is refused; `elev.obtained` is now dead code), the
-> `assert-current` count move (`gpl.bp.out` 186 -> 185, `gcat` 127 -> 126), and
-> the two obligations this creates (`sdsys/changelog` owes `UNSUSPENDED`;
-> `SDCoreWindowsDocs` prose is now wrong about `modify.account`).
+> its decision clauses: they carry the measured dictionary format and its answer
+> (the THIRD PASS made the change rather than guessed at it), the three findings
+> that change the plan (`sd -internal` and `ADOPT` must move WITH the installer
+> or the compile is refused; `elev.obtained` is now dead code), the
+> `assert-current` count move (`gpl.bp.out` 186 -> 183, `gcat` 127 -> 124 with
+> the cycle), and the obligations that remain (`SDCoreWindowsDocs` prose is now
+> wrong about `modify.account`, and the verifier slice below).
 >
 > ***READ RELEASE_1.1_FIXES.md 64 BEFORE TOUCHING ANY ACCOUNT CODE.*** It holds
 > his words verbatim, the measured footprint of what comes out, what must NOT be
@@ -217,16 +230,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | what stays | the **embedded Python**, and the **encrypted data/password tunnel** |
 > | then | **evaluate the resulting security model** — part of the decision, not an afterthought |
 >
-> ***THE TREE IS STALE AND CARRIES HALF-BUILT 62/63 WORK — DECIDE WHAT TO DO WITH
-> IT BEFORE ANYTHING ELSE.*** Committed, never cycled: `createa`/`modifya` (62's
-> posture), `messages/10083`+`10175`, four `sd.iss` wizard strings,
-> `sync-route-groups.ps1` (63's migration), `test-retired-wording-units`
-> registrations, and six re-aimed verifiers. ***`assert-current` WILL REFUSE.***
-> **Reverting the product half to `b197`'s witnessed state is a legitimate
-> opening move** — all of it is deleted by 64 anyway, and a green tree is easier
-> to remove from than a half-built one. **Two things must NOT be reverted**:
-> `DisableForwarding` in `allow-ssh-groups.ps1` (it closes the `ssh -L`
-> peer-test forgery whatever the account model becomes) and `assert-current`'s
+> ***THE TREE IS STALE AND CARRIES 64'S SLICES 1-3, NONE CYCLED.*** Committed,
+> never compiled: slice 1-2 (tiergate, tier.policy, the promotion report, the
+> tier keywords, UNSUSPENDED) and slice 3 (the register fields, `sdadmin`,
+> `peer_local`, the administrator gates, MODIFYA's collapse, eight messages,
+> the changelog entry) — RELEASE_1.1_FIXES 64's THIRD PASS has the exact file
+> list. ***`assert-current` WILL REFUSE — THE CYCLE IS THE OWED COMMAND, AND IT
+> MOVES THE BASELINES TO `gpl.bp.out` 183 AND `gcat` 124.*** The half-built
+> 62/63 work below this box is historical record, superseded by 64.
+> ***MEASURED THIS SESSION: the FREE TIER is 47/47 GREEN on the edited tree.***
+> `DisableForwarding` in `allow-ssh-groups.ps1` stays whatever the model
+> becomes (it closes the `ssh -L` forgery), and so does `assert-current`'s
 > corrected hand-over line.
 >
 > ***WHAT SURVIVES THE REMOVAL AND MUST NOT BE SWEPT UP***: **60** (the two
@@ -245,6 +259,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ones. **64 touches neither, and a simpler model makes them more exposed, not
 > less.** Whether an interpreter should be reachable from a network session is
 > the first question the evaluation should ask.
+>
+> ***EVERYTHING FROM HERE TO "THE TWO COMMANDS" IS THE 58/62/63 ERA — SUPERSEDED
+> BY 64 ABOVE, KEPT AS RECORD.*** Do not act on it; the decision table at the
+> top of this box is the live plan.
 >
 > ***THE RULING, 18 Sep 2026:*** *"the administrator should not be able to reach
 > the machine through ssh or api, but should be able to use the api locally."*
@@ -281,7 +299,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > |---|---|
 > | install | **unchanged — 17 Sep 23:46:32** (the `b195` cycle). ***THE TREE IS NOW STALE ON PURPOSE AND `assert-current` WILL REFUSE***: `gplsrc/clopts.c`, `sdsys/gpl.bp/createa`+`modifya`, `sdsys/messages/10083`+`10175`, `gplbld/sd.iss` and the shipped `gplbld/allow-ssh-groups.ps1` have all moved past it |
 > | tokens | `b195` spent. **Use `b196`** |
-> | free tier | ***47 of 47 GREEN, 49.5 s, nothing refused*** (measured this session, each in its own process). `test-fixlist-units` **347/0** with 58/59/60 registered and NEXT FREE ID 61; `test-retired-wording-units` **52/52** with three new registrations; `verify-allowgroups` **exit 0** |
+> | free tier | ***47 of 47 GREEN on the slice-3 tree*** (measured 18 Sep 2026, each in its own process, powershell 5.1 + python 3.14). `test-fixlist-units` **352/0** with 58/59/60/61/62/63/64 registered; `test-retired-wording-units` **56/56** with the R1.1-64 row replacing R1.1-3's |
 > | 58, what is BUILT | `allow-ssh-groups.ps1` drops the administrators group from `AllowGroups` and writes **`DisableForwarding yes`**; `CREATEA` sets `access.ssh`/`access.api` **false** for the tier **and refuses `ADMINISTRATOR BOTH` (10083) instead of silently overriding it**; `MODIFYA` needed no logic change (it already refused every route change for an administrator) — only 10083's wording inverted; 10175 rewritten; four `sd.iss` wizard strings; `changelog` has both user-visible entries |
 > | ***58's CYCLE AND `b196` HAVE RUN — 18 Sep 2026, AND THE API HALF IS MEASURED WORKING*** | Cycle green, install **18 Sep 09:1x**, `assert-current` **exit 0 live and STILL exit 0** (everything changed since is on `$neverShipped`, so ***`b197` NEEDS NO NEW CYCLE***). ***`verify-apiremote` exit 0 — THE RESULT THAT MATTERS***: `CONTROL: a non-administrator connects over the LAN address` PASS, both admin legs `did NOT get a session` + `message 10073 was returned` PASS, `NEITHER leg reached the peer test (10174 absent)` PASS. **Unelevated half: 28 of 28 exit 0.** Elevated: **5 of 36 did not exit 0 — every one of them 58's own downstream, now fixed (row below)** |
 > | ***`b196` IS NOT CITABLE AS A CLEAN RUN, AND THE CAUSE WAS ME*** | I edited verifier scripts **while the suite was reading them**, so `verify-delaccount` ran the FIXED script mid-run and passed — its log shows the command without `BOTH`. §"A CYCLE ENDS AT THE NEXT SOURCE CHANGE" makes every result after a source change void rather than probably-still-valid. **The reds are real and diagnosed; greens taken after the first edit describe a different tree state than greens before it.** ***`b197` IS THE CITABLE RUN, AND NOTHING MAY BE EDITED WHILE IT RUNS.*** |
@@ -302,20 +320,17 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
-> **(2) The full suite — an ORDINARY, UNELEVATED PowerShell** (it refuses an
-> elevated one; it raises UAC itself for the handover):
+> **(2) NOTHING ELSE IS OWED YET — THE SUITE WAITS FOR THE VERIFIER SLICE.**
+> 64's next slice retires or rewrites `verify-tiers`, `verify-tierchange`,
+> `verify-tierapi`, `verify-sshadmin`, `verify-apiremote`, `verify-sdsysgate`,
+> `verify-logtoaccess`, parts of `verify-routes` and `verify-accountrules`,
+> `verify-privundetermined`'s composition leg and `test-tiercounts-units`.
+> Until that lands, those verifiers are EXPECTED RED on a 64 tree — they score
+> structures the decision deletes. Run the suite only after the verifier slice.
 >
-> ```
-> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -ThenElevated -Run b196
-> ```
->
-> ***WHAT TO EXPECT THAT IS NEW, so a red is read correctly:*** `verify-apiremote`
-> should now score **LEG A as a REFUSAL** (10073, *"is not permitted to use the
-> API"*) where it used to demand an admitted session, with **10174 absent from
-> both legs**; its CONTROL row is the only one that can now fail for the right
-> reason, so a failed control voids the step rather than passing it. If **10174
-> comes back**, an administrator reached the peer test and the sdapi grant
-> regressed.
+> ***WHAT THE 62-ERA BLOCK BELOW PREDICTED (10174 absent, 10073 on LEG A) IS
+> SUPERSEDED WITH IT*** — 10174's message file is deleted and the API gate is
+> gone; verify-apiremote is retired rather than re-aimed.
 >
 > *(The box below is still true and is no longer the pickup: it is `b195`'s
 > witness of 57, which is done.)*

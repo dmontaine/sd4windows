@@ -64843,3 +64843,73 @@ shipped source. Field 4 has no fragment, `accounts.dic^@` is a separate `PH` ite
 naming only three fields, and the attribute codes (`13L`, `20L`, `25L`, `30L`,
 `35T`) are documented nowhere in this tree. Dropping fields 5 and 6 wants the
 install's own `write_install_dicts` read against it, not a guess.
+
+====
+
+18 Sep 2026 - RELEASE_1.1 64 SLICE 3 IS CUT IN SOURCE: THE REGISTER FIELDS, THE
+ADMINISTRATOR PREDICATE AND THE TIER MACHINERY. NOT COMPILED - NO CYCLE HAS RUN.
+13 files, +104/-1008. Measured: the FREE TIER is 47/47 GREEN on the edited tree,
+`test-fixlist-units` 352/0 and `test-retired-wording-units` 56/56, each in its
+own process (powershell 5.1 and python 3.14 on this machine).
+
+THE DICTIONARY QUESTION THE LAST PASS LEFT OPEN IS ANSWERED, NOT GUESSED AT.
+`write_install_dicts` merges records keyed `<file>.dic^<fieldname>`, so the
+fragment name IS the live item id. `accounts.dic^tier` and
+`accounts.dic^prior.tier` are deleted and `accounts.dic^suspension` added -
+field 5, `Suspension`, `13L`, mirroring the deleted field-5 fragment exactly
+except the description. `accounts.dic^@`'s PH list is now
+`path descr suspension BY @id`. Known residue for the post-removal evaluation:
+an UPGRADED tree keeps the stale `tier` and `prior.tier` dictionary items,
+because `write_install_dicts` adds and re-cases but never deletes; they are
+invisible orphans, and whether to sweep them belongs with the upgrade walk.
+
+THE REGISTER. `keys.h` replaces `ACC$TIER` (5) with `ACC$SUSPENDED` (5) -
+`'SUSPENDED'` or `''` - and deletes `ACC$PRIOR.TIER` (6); field 4 stays poisoned.
+Every reader now reads the state field: LOGIN's and CPROC's suspension tests and
+APISRVR's vb.account (as `acc.suspended`, read inside the known-`acc.rec` block).
+LOGIN's `get.acc.tier` and `update.voc.tier` are deleted - the dead computation
+the first pass said belongs IN the field-removal change.
+
+THE ADMINISTRATOR PREDICATE. `sdadmin` and `peer_local` are DELETED, and every
+`sd_admin_tier` caller with them: LOGIN's remote-session gate (the whole 5 Sep
+block, with `peer.local.test` and its deffun), CPROC's
+administrator-as-themselves bypass (with its deffun), APISRVR's remote-API gate
+(with its deffun). The two `elev.obtained` bypasses stay, per the first pass's
+finding - dead code whose deletion belongs with the elevation machinery.
+
+THE MACHINERY. MODIFYA's `tier.set` collapses to the equality guard (10110), the
+self-suspend guard (10112) and ONE register write of `ACC$SUSPENDED`.
+`voc.delta`, `tier.rank`, `tier.open/close.template`, `tier.layer`,
+`tier.build.rec`, `tier.add.one`, `tier.del.one`, `tier.os.write`,
+`tier.os.remove` and the `was.admin`/`need.access` paths are deleted. This also
+closes a hole slice 2 left: UNSUSPEND used to run the tier-crossing demotion
+machinery on a Windows administrator (DELMEM 544 plus route narrowing); it now
+clears one field and nothing else. `UNSUSPENDED` becomes `want.tier =
+'UNSUSPENDED'` and `tier.set` writes `''`; 10109/10110 take
+`SUSPENDED`/`UNSUSPENDED`. CREATEA's register tier write is deleted; its `tier`
+variable survives only for the dead ADMINISTRATOR arms, which still leave with
+ADOPT and the installer.
+
+MESSAGES. 10108, 10111, 10113, 10126, 10128, 10129, 10157 and 10174 are DELETED
+(no callers left after this pass). 10114 is reworded to `Unable to change the
+state of %1; its state in the register is unchanged` and 10159 to the
+unsuspend wording - `test-retired-wording-units`'s register retires the R1.1-3
+replacement as row `R1.1-64`. 10083, 10106 and 10175 STAY until the next slice:
+they are still called by `route.set`/`os.set`'s administrator refusals in
+CREATEA and MODIFYA, which are that slice's target.
+
+CHANGELOG. `sdsys/changelog` W1.1-0 gains the tier-removal entry (the 58/62
+ssh/API entry is marked REPLACED by it), and the owed UNSUSPENDED entry is
+folded in.
+
+THE STAGED COUNT MOVES AGAIN WITH THE CYCLE: `gpl.bp.out` 186 -> 183 and `gcat`
+127 -> 124 (`tiergate`, `sdadmin`, `peer_local`). The cycle command and the
+verifier-slice note are in PROJECT_STATUS.md's START HERE box.
+
+NEXT SLICE (64 SLICE 4): the administrator special cases still in CREATEA and
+MODIFYA's route.set/os.set with messages 10083/10106/10175; then the verifier
+retirement. THE CYCLE REMAINS THE OWED COMMAND and needs the owner's elevated
+window; the suite waits for the verifier slice, which is expected red on a 64
+tree until it lands.
+
+====
