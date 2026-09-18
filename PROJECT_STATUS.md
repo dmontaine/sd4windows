@@ -216,6 +216,38 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > slice 1-2 deleted `tier.policy`, and both retire/rewrite in the verifier
 > slice below.*** **NOT COMPILED: no cycle has run.**
 >
+> **THEN (SLICE 5a): the tier verifiers retire with their subject.** Three files
+> DELETED — `verify-tiers.ps1`, `verify-tierchange.ps1`, `verify-tierapi.ps1`
+> (every row they asserted was tier machinery) — and `test-tiercounts-units.ps1`
+> with the duplication it guarded: there is ONE count now and it lives in
+> `sdsys/newvoc` alone, so a cross-check would pass vacuously. `sdtestuser.ps1`'s
+> create line loses its tier keyword, because the verb refuses it now.
+> ***THE RETIRED `sdtiert`/`sdtapi`/`sdtc` STEMS STAY IN
+> `clean-test-profiles.ps1`*** — their litter is still on this machine.
+> ***MEASURED: `test-sdtestuser-units` 53/53, `test-suiteonly-units`,
+> `test-verdict-units` and `test-stemcoverage-units` green, ten edited scripts
+> parse.*** **NOT COMPILED: no cycle has run.**
+>
+> ***SLICE 5a FOUND TWO CONSEQUENCES THE DECISION DID NOT HAVE, AND THEY ARE THE
+> NEXT SLICE'S SUBJECT.*** (1) **`logto sdsys` IS REFUSED OUTRIGHT NOW**
+> (`cproc:2789`, 10002, unwinding) and **fifty** scripts under `gplbld/` still
+> pipe it as the first line of every session — so the whole elevated half is owed
+> that re-aim, and it cannot run at all until the installer creates the **Windows
+> SDSYS account**: there is **no local SDSYS user on this machine** (measured).
+> The owed `verify-accountmodel.ps1` — the whole-of-NEWVOC count for an ordinary
+> account, the SUSPENDED/UNSUSPENDED round trip, the tier keywords refused, the
+> `update.voc` @ID machinery — is blocked on exactly that. (2) **`elev.obtained`
+> is dead code** (`cproc:2657`, no writer since slice 1-2), and it was the bypass
+> that admitted an elevated session to ANY account — so `logto <account>` needs
+> real `sdu_` membership now, and **`logto <suspended account>` IS REFUSED
+> (10107)**, where `verify-tiers` section 6 asserted that it ENTERED.
+>
+> ***WHAT THE VERIFIER SLICE STILL OWES*** (5b): `verify-sshadmin`,
+> `verify-apiremote`, `verify-sdsysgate`, `verify-logtoaccess`,
+> `verify-doors-admin`, parts of `verify-routes` and `verify-accountrules`,
+> `verify-privundetermined`'s composition leg, `VerifyInstall1/2`'s remaining
+> rows, and the SDSYS-run re-aim of every elevated script.
+>
 > ***READ RELEASE_1.1 64'S "PROGRESS" CLAUSES BEFORE ADDING TO THIS***, not just
 > its decision clauses: they carry the measured dictionary format and its answer
 > (the THIRD PASS made the change rather than guessed at it), the three findings
@@ -240,17 +272,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | what stays | the **embedded Python**, and the **encrypted data/password tunnel** |
 > | then | **evaluate the resulting security model** — part of the decision, not an afterthought |
 >
-> ***THE TREE IS STALE AND CARRIES 64'S SLICES 1-4, NONE CYCLED.*** Committed,
-> never compiled: slice 1-2 (tiergate, tier.policy, the promotion report, the
-> tier keywords, UNSUSPENDED), slice 3 (the register fields, `sdadmin`,
-> `peer_local`, the administrator gates, MODIFYA's collapse, eight messages,
-> the changelog entry) and slice 4 (the route/OS refusals, 10083/10106/10175,
-> the wizard strings) — RELEASE_1.1_FIXES 64's FOURTH PASS has the exact file
-> list. ***`assert-current` WILL REFUSE — THE CYCLE IS THE OWED COMMAND, AND IT
+> ***THE TREE IS STALE AND CARRIES 64'S SLICES 1-4 AND 5a, NONE CYCLED.***
+> Committed, never compiled: slice 1-2 (tiergate, tier.policy, the promotion
+> report, the tier keywords, UNSUSPENDED), slice 3 (the register fields,
+> `sdadmin`, `peer_local`, the administrator gates, MODIFYA's collapse, eight
+> messages, the changelog entry) and slice 4 (the route/OS refusals,
+> 10083/10106/10175, the wizard strings) — RELEASE_1.1_FIXES 64's FOURTH PASS has
+> that exact file list — and slice 5a (the three tier verifiers and the free
+> count guard deleted, `sdtestuser` and the harness lists moved with them; 64's
+> FIFTH PASS has that list). ***`assert-current` WILL REFUSE — THE CYCLE IS THE OWED COMMAND, AND IT
 > MOVES THE BASELINES TO `gpl.bp.out` 183 AND `gcat` 124.*** The half-built
 > 62/63 work below this box is historical record, superseded by 64.
-> ***MEASURED THIS SESSION: `test-retired-wording-units` 64/64, the free tier
-> 45/47 with the two reds named above red BY DESIGN.***
+> ***MEASURED THIS SESSION: `test-retired-wording-units` 64/64; then slice 5a
+> retired one of the free tier's two reds and fixed the other, so the list is 46
+> rows with NEITHER red — BUT VERIFYINSTALL1 HAS NOT BEEN RE-RUN, and the tree is
+> stale, so DO NOT QUOTE 46/46 AS EVIDENCE.***
 > `DisableForwarding` in `allow-ssh-groups.ps1` stays whatever the model
 > becomes (it closes the `ssh -L` forgery), and so does `assert-current`'s
 > corrected hand-over line.

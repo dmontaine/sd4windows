@@ -64953,3 +64953,62 @@ and the dead ADMINISTRATOR arms together, plus elev.obtained.  THE CYCLE
 REMAINS THE OWED COMMAND and needs the owner's elevated window.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64 SLICE 5a IS CUT IN SOURCE: THE TIER VERIFIERS RETIRE
+AND THE FREE TIER'S TWO REDS ARE GONE.  No cycle has run; nothing here is
+evidence yet.
+
+DELETED: verify-tiers.ps1, verify-tierchange.ps1 and verify-tierapi.ps1 - every
+row the three asserted was tier machinery (the three VOC counts against
+sdsys/tier.policy, the 42 withheld verbs, the 21 administration verbs, the
+promotion/demotion keyword, what left an account with ADMINISTRATOR,
+tier.del.one's kept count, and one throwaway account per tier driven over
+sd-connect.exe) - and test-tiercounts-units.ps1 WITH THE DUPLICATION IT GUARDED:
+there is one count now, it lives in sdsys/newvoc alone, and a guard whose two
+sides are the same file passes vacuously.  sdtestuser.ps1's create line loses its
+tier keyword, because CREATE.ACCOUNT refuses PROGRAMMER and ADMINISTRATOR on
+sysmsg 2018 now and the unelevated half would have had no account to run as.
+test-sdtestuser-units.ps1's cross-check turns round on the same data: it asks
+sdsys/newvoc for 'basic' and 'run' instead of asking the deleted omit list which
+verbs it withheld from a standard account.
+
+MOVED WITH THEM: VerifyInstall1.ps1 (the free guard's step, and a ledger
+RE-DERIVED rather than adjusted - it reads 67/25/33 with ten files unaccounted
+for and verify-elevdoor.ps1 named in BOTH tables, and the block says so instead
+of leaving a wrong number), VerifyInstall2.ps1 (three steps, three -Prefix
+parameters with their derivations and validations), assert-current.ps1 (the
+roster entries), clean-test-profiles.ps1 (the retired families STAY: sdtierb1961
+and sdtierb1962 are still on this machine as Windows accounts and as profiles,
+from the elevated run that b196 voided), suite-only.ps1, sdtestuser-admin.ps1,
+test-suiteonly-units.ps1, test-verdict-units.ps1.
+
+MEASURED: test-sdtestuser-units 53/53; test-suiteonly-units, test-verdict-units
+and test-stemcoverage-units green; all ten edited scripts parse; assert-current
+refuses on the stale tree as it should.  NOT MEASURED AND NOT CLAIMED: no cycle,
+and VerifyInstall1 has NOT been re-run, so 46/46 is not a result.
+
+TWO CONSEQUENCES FOUND THAT THE DECISION DID NOT HAVE, AND BOTH ARE BIGGER THAN
+THIS SLICE.  (1) 'logto sdsys' IS REFUSED OUTRIGHT NOW - cproc:2789, sysmsg
+10002, unwinding - because SD's single administrator is reached only by the
+Windows SDSYS account at LOGIN (login:747), and FIFTY scripts under gplbld/ still
+pipe LOGTO SDSYS as the first line of every session.  The whole elevated half of
+the suite is therefore owed that re-aim, and it cannot run at all until the
+installer creates that Windows account: MEASURED, there is no local SDSYS user on
+this machine.  The owed verify-accountmodel.ps1 - the whole-of-NEWVOC count for
+an ordinary account, the SUSPENDED/UNSUSPENDED record round trip, the tier
+keywords refused, and the update.voc @ID case machinery - is blocked on exactly
+that.  (2) elev.obtained IS NOW DEAD CODE (cproc:2657 initialises it @false; its
+only writer went in slice 1-2), and it was the bypass that admitted an elevated
+session to ANY account - so logto <account> needs real sdu_ group membership now,
+and logto <suspended account> IS REFUSED (10107) where verify-tiers section 6
+asserted that an elevated session ENTERED.  Its surviving rows invert rather than
+re-point.
+
+NEXT SLICE (64 SLICE 5b): the rest of the verifier re-aim - verify-sshadmin,
+verify-apiremote, verify-sdsysgate, verify-logtoaccess, verify-doors-admin, parts
+of verify-routes and verify-accountrules, verify-privundetermined's composition
+leg, VerifyInstall1/2's remaining rows, and the SDSYS-run re-aim of every
+elevated script.  Then the installer slice.  THE CYCLE REMAINS THE OWED COMMAND
+and needs the owner's elevated window.
+
+====
