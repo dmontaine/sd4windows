@@ -192,7 +192,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > | suite | **unelevated: every step exit 0** (`verify-doors-suite` 8/8 decisive). **elevated: all 36 steps exit 0** (`post-cycle-elevated-20260917-234817.log`); b194's unrecorded steps 24–36 are recorded as this run's green pass |
 > | 55 | elevated milestone coverage delivered by this run (owed since b191/b192); the 57 contingency (session-liveness wait) did not fire — nothing owed there |
 > | tokens | through `b195` SPENT. **Next: `b196`.** |
-> | open rows (none blockers for this work) | 47/48/49 release paperwork; 53 held (owner's call). Minor: the `-ContinueOnFailure` hand-over wording note (unchanged) |
+> | open rows (none blockers for this work) | 47/48/49 release paperwork; 53 held (owner's call) — RE-MEASURED 18 Sep, UNCHANGED (row below). Minor: the `-ContinueOnFailure` hand-over wording note (unchanged) |
+> | ***53 IS NOT CLOSED BY 43/55/57 — MEASURED 18 Sep 2026, UNELEVATED*** | `probe-cygshared` still opens `shared.5` **for WRITE** in `msys-2.0S5-11f4a83b0f193bff` (6 of 8 sections); `S-1-5-18.1` denied, err 5. The holder is `sdwind.exe` (MSYS2, LocalSystem, alive permanently) — not the relay, not the session: 43 made the relay native and 55 made the session the user, and neither can reach the daemon's own runtime. **Unmeasured half unchanged**: whether a write into `shared.5` can influence a LocalSystem MSYS2 process. **The decision it feeds is the owner's** — accept-and-document (honest only once that experiment says "cannot influence") or take MSYS2 out of the daemon. Also unmeasured on this path: cross-USER DACL denial of the handover pipe |
 > | mail | box off, no watcher, no wakeup (HANDOFF 84) |
 
 > ***⏸ (superseded — 57 WITNESSED, see above) PICK UP HERE (18 Sep 2026 — RELEASE_1.1 57 WAS TRACED TO THE SERVER
@@ -1060,7 +1061,7 @@ powershell -ExecutionPolicy Bypass -Command "Select-String -Path C:\ProgramData\
 > |---|---|
 > | install | **17 Sep 04:00:54 — the restoring cycle, `CYCLE COMPLETE` 04:01:44** (`cycle-20260917-035951.log`, transcript WHOLE, `assert-current` matches source, `sd.exe` `66394A7…`, `bin\` 03:05:42, no relink). **Current; nothing owed.** The 03:50 upgraded tree it replaced is in the 40 row |
 > | tokens | **`b167`–`b180` spent** (`b180` = 40's setup-log name). **Use `b181`** |
-> | open before 47 | ***55, B — owner 17 Sep: "this is a blocking issue": EVERY AUTHENTICATED API SESSION IS STILL A LocalSystem PROCESS; 43 FIXED THE RELAY ONLY.*** The owner took 43's options to be removing LocalSystem from the API path. **53** is held with it (its accept-and-document recommendation withdrawn, same exposure). Then 47 → 48 → 49 |
+> | open before 47 | ***55, B — owner 17 Sep: "this is a blocking issue": EVERY AUTHENTICATED API SESSION IS STILL A LocalSystem PROCESS; 43 FIXED THE RELAY ONLY.*** The owner took 43's options to be removing LocalSystem from the API path. **53** is held with it (its accept-and-document recommendation withdrawn 17 Sep). ***THE TWO ARE DIFFERENT MECHANISMS AND 55'S FIX DOES NOT CLOSE 53 — RE-MEASURED 18 Sep 2026, UNELEVATED: `shared.5` in the LocalSystem MSYS2 namespace is STILL writable by an ordinary Medium user (6 of 8 sections), because `sdwind.exe` — MSYS2, LocalSystem, permanent — is the holder and neither 43 nor 55 touches it. See HISTORY.md 18 Sep and the 53 row.*** Then 47 → 48 → 49 |
 > | ***40 DONE AND WITNESSED, 17 Sep 03:50*** | `-Compare -SetupLog` **16/16 exit 0**: three `SayStep:` lines, in order, on screen ~0.8 s / ~0.8 s / ~7.5 s; **the owner saw them change**. Same upgrade: nocase `Converted 10 of 19`, `trouble=False`; upgrade-voc 2/2 accounts; upgrade-dicts 78 records; ***`install-service -Install` created `sdrelay` and recreated the service over W1.0-0's — the first upgrade since the relay; no API connection was made on it***. ***THE FIRST ATTEMPT WAS LOST AT (5)***: the hand-over put (5)'s command under a list of captions, it read as absent, and `cycle.ps1` was run instead — its uninstall and tree delete took the W1.0-0 tree; stopped at its wizard (trees absent, measured), redone from (2). §6 has the trap |
 > | done this session | **43** (relay, full suite green), **37** + **7**, **54** (+ the PowerShell-dump fix and the "Let Windows manage my default printer" fact, both in the changelog), **`LIST.PRINTERS` deferred to W1.2** (RELEASE_1.1_FIXES.md `## Deferred to W1.2` D1 — the section's first entry). 36 orphaned `C:\Users` profiles swept after a reboot |
 > | 48 must say | printing: default Windows printer or `SETPTR … AT <name>`; "Let Windows manage my default printer" makes the default the last printer used from any program; BANNER/LANDSCAPE/form ignored; `SENDMAIL` unavailable; `Microsoft Print to PDF` prompts on a desktop the API/SSH have none of |
@@ -4437,6 +4438,8 @@ group-account section that shaped the password rule.
 
 ## THE FILE HALF IS CLOSED (21 Aug 2026). A REMOTE API SESSION STILL RUNS AS LocalSystem
 
+***THE TOKEN HALF IS CLOSED TOO — 17-18 Sep 2026, RELEASE_1.1 55: the authenticated session is spawned AS the user over the handover pipe, the relay is native at Low, and the LocalSystem front leaves the data path (`b191`/`b192`, and `verify-apiidentity` inside the `b195` full suite). THE HEADING IS KEPT AS IT WAS WRITTEN because this section is the record of why; WHERE THE BODY BELOW CALLS THE TOKEN HALF OPEN IT IS STALE — 55's row and the level above are what stand.***
+
 **COMPRESSED 21 Aug 2026 under §0.5**, which says a closed step's material goes
 down to its conclusion. This section was ~3,500 lines — a third of the file —
 and almost all of it was the record of an exposure that is **fixed**. The record
@@ -4453,7 +4456,7 @@ its root — the containment gate in `op_dio2.c` plus the `USR_ADMIN` fix in
 **22/23 on the 17:18:11 install** (the 23rd is the standing N/A). §"THE GATE"
 has the six entry points and the read/write axis.
 
-**THE TOKEN HALF: OPEN, AND IT IS THE ONLY LARGE ITEM LEFT.** *(17 Sep 2026: now RELEASE_1.1 55, B. 43 dropped the relay, not the session.)* `sdwind` `fork()`s
+***THE TOKEN HALF WAS OPEN AND IS NOW CLOSED — RELEASE_1.1 55, WITNESSED 17 Sep 2026 (`b191`/`b192`) AND RE-CONFIRMED IN THE `b195` FULL SUITE.*** *(As this line stood:)* **THE TOKEN HALF: OPEN, AND IT IS THE ONLY LARGE ITEM LEFT.** *(17 Sep 2026: now RELEASE_1.1 55, B. 43 dropped the relay, not the session.)* `sdwind` `fork()`s
 the session, so it inherits the LocalSystem service token. Only the session's
 REACH was narrowed; its IDENTITY is untouched. §WHAT IS LEFT, cheapest
 first carries it.

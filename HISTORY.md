@@ -64535,3 +64535,67 @@ owed on it.
 
 TOKENS: b195 spent. Next is b196. Open rows now: 47/48/49 (release
 paperwork) and 53 (held, owner's call) - no code blockers in 1.1.
+
+## 18 Sep 2026 - RELEASE_1.1 53 RE-MEASURED UNCHANGED, AND THE API PATH AUDITED AGAINST ITS OWN RECORDED HOLES: 43/55/57 DO NOT CLOSE 53
+
+53 was re-measured, unelevated, this session: there was no product change and
+none was needed to take the reading.
+
+  gplbld/probe-cygshared.exe (the 16 Sep build, unchanged)
+  running as Don, integrity 0x2000 (Medium)
+  [\BaseNamedObjects\msys-2.0S5-11f4a83b0f193bff]
+    S-1-5-18.1   READ no (err 5)   WRITE no (err 5)
+    shared.5     READ YES          WRITE YES
+    cygpid.1292  READ YES          WRITE no (err 5)
+  objects seen 20, sections tried 8, opened for WRITE 6
+
+So the finding is exactly as filed: an ordinary local user at Medium can open
+shared.5 in the namespace that carries LocalSystem's S-1-5-18.1 section.
+
+WHY THE LAST TWO DAYS DO NOT CLOSE IT, and this is the part the record got
+wrong. The owner's "this is a blocking issue" quote is attached to 55 (a
+LocalSystem SESSION), not to 53; 53 was "held with it" and its
+accept-and-document recommendation withdrawn on 17 Sep. Measured today, the
+two are different mechanisms and 55's fix cannot reach this one:
+
+ - sdtlsrelay.exe imports no msys-2.0.dll - native, 43, as built.
+ - sdsvc.exe imports none either; sc qc SD = sdsvc.exe, SERVICE_START_NAME
+   LocalSystem.
+ - sd.exe and sdwind.exe BOTH import msys-2.0.dll, and sdwind is the daemon:
+   alive now (pid 17828, started 18 Sep 00:10:46), LocalSystem, permanently.
+
+43 and 55 removed LocalSystem from the RELAY and from the SESSION - the two
+per-connection holders. They cannot remove it from sdwind, which holds the
+runtime whose shared.5 is writable for as long as SD is installed and running.
+53's unmeasured half - whether a write into shared.5 can influence a
+LocalSystem MSYS2 process - is still unmeasured, and the decision it feeds
+(accept-and-document, or take MSYS2 out of the LocalSystem daemon) is
+unopened.
+
+ALSO AUDITED THIS SESSION, by reading rather than running: every
+API-encryption hole PROJECT_STATUS.md records, against its current status.
+Closed and witnessed: 55 (b191/b192, re-confirmed b195), 43's relay identity
+(verify-relayidentity 15/15 on the install), the six build points (a)-(f) -
+(f) measured 17 Sep, probe-s4uload, 50 and 100 concurrent with no logon-session
+leak. Closed by ruling, not by code: pre-auth SCRAM parsed by the LocalSystem
+front (crux 2, dropped - Linux parses pre-auth SCRAM as root, owner 17 Sep) and
+SSL_VERIFY_NONE on the client (the MITM-harvests-a-proof residual stands; it
+bites only if a password crosses, which option (b) would have done and was
+rejected). Still owed: cross-USER DACL denial of the handover pipe - a kernel
+guarantee, unexercised; its partner item, the whole chain under
+CreateProcessAsUser as a different user, IS covered, verify-apiidentity running
+in the elevated half with its own account. And the session's own token is never
+read: only the relay's is (SdTokenPeek, verify-relayidentity), so its
+containment is measured by access outcomes in both directions, not by a token
+read. That row does not exist yet.
+
+TWO RECORD DEFECTS FOUND AND THE DOCUMENTATION HALF FIXED HERE: PROJECT_STATUS
+1063 read "53 is held with it (same exposure)", which reads as "the same work
+closes it", and the section headed "A REMOTE API SESSION STILL RUNS AS
+LocalSystem" still called the token half OPEN. Both corrected in this commit.
+NOT fixed, and deliberately not touched: apisrvr's vb.account comments still
+say an API session runs as LocalSystem and "nothing is fixed yet" - that is
+product source, so it needs a cycle, and it is filed rather than edited.
+
+Suite run this session: none - no token spent, no product source touched, and
+b196 is unspent. assert-current was not judged from this shell.
