@@ -64484,3 +64484,54 @@ apiremote/apiadmin/apiname/apiport/privundetermined AND verify-apiidentity in
 the SAME run. If a close survives, the named next build is the
 session-liveness wait (wait on the spawned session, syslog its exit code, fail
 the login with a record) - RELEASE_1.1_FIXES.md 57 carries it.
+
+17 Sep-18 Sep 2026 - b195 (cycle then full suite, owner-run): RELEASE_1.1 57
+FIXED AND WITNESSED; THE FULL SUITE IS GREEN IN BOTH HALVES AND 55'S
+ELEVATED MILESTONE COVERAGE IS DELIVERED.
+
+THE CYCLE. Ran 17 Sep 23:45 elevated. Step 0 found bin\ current (built
+23:39:06 from the 57 fix's own sources - make sd exit 0, op_kernel.o
+recompiled, the relay and the four DLLs rebuilt) and the install went in at
+23:46:32. The edited apisrvr crossed BCOMP in the cycle - "Compiling gpl.bp
+apisrvr" then "$apisrvr added to global catalogue" - and the cycle ended
+"CYCLE COMPLETE - the install matches source" with assert-current green
+live. So everything the suite measured below ran against the fix.
+
+THE UNELEVATED HALF: EVERY step exit 0 - including verify-doors-suite, red
+at b194 on door-3's QMConnect. Door 3 now reads "ok server sent ACK through
+TLS - the transport is fine" (56, unchanged) and "[ok] QMConnect - connected
+to account SDDRB195A" where b194 read "QMError(): Connection closed by
+server". The doors suite scored 8/8 decisive.
+
+THE ELEVATED HALF: 36/36 steps, all exit 0
+(post-cycle-elevated-20260917-234817.log) - the run b194 died inside at
+[23/36] now runs to the end, so b194's unrecorded steps 24-36 are recorded as
+this run's green pass. Every b194 red is green, read from the step logs:
+  verify-apiremote   [PASS] CONTROL: a non-administrator connects over the LAN
+                     address: True; LOCAL admin admitted; REMOTE admin refused
+                     (10174) with the audit row.
+  verify-apiadmin    [PASS] API session connected: YES; session in SDAPIAB195;
+                     ran the probe; CANNOT open/write $cred.
+  verify-apiname     [PASS] bare name admitted: True; the four shape refusals.
+  verify-apiport     admitted; WHO -> 2 SDAPIB195; wrong password refused;
+                     SDSYS refused; client spoke 47/48, no cleartext 24.
+  verify-privundetermined  every leg PASS.
+  verify-relayidentity      15/15 again (sdrelay, Low 4096, 0 privileges,
+                     parent SYSTEM).
+  verify-apiidentity  THE PROBE CROSSED THE HANDOFF IN THE SAME RUN:
+                     "account SDAPIIDB195: entered", ALLOW opened / DENY
+                     refused / USER-ONLY opened, decisive row
+                     ZZAPI: ace\sdapiidb195. THE OLD CONFOUND IS DEAD - the
+                     DLL verifiers and the probe measured together, both green.
+
+AND NOTHING WAS PATCHED AROUND: the run's sd_Log window (23:44-00:20) carries
+NO handoff refusal - none of the fix's new refusal paths ("cannot stand up",
+"no handover pipe") fired, and no authenticated session saw a server close;
+the only refusals logged are the suite's own expected handshake negatives
+(plaintext/silent clients). 55's elevated milestone coverage - owed since
+b191/b192 because b194 died before reaching it - is delivered by this same
+run. 57's contingency (the session-liveness wait) did not fire; nothing is
+owed on it.
+
+TOKENS: b195 spent. Next is b196. Open rows now: 47/48/49 (release
+paperwork) and 53 (held, owner's call) - no code blockers in 1.1.

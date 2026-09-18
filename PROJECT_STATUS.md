@@ -179,8 +179,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ PICK UP HERE (18 Sep 2026 — RELEASE_1.1 57 IS TRACED TO THE SERVER
-> AND FIXED IN SOURCE; A CYCLE AND A `b195` SUITE RUN ARE OWED).***
+> ***⏸ PICK UP HERE (18 Sep 2026, later — RELEASE_1.1 57 DONE AND WITNESSED,
+> `b195`: THE CYCLE RAN, THE FULL SUITE IS GREEN IN BOTH HALVES, AND 55'S
+> ELEVATED MILESTONE COVERAGE IS DELIVERED).*** The cycle ran 17 Sep 23:45
+> (`bin\` built 23:39:06 from the fixed sources; installed 23:46:32;
+> `assert-current` green live) and the suite followed to the end for the
+> first time since `b173`:
+>
+> | | |
+> |---|---|
+> | 57 | **WITNESSED.** Door-3 `QMConnect` reads `ok connected to account SDDRB195A` (b194: `Connection closed by server`); `apiremote` (`CONTROL … LAN address: True`), `apiadmin` (`API session connected: YES`), `apiname` (bare name admitted), `apiport` (`admitted`, `WHO -> 2 SDAPIB195`), `privundetermined` (all rows) — all exit 0 — and `verify-apiidentity` (the probe) crossed in the SAME run (`ZZAPI: ace\sdapiidb195`), so the quiet-`-Only`/loaded-suite confound is dead. `relayidentity` 15/15. No handoff refusal in the run's `sd_Log`. Full detail: RELEASE_1.1_FIXES.md **57** |
+> | suite | **unelevated: every step exit 0** (`verify-doors-suite` 8/8 decisive). **elevated: all 36 steps exit 0** (`post-cycle-elevated-20260917-234817.log`); b194's unrecorded steps 24–36 are recorded as this run's green pass |
+> | 55 | elevated milestone coverage delivered by this run (owed since b191/b192); the 57 contingency (session-liveness wait) did not fire — nothing owed there |
+> | tokens | through `b195` SPENT. **Next: `b196`.** |
+> | open rows (none blockers for this work) | 47/48/49 release paperwork; 53 held (owner's call). Minor: the `-ContinueOnFailure` hand-over wording note (unchanged) |
+> | mail | box off, no watcher, no wakeup (HANDOFF 84) |
+
+> ***⏸ (superseded — 57 WITNESSED, see above) PICK UP HERE (18 Sep 2026 — RELEASE_1.1 57 WAS TRACED TO THE SERVER
+> AND FIXED IN SOURCE; A CYCLE AND A `b195` SUITE RUN WERE OWED).***
 > The user's steer — *"the problem is server side not client side"* — was
 > right and the trace proves it: APISRVR wrote the SCRAM server-final and
 > only THEN asked the relay for the handover pipe, so a C-speed client's
