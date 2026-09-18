@@ -65095,3 +65095,43 @@ elevated window, so binding that door to SDSYS now would refuse the compile.
 That binding and the Windows SDSYS account are one change.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, SLICE 6 CUT: THE INSTALL MAKES THE WINDOWS SDSYS
+ACCOUNT, AND ADOPT IS GONE.
+
+gplbld/install-sdsys.ps1 is new.  It creates the local account SDSYS on
+install-service.ps1's relay pattern - a generated 32-character password printed
+at the END of install-sdsys.log, joined to Administrators and sdusers, removed
+from sdssh/sdapi/sdsshonly - and it never speaks to SD at all.  sd.iss calls it
+where AdoptAccount was, AdoptCode is renamed SdsysCode, PasswordStepWanted is
+False so finish-install.ps1 runs without -WithPassword and no SD session opens
+at the end of an install, the FinishedLabel hook drops that term, and the
+closing dialog now names SDSYS, says its password is in that log and says to
+start SD from an ELEVATED prompt.  adopt-account.ps1 is deleted.
+
+PF_RETIRED GETS ITS FIRST ENTRY EVER, AND assert-current IS WHY: with the file
+deleted from stage.py and still present in C:\Program Files\SD from the last
+install, section B4 reported "1 file(s) in C:\Program Files\SD are no longer
+shipped by stage.py or sd.iss".  Inno copies and overwrites and never removes an
+absent file, so without that entry an upgraded machine keeps the old script in
+{app} forever.  The mechanism's own comment predicted this moment on 25 Aug 2026.
+
+MEASURED, NOT COMPILED: the four edited PowerShell files parse; stage.py compiles
+under py_compile; test-stripcomments-units 31/31, which is what proves the new
+name survives comment-stripping in both ship syntaxes; assert-current no longer
+reports the retired file and refuses only on "5 source file(s) are newer than the
+install".  No live reference to AdoptAccount, AdoptCode or adopt-account survives
+in sd.iss.  THE CYCLE IS OWED - no install has run this code, and verifier slice
+5b is owed with it.
+
+One method note, because it changed what was written: the edit tool refused to
+match one line of createa - the marker assignment ending downcase(acc.uname) -
+although every character is ASCII and it verifiably exists.  It was neutralised
+by matching its leading token instead, and the comment above it says so.
+
+AND 'sd -internal' IS NOT BOUND YET, ON PURPOSE: the cycle runs five sd -internal
+steps from the owner's elevated window, so binding that door to SDSYS first would
+refuse the compile.  That binding, the dead -WithPassword half of
+finish-install.ps1, and the verifier re-aim are what remain.
+
+====
