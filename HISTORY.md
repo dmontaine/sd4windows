@@ -64658,3 +64658,62 @@ Free tier 47/47 green, 49.5 s, nothing refused; fixlist 348/0; wording lint
 its own hand-over line was printing a bare cycle.ps1 path, which is the
 PSSecurityException the owner met on 12 Sep; it now prints the policy switch.
 Suite run this session: none, b196 unspent, no cycle, no elevation, no token.
+
+18 Sep 2026, morning. The owner ran the cycle and b196. RELEASE_1.1 58's API
+half is MEASURED WORKING: verify-apiremote exit 0, with the control admitted
+over the LAN address, both administrator legs refused carrying message 10073,
+and 10174 absent from both - so the sdapi gate refuses before the peer address
+is ever consulted, which is the property the ruling was chosen for. Unelevated
+half 28 of 28 exit 0.
+
+THE ELEVATED HALF FOUND 58's OWN DOWNSTREAM, FIVE STEPS, AND I HAD NOT SWEPT
+FOR IT. verify-tiers, verify-delaccount, verify-tierapi and verify-sshadmin all
+created their subject with a route keyword the new refusal rejects - each
+refused to score rather than measuring SDSYS, which is the instrument working -
+and verify-routes, verify-accountrules, verify-privundetermined and
+verify-tierapi asserted the posture 58 reverses. All seven fixed in 3dc0cfb.
+None is witnessed. The inversions are differently-named rows anchored on the
+refusal's own wording, never a flipped Expected, which entry 64 forbids by name.
+verify-sshadmin was the deepest: 58 moves the refusal OUT of SD into sshd, so
+its guard requiring SD's banner before it would score would have exited 2
+forever on a correct product; its admin legs now assert sshd's pre-auth
+refusal, 10174 and LOGIN's audit line are absences, and the CONTROL's audit
+line is required so those absences cannot pass against a dead trail.
+
+***b196 IS NOT CITABLE AND THE CAUSE WAS MINE: I EDITED VERIFIER SCRIPTS WHILE
+THE SUITE WAS READING THEM.*** verify-delaccount ran the fixed script mid-run
+and PASSED - its log shows the command without BOTH - which is how the
+contamination was found, by a prediction of mine being wrong in the safe
+direction. CLAUDE.md's "a cycle ends at the next source change" makes every
+result after a source change void, and I had quoted that rule at the owner in
+the same hour. The reds are real and diagnosed; greens after the first edit
+describe a different tree state than greens before it. b197 is the citable run.
+
+TWO CORRECTIONS TO WHAT I TOLD HIM. verify-tierapi's 420 VOC count is NOT
+measured through the API - it goes through LOGTO and never moved. And the ssh
+half IS testable on this machine after all: the refusal is the transport's now,
+so verify-sshadmin measures it locally; a VM is only needed to prove a
+non-administrator can ssh FROM another machine, which 58 did not change.
+
+61 WAS FILED BY A SUITE ROW DOING ITS JOB, which is the part worth keeping.
+verify-privundetermined's composition row carried an instruction in its own
+comment: an administrator reaching the OS over the API is accepted behaviour
+and the documentation says so, "so a future change that withholds os.execute
+from a CN_SOCKET session would silently make the shipped documentation false.
+This row is what notices." It noticed. 58 closed the path from the other end -
+not the CN_SOCKET withholding 157 rejected, which is still not taken - so what
+is owed is prose: SDCoreWindowsDocs still states an administrator has API
+access automatically and keeps both routes permanently, named to file and line
+in 61, in a separate repository and left for the owner to assign. PRE_RELEASE
+157 gained a superseded note so a struck-through row is not read as current.
+
+59 AND 60 ARE NOW CHECKED IN THE LINUX PORT RATHER THAN REPORTED, because the
+owner has SDCore4Linux @ 86fc2a2 on this machine - which 59's first draft did
+not know and said so. 60 is present at gplsrc/clopts.c:266 and :316, and their
+own PROJECT_STATUS.md:3452 records sd -cleanup running AS ROOT under sdlnxd. 59
+is BROADER there: sysseg.c:306 is shmget(IPC_CREAT | 0666), and SysV mode 0666
+grants write to every account on the machine, where the Windows DACL grants the
+sdusers group. Both sent to the Linux agent as a measured report. UPSTREAM
+sdb64 is deliberately NOT filed: the clone is gone, and this record already
+carries two withdrawn upstream reports that were one step from being sent on
+unverified claims.
