@@ -64370,3 +64370,42 @@ in $neverShipped, same commit). Exits 2 without C:\msys64.
 
 STILL OWED: 55's elevated milestone coverage (b194, owner's prompt) and
 RELEASE_1.1 56.
+
+17 Sep 2026 - b194 (cycle then full suite, owner-run): 56 FIXED AND WITNESSED,
+55's HANDOFF FOUND TO HAVE BROKEN THE C DLL CLIENT (RELEASE_1.1 57).
+
+56 confirmed on the install: verify-doors door-3 transport read "server sent
+ACK through TLS - the transport is fine" where the old plaintext recv() timed
+out. The sd_connect.c TLS fix works end to end; the cycle's step-0 make sd
+rebuilt sd-connect.exe into bin\client32 as designed.
+
+57, THE REGRESSION THE SUITE EXPOSED. verify-doors-suite still exit 1, now
+purely on QMConnect: "QMError(): Connection closed by server". The elevated
+half then failed every DLL-based API step the same way - verify-apiremote
+(exit 2, "non-administrator connects over the LAN: False"), verify-apiadmin
+("API session connected: NO"), verify-apiname ("bare name admitted: False"),
+verify-privundetermined (3 reds, all its API composition) - each per-step log
+carrying "Connection closed by server". The run stopped/was interrupted at
+[23/36] verify-apiport; 24-36 unrecorded.
+
+WHY THIS IS 55 AND NOT 56 OR 41, BRACKETED BY MEASUREMENT: entry 43 records
+b173 (17 Sep 00:02, before 55) with EVERY API step green - apiremote,
+apiadmin, apiname, apiport. So the DLL API login worked before 55 and fails
+after it. And verify-apiidentity, which drives scram-probe.py (a Python client)
+rather than the DLL, was green before 55 (b173) AND after (b191/b192) - so the
+same handoff the DLL dies on, the Python client completes. The server is
+correct; the C client's post-SCRAM path does not survive the handoff. 55 was
+witnessed only through the Python probe, and the full suite had not run since
+b173, so nothing saw the DLL break until now.
+
+FIRST TRACE FOR NEXT SESSION (in RELEASE_1.1_FIXES 57): SDConnect() does
+scram_login() then message_pair(SrvrAccount) (sdclilib.c:1260-1263); the
+server hands off (spawns the user session, front exits) and the DLL's next
+read gets EOF - b181/b193 server logs showed "closed after 0 of 10 bytes" on
+the attach. Find which read returns 0 and how scram-probe.py's wait differs.
+Not to be stated as fact until traced.
+
+PROCESS: -ContinueOnFailure handed over to the elevated half despite the
+unelevated failure (the flag working), but VerifyInstall1 printed "NOT handing
+over ... fix these first" and then handed over - reword the unconditional
+message.

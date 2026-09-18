@@ -179,19 +179,28 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ PICK UP HERE (17 Sep 2026, 22:10).*** State, in one table; the blocks
-> below it are this day's record and the top one (`b181`) is superseded by
-> the `# ✅ RELEASE_1.1 55 IS DONE` heading further down.
+> ***⏸ PICK UP HERE (17 Sep 2026, 22:40 — b194 RAN). THE SINGLE OUTSTANDING
+> ISSUE IS RELEASE_1.1 57: THE 55 HANDOFF BROKE THE C DLL CLIENT'S API
+> LOGIN.*** The cycle-then-suite ran. `verify-doors` door-3 TRANSPORT is now
+> green (`server sent ACK through TLS`), so **56 is fixed and witnessed**. But
+> the full suite exposed a regression 55's own witness could not see.
 >
 > | | |
 > |---|---|
-> | install | **17 Sep 21:08:08**, the cleaned tree; `assert-current` exit 0 at 22:05 after this session's edits (nothing here ships) |
-> | tokens | `b181`–`b193` SPENT. **Next: `b194`.** Three leftover profiles from `b193` (`C:\Users\sdtub193`, `sddrb193a`, `sddrb193b`) wait for a restart; a fresh token sidesteps them |
-> | mail | inbox read once at start, empty; box off, no watcher, no wakeup (HANDOFF 84) |
-> | done | the free guard 55 owed: `gplbld/test-groupmember-units.py` + `probe-groupmember.c`, 21/21, 5.9 s; **free tier 47/47, 48 s**; RELEASE_1.1 55's row and CLAUDE.md's list updated |
-> | done 56 | **RELEASE_1.1 56 FIXED** — `sd_connect.c`'s transport probe now speaks TLS; built and proven against the live server (`ACK through TLS`, exit 0). It needs a **cycle** to reach `bin\client32`, so the b194 run below must be a full cycle first |
-> | owed | **one run closes both**: a full cycle (rebuilds `sd-connect.exe` + reinstalls), then the suite. It witnesses 56's transport fix AND gives 55 its owed elevated milestone coverage. Watch the door-3 API leg: transport should read `server sent ACK through TLS`. If `QMConnect` alone is still red past a green transport, that is a DLL-vs-handoff question to open fresh — the transport bug that masked it is gone |
-> | found | two callers still write a conflating audit reason on a could-not-tell — apisrvr's sdapi gate, LOGIN's sdusers gate. Declared in the guard, not fixed; the vb.account shape before 55 |
+> | issue | **RELEASE_1.1 57 (new, B).** Every DLL-based API login now fails `QMError(): Connection closed by server`. GREEN at `b173` (before 55), RED at `b194`: `verify-apiremote`, `verify-apiadmin`, `verify-apiname`, `verify-privundetermined` (its 3 reds are all API composition), and `verify-doors` door-3 `QMConnect`. The Python probe (`scram-probe.py`/`verify-apiidentity`) survives the same handoff, so the **server is correct** and the gap is the C client's post-SCRAM `SrvrAccount` read across the handoff. Full analysis + first trace: RELEASE_1.1_FIXES.md **57** |
+> | 56 | **FIXED, witnessed on the install** — door-3 transport `server sent ACK through TLS`. `verify-doors-suite` stays red only for 57 (the `QMConnect` half) |
+> | run | b194: unelevated stopped at `verify-doors-suite` (exit 1); handed over anyway (`-ContinueOnFailure`) — see the ⚠️ process note below. Elevated half **stopped/was interrupted at `[23/36] verify-apiport`**; steps 24–36 UNRECORDED, so a clean full run is still owed once 57 is fixed |
+> | install | cycled clean this run; the tree matches the two committed C fixes (56, and 55 already in) |
+> | tokens | through `b194` SPENT. **Next: `b195`.** |
+> | mail | box off, no watcher, no wakeup (HANDOFF 84) |
+> | logs | `VerifyInstall1-20260917-222036.log` (door-3 at ~line 5090); `post-cycle-elevated-20260917-222036.log` is **UTF-16**, cut at step 23; per-step API logs `20260917-222353-*-verify-api*.log` all show `Connection closed by server` |
+>
+> ⚠️ ***PROCESS NOTE — `-ContinueOnFailure` HANDED OVER TO THE ELEVATED HALF
+> DESPITE THE UNELEVATED FAILURE, AND THAT IS THE FLAG WORKING***, but
+> `VerifyInstall1` printed *"NOT handing over … fix these first"* and then
+> handed over in the next breath. The message is unconditional; under
+> `-ContinueOnFailure` it reads as a contradiction. Minor, but reword it so a
+> hand-over does not print its own refusal.
 
 > ***⏸ (superseded) PICK UP HERE (17 Sep 2026, later still).*** ***`cycle.ps1` COMPLETED
 > CLEAN (attempt 3) AND SLICE 6 COMPILES — BUT `verify-apiidentity` (token
