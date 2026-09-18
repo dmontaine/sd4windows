@@ -181,8 +181,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 > ***⏸ PICK UP HERE (18 Sep 2026 — THE OWNER HAS DECIDED TO RIP OUT THE TIERED
 > ACCOUNT STRUCTURE. RELEASE_1.1 64 IS THE DECISION AND IT SUPERSEDES 58, 62 AND
-> 63. NOTHING FOR 64 IS BUILT. DO NOT FINISH 62 OR 63 — THAT WORK IS DELETED BY
-> THIS RULING.)***
+> 63. DO NOT FINISH 62 OR 63 — THAT WORK IS DELETED BY THIS RULING.)***
+>
+> ***⏸ UPDATED, SAME DAY — THE WORK IS UNDER WAY AND IT IS UNCOMMITTED IN THE
+> WORKING TREE. 11 FILES, +252/-637, ALL OF THEM LISTED BY `git status`.
+> NOTHING IS COMPILED: NO CYCLE HAS RUN, SO NONE OF IT IS EVIDENCE YET.*** Cut
+> so far: `tiergate` and `sdsys/tier.policy/` DELETED; the tier ordering and all
+> six tier-policy read sites unwired; MODIFYA's promotion report removed;
+> `logto sdsys` refused outright and LOGIN's landing case narrowed to the Windows
+> SDSYS account; `createa` defaults to PROGRAMMER and refuses the ADMINISTRATOR
+> and PROGRAMMER keywords; the ADOPT promotion removed; `modifya`'s three tier
+> keywords deleted with **`UNSUSPENDED` added** — without it SUSPEND was a
+> one-way door.
+>
+> ***READ RELEASE_1.1 64'S "PROGRESS" CLAUSES BEFORE ADDING TO THIS***, not just
+> its decision clauses: they carry the measured dictionary format, the three
+> findings that change the plan (`sd -internal` and `ADOPT` must move WITH the
+> installer or the compile is refused; `elev.obtained` is now dead code), the
+> `assert-current` count move (`gpl.bp.out` 186 -> 185, `gcat` 127 -> 126), and
+> the two obligations this creates (`sdsys/changelog` owes `UNSUSPENDED`;
+> `SDCoreWindowsDocs` prose is now wrong about `modify.account`).
 >
 > ***READ RELEASE_1.1_FIXES.md 64 BEFORE TOUCHING ANY ACCOUNT CODE.*** It holds
 > his words verbatim, the measured footprint of what comes out, what must NOT be

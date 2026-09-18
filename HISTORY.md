@@ -64794,3 +64794,52 @@ corrected hand-over line are the two pieces that must survive whatever else
 goes. 59, 53 and 60 are untouched by the decision - 60 is fixed and cycled, and
 59 and 53 become MORE exposed if os.users retires with the framework, which is
 the first thing the promised evaluation should look at.
+
+
+*** 18 Sep 2026 - RELEASE_1.1 64, SLICES 1 AND 2: THE TIER ORDERING AND THE TIER
+POLICY DATA ARE OUT OF THE SOURCE. UNCOMPILED - NO CYCLE HAS RUN, SO NOTHING
+HERE IS EVIDENCE. ***
+
+12 files, +252/-637. In order: `sdsys/gpl.bp/tiergate` (164 lines) and
+`sdsys/tier.policy/` (67) DELETED; the four `!tier_allows` call sites and all
+six `tier.policy` read sites unwired across `createa`, `login` and `modifya`,
+with both `close` calls and the two `stage.py` staging entries - no `tierpol`
+reference survives anywhere in `gpl.bp`; MODIFYA's `promo.snapshot`/`promo.report`
+promotion report removed; `logto sdsys` refused unconditionally and
+`elevate('START')` no longer called there, so no UAC consent is drawn to reach a
+shut door; LOGIN's landing case narrowed to `upcase(@logname)='SDSYS'` and the
+process-start elevation seed, with a guard on `case 1` for the unelevated
+fall-through; `createa`'s default is PROGRAMMER where it was STANDARD, its
+ADMINISTRATOR and PROGRAMMER keywords now refuse with 2018, and its ADOPT
+promotion is removed; `modifya`'s three tier keywords deleted.
+
+EFFECT: an account is built from the whole of newvoc, which is exactly what a
+PROGRAMMER-tier account always received. "No STANDARD level" is therefore true
+for the VOC dimension - the half the tiers most visibly governed.
+
+THE ONE THING THIS PASS CREATED RATHER THAN REMOVED: naming a tier was the only
+way to lift a suspension, so deleting the three keywords would have made SUSPEND
+a ONE-WAY DOOR. `UNSUSPENDED` is new and lands at PROGRAMMER. It is user-visible,
+so `sdsys/changelog` owes an entry in the cycle's commit.
+
+assert-current IS EXPECTED RED and its baselines move with the cycle:
+`gpl.bp.out` 186 -> 185 and `gcat` 127 -> 126, `tiergate` having been the source
+of `gpl.bp.out/TIERGATE` and `gcat/!TIER_ALLOWS`.
+
+THREE FINDINGS THAT CHANGE THE PLAN, AND THE REASON THE REST IS NOT CUT.
+(1) `sd -internal` IS THE BOOTSTRAP DOOR RATHER THAN A DOOR: `bootstrap.py` runs
+five `-internal` steps and `stage.py:1191` refuses to bootstrap outside an
+elevated window that "ends in `sd -internal`", so binding it to the Windows
+SDSYS account BEFORE the installer creates one refuses the compile. A lockout,
+not a door. (2) `ADOPT` is not needed under 64 - it exists to mint an SD
+administrator from whoever ran the installer - but it is the only way an
+installed machine gets ANY administrative SD account, so it goes WITH the
+installer. (3) `elev.obtained` can no longer be set true, so the two privileged
+bypasses at `cproc:4067` and `:4202` are dead code.
+
+ALSO UNCUT, DELIBERATELY: THE ACCOUNTS DICTIONARY. `gplbld/FILES_DICTS/` holds
+one file per field and `CREATE_INSTALL_DICT_FILE` GENERATES them, so they are the
+shipped source. Field 4 has no fragment, `accounts.dic^@` is a separate `PH` item
+naming only three fields, and the attribute codes (`13L`, `20L`, `25L`, `30L`,
+`35T`) are documented nowhere in this tree. Dropping fields 5 and 6 wants the
+install's own `write_install_dicts` read against it, not a guess.
