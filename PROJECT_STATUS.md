@@ -249,6 +249,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***THE TWELFTH PASS (BELOW) THEN CHANGED FIVE FILES, SO THAT INSTALL IS STALE
 > AND A CYCLE IS OWED. THE MEASUREMENT WINDOW THE OWNER OPENED IS CLOSED.***
 >
+> ***18 SEP, LATER STILL - THE OWNER RAN THAT CYCLE AND IT STOPPED AT ISCC,
+> AND THE STOP IS A FINDING THE COMPILE EARNED: "Unknown identifier
+> 'SdsysCode'" at sd.iss:3330.*** The twelfth pass passed the value to the
+> finishing window but left the variable a LOCAL of `CurStepChanged`; it is
+> SCRIPT-LEVEL NOW (fifteenth pass, `891cdb9`), initialised to 2 - "already
+> there", the one code that means nothing to ask - with the local deleted
+> rather than left to shadow. ***THE RE-RUN IS THE WITNESS, AND IT OWES WHAT
+> THE HALF-RUN ALREADY PAID FOR: `bin\` IS BACK and the free tier is 46/46
+> for the first time (`test-tlsrelay-units.py` included); `assert-current`
+> is exit 1 in the honest direction - the rebuilt `bin/sd.exe`
+> (`8053548E804CAA29`) against the 17:55:27 install's (`0BC0ACDED4CABDA3`);
+> SD the service is STOPPED where step 1 left it, both trees untouched, and
+> the cycle's own message names the cure: re-run it, or `sc.exe start SD`.***
+>
 > ***THE ONE THING THAT UNBLOCKS EVERYTHING ELSE IS THE CYCLE, AND IT IS THE
 > OWNER'S — ELEVATED POWERSHELL.***
 >
