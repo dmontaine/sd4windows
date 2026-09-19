@@ -179,9 +179,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ EIGHTEENTH PASS, 19 SEP 2026, LATEST — 69, 72, 73, 74 AND 75 ARE ALL
-> BUILT AND ALL OWE THE SAME CYCLE. WORKING TREE COMMITTED, FREE TIER 48 OF
-> 48.***
+> ***⏸ HANDOFF — EIGHTEENTH PASS, 19 SEP 2026. 69, 72, 73, 74 AND 75 ARE ALL
+> BUILT, NONE IS WITNESSED, AND ALL FIVE OWE ONE CYCLE. WORKING TREE CLEAN,
+> EVERYTHING PUSHED, FREE TIER 48 OF 48 IN ~52 s.***
+>
+> ***THE FULL VERIFY SUITE WAS NOT RUN, AND CLAUDE.md ASKS FOR ONE BEFORE A
+> HANDOFF — SO READ THIS RATHER THAN ASSUME IT WAS SKIPPED CARELESSLY.*** It
+> cannot run: this session added BASIC source (`pw_complex`) and two messages,
+> so `assert-current` reads **STALE** and every verifier refuses by design.
+> **The cycle below is what makes a suite run possible again**, and it has to
+> come first. ***DO NOT REPORT A SUITE RESULT FROM BEFORE IT.***
 >
 > ***75 IS THE BIG ONE AND IT CAME FROM THE OWNER RUNNING A CYCLE: SD NOW
 > REQUIRES A COMPLEX PASSWORD EVEN WHERE THE OS DOES NOT.*** He found that the
@@ -211,10 +218,31 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***SD'S RULE IS A FLOOR, NEVER A CEILING*** — the machine policy still
 > applies on top and wins where it is stricter.
 >
-> ***ONE LOOSE END SOMEBODY MUST CLOSE: `10921` IS A MESSAGE NUMBER THIS PORT
-> TOOK AND LINUX HAS NOT AGREED.*** A generic *"That was attempt %1 of %2"*,
-> needed because LOGIN's existing count message is mismatch-specific. Told
-> them at 13:40 and offered to move it; it is one line in one file here.
+> ***`10921` IS AGREED AND THAT LOOSE END IS CLOSED*** (Linux, 19 Sep 14:00):
+> they keep it, have no `require.credential` of their own, and will move their
+> hard-coded attempt line onto it in their next source change.
+>
+> ***AND THE CASE BLOCK IN `pw_complex` IS THEIRS, NOT MINE — I REPLACED MINE
+> WITH IT, AND THE REASON GENERALISES.*** My first version tested
+> out-of-range in the **first** arm and let the catch-all mean *"symbol"*.
+> That is correct **only while nobody reorders the arms**: move that arm and a
+> byte outside 32-126 falls through and ***satisfies the requirement it exists
+> to fail*** — it fails OPEN, with nothing but a guard asserting the order
+> standing in the way. **Theirs names 32-126 in the symbol arm and returns
+> `@false` from the catch-all**, so an unmatched character is refused *however
+> the arms are ordered*; a reordering can still break the rule, but only by
+> refusing good passwords. ***A SHAPE THAT CANNOT FAIL OPEN BEATS A CHECK THAT
+> REPORTS IT*** — the same sentence this file already carries about
+> `check-client-sync.py`, arrived at from the other direction. The guard
+> changed to match: it now asserts the **catch-all fails closed** and
+> **drives** the scrambled order, rather than asserting an order.
+>
+> ***AND THE MAIL WATCHER RULE CHANGED BECAUSE I BROKE IT.*** Owner, 19 Sep,
+> after two Linux messages sat unread for an hour and he had to say so: **the
+> watcher EXITS when it finds mail** — that is how it notifies — so every
+> delivery disarms it, and I handled a message without re-arming. ***RE-ARM IN
+> THE SAME TOOL CALL THAT MOVES THE MESSAGE TO `done\`.*** CLAUDE.md now says
+> so. *"Remember to restart it" was already the rule and is what failed.*
 >
 > ***THE CYCLE IS STILL THE ONE THING THAT UNBLOCKS EVERYTHING, AND IT IS THE
 > OWNER'S. ELEVATED PowerShell:***

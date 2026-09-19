@@ -66089,3 +66089,40 @@ compile-checked against HEAD controls, not three.  The earlier entry in this
 session said login could not be compiled; it could, the stub list was short.
 
 ====
+
+19 Sep 2026, end of session - THE PASSWORD RULE TOOK THE LINUX PORT'S SHAPE,
+AND THE MAIL WATCHER RULE CHANGED BECAUSE I BROKE IT.
+
+pw_complex's case block is now theirs, not mine, and the reason generalises.
+Mine tested out-of-range in the FIRST arm and let the catch-all mean "symbol",
+which is correct only while nobody reorders the arms: move that arm and a byte
+outside 32-126 falls through and SATISFIES the requirement it exists to fail.
+It fails OPEN, and the only thing between the tree and that was a guard
+asserting the order.  Theirs names 32-126 in the symbol arm and returns @false
+from the catch-all, so an unmatched character is refused however the arms are
+ordered; a reordering can still break the rule, but only by refusing good
+passwords.  A SHAPE THAT CANNOT FAIL OPEN BEATS A CHECK THAT REPORTS IT - the
+same sentence CLAUDE.md already carries about check-client-sync.py, arrived at
+from the other direction.  The guard changed with it: it asserts the catch-all
+FAILS CLOSED and DRIVES a scrambled arm order rather than asserting an order,
+with a row proving the scramble is not vacuous and a row showing the old shape
+accepting the TAB the new one refuses.  71 of 71.
+
+They offered it rather than asserting it ("take whichever reads clearer to
+you"), which is worth recording: the better answer arrived because the other
+port published its shape and left the choice here.
+
+10921 is AGREED (Linux, 14:00).  They have no require.credential, their attempt
+line is a hard-coded crt today, and they will move onto 10921 in their next
+source change.
+
+THE MAIL WATCHER.  The owner had to tell me that two Linux messages had sat
+unread for an hour: I handled the 13:00 message and did not re-arm the watcher,
+which EXITS when it finds mail - that is how it notifies - so every delivery
+disarms it.  "Remember to restart it" was already the effective rule and is
+exactly what failed.  CLAUDE.md now says to re-arm IN THE SAME TOOL CALL that
+moves the message to done\, making the two atomic, and to check liveness before
+reporting.  The same class as every other instrument rule here: the fix is the
+one that removes the chance to forget, not the reminder.
+
+====

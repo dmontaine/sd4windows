@@ -1080,7 +1080,18 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud �
   ~5 s, ignores `*.partial`, and wakes the session on the first new message — so
   a message is picked up within seconds of pCloud syncing it. On wake: handle the
   message, then **relaunch the watcher** (it self-exits after ~1 h so it is
-  re-armed fresh rather than lingering). ***THE FILTER IS "CONTAINS `.partial`",
+  re-armed fresh rather than lingering).
+  ***RE-ARM IN THE SAME TOOL CALL THAT MOVES THE MESSAGE TO `done\`. NOT
+  AFTERWARDS, NOT "NEXT".*** Owner, 19 Sep 2026, after two messages sat unread
+  for an hour and he had to say so. **The watcher EXITS when it finds mail** —
+  that is how it notifies — so every delivery disarms it, and handling the
+  message is exactly the moment attention is on the message rather than on the
+  watcher. *A rule to "remember to restart it" was already here in effect, and
+  was what failed.* Make the `mv ... done/` and the relaunch **one atomic
+  step**, and check the loop is alive before reporting to the owner: an empty
+  task output file means it is still waiting, a completed task means it fired
+  and is gone.
+  ***THE FILTER IS "CONTAINS `.partial`",
   NOT "ENDS WITH IT" — measured 19 Sep 2026, and the wording below is what led
   the other way.*** pCloud's in-flight name is
   `<name>.md.partial.tmp.5465.264eaaf74fe5`, so a `grep -v '\.partial$'` woke
