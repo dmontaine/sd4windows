@@ -235,6 +235,50 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **The sixteenth pass's owed witness landed in the same run: the finishing
 > window asked for the SDSYS password.**
 >
+> ***EIGHTEENTH PASS — 67 IS FIXED IN SOURCE (NOT CYCLED), 68 IS FILED, AND A
+> GUARD THAT HAD BEEN RED SINCE THE 66 COMMIT IS GREEN AGAIN.*** The ATTACH arm
+> folds unconditionally now, a deliberate narrow exception to `createa:695`'s
+> *"pre create the os user"* hatch; safe because the Windows lookup is
+> case-insensitive, **measured** (`Get-LocalUser 'don'` → `Don`, `donzzz`
+> refused as the control). ***`bbcmp` CANNOT COMPILE `createa`, so a cycle is
+> the only proof*** — the witness is a fresh install's `accounts\don` pointing
+> at `user_accounts\don`, group `sdu_don`.
+>
+> ***THE GUARD IS THE LESSON: `test-groupmember-units.py` WAS RED IN THE 66
+> COMMIT AND NOBODY SAW IT.*** It keys declared call sites on the call's own
+> text, so 66's `if attach or is_grp_member(...)` made the declared site STALE
+> and the new one UNCLASSIFIED. **That commit ran four of the free tier's
+> forty-six.** CLAUDE.md says run the free tier on every change; four is not
+> the free tier. **Now 46/46, 0 failed, 0 could-not-run** — a typed-out runner,
+> not a glob, because `test-sdpy-units` matches the shape and is deliberately
+> not on the list.
+>
+> ***68 IS THE OWNER'S ROUTE RULING AND IT IS ALSO THE PARITY FIX, FILED NOT
+> BUILT.*** *"Every non-sdsys account has the potential to have ssh and api
+> access by default, but it is the admins choice if it should stay on"*, and
+> *"it can be turned off, and back on again as the admin wishes"*. Today 10082
+> is **required** at CREATE.ACCOUNT; it must default to both. **The two-way
+> door already exists and was measured** — `modifya:593-612` is symmetric
+> (`ADDMEM`/`DELMEM` on both halves, API gated on ssh succeeding). Linux
+> **deleted** the route grammar in their teardown, so this is what reconciles
+> the shared `createa`: capability stays on both ports, keyword stops being
+> mandatory, and **the ATTACH invocation becomes one string on both** —
+> `sd -internal CREATE.ACCOUNT USER <name> ATTACH`, at which point
+> `attach-account.ps1` drops `BOTH`.
+>
+> ***MAIL: ALL THREE OF LINUX'S QUESTIONS ANSWERED, 19 Sep 00:10.*** They
+> already had this mechanism as ADOPT and it survived their teardown. Ruled as
+> lead: **ATTACH is the shared name** (our marker name deliberately differs
+> from `$adopt` so a leftover pre-64 Windows marker cannot open the new door —
+> a hazard that exists here and not there, so ATTACH is safe in both trees and
+> ADOPT in only one); route keyword per 68; **drop `NO.QUERY`** from the
+> invocation. ***AND THEY HANDED US A LEAD WORTH MORE THAN THE REST***: their
+> `createa` set.owner now chowns *after* the last `voc.f` write, because a
+> non-root session that chowns first cannot write what it gave away (their
+> Error 3018). ***OUR SDSYS IS NOT ROOT-EQUIVALENT*** — a DACL-bound elevated
+> token, not a permission bypass — **so the precondition holds here in a way it
+> would not under `sudo`. Not checked yet; promised to them and owed.**
+>
 > ***AND THE WITNESS FOUND RELEASE_1.1 67, WHICH NO AMOUNT OF READING THE DIFF
 > WOULD HAVE.*** The register key is folded (`accounts\don`) while that
 > record's contents carry `user_accounts\`**`Don`** and group **`sdu_Don`** —
