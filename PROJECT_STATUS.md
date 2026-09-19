@@ -179,9 +179,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ EIGHTEENTH PASS, 19 SEP 2026, LATEST — 69 AND 72 ARE BOTH BUILT AND
-> BOTH OWE THE SAME CYCLE THE PASS BELOW ALREADY OWED. WORKING TREE COMMITTED,
-> FREE TIER 47 OF 47.***
+> ***⏸ EIGHTEENTH PASS, 19 SEP 2026, LATEST — 69, 72, 73 AND 74 ARE ALL BUILT
+> AND ALL OWE THE SAME CYCLE THE PASS BELOW ALREADY OWED. WORKING TREE
+> COMMITTED, FREE TIER 47 OF 47.***
 >
 > ***THE CYCLE IS STILL THE ONE THING THAT UNBLOCKS EVERYTHING, AND IT IS THE
 > OWNER'S. ELEVATED PowerShell:***
@@ -190,8 +190,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
 > ```
 >
-> It now witnesses **four** entries, not two. The pass below's list of things to
-> read afterwards still stands **and is item 1-4**; **5 and 6 are this pass**:
+> It now witnesses **six** entries, not two. The pass below's list of things to
+> read afterwards still stands **and is item 1-4**; **5 to 8 are this pass**:
 >
 > 5. **69** — sign in to `don` from an **ELEVATED** prompt on a tree where that
 >    account has no `$cred`. The paragraph should say the account **still works
@@ -202,6 +202,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    needs an account made without one.)*
 > 6. **72** — nothing to read. It is invisible when it works; the witness is
 >    that account creation still stamps the ACL (`verify-accountacl`).
+> 7. **74** — `DELETE.ACCOUNT` on any account: the warning before the
+>    confirmation should offer `modify.account <name> unsuspended`, not a
+>    tier.
+> 8. **73** — **not reachable by just running a delete**, because the delete
+>    normally works. To see it, hold a file open in the account's directory
+>    (a shell `cd`'d into it will do) and then delete the account: 10919 names
+>    the directory and the rest of the deletion still finishes.
 >
 > ***69 WAS FOUR COPIES, NOT ONE, AND THE FOURTH IS THE ONE WORTH CARRYING.***
 > `messages/10089`, `messages/10101`, `sd.iss`'s `/SILENT` refusal, and a
@@ -234,16 +241,36 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > own directory as bbcmp's root, `mkdir` a `gcat` beside it, and
 > `git ls-files --others` stays empty.
 >
-> ***MAIL: INBOX EMPTY.*** Linux's 01:26 note was pure FYI and is in `done\` —
-> **the parity gap the pass below leaves open is CLOSED**: the owner ruled
-> *"match the RESULT, not the process"*, and Linux has built self-service
-> `MODIFY.PASSWORD` (`d147a5c`) over `sudo sd-elevate cred-own`. Two replies
-> sent this pass, on 69 and on 72. **The watcher dies with this session — start
-> a new one.**
+> ***AND TWO MORE ENTRIES CAME IN FROM LINUX MID-PASS AND ARE BOTH BUILT —
+> 73 AND 74. THEY RIDE THE SAME CYCLE.*** **73** is a silent failure with a
+> promise in front of it: `delacc:307` assigned `OS$DELETE`'s result to `yn`,
+> **the confirmation answer**, finished with at `:301` and never read again —
+> so a directory that refused to go said nothing, right after 10158 told the
+> reader *"this cannot be undone"*. It now tests **`OS$EXISTS`** (the state,
+> not the return code) and displays **10919**, which is **Linux's number**,
+> taken there first and free here. **74** is 64's leftovers: 10158 still
+> offered the reader a **tier**. ***BOTH WERE CHECKED HERE BEFORE THEY WERE
+> BELIEVED***, which is what the rule asks, and **74 came out wider than they
+> reported** — `10127` does not mention a tier, it **explains a rule made of
+> tiers**, and it is filed unfixed because rewording it means saying what the
+> rule IS now.
 >
-> ***OPEN AND NOT STARTED: nothing from 66-72.*** The next unstarted work is
-> **59**, **61**, **65**, and the three sequential release tasks **47 → 48 →
-> 49**.
+> ***AND THE TWO PORTS' KEYWORDS DIFFER: THEIRS IS `unsuspend`, OURS IS
+> `UNSUSPENDED`*** (`modifya:355`). Their proposed parity text would have named
+> a word this tree refuses. Told them; **somebody should decide whether that is
+> a divergence worth closing.**
+>
+> ***MAIL: INBOX EMPTY, THREE SENT THIS PASS (69, 72, and 73/74's reply).***
+> Linux's 01:26 note was pure FYI and is in `done\` — **the parity gap the pass
+> below leaves open is CLOSED**: the owner ruled *"match the RESULT, not the
+> process"*, and Linux has built self-service `MODIFY.PASSWORD` (`d147a5c`)
+> over `sudo sd-elevate cred-own`. **They read the 69 note and have nothing to
+> change** — 10089 and 10101 do not exist there. **The watcher dies with this
+> session — start a new one.**
+>
+> ***OPEN AND NOT STARTED: nothing from 66-74 except 74's three survivors.***
+> The next unstarted work is **59**, **61**, **65**, and the three sequential
+> release tasks **47 → 48 → 49**.
 >
 > ***⏸ SEVENTEENTH PASS, 18 SEP 2026 — RELEASE_1.1 66: THE INSTALLING
 > USER GETS AN ORDINARY ACCOUNT, AND THE VERB HALF HAD SHIPPED ALONE.*** The

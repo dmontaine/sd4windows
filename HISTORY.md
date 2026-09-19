@@ -65977,3 +65977,40 @@ and 69's witness and 70's are mutually exclusive on the same install - 70 gives
 the account a credential, and 69's message only fires when there is none.
 
 ====
+
+19 Sep 2026, same session - TWO MORE FROM LINUX, 73 AND 74, BOTH CHECKED HERE
+BEFORE THEY WERE BELIEVED AND ONE OF THEM WIDER THAN REPORTED.
+
+73.  delacc:307 read "yn = ospath(pathname, OS$DELETE)" and nothing ever read
+the result - yn is the CONFIRMATION answer, finished with at :301 - so a delete
+that failed was indistinguishable from one that worked, immediately after 10158
+had told the reader the files could not be recovered.  Linux met it for a cause
+we cannot have (an sdsys session cannot delete a 755 subtree the account's user
+made); ours would be an open handle or an ACL.  The fix tests OS$EXISTS rather
+than the return code - the state, not what the call reported - and the deletion
+carries on, because the accounts record is deleted LAST on purpose so a re-run
+can finish the job.  Message 10919 is Linux's number, taken there first and free
+here: one id for one fact across the two ports, which is what they asked for.
+
+74.  10158 still offered "a tier again later" and 64 abolished tiers.  Fixed,
+and registered in the wording lint.  THE SWEEP FOUND THREE MORE AND THEY ARE
+FILED UNFIXED: 10127 does not MENTION a tier, it EXPLAINS A RULE MADE OF TIERS
+("a grant is permitted only when the person's own tier is at least the tier of
+the account being granted"), so rewording it means first saying what the rule is
+now; reconcile-accounts.ps1:590 and interop-account.ps1:24 are dev tooling.  AND
+THE WORDING LINT CANNOT FIND ANY OF THEM, by design - it proves the REGISTERED
+phrases are gone, never that a claim is, which 130c/130d's note already said.
+The sweep was a grep for "tier", by hand.
+
+AND THE TWO PORTS' KEYWORDS DIFFER: Linux proposed "modify.account %1
+unsuspend"; ours is UNSUSPENDED (modifya:355), so their parity text would have
+named a word this tree refuses.  Told them.  Nobody has decided whether the
+divergence is worth closing.
+
+test-fixlist-units caught the documentation twice in this session, both times
+correctly: a RELEASE_1.1 73 cited in the lint before the row existed, and NEXT
+FREE ID left at 73 after 74 was written.  delacc bbcmp exit 0 against a HEAD
+control; free tier 47 of 47.  Neither entry is witnessed, and 73's witness needs
+a directory that genuinely refuses to go - an open handle will do it.
+
+====
