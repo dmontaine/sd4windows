@@ -179,9 +179,14 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ HANDOFF — END OF SESSION, 18 SEP 2026. THE WORKING TREE IS CLEAN AND
-> EVERYTHING IS PUSHED; THE LAST COMMIT IS `01bde5c`. READ THIS PARAGRAPH,
-> THEN RELEASE_1.1_FIXES.md 64, WHICH CARRIES EVERY MEASUREMENT BY PASS.***
+> ***⏸ HANDOFF — END OF SESSION, 18 SEP 2026, LATER. THE WORKING TREE IS CLEAN
+> AND THE LAST COMMIT IS THIS BOX'S OWN — ***FOUR COMMITS ARE LOCAL AND
+> UNPUSHED*** (`e228f38`, `a816c13`, `213c4ea`, AND THE BOX'S OWN):
+> THE PUSH ASKS FOR CREDENTIALS ONLY AN INTERACTIVE WINDOW HAS, so
+> `git push origin main` FROM THE OWNER'S TERMINAL IS OWED BEFORE ANYTHING
+> ELSE — entry 65's recovery story stands on origin holding every commit.
+> READ THIS PARAGRAPH, THEN RELEASE_1.1_FIXES.md 64, WHICH CARRIES EVERY
+> MEASUREMENT BY PASS.***
 >
 > ***WHERE 64 STANDS.*** Slices 1–4 and 5a are cut; slice 6 is cut in BOTH halves
 > (ADOPT is out of the product, and `gplbld/install-sdsys.ps1` makes the Windows
