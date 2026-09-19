@@ -65673,3 +65673,72 @@ the one script-level declaration (checked), no comment line begins with #
 green.  THE OWNER'S RE-RUN IS THE WITNESS.
 
 ====
+
+
+18 Sep 2026 - RELEASE_1.1 64, SIXTEENTH PASS: THE OWNER RAN THE FIXED CYCLE,
+THE INSTALL COMPLETED - AND THE PASSWORD PROMPT WAS SUPPRESSED BY ITS OWN
+CASE-2 GATE.  HIS SECOND RULING REVERSES THE PREMISE: THE WINDOW ASKS ON
+"ALREADY EXISTS" TOO.
+
+WHAT HIS RUN MEASURED.  The 21:28:44 cycle went THROUGH ISCC - the compile
+that stopped the last run - so the fifteenth pass's SdsysCode fix is WITNESSED
+by the compile succeeding.  install-sdsys.log, the whole of it:
+
+    === install-sdsys 2026-09-18T21:28:44 DataDir=C:\ProgramData\SD
+    SDSYS already exists
+      already in Administrators
+      already in sdusers
+      removed SDSYS from sdapi - it has no remote door
+    OK: SDSYS is in Administrators and sdusers, and in no ssh or API group.
+
+Code 2, "already there" - and finish-install.ps1's switch prompted only on 0,
+on the twelfth pass's stated premise "a reinstall cannot overwrite a WORKING
+password".  THE PREMISE IS WHAT BROKE: this account's password was generated
+in a hidden window at 17:55:27 and never known to anybody, and
+install-sdsys.log is OVERWRITTEN per run (the 21:28 file is eight lines and
+holds no password at all), so the old one is recoverable from nowhere.  An
+existing password is not thereby a working one.
+
+THE OWNER'S SECOND RULING, VERBATIM, BECAUSE THE MODEL IS LOAD-BEARING: "the
+only way to administer SD is to login to the computer as the Windows user
+SDSYS.  Then access to SD happens at the console by typing 'sd' or using a
+local GUI app using the API with the sdconnectlocal() function.  Once
+connected the sdsys windows user is in the sdsys sd account.  No other user
+has access to the SDSYS account at all and the sdsys windows user only has
+access if logged in locally, no remote access.  So without an sdsys password
+being entered at install time there is no way to manage sd."
+
+AND HIS MODEL CHECKED AGAINST THE TREE RATHER THAN ASSUMED.  SDConnectLocal()
+is the CONSOLE-SESSION door, not the TCP API: win32pipe.c builds it as
+"sd.exe -Q -C <pipe name>", so the session runs LOGIN's landing case and
+APISRVR's sdapi gate is never consulted - a local GUI app as the Windows
+SDSYS user (elevated) lands in the SDSYS SD account exactly as typing sd
+does, while install-sdsys's removal of SDSYS from sdssh and sdapi keeps every
+REMOTE door shut.  The model holds; the password was the only missing piece.
+
+THE FIX.  Set-SdsysPassword gains -Existing and the switch's case 2 calls it:
+the window asks on both codes that mean the account EXISTS (0 made, 2 already
+there).  The intro says which case it is; typing a password sets it; an empty
+line KEEPS the existing one and says so honestly - nothing was generated this
+run and no copy of the old one exists anywhere, so it cannot be printed, and
+the cure (Set-LocalUser -Name SDSYS -Password (Read-Host -AsSecureString)
+from any elevated prompt) rides with the sentence, because "kept a password
+nobody knows" is the state the ruling exists to end.  The success-path note
+in install-sdsys.log ("the password printed above was REPLACED") is skipped
+on -Existing, where nothing was printed from that log; and the redirected-
+stdin skip lands on the same keep words as the empty line, in a function of
+its own (Keep-ExistingPassword) because two call sites need one truth.
+
+WITNESSED LIVE, UNELEVATED, REDIRECTED - the exact case his machine is in:
+finish-install.ps1 -SdsysCode 2 with nobody at the console printed the
+SET THE PASSWORD heading, the already-there intro, and the keep sentence
+with its cure, then went on to the read-only check.  The PROMPT ITSELF - a
+person at that window typing a password that takes - is the cycle's to
+witness.  MEASURED OTHERWISE: finish-install.ps1 parses;
+test-wraptext-units 12/12; free tier 46/46, no could-not-runs.
+
+THE TREE IS STALE AGAIN BY THIS EDIT ITSELF, and assert-current already
+refused on the 21:28 install (its installed sd.exe 0BC0ACDED4CABDA3 against
+the rebuilt bin 8053548E804CAA29).  THE RE-RUN DELIVERS THE PROMPT.
+
+====
