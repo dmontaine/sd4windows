@@ -65340,3 +65340,80 @@ grep -a, and a gravestone edit can swallow the statement after it, which it did
 twice in one file.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, TWELFTH PASS: THE INSTALL ASKS FOR THE SDSYS
+PASSWORD.  AND THE CYCLE THAT CAME FIRST TOOK THE MEASUREMENTS THE TEARDOWN OWED.
+
+THE CYCLE RAN, 18 Sep 2026, install 17:55:27, assert-current EXIT 0, sd.exe
+0BC0ACDED4CABDA3 unmoved (every slice is BASIC or a shipped script).  createa
+COMPILED - "| Compiling gpl.bp createa", "| $createa added to global catalogue",
+0 errors throughout - which is the one witness no session could produce, bbcmp.py
+dying at createa:324.  gcat 150 (staged 150)   GPL.BP.OUT 210 (staged 210).
+sdsys/tier.policy absent, NO TIER* object in gcat or gpl.bp.out, the shipped
+dictionary carrying accounts.dic suspension and no tier: the third pass's
+prediction, measured.  adopt-account.ps1 gone, install-sdsys.ps1 present,
+user_accounts/ empty.  And "NO ACCOUNT HAS A PASSWORD - the credential register is
+empty", where the old design wrote two - the tenth pass, delivered.
+
+SDSYS CREATED AND CHECKED INDEPENDENTLY RATHER THAN TAKEN FROM ITS OWN LOG:
+Enabled, in Administrators and sdusers, in NO ssh or API group.  $cred refused an
+unelevated read, which is the ACL working.
+
+TWO FINDINGS FROM THAT STATE.  (1) sdtiertb1961 and sdtiertb1962, litter from the
+voided b196 elevated run, still hold sdusers, sdssh, sdapi AND sdsshonly - live
+remote doors for accounts the register refuses, and under 64 the only accounts on
+the machine with an ssh grant.  RELEASE_1.1 63's measurement is why they survive a
+cycle; the sweep is owed.  (2) cycle.ps1's closing summary still prints "A -Silent
+install skips the password step entirely (sd.iss:1276)" - stale text about a step
+and a variable that no longer exist.
+
+THEN THE OWNER REPORTED THE THING THAT MATTERS AND THE TWELFTH PASS IS THE FIX.
+He ran the install, read the log, and said: "the password for the SDSYS account
+was never asked for or printed so no way to get in".  Measured cause:
+install-sdsys.ps1 runs through Exec(..., SW_HIDE, ...) at sd.iss:3193, so the
+generated password exists ONLY in install-sdsys.log and nothing ever appears on
+screen; the wizard's closing page merely told the reader to go and open that
+file.  A 32-character secret for the only way into the machine, generated inside
+a hidden window, is not a way in.
+
+THE FIX IS finish-install.ps1, WHICH RUNS AFTER THE WIZARD - and the PLACE is
+measured rather than preferred.  MakeSdsysAccount runs at ssPostInstall, while the
+WIZARD IS STILL ON SCREEN, and a console prompt there is the fault the owner met
+on 22 Aug 2026 (the wizard sitting open behind a window of ours).  The finishing
+window runs from DeinitializeSetup, on Setup's elevated token, after the wizard
+has gone.  It gains:
+
+  - Set-SdsysPassword: asks twice, three attempts, a SecureString end to end -
+    plain text only for the length of the comparison (the only way two
+    SecureStrings can be compared at all) and dropped on the next line, so
+    nothing is ever passed as an argument, which is the exposure sd-elevate.ps1
+    measured.  An empty line keeps the generated password AND PRINTS IT IN THE
+    WINDOW; a refusal by Windows' password policy says so and re-asks.
+  - Show-GeneratedPassword: reads the generated one back out of the log and
+    shows it, refusing out loud if it cannot find it - an empty answer would read
+    as "no password exists", which is the one reading worse than none.
+  - -SdsysCode, install-sdsys.ps1's exit code passed through by RunFinishingStep,
+    so the prompt happens ONLY on 0 (this install made the account): a reinstall
+    cannot overwrite a working password.  An integer, not a credential.
+  - And when it sets one it appends a line to install-sdsys.log saying the
+    printed password was replaced, so the log never stands as a working
+    credential after it has stopped being one.
+
+sd.iss's closing item 1 now promises the question ("The window that opens in a
+moment will ask you to SET THE PASSWORD FOR SDSYS") instead of sending the reader
+to a log, and the 14 Aug "THERE IS DELIBERATELY NO 'SET THE SDSYS PASSWORD' STEP"
+note is marked superseded - with its own measurement kept, because it is why the
+prompt lives in the finishing window and not in a Run entry.  sdsys/changelog
+carries the user-visible half.  test-wraptext-units' fixture follows the window's
+text, which changed here.
+
+MEASURED: the three edited PowerShell files parse; test-wraptext-units 12/12,
+test-stripcomments-units 31/31, test-retired-wording-units 64/64; free tier 46/47
+with the one red unchanged (test-sysmsg-units, 5b's).  NO CYCLE: ISCC compiles
+sd.iss's [Code] and nothing here does, so THE PROMPT ITSELF IS UNWITNESSED and is
+the next witness owed.
+
+AND THIS CLOSES THE MEASUREMENT WINDOW THE OWNER OPENED: the 17:55:27 install was
+measured current and is now stale against these five files.
+
+====

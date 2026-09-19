@@ -213,15 +213,43 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
 > ```
 >
-> ***IT IS THE FIRST COMPILER TO SEE ALL ELEVEN SLICES.*** `bbcmp.py` cannot
-> compile `createa` at all — measured this session, it dies in pass 2 on
-> *"PROMPT statement not coded ... ln 324"* — and nothing available in a session
-> compiles `sd.iss`'s `[Code]` or the new `install-sdsys.ps1`. What to expect:
-> the install makes SDSYS and prints its generated password at the END of
-> `install-sdsys.log`, and the machine has a way into SD for the first time since
-> the 15:07:23 install. **There is still NO local SDSYS account on this machine,
-> so nothing elevated can run until that cycle lands** — do not spend a run token
-> before it.
+> ***AND THEN THE OWNER RAN THE CYCLE, AND IT TOOK THE MEASUREMENTS THE TEARDOWN
+> OWED — 18 Sep 2026, INSTALL 17:55:27, `assert-current` EXIT 0.*** `createa`
+> COMPILED (`| Compiling gpl.bp createa`, `| $createa added to global catalogue`,
+> 0 errors throughout) — the witness no session could produce. `gcat 150 (staged
+> 150)   GPL.BP.OUT 210 (staged 210)`; `sdsys/tier.policy` absent and NO `TIER*`
+> object anywhere; the shipped dictionary carries `accounts.dic suspension` and no
+> `tier`; `adopt-account.ps1` gone and `install-sdsys.ps1` present; and
+> **"NO ACCOUNT HAS A PASSWORD - the credential register is empty"**, where the
+> old design wrote two. SDSYS was created and checked independently: Enabled, in
+> **Administrators** and **sdusers**, in **no** ssh or API group. `$cred` refused
+> an unelevated read — the ACL working. ***TWO FINDINGS FROM THAT STATE: the two
+> voided-run accounts `sdtiertb1961`/`sdtiertb1962` still hold `sdusers`,
+> `sdssh`, `sdapi` and `sdsshonly` — live remote doors for accounts the register
+> refuses — and the cycle log carries a pre-existing non-fatal `Get-ItemProperty`
+> error on Inno's uninstall key, present in the 15:08 cycle too.***
+>
+> ***THE TWELFTH PASS (BELOW) THEN CHANGED FIVE FILES, SO THAT INSTALL IS STALE
+> AND A CYCLE IS OWED. THE MEASUREMENT WINDOW THE OWNER OPENED IS CLOSED.***
+>
+> ***THE ONE THING THAT UNBLOCKS EVERYTHING ELSE IS THE CYCLE, AND IT IS THE
+> OWNER'S — ELEVATED POWERSHELL.***
+>
+> (1) The cycle:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ***IT IS THE FIRST COMPILER TO SEE EVERY SLICE OF THIS TEARDOWN.*** `bbcmp.py`
+> cannot compile `createa` at all — measured, it dies in pass 2 on *"PROMPT
+> statement not coded ... ln 324"* — and nothing available in a session compiles
+> `sd.iss`'s `[Code]` or `install-sdsys.ps1`. **WHAT TO EXPECT, AND THIS CHANGED
+> ON THE TWELFTH PASS:** the install makes SDSYS, and the window it opens after
+> the wizard now **ASKS YOU FOR THE SDSYS PASSWORD** — twice, with the generated
+> one printed in that same window if you press Enter. Until it lands there is no
+> local SDSYS account, so nothing elevated can run and no run token should be
+> spent.
 >
 > (2) Then **5b**, the next real slice, in this order: `verify-routes` (the free
 > tier's one red), `verify-sshadmin`, `verify-apiremote`, `verify-sdsysgate`,
