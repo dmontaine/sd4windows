@@ -65529,3 +65529,96 @@ session among them.  What a clone cannot return is UNTRACKED material: the
 unstaged bin\, the stage and out trees, logs, the built installer.
 
 ====
+18 Sep 2026 - RELEASE_1.1 64, FOURTEENTH PASS: SLICE 5b OPENS, AND
+verify-routes.ps1 IS ITS FIRST FILE - THE FREE TIER'S ONE RED IS GONE.
+
+THE RE-AIM, IN ONE SENTENCE: the rig no longer LOGTOs anywhere - it RUNS AS
+the Windows SDSYS account, whose LOGIN lands it in the SDSYS SD session
+directly (the landing case, upcase(@logname) = 'SDSYS' and elevated), because
+LOGTO SDSYS has been refused at cproc:2789 (10002) since slices 1-2.
+
+WHAT CHANGED, PIECE BY PIECE, AND EACH AGAINST THE PRODUCT SOURCE RATHER THAN
+THE OLD RIG'S WORDING:
+
+  - INVOKE-SD's 'LOGTO SDSYS' prefix and its TERM-after-LOGTO expansion loop
+    are deleted; the session pipes TERM + commands + OFF into an sd.exe that
+    already IS SDSYS.  The TERM-after-LOGTO trap itself is now written HERE,
+    because its last home was verify-tiers.ps1's Invoke-SD, deleted with the
+    tiers: LOGIN re-inits terminal geometry on every account switch, so any
+    future LOGTO in a batch needs a TERM 200,9999 after it or long output
+    paginates on a stdin the pipe cannot answer.
+  - THE PRE-FLIGHT GAINS THE IDENTITY GATE: WindowsIdentity's SAM name must be
+    SDSYS (case-insensitive, the same comparison the product makes of
+    @logname), the account must exist, and the session must be elevated.  Run
+    from any other seat the verbs would answer a 5052 cascade that reads as a
+    broken product; the gate refuses first and says where to run it from.
+  - STEP 2 IS NEW: the ADMINISTRATOR keyword is offered to CREATE.ACCOUNT and
+    must be refused with 2018 (createa's more.args, which stops before any
+    Windows account, group or register record exists), with nothing left
+    behind.  The old step made an administrator CONTROL account; under 64 the
+    verb refuses to (one administrator, SDSYS, not created by a verb), and the
+    message it used to print, 10175, is deleted.
+  - THE LOGON CONTROL IS THE PROBE ITSELF NOW: step 1 offers the subject a
+    WRONG password and expects 1326, because LogonUser validates credentials
+    before the logon-type right - only the right password reaches the deny and
+    answers 1385.  No account this rig can create is ADMITTED at a console
+    (they all join sdsshonly) and the Windows SDSYS password is not the rig's
+    to probe, so the 21 Aug administrator-admitted control has no subject
+    under 64.  A dead P/Invoke fails both rows the same way; and if the
+    wrong-password row ever reads 1385, it is the ordering claim that broke,
+    not the product's deny - the row's comment says so for the reader who
+    finds it red.
+  - STEP 5 IS NEW: MODIFY.ACCOUNT SDSYS BOTH must be refused with 2202
+    (modifya refuses the name before it reads the register), SDSYS's routes
+    must stay 'none', and it must stay out of sdsshonly.  The old step asserted
+    10083 - the administrator route refusal, deleted by slice 4.  What the
+    refusal protected survives as a different property: the one administrator
+    is outside the account verb's reach, and its position is the installer's
+    to set (install-sdsys.ps1 joins SDSYS to Administrators and sdusers and
+    removes it from sdssh/sdapi/sdsshonly - measured on the 17:55:27 install)
+    and no verb's to move.
+  - THE RETIRED-MESSAGE GUARD NOW COVERS 64's OWN DELETIONS: 10083, 10106 and
+    10175 join Phase 2's 10063-10071, so an install that predates the teardown
+    refuses with exit 2 rather than mis-scoring a rig whose ADMINISTRATOR
+    refusal and SDSYS refusal would both be measuring verbs that no longer
+    exist.
+  - THE STILL-TRUE HALF IS UNTOUCHED: the four keywords SSH|API|BOTH|NONE
+    survived 64 (messages 10076-10082 alive, CREATEA:513 still demands the
+    word, MODIFYA's route.set still absolute), so step 1's create, step 3's
+    RDPACCOUNT refusal, step 4's ABSOLUTE-route ladder and its keyboard
+    invariant, and step 6's sshd rows all stand as they were.  Step 6's
+    DisableForwarding comment now credits 64 rather than the superseded 58:
+    allow-ssh-groups keeps sdssh-alone either way.
+
+MEASURED: test-sysmsg-units 44/44 - verify-routes parses, its helper lifts,
+and all seven messages it names (10076-10080, 2018, 2202) match as rendered;
+the 10083 and 10175 rows that made it the free tier's one red are gone with
+their subject.  THE FREE TIER, RUN FROM CLAUDE.md'S OWN LIST THIS TIME (the
+old scratch runner died with the old home): 45 passed, 0 red, 1 could-not-run
+of 46.  The CNR is test-tlsrelay-units.py, the recorded no-bin\ shape - the
+deletion took the unstaged bin\ and a clone cannot return it; make sd cures
+it.  assert-current is exit 2 on the same missing bin\ ("no bin/sd.exe - run
+make sd"), so the six-stale-files verdict of the twelfth pass cannot be re-
+read on this checkout until the owner's cycle.  ONE HARNESS BLIND SPOT NOTED,
+NOT FIXED: test-sysmsg-units discovers only "Shown $x NNN" call shapes, so
+step 1's "Shown $s.Out 10034" rows (old file and new alike) are never
+counted - coverage is unchanged by this pass, and the fix belongs to the
+harness, not to this rig.
+
+AND A FINDING THE RUN ITSELF MADE: CLAUDE.md's TIER-1 LIST STILL NAMED
+test-tiercounts-units, DELETED BY SLICE 5a.  Its commit message said "the free
+tier loses that step" and no commit edited the list, so the tier scored a
+MISSING step against a test that no longer exists - the two-lists-by-hand
+defect again, from the deletion direction this time.  The name is out and a
+paragraph records the rule both ways now: a deleted guard leaves the list in
+the commit that deletes it, the same rule as the one for a guard that joins.
+
+NOT COMPILED, NOT RUN: the rig is PowerShell reading an install that does not
+exist yet - the twelfth and thirteenth passes made the 17:55:27 install stale,
+and bin\ is gone besides.  THE CYCLE IS STILL THE OWNER'S, AND NOW OWES THREE
+WITNESSES: the rig itself (run from the Windows SDSYS account, elevated), the
+make sd that rebuilds bin\, and the free tier's tlsrelay row that comes back
+with it.  The wrong-password control row is UNWITNESSED until then, and its
+comment names its own assumption so a red on it can be read.
+
+====

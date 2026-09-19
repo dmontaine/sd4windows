@@ -557,7 +557,7 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
 **Three tiers. Use the cheapest one that can answer the question.**
 
 1. **The free unit tests and `assert-current`** — seconds, no install, no
-   elevation, no run token: `test-tiercounts-units`, `test-fixlist-units`,
+   elevation, no run token: `test-fixlist-units`,
    `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
    `test-retired-wording-units`, `test-stemcoverage-units`,
    `test-dirscoverage-units`, `test-stripcomments-units`,
@@ -597,6 +597,17 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    (PRE_RELEASE 121, a ~19-minute find on a screen) fails here in a second
    instead. When you retire wording, register the old phrase and its
    replacement in that script's `$RETIRED` table, in the same commit.
+
+   ***`test-tiercounts-units` LEFT THIS LIST 18 SEP 2026, RELEASE_1.1 64 SLICE
+   5a — ONE COMMIT LATE, WHICH IS THE PARAGRAPH BELOW'S OWN LESSON ARRIVED FROM
+   THE DELETION DIRECTION.*** Slice 5a deleted the test with the tier counts it
+   cross-checked ("one count now, in `sdsys/newvoc` alone, so a cross-check
+   would pass vacuously" — commit `cfd5592`, whose message already said "the
+   free tier loses that step"), but this list kept naming it, so a tier run
+   meets a name with no file behind it — a MISSING step that is the list's
+   fault, not the tree's.  Removed here by the 5b pass that re-aimed `verify-routes.ps1` and found it.
+   ***A deleted guard leaves this sentence in the commit that deletes it*** —
+   the same rule as the one below, pointing the other way.
 
    ***THE LAST TWO WERE MISSING FROM THIS LIST UNTIL 2 Sep 2026, WHICH IS THE
    DEFECT THEY BOTH EXIST TO CATCH.*** `test-stemcoverage-units` shipped 31 Aug

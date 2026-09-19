@@ -192,17 +192,27 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > changelog entry; **ELEVENTH** — `createa`'s three dead `ADMINISTRATOR` arms and
 > the `tier` variable are deleted, which closes the dangling
 > `sysmsg(10083)`/10175 references nothing else could see. HISTORY.md has one
-> entry per pass.
+> entry per pass. ***THE FOURTEENTH PASS OPENED SLICE 5b: `verify-routes.ps1`
+> IS RE-AIMED AS THE FIRST SDSYS-RUN RIG*** (no `LOGTO` prefix - it runs as
+> the Windows SDSYS account, whose LOGIN lands SDSYS directly; the
+> ADMINISTRATOR control step became the create-time 2018 refusal; the LogonUser
+> control became a wrong-password-1326 row on the subject itself; step 5
+> asserts `MODIFY.ACCOUNT SDSYS` refused with 2202 and SDSYS's position
+> unmoved), and CLAUDE.md's tier-1 list lost `test-tiercounts-units`, which
+> slice 5a deleted without editing the list.
 >
-> ***MEASURED, NOT CLAIMED.*** Free tier **46/47** by exit code, each test in its
-> own process, ~40 s, no elevation. **The one red is `test-sysmsg-units`, and it
-> is not a guard fault:** `verify-routes.ps1:430` asserts message 10083, deleted
-> by slice 4, and that verifier is stale beyond that row (`:321` creates its
-> control with the `ADMINISTRATOR` keyword the verb now refuses, and the script
-> pipes `LOGTO SDSYS`). **It belongs to 5b and is recorded rather than patched.**
-> `assert-current` is **exit 1 on SIX stale files**, the sixth being
-> `finish-install.ps1`, which ships; the other five are the slice-6 sources.
-> `P:\sdcore-mail\to-windows\` is EMPTY and no watcher is running.
+> ***MEASURED, NOT CLAIMED.*** Free tier **45 passed / 0 red / 1 could-not-run
+> of 46**, each test in its own process, the list read from CLAUDE.md itself.
+> **The standing red is CLOSED:** `test-sysmsg-units` is 44/44, all seven
+> messages the re-aimed rig names (10076-10080, 2018, 2202) match as rendered.
+> **The one CNR is `test-tlsrelay-units.py`, the recorded no-`bin\` shape** -
+> the deletion took the unstaged `bin\` and a clone cannot return it; `make sd`
+> cures it. **`assert-current` is EXIT 2 on the same missing `bin\`** ("no
+> bin/sd.exe - run make sd"), so the twelfth pass's six-stale-files verdict
+> cannot be re-read on this checkout until the cycle. **The rig itself is
+> UNWITNESSED** - nothing compiles or runs PowerShell verifiers until the
+> owner's cycle, and its wrong-password control row says its own assumption in
+> its comment. `P:\sdcore-mail\to-windows\` is EMPTY and no watcher is running.
 >
 > ***THE ONE THING THAT UNBLOCKS EVERYTHING ELSE IS THE CYCLE, AND IT IS THE
 > OWNER'S — ELEVATED POWERSHELL.***
@@ -269,13 +279,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > rule. Committed work survived it (`origin` had every commit); untracked material
 > did not.
 >
-> (2) Then **5b**, the next real slice, in this order: `verify-routes` (the free
-> tier's one red), `verify-sshadmin`, `verify-apiremote`, `verify-sdsysgate`,
-> `verify-logtoaccess`, `verify-doors-admin`, parts of `verify-accountrules`,
-> `verify-privundetermined`'s composition leg, and **the ~50 scripts that still
-> pipe `LOGTO SDSYS`** as the first line of every session — refused outright at
-> `cproc:2789` (10002) since slices 1–2, which is why the whole elevated half is
-> owed that re-aim. The owed `verify-accountmodel.ps1` (the whole-of-NEWVOC count
+> (2) Then **5b**, the next real slice, in this order: ~~`verify-routes`~~
+> (**DONE, fourteenth pass** - the first SDSYS-run rig, and the pattern the
+> rest copy: identity gate, no `LOGTO` prefix, the product source rather than
+> the old rig's wording), `verify-sshadmin`, `verify-apiremote`,
+> `verify-sdsysgate`, `verify-logtoaccess`, `verify-doors-admin`, parts of
+> `verify-accountrules`, `verify-privundetermined`'s composition leg, and
+> **the ~50 scripts that still pipe `LOGTO SDSYS`** as the first line of every
+> session — refused outright at `cproc:2789` (10002) since slices 1–2, which is
+> why the whole elevated half is owed that re-aim. The owed `verify-accountmodel.ps1` (the whole-of-NEWVOC count
 > for an ordinary account, the SUSPENDED/UNSUSPENDED register round trip, the
 > tier keywords refused, the `update.voc` @ID machinery) needs the Windows SDSYS
 > account that (1) creates.
