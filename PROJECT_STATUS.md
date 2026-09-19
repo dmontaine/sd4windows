@@ -179,9 +179,42 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ EIGHTEENTH PASS, 19 SEP 2026, LATEST — 69, 72, 73 AND 74 ARE ALL BUILT
-> AND ALL OWE THE SAME CYCLE THE PASS BELOW ALREADY OWED. WORKING TREE
-> COMMITTED, FREE TIER 47 OF 47.***
+> ***⏸ EIGHTEENTH PASS, 19 SEP 2026, LATEST — 69, 72, 73, 74 AND 75 ARE ALL
+> BUILT AND ALL OWE THE SAME CYCLE. WORKING TREE COMMITTED, FREE TIER 48 OF
+> 48.***
+>
+> ***75 IS THE BIG ONE AND IT CAME FROM THE OWNER RUNNING A CYCLE: SD NOW
+> REQUIRES A COMPLEX PASSWORD EVEN WHERE THE OS DOES NOT.*** He found that the
+> Linux install demanded 8 characters with mixed case, digits and symbols
+> while ours took anything. ***THE OBVIOUS DIAGNOSIS WAS WRONG IN BOTH PORTS
+> AND IT IS WORTH KNOWING BEFORE THE NEXT ONE OF THESE.*** Neither port had an
+> SD rule at all: what refused him on Linux was **Ubuntu's PAM stack**, and
+> what let him through here was the **Windows machine policy** — measured on
+> this box as *"Minimum password length: 0"*, complexity off, a client-SKU
+> default. **Both ports were deferring to the OS**, and the difference was
+> Ubuntu's defaults against Windows'. So *"match the other port"* would have
+> changed nothing, and the question went back to him. **He ruled on the Linux
+> side and it binds here** (CLAUDE.md's 15 Sep parity rule): *"The requirement
+> for the complex password is reasonable for access to the database, if
+> possible I would prefer that SD require it even if the OS does not for both
+> SDSYS and any other accounts."*
+>
+> ***THE RULE IS A CONTRACT WITH THE OTHER PORT, NOT A LOCAL CHOICE.*** ≥8, no
+> maximum; one `a-z`, one `A-Z`, one `0-9`, one **symbol = any other printable
+> ASCII 32-126, SPACE INCLUDED**; anything outside 32-126 fails outright. Code
+> ranges because it is BASIC here and bash there. **Do not "improve" it on one
+> side.** ***THREE IMPLEMENTATIONS HERE AND THEY CANNOT BE MERGED***:
+> `gpl.bp/pw_complex` for everything inside SD, `finish-install.ps1` for the
+> SDSYS prompt (a **Windows** password, never enters SD), `install-sdsys.ps1`
+> for the generated one (drawn before either is reachable).
+> **`test-pwcomplex-units` drives all three against one table, 69/69.**
+> ***SD'S RULE IS A FLOOR, NEVER A CEILING*** — the machine policy still
+> applies on top and wins where it is stricter.
+>
+> ***ONE LOOSE END SOMEBODY MUST CLOSE: `10921` IS A MESSAGE NUMBER THIS PORT
+> TOOK AND LINUX HAS NOT AGREED.*** A generic *"That was attempt %1 of %2"*,
+> needed because LOGIN's existing count message is mismatch-specific. Told
+> them at 13:40 and offered to move it; it is one line in one file here.
 >
 > ***THE CYCLE IS STILL THE ONE THING THAT UNBLOCKS EVERYTHING, AND IT IS THE
 > OWNER'S. ELEVATED PowerShell:***
@@ -190,8 +223,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
 > ```
 >
-> It now witnesses **six** entries, not two. The pass below's list of things to
-> read afterwards still stands **and is item 1-4**; **5 to 8 are this pass**:
+> It now witnesses **seven** entries, not two. The pass below's list of things
+> to read afterwards still stands **and is item 1-4**; **5 to 9 are this
+> pass**:
 >
 > 5. **69** — sign in to `don` from an **ELEVATED** prompt on a tree where that
 >    account has no `$cred`. The paragraph should say the account **still works
@@ -209,6 +243,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    normally works. To see it, hold a file open in the account's directory
 >    (a shell `cd`'d into it will do) and then delete the account: 10919 names
 >    the directory and the rest of the deletion still finishes.
+> 9. **75** — **the install's own SDSYS prompt now states the rule before
+>    asking, and refuses a weak password**, counting it as one of the three
+>    attempts. Then a weak one at **`MODIFY.PASSWORD`**, at **`CREATE.ACCOUNT`**
+>    (which should print 10920 and still offer the retry) and at the
+>    **elevated first login**. `Abcdef1!` is the shortest thing that passes;
+>    `Abcdefg1` fails for want of a symbol.
 >
 > ***69 WAS FOUR COPIES, NOT ONE, AND THE FOURTH IS THE ONE WORTH CARRYING.***
 > `messages/10089`, `messages/10101`, `sd.iss`'s `/SILENT` refusal, and a

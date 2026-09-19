@@ -578,11 +578,12 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-scramprobe-units.py`, `test-uninstallchoices-units`,
    `test-tlsrelay-units.py`, `test-installservice-units`,
    `test-lcnameslegs-units`, `test-kernelkeys-units.py`,
-   `test-groupmember-units.py`, `test-psinterp-units.py`.
-   ***ALL FORTY-SEVEN. Run these on
-   every change*** — ***50.1 s for the whole set, all 47 exit 0, measured
+   `test-groupmember-units.py`, `test-psinterp-units.py`,
+   `test-pwcomplex-units`.
+   ***ALL FORTY-EIGHT. Run these on
+   every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
-   own process.
+   own process; the forty-eighth costs about a second.
    ***AND THE COUNT IN THIS SENTENCE WAS ONE HIGH BEFORE THAT, WHICH IS THE
    ONE FAILURE A TYPED LIST STILL HAS.*** It read FORTY-SEVEN while the list
    held forty-six: `test-tiercounts-units` left on 18 Sep 2026 and the word did
@@ -966,6 +967,24 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    four, and anchoring `os.execute` at the start of a statement was measured to
    be necessary — `BCOMP` **implements** the statement, so an unanchored match
    pulled the compiler's own assembly listing into the corpus.
+
+   ***`test-pwcomplex-units` JOINED IT 19 SEP 2026 IN THE COMMIT THAT CREATED
+   IT (RELEASE_1.1 75).*** SD's password rule is written **three times in this
+   tree** and a fourth time on the Linux side, and the three cannot be merged:
+   `gpl.bp/pw_complex` serves everything inside SD, `finish-install.ps1` sets a
+   **Windows** password with `Set-LocalUser` and never enters SD, and
+   `install-sdsys.ps1` draws the generated one at `ssPostInstall` before either
+   is reachable. It drives all three against **one table** — the one the Linux
+   agent sent with the ruling — lifting the two PowerShell copies by AST so
+   they cannot drift. ***THE BASIC IS CHECKED WITHOUT BEING RUN, AND THE LIMIT
+   IS STATED RATHER THAN GLOSSED***: nothing in a session can execute BASIC, so
+   it reads the **ranges and the case ORDER** out of the file and drives the
+   table through what the file says. **The order is load-bearing** — move the
+   `< 32 or > 126` arm off the front and a TAB falls through to the catch-all
+   and *satisfies* the symbol requirement it exists to fail. ***IT ALSO ASSERTS
+   THE PARTITION***: every prompt that sets a password runs the rule, which is
+   the regression no row about the rule itself can see. Mutants run on text and
+   the live file is asserted byte-identical afterwards.
 
    ***`test-uninstallchoices-units` JOINED IT 16 Sep 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 38 and 50).*** It drives the two decisions inside

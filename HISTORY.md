@@ -66026,3 +66026,66 @@ control; free tier 47 of 47.  Neither entry is witnessed, and 73's witness needs
 a directory that genuinely refuses to go - an open handle will do it.
 
 ====
+
+19 Sep 2026, same session - 75, THE PASSWORD RULE, AND THE FIRST DIAGNOSIS WAS
+WRONG IN BOTH PORTS.
+
+The owner ran a cycle and found it himself: the Linux install demanded 8
+characters with mixed case, digits and symbols, ours took anything.  He said
+"configure according to their policy", so the obvious move was to copy theirs.
+THAT WOULD HAVE CHANGED NOTHING.  Neither port had an SD rule.  What refused him
+on Linux was Ubuntu's PAM stack (pam_pwquality + pam_unix obscure); what let him
+through here was the Windows machine policy, measured on this box as "Minimum
+password length: 0" with complexity off, a client-SKU default.  Both ports were
+deferring to the OS and the difference was Ubuntu's defaults against Windows'.
+
+The Linux agent measured their own side and said so plainly rather than
+defending the first answer, which is what made it visible; they also corrected
+themselves within ten minutes when their first reply predicted PAM would only
+warn and the owner's experience said it refused.  The question went back to him
+and he ruled, on their side: "The requirement for the complex password is
+reasonable for access to the database, if possible I would prefer that SD
+require it even if the OS does not for both SDSYS and any other accounts."  A
+parity decision approved in one port binds both, so it was built here without
+re-asking.
+
+THE RULE IS A CONTRACT: >= 8, no maximum; one a-z, one A-Z, one 0-9, one symbol
+= any OTHER printable ASCII 32-126 with SPACE included; anything outside 32-126
+fails outright.  ASCII code ranges deliberately - it is BASIC here and bash
+there, and a byte range reads the same in both.  Message 10920 is shared and is
+shown BEFORE the prompt as well as on a refusal, because a rule revealed only
+after the first failure spends a third of three attempts.
+
+THREE IMPLEMENTATIONS HERE AND THEY CANNOT BE MERGED, which is the fact to
+carry: gpl.bp/pw_complex serves everything inside SD; finish-install.ps1 sets a
+WINDOWS password with Set-LocalUser and never enters SD; install-sdsys.ps1 draws
+the generated password at ssPostInstall before either is reachable.
+test-pwcomplex-units drives all three against the table Linux sent, lifting the
+two PowerShell copies by AST.  THE BASIC IS CHECKED WITHOUT BEING RUN and the
+guard says so: it reads the ranges and the CASE ORDER out of the file and drives
+the table through what the file says.  The order is load-bearing - move the
+"< 32 or > 126" arm off the front and a TAB falls through to the catch-all and
+SATISFIES the symbol requirement it exists to fail.
+
+SD'S RULE IS A FLOOR, NEVER A CEILING: Set-LocalUser still applies the machine
+policy afterwards and the machine wins where it is stricter.  Worth keeping,
+because the opposite reading - SD replacing the machine's policy - would be a
+product that overrides a domain baseline.
+
+TWO THINGS FOUND BY BUILDING IT.  The generator could in principle draw 32
+characters with no digit, so SD would have shown the operator a password SD
+itself refuses; it now draws again, bounded at 20 and loud if it ever runs out.
+And !set_passwd needed a THIRD status: 1 is "Windows refused it" and retyping
+never fixes that, 7 is "SD refused it" and a different password always fixes it,
+and only a distinct value can tell the caller which sentence to print.
+
+10921 IS A NUMBER THIS PORT TOOK AND LINUX HAS NOT AGREED - a generic "That was
+attempt %1 of %2", needed because our LOGIN's existing count message is
+mismatch-specific.  Told them, and offered to move it.
+
+AND bbcmp COMPILES login AFTER ALL, exit 0, with setpu and logmsg added to the
+stub list beside void/input/sleep/prompt - so all four changed BASIC files are
+compile-checked against HEAD controls, not three.  The earlier entry in this
+session said login could not be compiled; it could, the stub list was short.
+
+====
