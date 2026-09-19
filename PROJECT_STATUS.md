@@ -235,6 +235,28 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **The sixteenth pass's owed witness landed in the same run: the finishing
 > window asked for the SDSYS password.**
 >
+> ***LINUX'S 3018 ORDERING LEAD — CHECKED 19 Sep 2026, WE HAVE THEIR ORDERING
+> AND NOT THEIR FAULT. NOTHING FILED; DO NOT RE-DERIVE IT.*** Their `set.owner`
+> chowns before the last `voc.f` write, so a non-root session cannot write what
+> it gave away. **Our ordering is the same** — `gosub secure.account.dir` at
+> `createa:1260`, VOC writes at `:1415-1639` — **and the lock-down RETAINS
+> rights where their chown TRANSFERS them**: `secure.account.dir` runs `icacls
+> /inheritance:r` then grants SYSTEM `(OI)(CI)(F)`, **Administrators
+> `(OI)(CI)(F)`** and `sdu_<name>` `(OI)(CI)(M)`, and SDSYS is reached only
+> through an elevated Administrator token. ***MEASURED, NOT ONLY READ***: the
+> live ACL on `user_accounts\don` reads SYSTEM FullControl, `BUILTIN\
+> Administrators` FullControl, `sdu_Don` Modify, and `voc` carries the same
+> 23:53:11 stamp as its parent — the writes after the stamp succeeded on that
+> install. ***AND WE HAVE NO `set.owner` AT ALL***: its seven callers went on
+> 15 Aug 2026 (`createa:175`, `:2077`), so their fault's mechanism is absent.
+> ***THE ONE CONDITION THAT WOULD BRING IT BACK, AND IT IS NOT GUARDED BY THE
+> ORDERING: AN UNELEVATED WRITING SESSION.*** A UAC-filtered token does not get
+> the Administrators ACE, so the helper would stamp the ACL and the session's
+> own later writes would be refused — their bug exactly. **64 closes it by
+> refusing `logto sdsys` outright**, so we are safe by the ACCESS MODEL rather
+> than by the ordering; **anyone reopening an unelevated route into SDSYS
+> breaks this.**
+>
 > ***67 IS WITNESSED AND CLOSED — THE OWNER'S 23:51:33 CYCLE, `CYCLE COMPLETE`,
 > `createa` RECOMPILED.*** `sdsys\accounts\don` points at **`user_accounts/don`**
 > with group **`sdu_don`** where the pre-fix install had `Don`/`sdu_Don`; the
