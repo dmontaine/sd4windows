@@ -65417,3 +65417,51 @@ AND THIS CLOSES THE MEASUREMENT WINDOW THE OWNER OPENED: the 17:55:27 install wa
 measured current and is now stale against these five files.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, THIRTEENTH PASS: cycle.ps1's Step 9 text corrected,
+and the machine's leftover litter measured properly.
+
+CYCLE.PS1 STEP 9 WAS STALE TWICE OVER, AND ONE OF ITS CLAUSES WAS FALSE WHEN IT
+WAS WRITTEN.  It is the check that reads $cred after a cycle and warns when no
+account has a password.  Its comment described sd.iss:1276 as the hook that skips
+the password step on a silent install - a step that no longer exists, in a file
+whose line 1276 is now a declaration comment - and its printed line said the same.
+The -Silent half is unreachable besides: sd.iss refuses to install silently at all
+(the gate added at InitializeSetup on 23 Aug 2026, the same day this note was
+written).  AND THE CLAUSE THAT WAS NEVER TRUE: it claimed an ELEVATED "sd
+<command>" at a console stops at the credential prompt and blocks for ever.  It
+does not - login:1082 tests `batch.command = ''` before calling
+require.credential, so A COMMAND LINE IS BATCH AND DOES NOT PROMPT, which is
+section 7 step 9's ruling and the same ruling that broke the old password step.
+The prompt belongs to an elevated INTERACTIVE session.  The check is KEPT and its
+message corrected, because the count still says which of the two states a tree is
+in.  cycle.ps1 parses clean; free tier unaffected (46/47, the one red still 5b's).
+
+THE MACHINE'S LITTER, MEASURED RATHER THAN ESTIMATED.  Two findings, and the first
+is smaller than the record implied while the second is bigger:
+
+  - EXACTLY TWO SD LITTER ACCOUNTS SURVIVE: sdtiertb1961 and sdtiertb1962, both
+    Enabled, both described "SD account" - and BOTH STILL HOLD sdusers, sdssh,
+    sdapi AND sdsshonly.  Their PROFILES are already gone (no C:\Users\sdtiertb*),
+    so the fifth pass's "still on this machine as Windows accounts and as
+    profiles" is half right today.  Under 64 these two are the only accounts on
+    the machine with an ssh grant: the door is granted and the register refuses
+    them, which is the shape worth closing before the post-removal evaluation.
+  - 34 ORPHANED PROFILE DIRECTORIES remain under C:\Users from voided runs:
+    sdacctb194-b197, sdapiidb181/182, sddrb193a-b197b, sdgateb194-b197,
+    sdpygb195-b197, sdsadmb194a-b197p, sdsshb194-b197, sdtub193-b197.  No local
+    account matches any of them, so they are ordinary orphans now.
+
+THE SWEEP IS A STANDING PROCEDURE, NOT SOMETHING TO HAND-ROLL: cleanup-devlitter.ps1
+ELEVATED, -List first to see what would go and then the run - accounts before
+profiles by design, because clean-test-profiles.ps1 REFUSES a profile whose SID
+still has a local account.  Its 26 Aug measurement is the safety record: two runs
+either side of a reboot, 0 profile dirs, 0 ProfileList entries, 0 sd* users, and
+nothing over-deleted - the five real SD groups and Don all still there.  Nothing
+in the tree recreates these names: verify-tiers.ps1 is deleted, and the retired
+stems stay in the sweep's own list precisely because their litter is real.
+
+NOT DONE BY ME, AND THAT IS DELIBERATE: it deletes Windows accounts, and this is
+the owner's machine.
+
+====
