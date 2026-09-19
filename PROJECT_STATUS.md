@@ -285,6 +285,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > ***MEASURED: free tier 46/47 by exit code, each test in its own process;
 > `assert-current` exit 1 on the same FIVE stale files, naming none of the three
 > edited ones.***
+> ***TENTH PASS, SAME DAY — THE DEAD `-WithPassword` HALF OF
+> `finish-install.ps1` IS GONE, AND SO IS THE PARAGRAPH THAT CALLED IT.*** The
+> switch, `-User`, `Invoke-PasswordStep` (which started one `sd.exe` per account
+> and then read `$cred` to prove a credential had been written), its two calls,
+> `$SdExe`, `$SysDir` and 138's 42-line block all left together, because nothing
+> collects a credential any more: the one account is SDSYS and its password is
+> its Windows one. The window says one plain thing through `Write-Wrapped`, which
+> is kept live for that reason, and `sd.iss` DELETES `PasswordStepWanted` rather
+> than leaving it False, passes `-AppDir` alone, and corrects the three comments
+> that still promised a password step. `test-wraptext-units.ps1`'s fixture was
+> the 2-of-2 `$Purpose` string lifted from this file; that string went with the
+> step, so the fixture is the window's live text now. ***MEASURED: free tier
+> 46/47 (the one red unchanged, owed to 5b); wraptext 12/12, retired-wording
+> 64/64, stripcomments 31/31; `assert-current` exit 1 on SIX stale files, the
+> sixth being `finish-install.ps1`; 441 lines to 201, parse clean.*** NO CYCLE
+> RUN: nothing here compiles `sd.iss`'s [Code]. `sdsys/changelog` carries it — a
+> user would notice — with the two 4 Sep password-page entries marked replaced.
 > ***READ RELEASE_1.1 64'S "PROGRESS" CLAUSES BEFORE ADDING TO THIS***, not just
 > its decision clauses: they carry the measured dictionary format and its answer
 > (the THIRD PASS made the change rather than guessed at it), the three findings

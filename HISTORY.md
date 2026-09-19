@@ -65192,3 +65192,60 @@ assert-current exit 1, refusing on the same FIVE stale files as the eighth pass,
 and naming NONE of the three edited files, so no test file turned the tree stale.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, TENTH PASS: THE DEAD -WithPassword HALF OF
+finish-install.ps1 IS GONE, WITH THE PARAGRAPH THAT CALLED IT.
+
+The plan named it as owed twice - in slice 4's note and in the seventh pass's
+gravestone in sd.iss, "Removing the dead half of finish-install.ps1 is owed with
+this note" - and it is the last piece of slice 6 that does not need a Windows
+SDSYS account to be exercised.
+
+WHAT WENT.  The [switch] $WithPassword (it chose between collecting a credential
+and not), [string] $User (it named WHOSE credential, and was then the account name
+looked for in $cred - a wrong value setting the password on the wrong account),
+the function Invoke-PasswordStep and the two calls to it, $SdExe and $SysDir (read
+for one question only: did a credential appear in $cred), and PRE_RELEASE_FIXES
+138's 42-line block - which is a DELETE and not a gravestone, because what it
+describes is an account model 64 abolished (an administrator has TWO SD accounts)
+and dead prose a reader would take for current is worse than none.
+finish-install.ps1: 441 lines to 201.
+
+WHAT REPLACED IT.  One paragraph, through Write-Wrapped: the account is SDSYS,
+sign in as SDSYS and start SD Core from an elevated prompt, and if this install
+made that account its Windows password is at the end of install-sdsys.log.  The
+qualifier is there because install-sdsys.ps1 prints a password only when it MADE
+the account, so "if this install made that account" is the honest wording rather
+than a hedge.  WRITE-WRAPPED IS KEPT LIVE ON PURPOSE: gplbld/test-wraptext-units
+lifts that function OUT of the shipping file, so leaving no call to it would leave
+its subject standing for no reason.
+
+IN sd.iss.  PasswordStepWanted is DELETED rather than left False: it was
+'(AdoptCode = 0)', and its only two readers were the switch and the assignment -
+a variable that is permanently false is the shape that made this half dead to
+begin with.  The call passes -AppDir alone.  Three comments that still promised a
+password step are corrected: RunFinishingStep's preamble, the DeinitializeSetup
+hook, and the [Run]-section note above it.
+
+test-wraptext-units.ps1 WAS COUPLED, AND IT WAS FOUND BY READING RATHER THAN BY
+RUNNING.  Its fixture was "the real string from finish-install.ps1's 2-of-2 call
+- the one that broke", and that call went with the step.  The test passes either
+way, which is exactly why it needed reading: a fixture that has quietly stopped
+being a real string is a row that proves less than it claims.  The fixture is the
+window's live text now.
+
+MEASURED: free tier 46/47 - the one red is UNCHANGED and is test-sysmsg-units,
+owed to 5b; test-wraptext-units 12/12, test-retired-wording-units 64/64,
+test-stripcomments-units 31/31.  finish-install.ps1 parses clean and no live
+reference to any removed name survives: the only grep hits are the gravestones.
+assert-current exit 1 on SIX stale files now, the sixth being finish-install.ps1,
+which ships.  NO CYCLE RUN: nothing available here compiles sd.iss's [Code], so
+the Inno side is checked by reading - the deleted variable has no references left
+- and the next cycle will be the first to compile it.
+
+AND IT REACHES THE USER: sdsys/changelog's W1.1-0 entry now says the install asks
+for no password and no longer makes you an SD account, with its own WHAT MIGHT
+STOP WORKING, and the two 4 Sep entries that promised a password page are marked
+replaced rather than rewritten - the convention that file already uses.
+
+====
