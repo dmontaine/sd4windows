@@ -221,12 +221,27 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > cycle.**  Free tier: `test-fixlist-units` **348/0**, `test-retired-wording-units`
 > **64/64**, `test-dirscoverage-units` and `test-upgradeiss-units.py` green.
 >
-> ***NOT WITNESSED — NO CYCLE HAS RUN SINCE THE WIRING.*** The install making
-> the account has never been observed, and neither has the verb half end to end.
-> The cycle below is owed.  **The cheap witness first, and it needs no
-> reinstall** — `attach-account.ps1` takes `-AppDir`, so against the installed
-> tree, **elevated PowerShell**:
-> `powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\attach-account.ps1" -User don -AppDir "C:\Program Files\SD"`
+> ***WITNESSED END TO END — THE OWNER'S CYCLE, 18 SEP 23:25:24, `CYCLE
+> COMPLETE`.*** Every leg of 66 fired and was read back independently:
+> `attach-account.ps1` **staged and compressed into the installer** (cycle
+> log:4986); `attach-account.log` reads *"Don now has an SD account"*; the
+> account's whole structure was built (VOC, `$hold`, `$savedlists`, `bp`,
+> private catalogue, register); the route keyword took — *"SD routes for Don:
+> ssh and the API"*; **the `sdsshonly` skip fired** — *"Don keeps the Windows
+> sign-in rights it already had"*, so no logon right was touched; `sdusers`
+> holds `ace\Don` beside `ace\SDSYS`; and `sdsys\accounts\` holds **`don` and
+> `sdsys`**. ***AND THE ONE FAILURE MODE NOTHING ELSE WOULD NOTICE WAS CHECKED:
+> NO `$attach.*` MARKER IS LEFT IN `sdsys\`*** — the `finally` shut the door.
+> **The sixteenth pass's owed witness landed in the same run: the finishing
+> window asked for the SDSYS password.**
+>
+> ***AND THE WITNESS FOUND RELEASE_1.1 67, WHICH NO AMOUNT OF READING THE DIFF
+> WOULD HAVE.*** The register key is folded (`accounts\don`) while that
+> record's contents carry `user_accounts\`**`Don`** and group **`sdu_Don`** —
+> **the exact symptom `createa:866-873` records the owner's 22 Aug ruling being
+> made on**, mirrored. The ATTACH arm folds only in its `else`, and for an
+> attached account the `is_user` match is the premise. **Nothing is broken**
+> (NTFS is case-insensitive, the account works), so it is filed **S**, not B.
 >
 > *(The paragraph below opened the box at the sixteenth pass.  Its "THE WORKING
 > TREE IS CLEAN AND EVERYTHING IS PUSHED" was true then and is superseded by the

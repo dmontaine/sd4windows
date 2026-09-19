@@ -65804,3 +65804,33 @@ cheap witness needs no reinstall - attach-account.ps1 takes -AppDir and runs
 against the installed tree from an elevated prompt.
 
 ====
+
+18 Sep 2026, same pass, WITNESSED - the owner's cycle at 23:25:24, CYCLE
+COMPLETE.  Every leg of 66 fired and was read back independently rather than
+inferred from the cycle's exit: attach-account.ps1 staged and compressed into
+the installer (cycle log:4986); attach-account.log reads "Don now has an SD
+account"; the account's whole structure was built (VOC, $hold, $savedlists,
+bp, private catalogue, register); the route keyword took - "SD routes for Don:
+ssh and the API"; the sdsshonly skip fired - "Don keeps the Windows sign-in
+rights it already had", so no logon right was touched; sdusers holds ace\Don
+beside ace\SDSYS; sdsys\accounts\ holds don and sdsys.  AND THE ONE FAILURE
+MODE NOTHING ELSE WOULD NOTICE WAS CHECKED: no $attach.* marker is left in
+sdsys\, so the finally shut the door.  The sixteenth pass's owed witness landed
+in the same run - the finishing window asked for the SDSYS password.
+
+THE WITNESS ALSO FOUND RELEASE_1.1 67, AND NOTHING SHORT OF A LIVE ACCOUNT
+WOULD HAVE.  The register key is folded (accounts\don) while that record's
+contents carry user_accounts\Don and group sdu_Don.  That is the exact symptom
+createa:866-873 records the owner's 22 Aug 2026 ruling being made on - "on
+seeing sdsys\accounts\DON sitting beside user_accounts\don for the same
+person" - arrived at from the other side.  The ATTACH arm's fold is
+"if is_user(acc.uname) else acc.uname = downcase(acc.uname)", which folds only
+in its else, and for an attached account the match IS the premise; a normal
+USER create downcases before create_user, so only an attached account is mixed.
+Filed S rather than B: NTFS is case-insensitive, sdu_Don is a real group, and
+the account works end to end.  It is a 5.12 consistency regression, not a
+functional fault.  No control existed - don is the only ordinary account on the
+machine - so the comparison is read from the source, not from two live
+accounts.
+
+====
