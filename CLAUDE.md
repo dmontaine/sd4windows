@@ -578,10 +578,21 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-scramprobe-units.py`, `test-uninstallchoices-units`,
    `test-tlsrelay-units.py`, `test-installservice-units`,
    `test-lcnameslegs-units`, `test-kernelkeys-units.py`,
-   `test-groupmember-units.py`.
+   `test-groupmember-units.py`, `test-psinterp-units.py`.
    ***ALL FORTY-SEVEN. Run these on
-   every change*** — **40 s for the whole set**, measured 16 Sep 2026 with the
-   forty-third in it, each in its own process. *(Forty-five measured 39–49 s on
+   every change*** — ***50.1 s for the whole set, all 47 exit 0, measured
+   19 Sep 2026*** by counting the names in this list and running each in its
+   own process.
+   ***AND THE COUNT IN THIS SENTENCE WAS ONE HIGH BEFORE THAT, WHICH IS THE
+   ONE FAILURE A TYPED LIST STILL HAS.*** It read FORTY-SEVEN while the list
+   held forty-six: `test-tiercounts-units` left on 18 Sep 2026 and the word did
+   not move with it. The 18 Sep handoff said *"RUN THE WHOLE FREE TIER, ALL
+   46"* and was right. **The number is only a check on the list, so derive it
+   from the list rather than trusting the word** — a session that counts
+   forty-seven names and reads FORTY-SEVEN has learned nothing.
+   The older timings below are kept as history and not
+   re-measured. *(40 s was the 16 Sep figure with the
+   forty-third in it; forty-five measured 39–49 s on
    17 Sep 2026; the forty-sixth costs 0.1 s; the forty-seventh ~6 s, two gcc
    builds, and it exits 2 without `C:\msys64` — the `test-sysmsg-units`
    shape.)* *(30 s was the 11 Sep figure for
@@ -936,6 +947,25 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    answer `told=1`; a copy of `is_grp_member` with `set.status 1` removed went
    red on the named row, exit 1. ~6 s (two gcc builds); exits 2 without
    `C:\msys64`. No SD, install, elevation or cycle.
+
+   ***`test-psinterp-units.py` JOINED IT 19 Sep 2026 IN THE COMMIT THAT CREATED
+   IT (RELEASE_1.1 72), AND IT IS A REGISTER RATHER THAN A PROOF — THE HEADER
+   SAYS SO.*** A PowerShell **double**-quoted string expands `$name`; a
+   single-quoted one does not. This tree builds PowerShell command lines by
+   concatenating BASIC literals around BASIC variables, and where the variable
+   lands inside a double-quoted region a `$` in its value is expanded to
+   nothing, leaving a **shorter string the command then acts on** — which is
+   how Linux's `set.owner` chowned the account directory instead of `$hold`.
+   ***NOTHING IS WRONG TODAY***, which is why the guard is over the SET: it
+   asserts that the thirteen surviving sites are exactly the declared ones, so
+   a fourteenth cannot appear without somebody saying what its variable can
+   hold. It does **not** re-check that any of the thirteen is safe, and says
+   so. **Mutant: the exact pre-72 `icacls` line is detected**, on text rather
+   than on the live file. ***AND ITS FIRST RUN FOUND TWO THINGS RATHER THAN
+   NONE***: `os_group` has **five** group sites where a hand-typed list said
+   four, and anchoring `os.execute` at the start of a statement was measured to
+   be necessary — `BCOMP` **implements** the statement, so an unanchored match
+   pulled the compiler's own assembly listing into the corpus.
 
    ***`test-uninstallchoices-units` JOINED IT 16 Sep 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 38 and 50).*** It drives the two decisions inside

@@ -179,7 +179,73 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ SEVENTEENTH PASS, 18 SEP 2026, LATEST — RELEASE_1.1 66: THE INSTALLING
+> ***⏸ EIGHTEENTH PASS, 19 SEP 2026, LATEST — 69 AND 72 ARE BOTH BUILT AND
+> BOTH OWE THE SAME CYCLE THE PASS BELOW ALREADY OWED. WORKING TREE COMMITTED,
+> FREE TIER 47 OF 47.***
+>
+> ***THE CYCLE IS STILL THE ONE THING THAT UNBLOCKS EVERYTHING, AND IT IS THE
+> OWNER'S. ELEVATED PowerShell:***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
+> ```
+>
+> It now witnesses **four** entries, not two. The pass below's list of things to
+> read afterwards still stands **and is item 1-4**; **5 and 6 are this pass**:
+>
+> 5. **69** — sign in to `don` from an **ELEVATED** prompt on a tree where that
+>    account has no `$cred`. The paragraph should say the account **still works
+>    at the keyboard** and name **ssh and the API** as what it cannot reach. It
+>    must NOT say *"not here at the keyboard"*. *(On a tree where 70 worked the
+>    account HAS a credential and this prompt never fires — so this witness and
+>    70's are mutually exclusive on the same install. Read 70's first; 69's
+>    needs an account made without one.)*
+> 6. **72** — nothing to read. It is invisible when it works; the witness is
+>    that account creation still stamps the ACL (`verify-accountacl`).
+>
+> ***69 WAS FOUR COPIES, NOT ONE, AND THE FOURTH IS THE ONE WORTH CARRYING.***
+> `messages/10089`, `messages/10101`, `sd.iss`'s `/SILENT` refusal, and a
+> hard-coded `crt` block in `set_acc_password` — **which the wording lint could
+> not see**, because its corpus was messages, `sd.iss` and `gplbld/*.ps1` and
+> never the BASIC. *(130's own note says the claim had "SEVEN copies across
+> messages, sd.iss and hard-coded crt lines", so the crt lines were always in
+> scope for the SWEEPS and never for the GUARD.)* **`sdsys/gpl.bp` is now in
+> the corpus**, comment-stripped through a new `basic` kind in the shared
+> `strip-comments.ps1`; **mutant control: restoring the old `crt` line turned
+> the lint red naming `gpl.bp/set_acc_password`, and the file was restored to
+> the same SHA-256.**
+>
+> ***TWO GUARD DEFECTS WERE FOUND BY USING THE GUARDS, AND BOTH ARE FIXED.***
+> `test-stripcomments-units` scored ***"PASSED - 31 of 31" with a whole section
+> that had thrown and run no checks*** — the vacuous pass §0 forbids, in a file
+> whose own header forbids it. It now closes each section and refuses one that
+> moved the tally by nothing. And **CLAUDE.md's free-tier count read
+> FORTY-SEVEN over a list of forty-six**: `test-tiercounts-units` left on
+> 18 Sep and the word did not move. **Derive the number from the list.**
+>
+> ***MEASURED THIS PASS, AND TWO OF THESE CONTRADICT THINGS THIS FILE SAYS.***
+> `ISCC` **exit 0**, 22.187 s, output to scratch — but **it needs
+> `/DStage=C:\Users\Don\stagetest`**, the previous cycle's staged tree, or it
+> stops at `#include ..\..\stage\upgrade.iss`; the 17th pass recorded the exit
+> code and not that. ***AND `bbcmp` CAN COMPILE `createa` — exit 0*** — with
+> `void`/`input`/`sleep`/`prompt` stubbed in a copy, against a HEAD control
+> compiled the same way; the pass below says it cannot, twice. ***AND THE
+> SCRATCH-ROOT TRICK KEEPS `gcat` OBJECTS OUT OF THE REPO***: pass the copy's
+> own directory as bbcmp's root, `mkdir` a `gcat` beside it, and
+> `git ls-files --others` stays empty.
+>
+> ***MAIL: INBOX EMPTY.*** Linux's 01:26 note was pure FYI and is in `done\` —
+> **the parity gap the pass below leaves open is CLOSED**: the owner ruled
+> *"match the RESULT, not the process"*, and Linux has built self-service
+> `MODIFY.PASSWORD` (`d147a5c`) over `sudo sd-elevate cred-own`. Two replies
+> sent this pass, on 69 and on 72. **The watcher dies with this session — start
+> a new one.**
+>
+> ***OPEN AND NOT STARTED: nothing from 66-72.*** The next unstarted work is
+> **59**, **61**, **65**, and the three sequential release tasks **47 → 48 →
+> 49**.
+>
+> ***⏸ SEVENTEENTH PASS, 18 SEP 2026 — RELEASE_1.1 66: THE INSTALLING
 > USER GETS AN ORDINARY ACCOUNT, AND THE VERB HALF HAD SHIPPED ALONE.*** The
 > owner met 64's last closed door himself — logged in as SDSYS, refused when
 > creating an account for his own Windows name: `createa:548-556`, message

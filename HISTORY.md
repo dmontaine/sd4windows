@@ -65907,3 +65907,73 @@ is refused outright, which is why his ruling (a) is Windows-only until their
 owner rules on a privileged own-record write path.
 
 ====
+
+19 Sep 2026, next session - 69 AND 72 BOTH BUILT, AND EACH WAS WIDER THAN ITS
+OWN ENTRY SAID.
+
+69 was filed as one false sentence in messages/10089.  A claim-oriented sweep -
+the method 130e's note prescribes, searching for the CLAIM rather than for the
+wording already found - turned up four copies: 10089, 10101, sd.iss's /SILENT
+refusal, and a hard-coded crt block at set_acc_password:241-245.  The fourth is
+the one that matters, because test-retired-wording-units COULD NOT SEE IT: its
+corpus was messages, sd.iss and gplbld/*.ps1 and never the BASIC, while 130's
+own note records that the claim had "SEVEN copies across messages, sd.iss and
+hard-coded crt lines".  The crt lines had always been in scope for the sweeps
+and never for the guard.  sdsys/gpl.bp is now in the corpus, comment-stripped
+through a new 'basic' kind in the shared strip-comments.ps1 (whole-line * and !,
+trailing ;*), scanned whole per file to keep the free tier cheap - 222 entries
+rather than 78,000.  Mutant: restoring the old crt line turned the lint red
+naming gpl.bp/set_acc_password, exit 1; the file was restored to the same
+SHA-256.  The ;* rule is the half that matters, because this tree echoes a
+message's own text after the call that displays it.
+
+The same sentence carried a SECOND false claim one line later - "SD Core asks
+for one every time you open the account" - which stopped being true when 64
+narrowed the gate to an elevated session.  Two more registrations.  And the
+stale COMMENTS went with the messages, because they are what the next session
+would have argued from: login:1246-1262's "THAT ACCOUNT CANNOT EXIST" is
+corrected in place rather than deleted, and sd.iss's silent-install rationale
+no longer offers "sd <command>" as its example - the batch exemption of 22 Aug
+2026 had already made that false and nobody had noticed for four weeks.
+
+72 is closed structurally: createa's secure.account.dir builds the icacls
+arguments as PowerShell literals, cred_set:192's shape, with the value's own
+apostrophes doubled - the part cred_set can skip and this cannot.  The route in
+was wider than the entry said: the OTHER arm takes a pathname the administrator
+TYPES (createa:934) and reaches the same line, and ospath(..., OS$PATHNAME)
+does not reject a $.  The second fix option is built too, as
+gplbld/test-psinterp-units.py: a REGISTER, not a proof - it asserts the
+surviving double-quoted interpolations are exactly the declared thirteen, so a
+fourteenth needs somebody to say what its variable can hold, and it does not
+re-check that any of the thirteen is safe.  Its first run corrected the
+hand-typed list twice: os_group has five group sites, not four, and os.execute
+had to be anchored at the start of a statement because BCOMP IMPLEMENTS the
+statement and its own assembly listing was being pulled into the corpus.
+
+TWO GUARD DEFECTS, both found by using the guards rather than by reading them.
+test-stripcomments-units printed "PASSED - 31 of 31" while a whole section had
+thrown on parameter binding and run no checks at all - the vacuous pass CLAUDE.md
+forbids, in a file whose own header forbids it; it now closes each section and
+refuses one that moved the tally by nothing, with the floor COUNTED rather than
+written down.  And CLAUDE.md's free-tier count read FORTY-SEVEN over a list of
+forty-six: test-tiercounts-units left on 18 Sep and the word did not move.  The
+18 Sep handoff's "ALL 46" was right.
+
+TWO STANDING CLAIMS IN THESE FILES ARE WRONG AND ARE CORRECTED.  bbcmp CAN
+compile createa - exit 0, with void/input/sleep/prompt stubbed in a copy,
+against a HEAD control compiled the same way; PROJECT_STATUS says twice that it
+cannot, and 68's witness plan rests on that.  And ISCC needs
+/DStage=C:\Users\Don\stagetest or it stops at the #include of the staged
+upgrade.iss; the seventeenth pass recorded the exit code and not the argument.
+A scratch root also keeps bbcmp's gcat objects out of the repo, which the memory
+note had as an unavoidable side effect.
+
+MEASURED: ISCC exit 0 (22.187 s, to scratch, against the 00:55 staged tree - so
+it proves the [Code] compiles and nothing about the payload); set_acc_password
+and createa each bbcmp exit 0 against HEAD controls; login's change is 27 added
+lines, 0 deleted, every one a comment, asserted mechanically; free tier 47 of
+47 in 50.1 s.  NOT WITNESSED: neither entry.  The cycle is the only instrument,
+and 69's witness and 70's are mutually exclusive on the same install - 70 gives
+the account a credential, and 69's message only fires when there is none.
+
+====
