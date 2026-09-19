@@ -180,13 +180,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 ## NEXT SESSION: START HERE, IT IS SHORT
 
 > ***⏸ HANDOFF — END OF SESSION, 18 SEP 2026, LATER. THE WORKING TREE IS CLEAN
-> AND THE LAST COMMIT IS THIS BOX'S OWN — ***FOUR COMMITS ARE LOCAL AND
-> UNPUSHED*** (`e228f38`, `a816c13`, `213c4ea`, AND THE BOX'S OWN):
-> THE PUSH ASKS FOR CREDENTIALS ONLY AN INTERACTIVE WINDOW HAS, so
-> `git push origin main` FROM THE OWNER'S TERMINAL IS OWED BEFORE ANYTHING
-> ELSE — entry 65's recovery story stands on origin holding every commit.
-> READ THIS PARAGRAPH, THEN RELEASE_1.1_FIXES.md 64, WHICH CARRIES EVERY
-> MEASUREMENT BY PASS.***
+> AND EVERYTHING IS PUSHED — the last commit is this box's own.  THE PUSH WENT
+> OVER SSH, AND NOW `origin` IS SSH PERMANENTLY*** (`git@github.com:
+> dmontaine/sd4windows.git`, the owner's ruling: "ssh is set up on this
+> computer I should not have to log in") — because over HTTPS, Git Credential
+> Manager's dialog AUTO-CANCELS from an agent's shell and the push hangs on a
+> credential nothing can answer; two sessions paid for that before the owner
+> named the cure.  A session that meets a hanging push should check
+> `git remote -v` before it meets the dialog.  READ THIS PARAGRAPH, THEN
+> RELEASE_1.1_FIXES.md 64, WHICH CARRIES EVERY MEASUREMENT BY PASS.***
 >
 > ***WHERE 64 STANDS.*** Slices 1–4 and 5a are cut; slice 6 is cut in BOTH halves
 > (ADOPT is out of the product, and `gplbld/install-sdsys.ps1` makes the Windows
