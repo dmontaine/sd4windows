@@ -235,7 +235,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **The sixteenth pass's owed witness landed in the same run: the finishing
 > window asked for the SDSYS password.**
 >
-> ***68 IS BUILT, NOT CYCLED — THE ROUTE KEYWORD IS OPTIONAL AND SILENCE MEANS
+> ***68 IS WITNESSED AND CLOSED — THE OWNER'S 00:19:05 CYCLE.***
+> `attach-account.log` reads **`SD routes for don: ssh and the API`** with **no
+> route keyword passed**, so the default fired; `don keeps the Windows sign-in
+> rights it already had` (folded, 67 holding on this path too); the register
+> holds `don` and `sdsys`. **Both ports now run one install line.**
+>
+> ***AND THE OWNER'S OWN FIRST LOGIN FOUND RELEASE_1.1 69, WHICH NO TEST HERE
+> WOULD HAVE.*** Unelevated: straight in, correct. Elevated: lands in `don`
+> (right under 64) and is asked to set a **new** password. ***THE BEHAVIOUR IS
+> CORRECT*** — `login:1080-1089` gates `require.credential` on
+> `K$ADMINISTRATOR` + interactive TTY + no batch command, it is that routine's
+> **only** call site, and it asks for a password to be SET, never typed. ***THE
+> MESSAGE IS NOT***: 10089 says *"Until this account has a password it cannot
+> be used at all: not here at the keyboard…"* and he had just used it at the
+> keyboard without one. True when PRE_RELEASE 130 wrote it; **66 made it false
+> by creating accounts with no `$cred` on purpose.** ***THE SEAM UNDER IT IS
+> REAL***: 68 gives every account ssh and the API by default while ATTACH
+> writes no credential, so an account is advertised as remotely reachable and
+> cannot authenticate remotely until somebody opens an elevated console
+> session. **Filed S; may deserve B — first-run path for every installing
+> user.**
+>
+> ***68, AS BUILT — THE ROUTE KEYWORD IS OPTIONAL AND SILENCE MEANS
 > BOTH (19 Sep 2026).*** `createa`'s 10082 refusal becomes
 > `access.ssh = @true; access.api = @true`. ***`access.given` STAYS***: `NONE`
 > and silence are still different, they just no longer differ in whether the
