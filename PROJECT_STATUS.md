@@ -179,7 +179,78 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ PICK UP HERE (18 Sep 2026 — THE OWNER HAS DECIDED TO RIP OUT THE TIERED
+> ***⏸ HANDOFF — END OF SESSION, 18 SEP 2026. THE WORKING TREE IS CLEAN AND
+> EVERYTHING IS PUSHED; THE LAST COMMIT IS `01bde5c`. READ THIS PARAGRAPH,
+> THEN RELEASE_1.1_FIXES.md 64, WHICH CARRIES EVERY MEASUREMENT BY PASS.***
+>
+> ***WHERE 64 STANDS.*** Slices 1–4 and 5a are cut; slice 6 is cut in BOTH halves
+> (ADOPT is out of the product, and `gplbld/install-sdsys.ps1` makes the Windows
+> SDSYS account). This session added three passes, one per commit: **NINTH** —
+> the free tier was run for the first time since those two commits and was 44/47,
+> and its two guard reds were fixed; **TENTH** — the dead `-WithPassword` half of
+> `finish-install.ps1` is deleted, with `sd.iss`'s `PasswordStepWanted` and the
+> changelog entry; **ELEVENTH** — `createa`'s three dead `ADMINISTRATOR` arms and
+> the `tier` variable are deleted, which closes the dangling
+> `sysmsg(10083)`/10175 references nothing else could see. HISTORY.md has one
+> entry per pass.
+>
+> ***MEASURED, NOT CLAIMED.*** Free tier **46/47** by exit code, each test in its
+> own process, ~40 s, no elevation. **The one red is `test-sysmsg-units`, and it
+> is not a guard fault:** `verify-routes.ps1:430` asserts message 10083, deleted
+> by slice 4, and that verifier is stale beyond that row (`:321` creates its
+> control with the `ADMINISTRATOR` keyword the verb now refuses, and the script
+> pipes `LOGTO SDSYS`). **It belongs to 5b and is recorded rather than patched.**
+> `assert-current` is **exit 1 on SIX stale files**, the sixth being
+> `finish-install.ps1`, which ships; the other five are the slice-6 sources.
+> `P:\sdcore-mail\to-windows\` is EMPTY and no watcher is running.
+>
+> ***THE ONE THING THAT UNBLOCKS EVERYTHING ELSE IS THE CYCLE, AND IT IS THE
+> OWNER'S — ELEVATED POWERSHELL.***
+>
+> (1) The cycle:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1
+> ```
+>
+> ***IT IS THE FIRST COMPILER TO SEE ALL ELEVEN SLICES.*** `bbcmp.py` cannot
+> compile `createa` at all — measured this session, it dies in pass 2 on
+> *"PROMPT statement not coded ... ln 324"* — and nothing available in a session
+> compiles `sd.iss`'s `[Code]` or the new `install-sdsys.ps1`. What to expect:
+> the install makes SDSYS and prints its generated password at the END of
+> `install-sdsys.log`, and the machine has a way into SD for the first time since
+> the 15:07:23 install. **There is still NO local SDSYS account on this machine,
+> so nothing elevated can run until that cycle lands** — do not spend a run token
+> before it.
+>
+> (2) Then **5b**, the next real slice, in this order: `verify-routes` (the free
+> tier's one red), `verify-sshadmin`, `verify-apiremote`, `verify-sdsysgate`,
+> `verify-logtoaccess`, `verify-doors-admin`, parts of `verify-accountrules`,
+> `verify-privundetermined`'s composition leg, and **the ~50 scripts that still
+> pipe `LOGTO SDSYS`** as the first line of every session — refused outright at
+> `cproc:2789` (10002) since slices 1–2, which is why the whole elevated half is
+> owed that re-aim. The owed `verify-accountmodel.ps1` (the whole-of-NEWVOC count
+> for an ordinary account, the SUSPENDED/UNSUSPENDED register round trip, the
+> tier keywords refused, the `update.voc` @ID machinery) needs the Windows SDSYS
+> account that (1) creates.
+>
+> (3) Owed and named, each its own change: `createa`'s `make.admin` block is now
+> dead by construction (the keyword case sets it and then stops with 2018) but its
+> messages 10032/10033 EXIST, so nothing dangles — and removing it touches the
+> Windows-group creation path; and `modifya`'s ADMINISTRATOR residue.
+>
+> ***TWO TRAPS THIS SESSION PAID FOR, BOTH ABOUT INSTRUMENTS.*** The wording
+> lint's corpus needs **`grep -a`**: message files defeat a plain grep, so a
+> passing row can be read as broken and a broken one as passing. And **a
+> gravestone edit can swallow the statement after it** — the routine's `return`
+> and a `begin case` with its first `case` label both went that way, in diffs
+> that read clean; both were found by looking at the FILE afterwards and by the
+> whole-file token counts. Check the seam, not the diff.
+>
+> *(Previously, and now SUPERSEDED AND COMMITTED: the paragraph below opened the
+> box when the work was uncommitted in the working tree and nothing had been
+> compiled. The tree is clean and pushed, and the record of every pass is above
+> and in RELEASE_1.1_FIXES.md 64.)* ***⏸ PICK UP HERE (18 Sep 2026 — THE OWNER HAS DECIDED TO RIP OUT THE TIERED
 > ACCOUNT STRUCTURE. RELEASE_1.1 64 IS THE DECISION AND IT SUPERSEDES 58, 62 AND
 > 63. DO NOT FINISH 62 OR 63 — THAT WORK IS DELETED BY THIS RULING.)***
 >

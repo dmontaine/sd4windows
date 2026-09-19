@@ -65307,3 +65307,36 @@ path: its own change.  modifya carries 37 ADMINISTRATOR references in comments
 and is untouched.
 
 ====
+
+18 Sep 2026 - SESSION CLOSED: RELEASE_1.1 64 AT THE END OF THE ELEVENTH PASS.
+THREE COMMITS, PUSHED; THE TREE IS CLEAN.
+
+The commits, in order: 1d2039b (ninth pass - the free tier run after the ADOPT and
+installer commits, 44/47, its two guard reds fixed, and the createa
+"still calls the deleted message 10083" finding recorded), 4170af3 (tenth pass -
+the dead -WithPassword half of finish-install.ps1, with sd.iss's
+PasswordStepWanted and the changelog entry) and 01bde5c (eleventh pass -
+createa's three dead ADMINISTRATOR arms and the tier variable, closing that
+finding).
+
+STATE, MEASURED: free tier 46/47 by exit code, each test in its own process.  The
+one red is test-sysmsg-units, and its cause is verify-routes.ps1:430 asserting
+message 10083 - a verifier that is stale beyond that row, and slice 5b's.
+assert-current is exit 1 on six stale files, the sixth being finish-install.ps1,
+which ships.
+
+THE NEXT ACT IS THE OWNER'S AND IT IS THE CYCLE.  It is the first compiler to see
+all eleven slices of the teardown: bbcmp.py cannot compile createa at all - it
+dies in pass 2 on "PROMPT statement not coded ... ln 324", measured - and nothing
+available in a session compiles sd.iss's [Code] or the new install-sdsys.ps1.
+Until it lands there is no local SDSYS account, so nothing elevated can run, and
+no run token should be spent on the suite.
+
+PROJECT_STATUS.md's START HERE box was refreshed for this: a handoff block at the
+top carries where 64 stands, the measurements above, the two acts in order (the
+cycle, then 5b with its eight verifiers and the ~50 LOGTO SDSYS scripts), and the
+two instrument traps this session paid for - the wording lint's corpus needs
+grep -a, and a gravestone edit can swallow the statement after it, which it did
+twice in one file.
+
+====
