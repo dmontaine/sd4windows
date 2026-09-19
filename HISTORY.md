@@ -65249,3 +65249,61 @@ STOP WORKING, and the two 4 Sep entries that promised a password page are marked
 replaced rather than rewritten - the convention that file already uses.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, ELEVENTH PASS: createa's THREE DEAD ADMINISTRATOR
+ARMS ARE DELETED, AND THE tier VARIABLE WITH THEM.
+
+This closes the finding the ninth pass recorded: the tree held live-looking calls
+to message files slice 4 had deleted, in arms nothing can reach, and NO GUARD
+READS IT - test-sysmsg-units drives the VERIFIERS, not sdsys/gpl.bp.
+
+WHAT WENT.  Arm 1 at :1482 copied VOC_TEMPLATE's administration verbs into an
+ADMINISTRATOR-tier account's VOC.  Arm 2 at :1875 was the route refusal, the
+forced ssh-off/api-on state and the os.users grant, and it opened with
+"stop sysmsg(10083)".  Arm 3 at :2099 reported the routes and printed 10175.  All
+three were unreachable: the ADMINISTRATOR keyword is refused by the keyword loop
+(2018) and ADOPT, which used to promote an adopted account into the tier, is
+gone.  Each is replaced by a gravestone that says what stood there, why it went,
+and where its reasoning lives now.
+
+AND THE VARIABLE, NOT JUST ITS VALUE.  tier had three readers - the register
+write, which went with the fields in slice 3, and those two arms - so after this
+it is an assignment nothing reads, which is the shape that kept the arms looking
+alive for two passes.  It is deleted, and the four notes that said it "survives
+only for the dead ADMINISTRATOR arms" are corrected.  The CREATE.ACCOUNT syntax
+message no longer advertises the refused keywords either: a command that refuses
+programmer and administrator must not print them in its own help.
+
+NO COMPILE WITNESS EXISTS FOR THIS FILE IN A SESSION, AND THAT IS MEASURED.
+bbcmp.py runs pass 1 and dies in pass 2 on "PROMPT statement not coded at pass2
+ln 324" - createa:324 is a PROMPT statement the bootstrap compiler never
+implemented.  So the cycle's BCOMP is the first compiler to see this, and it is
+owed.  It also wrote gplbld/pass1 and gplbld/pass2; both were removed and
+git status is clean again.
+
+MEASURED INSTEAD, AND IT IS THE CHECK THIS FILE'S OWN HISTORY USES.  Whole-file
+token counts, comment lines excluded, before against after: if -4, end -6, for
+-1, next -1, else -1, case -1, with begin, return, gosub, goto, repeat and until
+UNMOVED - exactly what three closed arms account for, so nothing was left
+unclosed.  No live tier, ADMINISTRATOR, 10083 or 10175 reference survives in the
+program; the two ADMINISTRATOR hits left are the verb's own privilege gate on
+K$ADMINISTRATOR and the refusal case.  Free tier 46/47, the one red unchanged
+and owed to 5b.
+
+***AND TWO DEFECTS IN MY OWN EDITS WERE CAUGHT BY THAT CHECK, WHICH IS WHY IT
+WAS RUN AGAINST THE FILE AND NOT THE DIFF.***  The arm-2 gravestone swallowed
+the routine's "return" onto its own comment line, leaving "not here.return"; the
+arm-3 gravestone swallowed "begin case" and the first "case" label, leaving an
+arm body with no block and no label.  Both diffs read clean and both were found
+by looking at the file afterwards - the first by grep on a line that should not
+exist, the second by the case/begin counts.  A third pass over the seams then
+confirmed both repairs by reading them.
+
+OWED AND NAMED RATHER THAN SWEPT IN.  createa's make.admin machinery is dead by
+construction now - the ADMINISTRATOR case sets it and then stops with 2018, so
+create_user is never reached with it true - but its messages (10032/10033) EXIST,
+so nothing dangles, and removing the block touches the Windows-group creation
+path: its own change.  modifya carries 37 ADMINISTRATOR references in comments
+and is untouched.
+
+====

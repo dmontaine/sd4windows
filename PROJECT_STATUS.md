@@ -302,6 +302,30 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > sixth being `finish-install.ps1`; 441 lines to 201, parse clean.*** NO CYCLE
 > RUN: nothing here compiles `sd.iss`'s [Code]. `sdsys/changelog` carries it — a
 > user would notice — with the two 4 Sep password-page entries marked replaced.
+> ***ELEVENTH PASS, SAME DAY — `createa`'s THREE DEAD `ADMINISTRATOR` ARMS ARE
+> DELETED, AND THE `tier` VARIABLE WITH THEM, WHICH CLOSES THE NINTH PASS'S
+> FINDING.*** Arms 1, 2 and 3 (the VOC_TEMPLATE copy; the route refusal with the
+> forced ssh-off/api-on and the os.users grant; the route report) are gone, each
+> replaced by a gravestone saying what stood there and why it went. ***TWO OF
+> THEM CALLED MESSAGES SLICE 4 HAD DELETED*** — `stop sysmsg(10083)` and 10175 —
+> so the tree held live-looking calls to missing message files in unreachable
+> arms, which no guard reads. `tier` is GONE, not left at a constant: its last
+> three readers were the register write and those two arms. The four notes that
+> claimed it "survives only for the dead ADMINISTRATOR arms" are corrected, and
+> the CREATE.ACCOUNT syntax message no longer advertises the refused keywords.
+> ***NO COMPILE WITNESS IS POSSIBLE IN A SESSION: `bbcmp.py` aborts at pass 2 on
+> "PROMPT statement not coded at ln 324" — measured — so the cycle's BCOMP is the
+> first compiler to see this.*** Measured instead: whole-file token counts,
+> comments excluded — `if` −4, `end` −6, `for` −1, `next` −1, `else` −1, `case`
+> −1, with `begin`/`return`/`gosub`/`goto`/`repeat`/`until` unmoved. No live
+> `tier`, `ADMINISTRATOR`, 10083 or 10175 reference survives; free tier 46/47
+> with the one red unchanged. ***AND TWO DEFECTS IN MY OWN EDITS WERE CAUGHT BY
+> THAT CHECK: the arm-2 gravestone swallowed the routine's `return` into a
+> comment line, and the arm-3 one swallowed `begin case` and the first `case`
+> label — both invisible in a clean-reading diff, both found by looking at the
+> file.*** Owed and named: `createa`'s `make.admin` block is now dead by
+> construction (its messages exist, so nothing dangles) and touches the Windows
+> group path; `modifya`'s ADMINISTRATOR comments are untouched.
 > ***READ RELEASE_1.1 64'S "PROGRESS" CLAUSES BEFORE ADDING TO THIS***, not just
 > its decision clauses: they carry the measured dictionary format and its answer
 > (the THIRD PASS made the change rather than guessed at it), the three findings
