@@ -255,13 +255,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > finishing window but left the variable a LOCAL of `CurStepChanged`; it is
 > SCRIPT-LEVEL NOW (fifteenth pass, `891cdb9`), initialised to 2 - "already
 > there", the one code that means nothing to ask - with the local deleted
-> rather than left to shadow. ***THE RE-RUN IS THE WITNESS, AND IT OWES WHAT
-> THE HALF-RUN ALREADY PAID FOR: `bin\` IS BACK and the free tier is 46/46
-> for the first time (`test-tlsrelay-units.py` included); `assert-current`
-> is exit 1 in the honest direction - the rebuilt `bin/sd.exe`
-> (`8053548E804CAA29`) against the 17:55:27 install's (`0BC0ACDED4CABDA3`);
-> SD the service is STOPPED where step 1 left it, both trees untouched, and
-> the cycle's own message names the cure: re-run it, or `sc.exe start SD`.***
+> rather than left to shadow.
+>
+> ***AND HIS RE-RUN COMPLETED (21:28:44) - THE COMPILE FIX IS WITNESSED BY THE
+> COMPILE SUCCEEDING - BUT THE PASSWORD PROMPT NEVER APPEARED, AND THE CAUSE
+> IS MEASURED IN install-sdsys.log: "SDSYS already exists" (code 2), and the
+> twelfth pass prompted only on 0, on the premise "a reinstall cannot
+> overwrite a WORKING password".  THE PREMISE BROKE: this account's password
+> was generated in a hidden window at 17:55:27, never known to anybody, and
+> THE LOG IS OVERWRITTEN PER RUN, so it is recoverable from nowhere.*** The
+> owner's second ruling, verbatim in HISTORY and the code: *"So without an
+> sdsys password being entered at install time there is no way to manage sd."*
+> **THE SIXTEENTH PASS (`d7cb9ff`) MAKES THE WINDOW ASK ON BOTH CODES THAT
+> MEAN THE ACCOUNT EXISTS** - 0 made, 2 already there - with an empty line
+> keeping the existing password and saying so honestly (nothing generated this
+> run, no copy anywhere, and the `Set-LocalUser` cure printed with it).
+> **THE RE-RUN DELIVERS THE PROMPT, AND IT IS THE ONLY WITNESS LEFT OWED.**
+> Free tier 46/46; the keep path witnessed live redirected-stdin.
 >
 > ***THE ONE THING THAT UNBLOCKS EVERYTHING ELSE IS THE CYCLE, AND IT IS THE
 > OWNER'S — ELEVATED POWERSHELL.***
