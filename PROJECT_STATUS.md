@@ -235,6 +235,31 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **The sixteenth pass's owed witness landed in the same run: the finishing
 > window asked for the SDSYS password.**
 >
+> ***70 IS BUILT, NOT CYCLED — THE INSTALL ASKS THE INSTALLING USER FOR AN SD
+> PASSWORD AGAIN, REQUIRED, AND SAYS IT IS FOR REMOTE ACCESS ONLY.*** Owner,
+> 19 Sep, after meeting 69 himself. ***IT IS NOT A REVERSAL OF THE 18 Sep "NO
+> PASSWORD AT INSTALL" RULING*** — that reason was *"the installing user has
+> already logged in to the OS… and that login reaches their SD account"*, which
+> is **true and only about the console**, and **68 then gave every account ssh
+> and the API by default**, so the install handed out routes the account could
+> not authenticate on. ***THE SCOPE IS ONE ACCOUNT PER MACHINE***: an ordinary
+> `CREATE.ACCOUNT` calls `!set_passwd`, which writes the Windows password **and**
+> `$cred` (`createa:72`, `:844`) — **ATTACH is the only path that skips it**, so
+> one prompt closes the whole hole. **The mechanism is RESTORED, not invented**:
+> 64's tenth pass (`4170af3`) deleted the `-WithPassword` half as dead when
+> ADOPT went, and 66 made it live again. ***THE PASSWORD IS NEVER AN ARGUMENT***
+> — `sd -QUIET MODIFY.PASSWORD <account>` is **started** and asks for itself,
+> twice, hidden. ***"REQUIRED" MEANS ASKED AGAIN, NOT ENFORCED***, and the code
+> says so: ask, **verify `$cred` appeared**, retry to three, then name the cure.
+> **The reinstall case is CHECKED, not reasoned about** — an existing credential
+> is readable and is left alone, which is structurally why the sixteenth pass's
+> SDSYS fault cannot recur here. **MEASURED: ISCC exit 0, parses clean, free
+> tier 46/46.** ***NOT CYCLED — nothing in a session can run that window***; the
+> witness is an install that asks, a `$cred/<name>` that appears, and a second
+> install over kept accounts that does **not** ask. **Linux built the opposite
+> hours earlier (`4ffffb8`) and has the same one-account hole; told 19 Sep
+> 01:40.** **69 shrinks to the residual paths but its message is still false.**
+>
 > ***68 IS WITNESSED AND CLOSED — THE OWNER'S 00:19:05 CYCLE.***
 > `attach-account.log` reads **`SD routes for don: ssh and the API`** with **no
 > route keyword passed**, so the default fired; `don keeps the Windows sign-in
