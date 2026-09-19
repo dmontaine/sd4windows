@@ -65135,3 +65135,60 @@ refuse the compile.  That binding, the dead -WithPassword half of
 finish-install.ps1, and the verifier re-aim are what remain.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, NINTH PASS: THE FREE TIER IS RUN AFTER THE ADOPT AND
+INSTALLER COMMITS, AND IT WAS 44/47.  EVERY RED WAS ONE OF THOSE TWO COMMITS' OWN.
+
+The free tier is "run these on every change" (CLAUDE.md), and neither the seventh
+nor the eighth pass ran it: each measured the scripts it had just edited.  Run
+now, all forty-seven in their own process, it came back 44/47 - three reds, every
+one of them caused by those two commits, and none of them a fault in the product.
+
+ROW 130c OF THE WORDING LINT HAD LOST ITS REPLACEMENT STRING.  Slice 6 deleted
+the installer closing box's item 1 - both arms of the ssh/API split - and
+"PASSWORD IS REQUIRED even here" had exactly one copy, in that item.  THE PAIR'S
+SECOND HALF IS A POSITIVE CONTROL, so the lint failed on itself and named the
+cause.  RE-AIMED to "A password is required" (finish-install.ps1:307,
+messages/10089) - already row 130's replacement, and sharing one is this file's
+practice: the ten R1.1-64b..j rows share a single sentence.  NOT deleted, because
+the retired half, "you do not need one here", is still false and a row with no
+retired half catches nothing.  64/64.
+
+test-groupmember-units.py NAMED A createa LINE THAT NO LONGER EXISTS.  Its
+declaration table is keyed on the STRIPPED SOURCE LINE, so the ADOPT removal's
+'if adopt or is_grp_member(acc.uname, "S-1-5-32-544") then' -> 'if
+is_grp_member(acc.uname, "S-1-5-32-544") then' moved the key.  Found RED on the
+tree that made the change, naming the old line 'stale' and the new one
+'UNCLASSIFIED' - the pair of rows it exists to produce, which is the
+key-as-line-text design working as intended.  21/21.
+
+test-upgradeiss-units.py COUNTED THE {app} DELETES IN WITH THE DATA TREE'S.  64
+put the FIRST REAL NAME in stage.py's PF_RETIRED (adopt-account.ps1), and those
+entries are deliberately neither paired with a copy nor gated - two properties
+this same file already asserts for an injected name in its second block.  Two
+whole-file checks counted them anyway: the pairing row read "16 deletes vs 14
+copies + 1 retired" and the gating row went red on the one entry that must not
+carry a Check:.  The two populations are separated, and the {app} one is now
+checked against the real PF_RETIRED by name - so the positive case exercises the
+SHIPPED entry rather than only an injected one.  0 failed.
+
+ONE RED REMAINS AND IT IS NOT A GUARD FAULT.  test-sysmsg-units 43/44:
+verify-routes.ps1:430 asserts message 10083, DELETED with 10106 and 10175 by
+slice 4.  That verifier is stale beyond that single row - :321 creates its
+control with the ADMINISTRATOR keyword createa now refuses (2018), and the whole
+script pipes 'LOGTO SDSYS', refused at cproc:2789 - so it belongs to slice 5b,
+and it is RECORDED rather than patched: a partial edit of a rig that cannot run
+on this machine would leave rows 431-433 asserting a rule 64 deleted.
+
+AND A NEW FINDING, FOUND BY READING BECAUSE NO GUARD READS IT: createa:1905-1909,
+the DEAD 'tier = ADMINISTRATOR' arm, still calls 'stop sysmsg(10083,...)', whose
+message file slice 4 deleted.  Slice 4's own note said that arm "goes with ADOPT";
+the seventh pass left it standing deliberately.  test-sysmsg-units reads the
+VERIFIERS, not sdsys/gpl.bp, so nothing names it.  Either the arm goes - it is
+dead, since nothing can set that tier - or the record says plainly that it stays.
+
+MEASURED: free tier 46/47 by exit code, each test in its own process;
+assert-current exit 1, refusing on the same FIVE stale files as the eighth pass,
+and naming NONE of the three edited files, so no test file turned the tree stale.
+
+====

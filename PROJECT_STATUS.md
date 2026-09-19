@@ -263,6 +263,28 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > elevated window, so binding that door to SDSYS first would refuse the compile.
 > That binding, the dead `-WithPassword` half of `finish-install.ps1`, and
 > verifier slice 5b are what remain.
+> ***NINTH PASS, SAME DAY — THE FREE TIER IS RUN AFTER THE ADOPT AND INSTALLER
+> COMMITS, AND IT WAS 44/47: EVERY RED WAS THOSE TWO COMMITS' OWN.*** Neither
+> commit ran it — each measured only the scripts it had edited. **Fixed:** the
+> wording lint's row `130c` lost its replacement string when slice 6 deleted the
+> closing box's item 1 — `"PASSWORD IS REQUIRED even here"` existed ONCE, in that
+> item, and the row's second half is the POSITIVE CONTROL, so the lint named its
+> own cause; it is RE-AIMED to `"A password is required"`
+> (`finish-install.ps1:307`, `messages/10089`), already row 130's replacement.
+> `test-groupmember-units.py`'s declared `createa` site moved with the source line
+> the ADOPT removal changed; `test-upgradeiss-units.py` was counting `{app}`
+> deletes in with the data tree's, now that 64 has put the first real name in
+> `PF_RETIRED`. **OWED, NOT PATCHED:** `test-sysmsg-units` 43/44 —
+> `verify-routes.ps1:430` asserts message 10083, deleted by slice 4, and that
+> verifier is stale beyond the row (`:321` creates its control with the
+> `ADMINISTRATOR` keyword the verb now refuses), so it is 5b's.
+> ***AND A FINDING NO GUARD SEES: the dead `tier = 'ADMINISTRATOR'` arm at
+> `createa:1905-1909` still calls `sysmsg(10083)`, a message file slice 4
+> deleted*** — slice 4 said that arm "goes with ADOPT" and the seventh pass left
+> it standing, and `test-sysmsg-units` reads the VERIFIERS, not `sdsys/gpl.bp`.
+> ***MEASURED: free tier 46/47 by exit code, each test in its own process;
+> `assert-current` exit 1 on the same FIVE stale files, naming none of the three
+> edited ones.***
 > ***READ RELEASE_1.1 64'S "PROGRESS" CLAUSES BEFORE ADDING TO THIS***, not just
 > its decision clauses: they carry the measured dictionary format and its answer
 > (the THIRD PASS made the change rather than guessed at it), the three findings
@@ -325,7 +347,10 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 64.
 > ***MEASURED THIS SESSION: `test-retired-wording-units` 64/64; then slice 5a
 > retired one of the free tier's two reds and fixed the other, so the list is 46
-> rows with NEITHER red — BUT VERIFYINSTALL1 HAS NOT BEEN RE-RUN:*** it cannot
+> rows with NEITHER red — BUT VERIFYINSTALL1 HAS NOT BEEN RE-RUN:*** ***THAT
+> COUNT IS SUPERSEDED BY THE NINTH PASS ABOVE: run after the ADOPT and installer
+> commits it was 44/47, and it is 46/47 now, with `test-sysmsg-units` the one red
+> and slice 5b owing it.*** it cannot
 > run on this install at all, for the reason in the paragraph above. Do not quote
 > 46/46 as evidence.
 > `DisableForwarding` in `allow-ssh-groups.ps1` stays whatever the model
