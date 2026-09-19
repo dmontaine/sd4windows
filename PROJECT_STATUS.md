@@ -235,6 +235,101 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **The sixteenth pass's owed witness landed in the same run: the finishing
 > window asked for the SDSYS password.**
 >
+> ***⏸ HANDOFF — END OF SESSION, 19 SEP 2026 ~02:20. WORKING TREE CLEAN,
+> EVERYTHING PUSHED, HEAD IS THIS BOX'S OWN COMMIT.*** Origin is SSH and the
+> push needs no credential. **Read this paragraph, then RELEASE_1.1_FIXES.md
+> 66-72.**
+>
+> ***THE ONE THING THAT UNBLOCKS EVERYTHING IS THE CYCLE, AND IT IS THE
+> OWNER'S — ELEVATED POWERSHELL:***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
+> ```
+>
+> ***IT IS THE FIRST CYCLE THAT CAN WITNESS 70 AND 71, AND NOTHING IN A SESSION
+> CAN SUBSTITUTE*** — `bbcmp` cannot compile `createa`, and nothing here can run
+> the finishing window. **Four things to read afterwards, in this order:**
+>
+> 1. **The finishing window ASKS for an SD password** and `C:\ProgramData\SD\sdsys\$cred\don` **appears** (70). *It did not, last install — see the trap below.*
+> 2. **`MODIFY.PASSWORD` typed alone in `don`** asks for the current password and succeeds (71).
+> 3. **`MODIFY.PASSWORD sdsys` from `don`, UNELEVATED**, is refused with **2001** (71's other half; unelevated is the point — elevated is allowed by design).
+>    - ***WITNESS 2 IS THE ONE THAT MIGHT FAIL, AND LINUX SAID WHY BEFORE WE
+>      RAN IT.*** `$cred` is locked to SYSTEM and Administrators here, so an
+>      unelevated account writing its own credential depends entirely on
+>      `cred_set:213` going through **`ps_script`**, the elevated helper. **That
+>      is reasoned, not measured** — nobody has watched an unelevated ordinary
+>      account complete a `MODIFY.PASSWORD`. On Linux the equivalent write is
+>      refused outright (`$cred` is `0700`), which is why they sent the same
+>      ruling to their owner as **W.10** instead of building it. **If 2 fails,
+>      it is a privilege question, not a vocabulary one.**
+> 4. **A SECOND install over kept accounts does NOT ask again** (70's reinstall leg — the function reads `$cred` and leaves a live credential alone).
+>
+> ***DONE AND WITNESSED THIS SESSION: 66, 67, 68.*** The installing user gets an
+> ordinary account (ATTACH); its name folds; the route keyword is optional and
+> silence means BOTH. All three were read back off the installed tree, not
+> inferred from a cycle's exit.
+>
+> ***BUILT AND NOT WITNESSED: 70, 71.*** **Open: 69 and 72**, and neither is
+> started.
+>
+> ***FOUR TRAPS THIS SESSION PAID FOR. THE FIRST COST A REAL INSTALL.***
+>
+> - ***`-internal` FORCES THE SESSION INTO SDSYS*** (`sd.c:607-612`,
+>   `forced_account = "SDSYS"`). **A `voc_template` verb is unreachable without
+>   it**, because 64 narrowed the SDSYS landing to the Windows SDSYS account, so
+>   an elevated session of an ordinary user lands in their OWN account.
+>   `attach-account.ps1` had the switch; the new password step did not, and the
+>   owner's install printed *"MODIFY.PASSWORD is not in your VOC"* three times.
+> - ***RESTORING DELETED CODE CAN RESTORE A PRECONDITION THAT HAS BEEN
+>   REMOVED.*** That step was recovered from `4170af3`, whose own comment said
+>   *"under PRE_RELEASE 56's model the elevated session lands in SDSYS"*. **The
+>   comment was read, quoted, and not re-checked against 64.** Verify the
+>   landing, the VOC and the token — do not quote the gravestone.
+> - ***RUN THE WHOLE FREE TIER, ALL 46.*** The 66 commit ran **four** and shipped
+>   `test-groupmember-units.py` **red**, because rewording a call site made its
+>   declared entry stale. It went unseen for two commits. **The list is typed
+>   out, never globbed** — `test-sdpy-units` matches the shape and is
+>   deliberately off it.
+> - ***ISCC IS AVAILABLE IN A SESSION ON THIS MACHINE***, contradicting §1996 and
+>   §2016, which were written on the previous one: a **per-user** install at
+>   `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe`, which `cycle.ps1:249-254`
+>   already looks for. Compile `sd.iss` with `/O` to scratch in ~16-25 s and the
+>   owner's `sdout` is untouched. **It catches the `[Code]` fault that cost the
+>   fifteenth pass a whole cycle.**
+>
+> ***TWO DECISIONS WAITING ON THE OWNER, NEITHER URGENT.*** **69** may deserve
+> **B** rather than S — message 10089 tells every installing user something
+> their own machine disproves, on the first-run path. And **`K$ADMINISTRATOR`
+> means ELEVATED, not SDSYS**, so an elevated ordinary user can set anybody's
+> password (71); that follows §5.6.1 and matches his wording, but it is wider
+> than *"only SDSYS can"* and he has not been asked to confirm it in those terms.
+>
+> ***MAIL: INBOX EMPTY, ALL HANDLED, FIVE SENT TODAY, AND THE LAST REPLY IS
+> ALREADY IN THIS BOX.*** Linux has ATTACH built (`fca5ca3`), the install
+> password built (`5074955`), routes filed as their S.29, and self-service
+> `MODIFY.PASSWORD` sent to **their** owner as **W.10**. **The `-internal`
+> defect does not apply to them and they checked rather than assumed** — their
+> bridge lands the session **in** SDSYS (`WHO` → `sdsys`, and `MODIFY.ACCOUNT`
+> answered from the verb rather than *"not in your VOC"*).
+>
+> ***AND ONE PARITY GAP IS NOW OPEN RATHER THAN CLOSED, WHICH THE OWNER SHOULD
+> BE TOLD.*** His ruling (a) — every account may change its own password — is
+> **Windows-only for now**. On Linux `$cred` is `sdsys:sdusers 0700` and their
+> `set_acc_password` stops a non-administrator before the prompt, a **recorded**
+> divergence (*"setting your own password is an administrator act here, unlike
+> the port"*), so the vocabulary entry alone would ship a verb that always
+> refuses. Building it there needs a privileged own-record write path — a new
+> mechanism — which is why it went to their owner instead of being built. **Two
+> ports will differ on this until he rules.** Their `K$ADMINISTRATOR` is an
+> sdsys login only, so their admin half is **tighter** than ours for the same
+> shared BASIC.
+>
+> **The watcher dies with this session — start a new one** (`/p/sdcore-mail`,
+> 5 s, skip `*.partial`, ~720 iterations).
+>
+> *(The per-pass notes below are the detail behind the above and are kept.)*
+>
 > ***70 IS BUILT, NOT CYCLED — THE INSTALL ASKS THE INSTALLING USER FOR AN SD
 > PASSWORD AGAIN, REQUIRED, AND SAYS IT IS FOR REMOTE ACCESS ONLY.*** Owner,
 > 19 Sep, after meeting 69 himself. ***IT IS NOT A REVERSAL OF THE 18 Sep "NO

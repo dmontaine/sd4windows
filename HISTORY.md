@@ -65834,3 +65834,76 @@ machine - so the comparison is read from the source, not from two live
 accounts.
 
 ====
+
+19 Sep 2026, end of session - 68 WITNESSED, 70 AND 71 BUILT, AND THE SESSION'S
+MOST USEFUL HOUR WAS SPENT ON A STEP THAT FAILED ON A REAL INSTALL.
+
+68 witnessed on the owner's 00:19:05 cycle: attach-account.log reads "SD routes
+for don: ssh and the API" with NO route keyword in the command, which is the
+default firing and the one thing no session could prove.  Both ports now run an
+identical install line.
+
+THEN HIS OWN FIRST LOGIN FOUND 69, AND NO TEST HERE WOULD HAVE.  Unelevated he
+went straight in; elevated he landed in don and was asked to set a NEW password.
+Both correct - login:1080-1089 gates require.credential on K$ADMINISTRATOR with
+an interactive TTY, it is that routine's only call site, and it asks for a
+password to be SET rather than typed.  The defect is what message 10089 SAYS
+while doing it: "Until this account has a password it cannot be used at all: not
+here at the keyboard" - which he had just disproved at the keyboard.  True when
+PRE_RELEASE 130 wrote it; 66 made it false by creating accounts with no $cred on
+purpose.
+
+HE THEN ASKED THE BETTER QUESTION - why not ask at install and say it is only
+for remote access - and the answer turned out to be much smaller than expected.
+An ordinary CREATE.ACCOUNT calls !set_passwd, which writes the Windows password
+AND $cred (createa:72, :844); ATTACH is the ONLY path that skips it.  So the
+hole is exactly one account per machine and one prompt closes it.  Built as 70,
+restoring what 64's tenth pass (4170af3) had deleted as dead.
+
+AND IT FAILED ON HIS INSTALL: "MODIFY.PASSWORD is not in your VOC", three
+times, the retry loop working exactly as designed and to no purpose.
+modify.password is in voc_template and NOT in newvoc.  THE CAUSE WAS A RESTORED
+PRECONDITION THAT 64 HAD REMOVED - the deleted code needed no -internal because,
+in its own comment, "under PRE_RELEASE 56's model the elevated session lands in
+SDSYS", and 64 narrowed that landing to the Windows SDSYS account.  The comment
+was read, quoted in the commit message, and never re-checked.  Fixed with
+-internal (sd.c:607-612 forces SDSYS), which is the same reason
+attach-account.ps1 can call CREATE.ACCOUNT from the same installer: the two
+calls differed by exactly that switch and only one had it.
+
+THE SAME FACT MADE THREE USER-FACING SENTENCES FALSE, then the owner's ruling
+made them true again.  Told to type MODIFY.PASSWORD, corrected to say they could
+not, and now saying it again with the qualifier that it is their OWN password -
+71, his ruling "a - as long the user can only modify their own password, but the
+admin can change any password".  sdsys/newvoc/modify.password added; no code
+change needed, VERIFIED rather than taken from the header (set_acc_password:87-92
+sets own from @logname, :123-126 refuses another account without
+K$ADMINISTRATOR).  Each of the three sentences now carries a note saying the
+qualifier is the point, because it has been wrong in both directions in one day.
+
+FOUR TRAPS WORTH THE NEXT SESSION'S TIME, and the first two are the same lesson:
+-internal forces the session into SDSYS and a voc_template verb is unreachable
+without it; restoring deleted code can restore a precondition that has since
+been removed.  Run the WHOLE free tier, all 46 - the 66 commit ran four and
+shipped test-groupmember-units red for two commits, because rewording a call
+site made its declared entry stale.  And ISCC IS available in a session here, at
+the per-user path, contradicting PROJECT_STATUS 1996 and 2016 which were written
+on the previous machine: ~20 s to scratch, and it catches the [Code] fault that
+cost the fifteenth pass a cycle.
+
+CHECKED FROM LINUX'S LEADS AND CLEAN, both recorded as 72: no ps_script caller
+interpolates a $-named path into a double-quoted PowerShell string (cred_set
+uses char(39) deliberately; every double-quoted site takes a validated OS or
+group name), though CONFIG('USRDIR') is one admin setting away from it at
+createa:1374 and nothing guards that; and no message file contains a field mark,
+so we do not have their multi-line DISPLAY fault.
+
+NOT WITNESSED: 70 and 71.  The cycle is the only instrument.  Witness 2 - an
+unelevated ordinary account completing MODIFY.PASSWORD - is the one that might
+fail, and Linux said why before we ran it: $cred is locked to SYSTEM and
+Administrators, so it depends on cred_set:213 writing through the elevated
+ps_script helper.  That is reasoned, not measured.  On their port the same write
+is refused outright, which is why his ruling (a) is Windows-only until their
+owner rules on a privileged own-record write path.
+
+====
