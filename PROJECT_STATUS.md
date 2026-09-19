@@ -251,6 +251,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > local SDSYS account, so nothing elevated can run and no run token should be
 > spent.
 >
+> ***⛔ RELEASE_1.1 65 — THE SCRIPT THAT DELETED THIS WORKING TREE IS GONE AND
+> MUST NOT COME BACK.*** `cleanup-devlitter.ps1`'s section 4 swept **the HOME
+> DIRECTORY for anything named `sd*`** (`Get-ChildItem -LiteralPath
+> $env:USERPROFILE -Filter 'sd*' -Force`), kept only `sdout`, and then ran
+> `Remove-Item -Recurse -Force` on the rest. On this machine the home is
+> `C:\Users\Don` and the project lives in **`C:\Users\Don\SDCoreProject`** — a
+> name that starts with `sd`. Measured live: that filter returns `SDCoreProject`
+> and `sdout`, and nothing else. The rule was written for a home where the
+> projects sat under `Projects\`; the home moved and the rule did not.
+> ***THE LESSON, BECAUSE IT APPLIES TO EVERY SWEEP THIS TREE EVER WRITES:*** the
+> narrow name rule lives in `clean-test-profiles.ps1` (stem list, `-SelfTest`,
+> must-NOT-match fixtures) and a `-Filter` prefix is NOT it — that regex would not
+> have matched `SDCoreProject` either. Do not sweep a home directory by prefix,
+> do not keep a list of one, and print every candidate with its full path before
+> anything is removed. RELEASE_1.1_FIXES.md 65 has the mechanism and the four-part
+> rule. Committed work survived it (`origin` had every commit); untracked material
+> did not.
+>
 > (2) Then **5b**, the next real slice, in this order: `verify-routes` (the free
 > tier's one red), `verify-sshadmin`, `verify-apiremote`, `verify-sdsysgate`,
 > `verify-logtoaccess`, `verify-doors-admin`, parts of `verify-accountrules`,

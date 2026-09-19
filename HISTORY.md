@@ -65465,3 +65465,67 @@ NOT DONE BY ME, AND THAT IS DELIBERATE: it deletes Windows accounts, and this is
 the owner's machine.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 65: A DEV SWEEP DELETED THE WORKING TREE.  THE MECHANISM,
+MEASURED, AND THE RULE IT BREAKS.
+
+The owner's report: "the last command you had me run ended up deleting my whole
+project directory.  I have had another agent cleaning up the mess for the past
+hour."  He is right, and the command was mine to hand over.
+
+WHAT DELETED IT.  cleanup-devlitter.ps1, section 4 "THE HOME DIRECTORY":
+
+    function Get-HomeLitter {
+        @(Get-ChildItem -LiteralPath $Home_ -Filter 'sd*' -Force -ErrorAction SilentlyContinue |
+          Where-Object { $KeepInHome -notcontains $_.Name })
+    }
+    ...
+        Remove-Item -LiteralPath $h.FullName -Recurse -Force -ErrorAction Stop
+
+$Home_ is $env:USERPROFILE and $KeepInHome is @('sdout') - a keep list of one.
+
+MEASURED LIVE, ON THIS MACHINE, AFTER THE RECOVERY: in C:\Users\Don the filter
+'sd*' returns exactly two entries - SDCoreProject and sdout.  SDCoreProject is the
+directory holding sd4windows, SDCore4Linux and SDCoreWindowsDocs, so section 4
+removed all three trees with -Recurse -Force.  There was nothing subtle to it.
+
+WHY THE RULE WAS RIGHT ONCE: THE HOME MOVED AND THE RULE DID NOT.  Its own design
+note is written against C:\Users\dmont, where the projects lived under
+C:\Users\dmont\Projects\... - a parent that does not match 'sd*'.  The same line
+that was harmless there is lethal in C:\Users\Don\SDCoreProject, and nothing in
+the script could notice, because a -Filter prefix is not a name rule.
+
+***AND THAT IS THE CLASS, WHICH IS WHY THIS IS AN ENTRY AND NOT A SENTENCE.***
+This tree HAS a narrow name rule, and it is in clean-test-profiles.ps1: an
+explicit stem list, a -SelfTest with must-match and must-NOT-match fixtures, and a
+note at :139 warning that the regex is "one step from" being reused for a user or
+group sweep.  '-Filter 'sd*'' is not that rule.  It was never in a self-test, it
+has no fixtures, and it would NOT have matched SDCoreProject either - CHECKED: the
+regex's stems all require [a-z]?[0-9]+ after them and the bare-name list is three
+specific names.  THE ONE SWEEP IN THE TREE THAT WAS NOT GOVERNED BY THE NAME RULE
+IS THE ONE THAT TOOK THE TREE.
+
+AND THE HANDOVER WAS MINE.  I recommended it on its documentation and on its 26
+Aug record - and that record proves it removed what it MEANT to in one particular
+home, which is not the same claim as its rules being narrow.  Running a
+destructive script's matching rule against the names actually on the machine,
+BEFORE handing it over, is the check the record's own instrument rules demand.  I
+skipped it.
+
+RULED AND DONE: the owner ruled, and cleanup-devlitter.ps1 is DELETED (e228f38),
+with its two live references corrected in assert-current.ps1 and
+verify-doors-admin.ps1.  It must not come back.
+
+THE RULE FOR ANY FUTURE SWEEP OVER A HOME DIRECTORY, FOUR PARTS: a name is matched
+by clean-test-profiles.ps1's regex and never by a prefix filter; a candidate must
+carry a run suffix, because a bare stem is a guess; every candidate is printed
+with its full path before anything is removed, and a run that then meets a name
+not on a fixture list refuses; and -Recurse -Force is never pointed at a child of
+a home directory on the strength of its name alone.
+
+WHAT SURVIVED: git history and origin.  Every commit had been pushed, so the
+committed source was recoverable and was recovered - all eight commits of this
+session among them.  What a clone cannot return is UNTRACKED material: the
+unstaged bin\, the stage and out trees, logs, the built installer.
+
+====
