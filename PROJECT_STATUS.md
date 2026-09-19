@@ -235,6 +235,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **The sixteenth pass's owed witness landed in the same run: the finishing
 > window asked for the SDSYS password.**
 >
+> ***68 IS BUILT, NOT CYCLED — THE ROUTE KEYWORD IS OPTIONAL AND SILENCE MEANS
+> BOTH (19 Sep 2026).*** `createa`'s 10082 refusal becomes
+> `access.ssh = @true; access.api = @true`. ***`access.given` STAYS***: `NONE`
+> and silence are still different, they just no longer differ in whether the
+> verb refuses — deleting it would make `NONE` unsayable. Syntax banner and
+> both synopses show the keyword braced; `attach-account.ps1` drops `BOTH` from
+> the call, the marker text and the failure message. **Message 10082 is
+> orphaned and left in place on purpose** — an uncalled message is inert, a call
+> to a missing one errors, and no guard objects. **Free tier 46/46.**
+> ***IT WILL NOW FAIL AGAINST A PRE-68 TREE***, stopping at 10082 with nobody
+> to answer, so the verb and the script move together. ***`bbcmp` CANNOT COMPILE
+> `createa`, so the cycle is the only proof*** — the witness is a fresh
+> install's `attach-account.log` showing the account made with **no route
+> keyword passed** and `SD routes for <name>: ssh and the API`.
+> **This is the last thing between the two ports and an identical install line;
+> Linux is already building to `sd -internal CREATE.ACCOUNT USER <name> ATTACH`.**
+>
 > ***LINUX'S 3018 ORDERING LEAD — CHECKED 19 Sep 2026, WE HAVE THEIR ORDERING
 > AND NOT THEIR FAULT. NOTHING FILED; DO NOT RE-DERIVE IT.*** Their `set.owner`
 > chowns before the last `voc.f` write, so a non-root session cannot write what
