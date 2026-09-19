@@ -179,6 +179,59 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ SEVENTEENTH PASS, 18 SEP 2026, LATEST — RELEASE_1.1 66: THE INSTALLING
+> USER GETS AN ORDINARY ACCOUNT, AND THE VERB HALF HAD SHIPPED ALONE.*** The
+> owner met 64's last closed door himself — logged in as SDSYS, refused when
+> creating an account for his own Windows name: `createa:548-556`, message
+> 10038, **unconditional in that arm, so being SDSYS does not help**.  Under 64
+> nothing else mints an account, so **install day is the only moment one can be
+> made**.  His ruling: the install does it silently (he considered an installer
+> password step and withdrew it), and **the two ports must look the same** — a
+> parity decision, so the Linux agent was told the contract rather than asked
+> (`P:\sdcore-mail\to-linux\2026-09-18T2313-windows-attach-installer-account.md`,
+> which also accepts their offer of the shared-BASIC diff list).
+>
+> ***WHAT WAS FOUND, AND IT IS THE REASON THIS PASS EXISTS.*** The 22:51:13
+> cycle **compiled and shipped the ATTACH keyword into `createa`** while
+> `sd.iss` and `stage.py` held **ZERO mentions of attach**, `attach-account.ps1`
+> was untracked, unstaged and unshipped, no `attach-account.log` existed, and
+> `C:\ProgramData\SD\sdsys\accounts\` held only `sdsys`.  **The install ran
+> clean and made no account, and nothing reported it** — a capability nothing
+> invokes is indistinguishable from one that was never built.  *(The session
+> that missed it had the `sd.iss` grep on screen and believed the script's own
+> header instead, which claimed `sd.iss calls this from [Code] at ssPostInstall`
+> — true of ADOPT, false of this tree.  The header now carries a dated caution;
+> **a header describing its caller is a claim about a file it cannot see**.)*
+>
+> ***WIRED THIS PASS:*** `stage.py` ships the script; `sd.iss` gains
+> `AttachInstallerAccount`, script-level `AttachCode` (initialised 2, the code
+> that claims nothing), the `ssPostInstall` call **exactly where `AdoptAccount`
+> stood** — both neighbouring comments already say "AFTER adopt" and neither had
+> to change — and `AttachMsg` in the closing dialog, which **tells the reader to
+> sign out**, because `createa:960-985` adds the account to `sdusers` and
+> Windows fixes group membership at sign-in.  Changelog entry in.
+>
+> ***MEASURED: `ISCC` EXIT 0, "Successful compile (15.562 sec)" — AND THAT
+> CORRECTS A STANDING CLAIM IN THIS FILE.*** §1996 and §2016 say `sd.iss` cannot
+> be ISCC-compiled in a session, *"no ISCC on this machine"*, written on the
+> previous machine.  **Inno is here as a PER-USER install** at
+> `%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe`, which `cycle.ps1:249-254`
+> already knows to look for; compile to a scratch `/O` and the owner's `sdout`
+> is untouched.  **This is the check that cost the fifteenth pass a whole
+> cycle.**  Free tier: `test-fixlist-units` **348/0**, `test-retired-wording-units`
+> **64/64**, `test-dirscoverage-units` and `test-upgradeiss-units.py` green.
+>
+> ***NOT WITNESSED — NO CYCLE HAS RUN SINCE THE WIRING.*** The install making
+> the account has never been observed, and neither has the verb half end to end.
+> The cycle below is owed.  **The cheap witness first, and it needs no
+> reinstall** — `attach-account.ps1` takes `-AppDir`, so against the installed
+> tree, **elevated PowerShell**:
+> `powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\attach-account.ps1" -User don -AppDir "C:\Program Files\SD"`
+>
+> *(The paragraph below opened the box at the sixteenth pass.  Its "THE WORKING
+> TREE IS CLEAN AND EVERYTHING IS PUSHED" was true then and is superseded by the
+> pass above; the ssh/origin paragraph it carries is unchanged and still applies.)*
+>
 > ***⏸ HANDOFF — END OF SESSION, 18 SEP 2026, LATER. THE WORKING TREE IS CLEAN
 > AND EVERYTHING IS PUSHED — the last commit is this box's own.  THE PUSH WENT
 > OVER SSH, AND NOW `origin` IS SSH PERMANENTLY*** (`git@github.com:

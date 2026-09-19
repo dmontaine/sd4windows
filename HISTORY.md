@@ -65742,3 +65742,65 @@ refused on the 21:28 install (its installed sd.exe 0BC0ACDED4CABDA3 against
 the rebuilt bin 8053548E804CAA29).  THE RE-RUN DELIVERS THE PROMPT.
 
 ====
+
+18 Sep 2026, seventeenth pass - RELEASE_1.1 66.  THE INSTALLING USER GETS AN
+ORDINARY ACCOUNT, AND THE VERB HALF HAD ALREADY SHIPPED WITHOUT A CALLER.
+
+The owner found 64's last closed door by walking into it: logged in as SDSYS,
+he tried to create an account for his own Windows name and was refused.
+createa:548-556, message 10038, and the refusal is UNCONDITIONAL in that arm -
+being SDSYS does not help.  Under 64 nothing else mints an account and the
+installing user had a Windows login before SD existed, so install day is the
+only moment such an account can ever be made.  He considered an installer
+password step beside SDSYS's and withdrew it: "rather than asking for a
+password for the installer, the windows system is using ATTACH to
+automatically create the sd account for the installer."  And he ruled the two
+ports must look the same, naming this agent lead - a parity decision, so the
+Linux agent was sent the contract rather than a question.
+
+WHAT THIS PASS FOUND, WHICH IS THE REASON IT EXISTS.  The 22:51:13 cycle
+compiled and shipped the ATTACH keyword into createa - "| Compiling gpl.bp
+createa", "| $createa added to global catalogue" - while sd.iss and stage.py
+held ZERO mentions of attach, attach-account.ps1 was untracked, unstaged and
+unshipped, no attach-account.log existed, and the accounts register held only
+sdsys.  The install ran clean and made no account.  NOTHING REPORTED IT: a
+capability nothing invokes is indistinguishable from one that was never built,
+and only the empty register said so.
+
+AND THE MISS HAS A NAMED SHAPE.  The session that reported the fix as working
+had run the sd.iss grep in the same turn, seen it return nothing, and believed
+attach-account.ps1's own header instead - "sd.iss calls this from [Code] at
+ssPostInstall", true of ADOPT and false of this tree.  That is the instrument
+rule with the measurement already on screen.  The header now carries a dated
+caution rather than a correction, because the wiring below made it true: a
+header describing its caller is a claim about a file it cannot see, and it
+goes stale silently.
+
+WIRED: stage.py ships the script; sd.iss gains AttachInstallerAccount,
+script-level AttachCode (initialised to 2, the code that claims nothing, the
+same second line of defence as SdsysCode), the ssPostInstall call placed
+EXACTLY where AdoptAccount stood - both neighbouring comments already read
+"AFTER adopt", RestoreSshOnly wanting a finished register and SecureAccountDirs
+wanting this install's account, so neither had to change - and AttachMsg in the
+closing dialog.  AttachMsg tells the reader to SIGN OUT before typing sd,
+because createa:960-985 adds the account to sdusers and Windows fixes group
+membership at sign-in: the account is correct and the installing session's
+token is stale.  Changelog entry in, plain English.
+
+MEASURED: ISCC exit 0, "Successful compile (15.562 sec)".  AND THAT CORRECTS A
+STANDING CLAIM - PROJECT_STATUS.md 1996 and 2016 say sd.iss cannot be
+ISCC-compiled in a session, "no ISCC on this machine", written on the previous
+machine.  Inno is here as a PER-USER install at %LOCALAPPDATA%\Programs\Inno
+Setup 6\ISCC.exe, which cycle.ps1:249-254 already knows to look for; compiling
+with /O pointed at scratch leaves the owner's sdout alone.  This is the check
+that cost the fifteenth pass a whole cycle to discover.  Free tier:
+test-fixlist-units 348/0 (it sees RELEASE_1.1 66 rows and validates every
+RELEASE_1.1 66 citation in the gplbld scripts), test-retired-wording-units
+64/64, test-dirscoverage-units and test-upgradeiss-units.py green.
+
+NOT WITNESSED.  No cycle has run since the wiring, so the install making the
+account has never been observed and neither has the verb half end to end.  The
+cheap witness needs no reinstall - attach-account.ps1 takes -AppDir and runs
+against the installed tree from an elevated prompt.
+
+====
