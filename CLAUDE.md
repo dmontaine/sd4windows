@@ -1032,7 +1032,9 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud �
 - **When to read `P:\sdcore-mail\to-windows\`:** at the start of a session; when
   the owner says "check mail"; and before changing anything the two ports must
   agree on — the API protocol and TLS, SDEXT and kernel key numbers, and message
-  numbers. Skip `*.partial` files: pCloud may hold only half of one.
+  numbers. Skip any name **containing** `.partial`: pCloud may hold only half of
+  one, and its in-flight name carries a `.tmp.<pid>.<hash>` suffix *after* the
+  `.partial`, so an anchored match misses it.
 - **Reply with a new file in `P:\sdcore-mail\to-linux\`.** Write it under a name
   ending `.partial`, then rename it (README rule 2). Never edit the other
   agent's file. Move a message you have handled to `done\`.
@@ -1059,10 +1061,14 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud �
   ~5 s, ignores `*.partial`, and wakes the session on the first new message — so
   a message is picked up within seconds of pCloud syncing it. On wake: handle the
   message, then **relaunch the watcher** (it self-exits after ~1 h so it is
-  re-armed fresh rather than lingering). A ~15-min `ScheduleWakeup` is the
+  re-armed fresh rather than lingering). ***THE FILTER IS "CONTAINS `.partial`",
+  NOT "ENDS WITH IT" — measured 19 Sep 2026, and the wording below is what led
+  the other way.*** pCloud's in-flight name is
+  `<name>.md.partial.tmp.5465.264eaaf74fe5`, so a `grep -v '\.partial$'` woke
+  the session on a half-written file. **`grep -v '\.partial'`.** A ~15-min `ScheduleWakeup` is the
   fallback heartbeat (owner, 15 Sep 2026: 15 min, to match Linux) — it re-checks the inbox and relaunches the watcher if it
   has died. The Windows watcher is a `Bash` `run_in_background` loop: from
-  `/p/sdcore-mail`, if `ls to-windows/ | grep -v '\.partial$'` is non-empty echo
+  `/p/sdcore-mail`, if `ls to-windows/ | grep -v '\.partial'` is non-empty echo
   it and `exit 0`, else `sleep 5`, up to ~720 times. *(Linux runs the same design
   with a Monitor; an earlier 2-minute cadence note is superseded. The floor a
   `ScheduleWakeup` allows is 60 s, which is why the fast path is the watcher, not

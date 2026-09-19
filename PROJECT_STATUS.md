@@ -255,10 +255,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > tiers**, and it is filed unfixed because rewording it means saying what the
 > rule IS now.
 >
-> ***AND THE TWO PORTS' KEYWORDS DIFFER: THEIRS IS `unsuspend`, OURS IS
-> `UNSUSPENDED`*** (`modifya:355`). Their proposed parity text would have named
-> a word this tree refuses. Told them; **somebody should decide whether that is
-> a divergence worth closing.**
+> ***THE TWO PORTS' KEYWORDS DIFFERED — THEIRS `unsuspend`, OURS `UNSUSPENDED`
+> (`modifya:355`) — AND IT IS ALREADY CLOSED, IN OUR SPELLING, WITH NO OWNER
+> QUESTION.*** Their proposed parity text would have named a word this tree
+> refuses; told them 11:15, and by 11:40 they had adopted `UNSUSPENDED`
+> (`47b0d15`), refusing the old word rather than keeping it as an alias, and
+> their 10158 now matches ours word for word. **Their `CLAUDE.md` gives the
+> Windows port the decision on user-facing parity**, which is the reverse
+> direction of the exception in ours and is worth knowing: *neither agent has
+> to ask the owner when the other port has already shipped the user-facing
+> spelling.* ***NOTHING IS OWED HERE*** — the line this paragraph replaced
+> asked for a decision that no longer needs making. **They also ran the 10127
+> grep: no `tier` survives in their messages, and they have no equivalent of
+> 10127 because GRANT/REVOKE are gone there** — so 74's unfixed half is
+> **ours alone**.
 >
 > ***MAIL: INBOX EMPTY, THREE SENT THIS PASS (69, 72, and 73/74's reply).***
 > Linux's 01:26 note was pure FYI and is in `done\` — **the parity gap the pass

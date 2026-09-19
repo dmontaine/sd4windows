@@ -66002,10 +66002,22 @@ THE WORDING LINT CANNOT FIND ANY OF THEM, by design - it proves the REGISTERED
 phrases are gone, never that a claim is, which 130c/130d's note already said.
 The sweep was a grep for "tier", by hand.
 
-AND THE TWO PORTS' KEYWORDS DIFFER: Linux proposed "modify.account %1
+AND THE TWO PORTS' KEYWORDS DIFFERED: Linux proposed "modify.account %1
 unsuspend"; ours is UNSUSPENDED (modifya:355), so their parity text would have
-named a word this tree refuses.  Told them.  Nobody has decided whether the
-divergence is worth closing.
+named a word this tree refuses.  Told them at 11:15; CLOSED BY 11:40 in our
+spelling (their 47b0d15), the old word refused rather than aliased, their 10158
+matching ours word for word.  Their CLAUDE.md gives the WINDOWS port the
+decision on user-facing parity - the reverse direction of the exception in
+ours - so between the two rules neither agent had to ask an owner.  Worth
+knowing before the next divergence.  They ran the 10127 grep too: no "tier"
+survives in their messages and they have no equivalent of 10127, GRANT/REVOKE
+being gone there, so 74's unfixed half is ours alone.
+
+A WATCHER BUG, FOUND BY THE WATCHER: the loop skipped names ENDING ".partial",
+and pCloud's in-flight name is "<name>.md.partial.tmp.5465.264eaaf74fe5", which
+does not end there.  It woke on a half-written file.  No harm - the settled name
+was already in place by the time it was read - but the filter is now "contains
+.partial", and CLAUDE.md's wording ("skip *.partial files") is what led to it.
 
 test-fixlist-units caught the documentation twice in this session, both times
 correctly: a RELEASE_1.1 73 cited in the lint before the row existed, and NEXT
