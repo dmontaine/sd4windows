@@ -65622,3 +65622,54 @@ with it.  The wrong-password control row is UNWITNESSED until then, and its
 comment names its own assumption so a red on it can be read.
 
 ====
+
+18 Sep 2026 - RELEASE_1.1 64, FIFTEENTH PASS: THE CYCLE RAN AND ITS ISCC
+CAUGHT THE TWELFTH PASS'S ONE DEFECT - SdsysCode WAS A LOCAL WHERE A SCRIPT
+VARIABLE WAS NEEDED.
+
+WHAT THE OWNER'S RUN PRINTED, because it is the compile no session can
+produce and it earned its keep on the first try:
+
+    Parsing [Files] section, line 68 of C:\Users\Don\stagetest\upgrade.iss
+    Compiling [Code] section
+    Error on line 3330 in ...\sd.iss: Column 64: Unknown identifier 'SdsysCode'
+    Compile aborted.  CYCLE STOPPED: ISCC exited 2.
+
+THE FAULT: the twelfth pass added '-SdsysCode ' + IntToStr(SdsysCode) to
+RunFinishingStep's command line - the finishing window's copy of
+install-sdsys.ps1's exit code - but left the VARIABLE a local of
+CurStepChanged, where MakeSdsysAccount assigns it.  A local cannot cross a
+procedure boundary, so the use at :3330 named an identifier that exists only
+700 lines away in another routine's var block.  sd.iss's own script-level
+var block says the rule it broke, written 22 Aug: "THE FINISHING STEP RUNS
+AFTER THE WIZARD HAS GONE, so what it needs to know has to outlive the
+procedure that learns it" - PasswordStepWanted stood exactly there until the
+tenth pass deleted it, and its successor belonged beside it.
+
+THE FIX, THREE EDITS: SdsysCode is declared in the script-level var block
+beside InstallReachedPostInstall, with the rule and this fault in the
+comment; InitializeSetup sets it to 2 - install-sdsys.ps1's "already
+there", the one code that means "nothing to ask" - because a script-level
+Integer zero-initialises to 0, "the account was MADE", the one reading that
+draws the password prompt, and an unset value must refuse to ask rather than
+ask (second line of defence, the WizardSilent check's own reasoning);
+CurStepChanged's local declaration is deleted - a local left standing would
+SHADOW the global, CurStepChanged would assign its own, the window would
+read 2 for ever and NEVER prompt, which is worse than the compile error.
+
+AND THE HALF-RUN DELIVERED ANYWAY, MEASURED: bin\ IS BACK (the cycle's
+build steps run before ISCC), and the free tier is 46/46 for the first time
+- test-tlsrelay-units.py included, the recorded no-bin\ shape cured by the
+run itself.  assert-current is exit 1 in the honest direction: the rebuilt
+bin/sd.exe (8053548E804CAA29) does not match the 17:55:27 install's
+(0BC0ACDED4CABDA3), and the source is newer than the install.  SD the
+service is stopped where step 1 left it, both trees untouched - the cycle's
+own message names the cure: re-run it, or sc.exe start SD.
+
+NOT WITNESSED STILL: the [Code] compile itself.  Nothing in a session
+compiles it, so the fix is by reading - every SdsysCode site now resolves to
+the one script-level declaration (checked), no comment line begins with #
+(the ISPP trap this file documents), and the free tier's sd.iss readers are
+green.  THE OWNER'S RE-RUN IS THE WITNESS.
+
+====
