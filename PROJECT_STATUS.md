@@ -235,7 +235,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **The sixteenth pass's owed witness landed in the same run: the finishing
 > window asked for the SDSYS password.**
 >
-> ***EIGHTEENTH PASS — 67 IS FIXED IN SOURCE (NOT CYCLED), 68 IS FILED, AND A
+> ***67 IS WITNESSED AND CLOSED — THE OWNER'S 23:51:33 CYCLE, `CYCLE COMPLETE`,
+> `createa` RECOMPILED.*** `sdsys\accounts\don` points at **`user_accounts/don`**
+> with group **`sdu_don`** where the pre-fix install had `Don`/`sdu_Don`; the
+> directory on disk is `don`; no `$attach.*` marker survived. ***ONE LEG IS
+> MACHINE HISTORY, NOT THE FIX***: the real Windows group is still `sdu_Don`,
+> because the cycle uninstalls `/VERYSILENT` (`cycle.ps1:705`) so the accounts
+> question is suppressed and the group is PRESERVED, and `os_group ADD` is
+> idempotent and matched it case-insensitively (`os_group:76`). **Everything
+> the install creates is folded; the one thing it preserves kept its old
+> spelling.** Harmless (every lookup is case-insensitive) and deliberately not
+> chased — renaming a live Windows group under a user is worse than a cosmetic
+> mismatch. **A fully clean witness is any machine that never had `sdu_Don`.**
+>
+> ***EIGHTEENTH PASS — 68 IS FILED, AND A
 > GUARD THAT HAD BEEN RED SINCE THE 66 COMMIT IS GREEN AGAIN.*** The ATTACH arm
 > folds unconditionally now, a deliberate narrow exception to `createa:695`'s
 > *"pre create the os user"* hatch; safe because the Windows lookup is
