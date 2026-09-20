@@ -179,6 +179,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***▶ 20 SEP 2026 15:35 — THE OWNER'S CYCLE RAN, AND THE INTERNAL GATE WORKED ON A REAL INSTALL (PARTLY
+> WITNESSED, NOT YET `verify-internalgate`).*** **Observed on the installed tree:** BCOMP compiled `login`
+> (object 15:34:14 — the compile risk in the block below did not bite); `attach-account.log` carries
+> *"Internal session admitted (opened by attach-account pid=… )"*, i.e. the installer's own attach session
+> was ADMITTED, ANNOUNCED with message 10922 and the marker CONSUMED (none survives, no `$internal.now`);
+> `assert-current` exit 0. **What is still unwitnessed:** the refusal, single-use, expiry and the seat's
+> internal door — that is `verify-internalgate`. **The owner asked whether the installer should prompt for
+> passwords on top of an existing install; the answer is in the record and is "partly":** the SDSYS prompt
+> fires on BOTH exit codes (0 made, 2 already there) by his own 18 Sep ruling — `finish-install.ps1:585-605`,
+> the empty line keeps the existing password — and **`sd.iss:3415`'s comment, "prompts only on 0", is STALE**
+> (left unedited because editing `sd.iss` turns the fresh install stale); the installing user's own SD
+> password is asked for only when no credential exists (`Set-AttachedAccountPassword` reads `$cred` first),
+> and the tree of THAT run was fresh (`sdsys` created 15:34:51 — a cycle deletes both trees), so it was owed.
+>
 > ***▶ 20 SEP 2026 AFTERNOON — THE OWNER RULED "1 GO, 2 REWRITE, 3 CONVERT": RELEASE_1.1 82 (D2′) IS
 > BUILT, `verify-accountrules` IS REWRITTEN, AND A CYCLE IS NOW OWED.*** **Nothing below has been
 > run; the tree is STALE against the install** (`login` and the new shipped `internal-marker.ps1`
