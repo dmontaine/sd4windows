@@ -196,25 +196,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > asking *which login name was used* — three passes and two elevated probe runs
 > were spent before anyone read the one log that says.
 >
-> ***WHAT IS NEXT IS 76, AND IT IS THE OWNER'S TO RUN.*** Route D (a task in
-> SDSYS's own live interactive session) is now measurable: SDSYS has **session
-> 14**, disconnected, as of 23:23 on 19 Sep, and the probe's finder reads
-> `qwinsta` for it. **It must stay signed in — do not log SDSYS off before the
-> run.** Elevated PowerShell; it asks for the SDSYS password at the keyboard
-> for routes A to C (already measured, re-run as the control) and route D itself
-> passes none:
+> ***ROUTE D RAN, 19 SEP 23:33, AND IT IS A SEAT.*** The owner ran
+> `probe-sdsysseat.ps1` elevated: a task (`LogonType Interactive`, `RunLevel
+> Highest`, principal `ACE\SDSYS`) ran inside SDSYS's **disconnected** session
+> 14 and returned **High** integrity, `Administrators` **enabled**, `S-1-5-4`
+> present — `SEAT=True` — and SD answered `WHO` with `44 SDSYS` and **no
+> 10002**. The disconnected-session doubt is answered: it serves. (A, B and C
+> stay as measured: A filtered, B batch, C closed at 1346; the probe's
+> "9 passed, 1 failed" is route C's row, a closed route scored as a failure.)
+> **The terminal paste omitted the route D section; the transcript
+> `C:\ProgramData\SD-verify\sdsysseat\probe-sdsysseat-20260919-233317.log` has
+> it — read the transcript, not the paste.**
 >
-> ```
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-sdsysseat.ps1"
-> ```
->
-> **Written in the conditional, because route D has never run:** if its report
-> shows `elevated=True interactive=True SEAT=True`, the 34-file driver re-aim
-> in 76 is mechanical and unblocked; if not, 76's own alternatives stand (a
-> ticket, or a Windows SDSYS sign-in for every elevated run). **What would
-> falsify the "route D works" hope**: a High-integrity token without `S-1-5-4`,
-> or no report at all because the task never ran in a disconnected session —
-> and a disconnected session is exactly what 14 is, which is the untested part.
+> ***AND THE PREDICTION THAT STOOD HERE WAS WRONG: "IF ROUTE D WORKS THE
+> RE-AIM IS MECHANICAL."*** It is **not** a prefix deletion. The seat is a
+> scheduled task in another account's session, so each of the **34 files** must
+> hand its `sd.exe` call to a task in session 14 and read the output back through
+> a file — **a shared helper and 34 adoptions** — and registering that task needs
+> the caller **elevated**, so it belongs to the elevated tier. Nothing of it is
+> built. **What would falsify the design:** an `sd.exe` invocation whose
+> interactive behaviour (a prompt, a paged report) does not survive being run as
+> a task with its output captured. **SDSYS must stay signed in** (session 14 as of
+> 19 Sep 23:23; `query session` shows it) — that is the owner's ruling, and it
+> means a reboot or a logoff costs one sign-in before the next elevated run.
 >
 > ***THE CYCLE IS CURRENT, NOTHING IS OWED.*** The owner cycled at 19 Sep 22:51
 > local; `assert-current` exit 0, and 80 was witnessed on it (see its row).

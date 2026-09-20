@@ -66225,3 +66225,22 @@ rewrite of the probe went in without it.  The probe now says so in its header.
 (disconnected), so the owner's elevated probe-sdsysseat.ps1 run is the next step.
 
 ====
+20 Sep 2026 - ROUTE D RAN (owner, elevated, 19 Sep 23:33) AND IT IS A SEAT.
+
+A task registered with LogonType Interactive / RunLevel Highest for ACE\SDSYS ran
+inside SDSYS's DISCONNECTED session 14: High integrity, Administrators enabled,
+S-1-5-4 present, SD's own IsElevated-and-IsInteractive test true, and sd.exe
+answered WHO with "44 SDSYS" and no 10002.  The one thing I had flagged as
+untested - that a disconnected session serves - is answered yes.  Routes A, B and
+C are as measured before (filtered / batch / closed at 1346); "9 passed, 1 failed"
+is route C's row, a closed route scored as a failure.
+
+THE OWNER'S TERMINAL PASTE OMITTED THE ROUTE D SECTION and the run's decisive rows;
+the transcript file had all of it.  Read the transcript, not the paste.
+
+MY PREDICTION WAS WRONG: I wrote that if route D worked the 34-file re-aim would be
+"mechanical".  It is a shared helper plus 34 adoptions - each verifier must hand
+its sd.exe call to a task in the SDSYS session and read the output back from a file,
+and registering that task needs the caller elevated.  Nothing of it is built.
+
+====
