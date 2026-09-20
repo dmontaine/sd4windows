@@ -579,11 +579,12 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-tlsrelay-units.py`, `test-installservice-units`,
    `test-lcnameslegs-units`, `test-kernelkeys-units.py`,
    `test-groupmember-units.py`, `test-psinterp-units.py`,
-   `test-pwcomplex-units`.
-   ***ALL FORTY-EIGHT. Run these on
+   `test-pwcomplex-units`, `test-acctkeywords-units.py`.
+   ***ALL FORTY-NINE. Run these on
    every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
-   own process; the forty-eighth costs about a second.
+   own process; the forty-eighth costs about a second and the forty-ninth
+   0.2 s.
    ***AND THE COUNT IN THIS SENTENCE WAS ONE HIGH BEFORE THAT, WHICH IS THE
    ONE FAILURE A TYPED LIST STILL HAS.*** It read FORTY-SEVEN while the list
    held forty-six: `test-tiercounts-units` left on 18 Sep 2026 and the word did
@@ -985,6 +986,31 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    THE PARTITION***: every prompt that sets a password runs the rule, which is
    the regression no row about the rule itself can see. Mutants run on text and
    the live file is asserted byte-identical afterwards.
+
+   ***`test-acctkeywords-units.py` JOINED IT 19 SEP 2026 IN THE COMMIT THAT
+   CREATED IT (RELEASE_1.1 76), AND IT FOUND EIGHT SITES ON ITS FIRST RUN THAT
+   THE GREP THAT PROMPTED IT HAD MISSED.*** RELEASE_1.1 64 made
+   `standard`/`programmer`/`administrator` **refused** keywords on
+   `CREATE.ACCOUNT`, and **2018 stops the whole command** — so a verifier
+   whose fixture line still names one makes **no account at all** and dies at
+   its first step. Eleven such lines were left in ten ordinary verifiers that
+   have nothing to do with tiers. ***NOTHING IN THE TREE COULD REPORT IT***:
+   the wording lint proves registered *phrases* are gone, never that a command
+   still parses, and no suite has run since 64 landed. Each one would have cost
+   a step of a ~20-minute elevated run. ***IT DERIVES THE REFUSED SET FROM
+   `createa` RATHER THAN HOLDING A LIST*** — an arm whose body reaches
+   `stop sysmsg(2018` — so a keyword retired tomorrow is covered tomorrow,
+   with a control refusing the null case if the parse finds no arm at all.
+   ***AND IT ASSERTS A TWO-PART PARTITION***: a script may name a refused
+   keyword only as a **declared refusal test** (`verify-routes`) or as a
+   **declared PENDING rewrite** (the three whose subject is the administrator
+   account 64 abolished — deleting the word there would leave a rig measuring
+   something that cannot exist). **A declaration that has gone stale is a FAIL,
+   not a quiet pass**, which is the half that keeps PENDING from becoming a
+   place to hide. **Mutants run on a COPY of the directory** (`--gplbld`), both
+   ways — a re-introduced keyword and a PEND that stopped naming one — with
+   the live files asserted byte-identical afterwards. 0.2 s, no SD, install,
+   elevation or cycle.
 
    ***`test-uninstallchoices-units` JOINED IT 16 Sep 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 38 and 50).*** It drives the two decisions inside

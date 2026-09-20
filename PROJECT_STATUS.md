@@ -179,6 +179,73 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ NINETEENTH PASS, 19 SEP 2026 — RELEASE_1.1 76: THE HARNESS STILL
+> SPEAKS A LANGUAGE THE PRODUCT REFUSES, IN NINETEEN PLACES. ELEVEN FIXED,
+> THREE DECLARED PENDING, AND THE DRIVER IS A QUESTION FOR THE OWNER. FREE
+> TIER 49 OF 49.***
+>
+> ***THE CYCLE BELOW IS STILL THE ONE THING THAT UNBLOCKS EVERYTHING AND IT IS
+> STILL THE OWNER'S.*** It now witnesses 69, 72, 73, 74 and 75; nothing this
+> pass changed needs it, because everything here is harness.
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
+> ```
+>
+> ***WHAT WAS FOUND, AND IT STARTED AS THE SMALLEST ROW ON THE LIST.*** 74's
+> last unfixed piece was one line of prose in `interop-account.ps1`. **The
+> line BELOW it was `CREATE.ACCOUNT USER <name> PROGRAMMER API`** — a live
+> command, and RELEASE_1.1 64 made `PROGRAMMER` a **syntax error**
+> (`createa`'s keyword cases, `stop sysmsg(2018, token)`). **2018 stops the
+> whole command**, so that script makes no account at all. A sweep found the
+> same shape in ten more ordinary verifiers — `verify-apiadmin`,
+> `apiidentity`, `apiname`, `apiport`, `apiwire`, `scramlogin`, `vocwrite`,
+> `catgate`, `delacc-xref`, `uninstallchoices`, `acctmsgs`, `doors-admin` —
+> **none of them a tier test**, which is why the tier sweep passed them by.
+>
+> ***THE GUARD FOUND EIGHT MORE THAN THE GREP DID, ON ITS FIRST RUN.***
+> `gplbld/test-acctkeywords-units.py` (free tier, 0.2 s) reads the refused set
+> out of `createa` rather than holding a list, and catches the commands
+> assembled across two lines that a single-line grep cannot see.
+>
+> ***AND ONE FIX IMPROVED THE TEST IT TOUCHED.*** `verify-delaccount`'s two
+> `ADMINISTRATOR` sites now say `SH-ON OS-ON`: the keyword was only ever the
+> lever that produced the `os.users` record those steps measure, and the
+> subject is no longer a member of Windows Administrators for the seconds it
+> exists — a side effect the old comment had to declare. **`verify-doors-admin`
+> was reading field 5 as a tier**, which 64 gave to `ACC$SUSPENDED`; it would
+> have read blank on a healthy account and reported a product regression.
+>
+> ***THE QUESTION FOR THE OWNER, AND IT IS OPERATIONAL RATHER THAN TECHNICAL.***
+> `verify-apiadmin.ps1:164` already says it, written during 64: *"THE LOGTO
+> SDSYS PREFIX EVERY DRIVER HERE USES IS REFUSED NOW (cproc:2789, 10002) - the
+> whole elevated suite is owed that re-aim"*. Under 64 `CREATE.ACCOUNT` is
+> reachable only from the **Windows SDSYS** account's own elevated session, and
+> `verify-routes.ps1` is *"the FIRST SDSYS-run rig"* — no `LOGTO`, a
+> `WindowsIdentity` gate refusing any other seat. **So either the elevated
+> suite is run from an SDSYS sign-in, or it is given SDSYS's password once per
+> run.** ***THIS IS WRITTEN IN THE CONDITIONAL BECAUSE NOTHING HERE HAS BEEN
+> RUN***: if the seat moves, every account-creating verifier loses its prefix
+> and gains the identity gate; what would falsify it is any account-creating
+> route that still works from an ordinary administrator's elevated session.
+> **Until it is answered, a full elevated suite run cannot pass** — three
+> steps (`verify-sshadmin`, `verify-apiremote`, `verify-privundetermined`)
+> also need 64's own rewrite and are declared PENDING in the guard rather than
+> quietly patched.
+>
+> ***74 IS CLOSED IN SOURCE, AND (a) NEEDED NO DECISION — IT NEEDED A GREP
+> FOR ITS CALLER.*** `messages/10127` has none: 64's slice 3 deleted the code
+> that displayed it **and its sibling 10126 in the same commit**, and 10127 was
+> missed. It is deleted rather than reworded. **The same sweep found two more
+> orphans and both went with it** — `10052` (caller deleted by 64's eleventh
+> pass) and `10074`, which **never had one**, the containment gate having
+> chosen `ER_PERM`/3035 over an abort. Three orphans out of 163 messages at
+> 10000 or above.
+>
+> ***MAIL: ONE IN, PURE FYI, FILED TO `done\`; INBOX EMPTY; WATCHER RE-ARMED IN
+> THE SAME TOOL CALL, WHICH IS THE RULE THE LAST PASS WROTE.*** Linux built
+> both guard rows we suggested and 10921; nothing owed.
+>
 > ***⏸ HANDOFF — EIGHTEENTH PASS, 19 SEP 2026. 69, 72, 73, 74 AND 75 ARE ALL
 > BUILT, NONE IS WITNESSED, AND ALL FIVE OWE ONE CYCLE. WORKING TREE CLEAN,
 > EVERYTHING PUSHED, FREE TIER 48 OF 48 IN ~52 s.***
