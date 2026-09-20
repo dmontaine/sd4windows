@@ -263,23 +263,48 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > through the seat and `apiport` restarts SD under it. RELEASE_1.1 83 is struck,
 > witnessed on four of its eleven files and guarded statically on the rest.
 >
-> ***THREE REMAIN, ALL HAND-RUN, NOT YET RUN: `apiwire`, `delacc-xref`, `vocwrite`.***
-> `apiwire` and `vocwrite` are the two that `LOGTO <account>` away from SDSYS
-> inside a call — **the one shape no witnessed step has exercised**, so they are
-> the ones that could still surprise. **Each its own command** (fresh prefixes,
-> lower case):
+> ***THE THREE HAND-RUN ONES (20 SEP 01:05–01:08): `delacc-xref` PASSED 3/3 — SIX OF
+> EIGHT WITNESSED — AND `apiwire` AND `vocwrite` FAILED, BOTH ON A DEFECT OF MINE.***
+> I had written into the code and into row 76 that `LOGTO <account>` *"still works
+> from a seat — SDSYS → a personal account is allowed"*. **It does not.**
+> `logto.authorised` admits a `LOGTO` only to a `K$INTERNAL` administrator session
+> or to an OS user in the target account's group, and the seat's user (SDSYS) is in
+> no personal account's group: **`LOGTO` was refused (10003), `CREATE.FILE` ran in
+> SDSYS's own account, printed its success line there, and the verifiers — which
+> asserted only that line — did not notice until the API could not open the files.**
+> Confirmed by litter: **`zzwire`, `zzwired`, `zzvocw` (+ `.DIC`) are in
+> `C:\ProgramData\SD\sdsys`.** **FIXED, NOT RUN:** the seat gained **`-Internal`**
+> (`sd.exe -internal` — the development door, per 82); `apiwire` and `vocwrite` use
+> it; **each step now asserts the file at its DESTINATION** and refuses with the
+> diagnosis; unit test **113/113**, observing `-internal` arrive at the program.
+> **Four more of the remaining 25 need `-Internal`** (`catgate`, `doors-admin`,
+> `sdsysgate`, `probe-tasklock`). Also fixed on the owner's catch: **printed tier
+> wording** (`PROGRAMMER`, *"non-admin tier"*) in `vocwrite`, `apiadmin`,
+> `privundetermined`, `catgate` — a wider sweep is NOT done.
+>
+> ***CLEAR THE LITTER FIRST, THEN RE-RUN THE TWO.*** New tool, ELEVATED PowerShell as
+> yourself (it refuses, exit 2, unelevated). `DELETE.FILE` may ask a question; the
+> `Y` items answer it:
 >
 > ```
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiwire.ps1" -Prefix sdwire199
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-delacc-xref.ps1" -Prefix sddx199
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-vocwrite.ps1" -Prefix sdvocw199
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\sdsys-run.ps1" -Commands "DELETE.FILE ZZWIRE;Y;Y;DELETE.FILE ZZWIRED;Y;Y;DELETE.FILE ZZVOCW;Y;Y"
 > ```
 >
-> **Written in the conditional, because none has run:** an exit 2 at *"proving the
-> SDSYS seat"* names which precondition failed; **what would falsify a conversion**
-> is a command whose output changes shape through the file round trip (a check
-> that counts lines, since SD echoes each command twice), or a `LOGTO <account>`
-> that behaves differently from a seat than from a hand-started SDSYS. **Read the
+> Then, each its own command (fresh prefixes; the `199` ones cleaned up after
+> themselves):
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiwire.ps1" -Prefix sdwire200
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-vocwrite.ps1" -Prefix sdvocw200
+> ```
+>
+> **Written in the conditional, because the fix has not run:** that `sd -internal`
+> admits `LOGTO <account>` is read from `logto.authorised`'s first branch, not
+> observed; an exit 2 at *"proving the SDSYS seat, through sd -internal"* names
+> which precondition failed, and would mean the internal door is not reachable from
+> the seat. **What would falsify the design** is a command whose output changes
+> shape through the file round trip (a check that counts lines, since SD echoes
+> each command twice). **Read the
 > transcripts** (`%LOCALAPPDATA%\SD-verify\<name>-<stamp>.log`), not the paste —
 > and the runner's per-step logs are UTF-16, so read them with PowerShell.
 >

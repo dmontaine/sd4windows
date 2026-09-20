@@ -66377,3 +66377,37 @@ Three remain, hand-run: apiwire, delacc-xref, vocwrite.  apiwire and vocwrite LO
 a test account inside a call, the one shape no witnessed step has exercised.  Not run yet.
 
 ====
+20 Sep 2026 - THE THREE HAND-RUN ONES: delacc-xref PASSED, apiwire AND vocwrite FAILED ON A
+CLAIM OF MINE THAT WAS WRONG.  Six of eight witnessed.
+
+delacc-xref 3/3.  apiwire stopped with its own "COULD NOT RUN ... no known plaintext";
+vocwrite passed 4 of 7.  Same cause in both.  I had written, into the code comments and
+into row 76, that "LOGTO $upper still works from a seat: SDSYS -> a personal account is
+allowed; only the way back is refused".  I took it from a comment about the pre-64 model
+and never read logto.authorised.  It admits a LOGTO in two cases: a K$INTERNAL
+administrator session, or an OS user in the target account's group.  The seat's user is
+SDSYS, in no personal account's group, so LOGTO was refused (10003) and CREATE.FILE ran
+in SDSYS's OWN account - and printed its success line there.
+
+HOW IT WAS CONFIRMED, NOT ARGUED: the transcript's own listing said "zzwire owner:
+<missing>" and "OPEN ZZWIRE: REFUSED 3007"; then I asked what the theory PREDICTS that I
+had not looked at - files in the wrong place - and found zzwire, zzwired and zzvocw (with
+.DIC) in C:\ProgramData\SD\sdsys, timestamped to the two runs.
+
+THE VERIFIERS HAD ASSERTED THE MESSAGE, NOT THE OUTCOME: "Created DATA part as zzwire" is
+printed in whichever account CREATE.FILE ran in.  The owner-listing beside it printed
+"<missing>" and asserted nothing.  Each now asserts the file at its destination and refuses
+with the diagnosis.  The fix for the LOGTO is the seat's new -Internal switch (sd.exe
+-internal, the development door - K$INTERNAL admits a LOGTO), which is what 82 rules
+development tools may use; a switch and not an argument string, because the task script is
+built by string replacement and runs elevated as SDSYS.
+
+The owner also caught, mid-fix, that a heading still said "(PROGRAMMER, reach API)" when
+there are no tiers.  Printed tier wording fixed in four more files; a wider sweep is not done.
+
+My first -Internal test failed on ITS OWN regex: \s+ in multiline mode matches the newline,
+so \S matched the next line's first character and a clean run failed.  Same-line whitespace.
+
+Not run yet: the fix.  That sd -internal admits the LOGTO is read from the source.
+
+====

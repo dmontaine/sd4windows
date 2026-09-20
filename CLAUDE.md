@@ -587,10 +587,12 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    19 Sep 2026*** by counting the names in this list and running each in its
    own process; the forty-eighth costs about a second, the forty-ninth
    0.2 s, the fiftieth 0.1 s, the fifty-first under a second, the
-   fifty-second (`test-sdsysseat-units.ps1`, 101 rows, about 2 s — it was 79
+   fifty-second (`test-sdsysseat-units.ps1`, 113 rows, about 3 s — it was 79
    rows and 0.8 s until the mechanical group added the shared `TERM` handling and
    `Assert-SdSeat`, the latter observed through child processes because it ends
-   its script with `exit 2`) a couple of seconds and the fifty-third
+   its script with `exit 2`, and then the `-Internal` switch, whose test observes
+   `-internal` ARRIVE at a fake `sd` rather than reading it out of the script) a
+   few seconds and the fifty-third
    (`test-pwgen-units.ps1`, 18 rows) about a second.
    ***`test-pwgen-units.ps1` JOINED IT 20 SEP 2026 IN THE COMMIT THAT CREATED
    IT (RELEASE_1.1 83), AND IT IS THE GUARD THAT WOULD HAVE SAVED THE OWNER'S
