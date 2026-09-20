@@ -179,6 +179,91 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ CLOSING HANDOFF — END OF THE TWENTY-FIRST PASS, 20 SEP 2026. TREE CLEAN AND
+> IN SYNC WITH ORIGIN AT `e0192c6`; FREE TIER 53 OF 53; `assert-current` EXIT 0 (THE
+> INSTALL OF 19 SEP 22:51 IS CURRENT — NOTHING IS OWED A CYCLE).*** Owner asleep, the
+> Linux box off, mail watcher stopped and none scheduled. **This block is the MAP; the
+> detail is in RELEASE_1.1_FIXES.md rows 76, 82 and 83, and the older blocks below are
+> kept but this ordering supersedes theirs.** No owner command is outstanding.
+>
+> **ORDER OF WORK.**
+>
+> **1. RELEASE_1.1 82 — the developer-mode decision. THE OWNER'S GO IS NEEDED BEFORE
+> ANY BUILD.** *Ruled (owner):* developer mode never exists for end users — anyone
+> modifying the package clones and builds, undocumented; the switch is unpublished and
+> discoverable in the source, which is fine in an open-source product; it may be ON
+> during installation and OFF afterward; **parity with Linux is the RESULT, not the
+> method** (five result criteria R1–R5 are in the row). *What Linux actually does:*
+> **`IS_INSTALL`, a compile-time define in CPROC, recompiled at the last install
+> step — the `sd -internal` flag itself never turns off** (their claim that a
+> production CPROC then refuses a sudo session is reasoned, not measured; they will
+> witness `sudo sd -internal WHO`, expecting 10190). *My recommendation, in the
+> conditional and NOT built:* **(D2′)** `LOGIN`'s `K$INTERNAL` branch (`login:587`)
+> admits an internal session only with a fresh one-shot marker, deletes it on
+> admission and audits it; a marker is written immediately before each internal
+> session by Setup (six steps), `bootstrap.py` (four), the six development
+> verifiers and the seat's `-Internal`. **Staged S1 writers only → S2 the gate →
+> S3 announce/audit (a message number is shared with Linux: reserve it through the
+> mailbox, or audit only) → S4 witness R1.** **The risk is 64's own — a wrong gate
+> locks out the cycle that would prove it; rollback is the one file `login`.**
+> **UNCHECKED, each could change the design:** the ACL on the SDSYS directory; whether
+> every `-internal` caller reaches `LOGIN` (`-i` does not); the three installer verbs
+> `UPDATE.ACCOUNTS`, `MODIFY.PASSWORD`, `THIRD.COMPILE` (not audited); whether
+> Windows ships built BASIC objects, which decides whether Linux's recompile shape
+> (D3) is even available here.
+>
+> **2. RELEASE_1.1 76 — the 25 unconverted verifiers.** The seat and its wrappers are
+> witnessed and eight verifiers are converted (seven fully; `apiwire` as far as this
+> box can measure). **Four of the 25 `LOGTO` into personal accounts and need
+> `-Internal`: `catgate`, `doors-admin`, `sdsysgate`, `probe-tasklock`.** `verify-pyapi`
+> has its own `Start-Job` timeout and was left out. **`verify-acctmsgs`'s deliberately
+> weak passwords now meet SD's own refusal before Windows' policy, so its 10119 arm
+> probably measures nothing.** Each conversion deletes its row from
+> `test-logtoreaim-units.ps1` in the same commit (the guard prints 25). **A sweep of
+> printed tier wording ("PROGRAMMER", "non-admin tier") across `gplbld` is NOT done;**
+> four files were fixed on the owner's catch.
+>
+> **3. Loose ends.** `VerifyInstall2` runs steps in-process, so one step's thrown error
+> ends the whole run (`apiport` and `scramlogin` never started on `b198`); not changed.
+> `apiwire`'s packet capture is ruled a dead end on one box (15 Sep), so its exit 2 at
+> step 9 is its designed outcome.
+>
+> **TOOLS BUILT THIS PASS, ALL WITNESSED ON A REAL MACHINE.** `gplbld/sdsys-seat.ps1`
+> (`Invoke-SdViaSeat`, `Invoke-SdSeatText`, `Assert-SdSeat`, `Expand-SeatCommands`;
+> `-Internal` selects the development door) runs `sd.exe` as a task inside SDSYS's own
+> live session. It needs an elevated caller **and SDSYS signed in — session 14,
+> disconnected, as of tonight; a reboot or a logoff loses it, and the cure is to sign
+> in ONCE using the login name SDSYS** (78 was the owner picking the wrong name).
+> `gplbld/sdsys-run.ps1 -Commands "A;B"` runs SD commands as SDSYS from an ordinary
+> elevated prompt. Guards: `test-sdsysseat-units.ps1` (113 rows) and
+> `test-pwgen-units.ps1` (18). `strip-comments.ps1` gained a `hashblock` kind and
+> refuses `hash` on a `.ps1`.
+>
+> **TRAPS THAT COST TONIGHT — each is in the record; one line each.**
+> **78 was a wrong login name**: Winlogon's `Result 0` says a credential was accepted,
+> not whose; the LocalSessionManager log's `User:` says, and needs no elevation.
+> **SD's `pw_complex` (75) needs lower, upper, digit AND symbol, and a refused password
+> HANGS a piped verifier for its full timeout** (5.7 % of bare `GeneratePassword(24, 6)`;
+> base64 + `'aA1'` never). **`LOGTO <personal account>` from the seat is REFUSED (10003)**;
+> only a `K$INTERNAL` administrator or an OS user in the account's group is admitted,
+> so verifiers that need it use `-Internal`, and each asserts the file at its
+> destination, not SD's "Created…" line. **`sd -internal` is a command-line flag that
+> sets `internal_mode`; it logs nobody in and nothing inside SD runs it.** **The
+> installed `sd.conf` has `APIPORT=4243` ENABLED by default** (`stage.py`), so a
+> listener on 4243 is the default, not residue. **Hooks block `Out-File` and `>>` onto
+> source or document files** — use Write and Edit; parse-check and byte-scan any script
+> before handing it over. Runner step logs are UTF-16; verifier transcripts UTF-8.
+>
+> ***MY OWN RECURRING ERROR, THREE TIMES TONIGHT: I WROTE A CLAIM INTO CODE COMMENTS OR
+> THE RECORD FROM A COMMENT OR A PARAPHRASE INSTEAD OF FROM THE CODE.*** *"LOGTO still
+> works from a seat"*, *"the Linux `SD_DEV_BUILD` is the precedent for the ruling"*, and
+> *"64 deleted `ADOPT` over a marker"* were each wrong, and each was caught by the owner
+> or by a run, not by me. **Before asserting what the code does, read the function.**
+>
+> **MAIL.** The inbox was empty at close. The Linux agent will send the result of
+> `sudo sd -internal WHO` when it next cycles; **check `P:\sdcore-mail\to-windows\` at
+> the start, and start the watcher only if the owner has turned that machine on.**
+>
 > ***⏸ HANDOFF — TWENTY-FIRST PASS, 20 SEP 2026. RELEASE_1.1 78 IS CLOSED AND WAS
 > NEVER A DEFECT: THE OWNER WAS SIGNING IN WITH THE WRONG LOGIN NAME, AND SDSYS
 > SIGNS IN AT THE CONSOLE.*** **Every paragraph below that treats 78 as open,

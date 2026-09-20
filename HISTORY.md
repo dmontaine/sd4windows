@@ -66445,3 +66445,29 @@ Eight verifiers converted: seven fully witnessed, the eighth as far as the machi
 Left: 25 unconverted files (four of them will need -Internal) and RELEASE_1.1 82's fork.
 
 ====
+20 Sep 2026, END OF PASS - THE DEVELOPER-MODE DECISION, AND WHAT THE OTHER MACHINE CORRECTED.
+
+The rest of the night went on RELEASE_1.1 82: what sd -internal is, and how a delivered install
+should treat it.  Owner's rulings, in order: it is never for end users (clone and build, undocumented);
+it is unpublished and discoverable in source, which is fine; it may be on during install and off
+after; parity with Linux is the RESULT not the method.
+
+THE OTHER MACHINE WAS THE BEST SOURCE, AND THE CLONE WAS THE WORST.  I read the Linux tree from a
+local clone and over-read it twice - I called SD_DEV_BUILD "the Linux port's version of the ruling"
+(a developer convenience) and I framed the whole fork as "the flag is switched on and off".  The
+owner turned that machine on; the Linux agent answered in 15 minutes: what is on during their
+install and off after is IS_INSTALL, a compile-time define in CPROC recompiled at the last step,
+and the -internal flag never turns off.  My options D1 and D2 were both wrong in the same way -
+they switched the FLAG, and Linux switches the CONSUMER.  Their design lessons, adopted: the
+consumer closes the window, scope it to the one thing it authorises, expiry is the weaker half.
+
+THREE OF MY ARGUMENTS WERE WRONG AND WERE CORRECTED IN THE ENTRY: that "an administrator must not be
+able to type ATTACH by hand" was a hard requirement (ATTACH already needs a marker, and the owner's
+standard is "unpublished"); that 64 deleted ADOPT because a marker can be forged (it minted SD
+administrators, which 64 forbids); and that the Linux switch was a precedent.  All three came from
+reading a comment or a paraphrase rather than the code.
+
+State at close: tree clean and pushed at e0192c6, free tier 53/53, assert-current 0, nothing owed a
+cycle.  Nothing of D2' is built; it needs the owner's go.  See PROJECT_STATUS.md's closing handoff.
+
+====
