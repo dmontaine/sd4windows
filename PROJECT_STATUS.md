@@ -207,17 +207,67 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `LastLogon` is still a probe spawn: ***it has never held a console session on
 > this machine.***
 >
-> ***AND THE ONE THING THAT DECIDES WHETHER THAT ABSENCE MEANS ANYTHING IS NOT
-> YET READ — DO NOT CONCLUDE WITHOUT IT.*** "LSA never saw a credential" is
-> sound **only if FAILURE auditing is on**. Success plainly is; the two are
-> separate settings in one subcategory, and on a Success-only machine a refused
-> sign-in is recorded **nowhere**. `probe-sdsyslogon.ps1` now reads `auditpol`
-> first and says which reading the machine permits. **ELEVATED PowerShell; it
-> tells you when to go and try the sign-in and watches while you do:**
+> ***THE AUDIT QUESTION IS ANSWERED AND SO IS A BIGGER ONE. RUN BY THE OWNER,
+> 19 SEP 2026, `-Watch 3`: FAILURE AUDITING IS ON*** (`Logon: Success and
+> Failure`), **so the absent 4625 is meaningful** — and the probe still
+> concluded *"NOTHING WAS MEASURED"* because it had never read the one log that
+> needed no elevation.
+>
+> ***`Microsoft-Windows-Winlogon/Operational` SAYS THE CREDENTIAL WAS ACCEPTED,
+> TEN TIMES.*** Every switch-user attempt logged `Authentication started` then
+> **`Authentication stopped. Result 0`** in the same second — 19:10:49,
+> 19:12:58, 19:13:27, 19:14:35, 19:18:11, 19:24:53, 19:31:37, 19:34:39,
+> 20:29:37, 20:30:20. ***AND RESULT 0 IS SUCCESS, CALIBRATED RATHER THAN
+> ASSUMED***: the log reaches back to 25 Aug and holds **62 rows of Result 0
+> and 8 of Result 1326** — `ERROR_LOGON_FAILURE` — with **every 1326 followed
+> within seconds by a Result 0** (18 Sep 18:05:46 and :48 both 1326, then
+> 18:06:01 Result 0: a person mistyping, then getting it right). A month of the
+> owner's own working sign-ins are Result 0.
+>
+> ***SO 78 IS NOT A REFUSAL. THE CREDENTIAL WAS ACCEPTED AND LSA RECORDED NO
+> LOGON***, which is neither *"nobody tried"* nor *"it was refused"* — and it
+> rules out the password, the deny rights and the sign-in screen in one step.
+> **What is left is between authentication and session creation.**
+>
+> ***AND THE 6000 LEAD IS CLOSED — IT WAS NOISE.*** Its text is *"the winlogon
+> notification subscriber `<SessionEnv>` was unavailable"*. **SessionEnv is
+> Remote Desktop Configuration, and RDP is off on this machine**, so it is
+> unavailable at *every* session transition: twenty rows in 150 minutes,
+> bracketing the working sign-ins exactly as it brackets the failing ones. The
+> handoff above singled out *"a Winlogon 6000 pair thirteen seconds apart"*
+> because the probe printed the **id and not the text**. It prints the text now.
+>
+> ***AND THE UNFILTERED TABLE WAS NAMING THE WRONG ACCOUNT, WHICH IS WHY ITS
+> `ACE$` ROWS MEAN NOTHING.*** A 4624 carries `Account Name:` **twice** —
+> Subject (who requested) then New Logon (who logged on) — and a single
+> `-match` takes the first, so all 37 rows printed the machine account, for
+> every account on the box including the owner's own. Its closing advice
+> *"if it holds rows for ANOTHER account, say which"* was unfollowable. Fixed,
+> and the **`User Profile Service/Operational` log is enabled with 2420 records
+> and nothing after 18:21**, so the handoff's *"the profile service logged
+> nothing"* is a real absence and not a disabled log.
+>
+> ***THE NEXT RUN IS THE SAME COMMAND AND IT NOW PRINTS EVERY Security EVENT OF
+> ANY ID IN THE MINUTE AROUND EACH AUTHENTICATION*** — every table in that
+> script filters by event id, so none of them could ever answer *"what did LSA
+> do at all"*, which is the question now. **ELEVATED PowerShell; it tells you
+> when to go and try the sign-in and watches while you do:**
 >
 > ```
 > powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-sdsyslogon.ps1" -Watch 3
 > ```
+>
+> **Written in the conditional, because the elevated half of that section has
+> not run:** if the Security log holds *nothing of any id* in those minutes,
+> the gap is before LSA is called at all; if it holds 4672/4648/5379 or an
+> id-less row, that row names where it stopped. **What would falsify the
+> "accepted" reading** is a Result 0 on this machine that is *not* a successful
+> sign-in — so if the owner ever cancels the sign-in screen and it still logs
+> Result 0, this paragraph is wrong and the calibration has to be redone.
+>
+> **The unelevated half IS run**: the Winlogon section prints before the
+> elevation gate, so `probe-sdsyslogon.ps1` with no elevation gives the ten
+> rows and the calibration above.
 >
 > ***TWO MEASUREMENTS THAT NARROW WHAT IS LEFT, TAKEN SO THE NEXT SESSION NEED
 > NOT.*** The only enabled accounts are `Don`, `SDSYS` and `sdrelay` — and the
