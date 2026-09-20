@@ -179,6 +179,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***▶ b201 RESULT, 20 SEP 2026 13:52 — NINE OF THE TEN ARE WITNESSED THROUGH THE SEAT; ONE
+> (`accountrules`) NEEDS A REWRITE.*** All seven steps exit 0: `createfilecase` 11/11,
+> `dictrename` 15/15, `twins` 13/13 (both doors), `nocaseupgrade` 31/31 (both doors),
+> `pyapi` 19/19, `pygate` 40/40 decisive, `registersweep` 6/6; with `b200`'s `fold` 10/10,
+> `nonet` 17/17 and `vocverbs` 36/36 that is nine. **The command was run a SECOND time at
+> 14:14 with the SAME token and its `pygate` refused — correctly: the first run's account left
+> a Windows profile directory `C:\Users\sdpygb201` (SD's own refusal says that is almost always
+> a deleted account whose registry hive was still mounted; not separately verified), and the
+> prefix is single-use. That is not a defect and the 13:52 log is the witness.** *(It was
+> my doing: I handed the same token over twice.)* **The directory is still there and is junk;
+> the SD service removes it at a restart, or an elevated `Remove-Item -Recurse -Force` does.**
+> The 14:14 run's other five passed again, so they are twice-witnessed. **Not one seat fault in
+> either run.** Remaining conversion work is the fifteen listed below, none of which needs a
+> witness that the ten have not given.
+>
 > ***▶ b200 RESULT, 20 SEP 2026 13:16, THE OWNER'S FIRST ELEVATED RUN OF THE TEN (SEAT
 > WORKING; THE RUN ENDED AT `createfilecase`):*** **`verify-fold` 10/10, `verify-nonet`
 > 17/17, `verify-vocverbs` 36/36 — WITNESSED THROUGH THE SEAT** (`WHO` answered as SDSYS at
@@ -200,7 +215,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > have shown `Password:` at once; (3) the ordering guard above. **Rerun command below.**
 >
 > ***▶ TWENTY-SECOND PASS, 20 SEP 2026, MORNING — TEN MORE VERIFIERS CONVERTED TO THE
-> SDSYS SEAT, ALL BUILT AND FREE-TIER GREEN (53 OF 53), NONE WITNESSED.*** **The owner
+> SDSYS SEAT, ALL BUILT AND FREE-TIER GREEN (53 OF 53); NINE WITNESSED BY THE AFTERNOON
+> (see the b200 and b201 blocks above, which supersede the "none witnessed" and the
+> rerun command in what follows).*** **The owner
 > asleep the night before; SDSYS's session was gone in the morning** (`qwinsta`: only
 > Don's; no reboot), so the seat could not be exercised. `assert-current` exit 0; no
 > cycle is owed (verifier scripts are not part of the installed tree).

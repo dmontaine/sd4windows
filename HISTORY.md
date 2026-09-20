@@ -66522,3 +66522,18 @@ read $null line numbers through an invalid Measure-Object form and printed OK fo
 verdict that would have read the null as "in order".  A missing number is a failure now.
 
 ====
+20 Sep 2026, LATE AFTERNOON - b201: NINE OF THE TEN WITNESSED THROUGH THE SEAT.
+
+The rerun (13:52) reached every step: createfilecase 11/11, dictrename 15/15, twins 13/13,
+nocaseupgrade 31/31, pyapi 19/19, pygate 40 decisive checks 0 failed, registersweep 6/6, all exit 0.
+With b200's fold, nonet and vocverbs that is nine; accountrules needs its rewrite.
+
+The owner then ran the same command again at 14:14 with the SAME token and pygate refused: the first
+run's account left C:\Users\sdpygb201 and the prefix is single-use.  Correct behaviour, my hand-over:
+I had given b201 twice.  A hand-over that reruns after a run has been spent needs a new token, and
+the sentence "the token is unused" was true only until the first time it was used.
+
+Read the other way, the seat itself has now run about twenty task registrations across two runs
+without a fault, including both doors in twins and nocaseupgrade.
+
+====
