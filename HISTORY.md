@@ -66273,3 +66273,25 @@ SDSYS": from an ordinary elevated prompt as Don - the task runs in session 14.
 CLAUDE.md's free-tier list is now 52.
 
 ====
+20 Sep 2026 - THE PILOT PASSED ON A REAL MACHINE: verify-createaccount 18 OF 18.
+
+Owner, elevated, from the Don account, 19 Sep 23:57.  The seat answered WHO with
+"46 SDSYS" and no refusal, and CREATE.ACCOUNT then ran as SDSYS through it: the
+password prompts survived the file round trip, and the account passed every
+downstream check.  All five things the unit test could not reach are witnessed.
+
+TWO THINGS LOOKED LIKE REGRESSIONS AND NEITHER WAS - both settled against a
+BASELINE rather than by argument.  (1) The doubled echo lines are SD's own console
+echo: the 13 Sep run through the old direct pipe printed the identical pair.  (2) The
+cleanup warning "profile C:\Users\sdacct1 not removed - in use" appears in all three
+COMPLETED runs on disk (11 Sep, 13 Sep, this one) - the known stuck-hive behaviour,
+RELEASE_1.1 9.
+
+MY FIRST BASELINE WAS WRONG, AND HOW: I counted the warning across every log with
+grep and got 0 for the older ones, which read as "new".  Most of those logs have no
+verdict line at all (24 of 27 - runs that stopped early), so 0 was the absence of a
+run, not the absence of the warning.  Only 3 logs reached a verdict, and all 3 show
+it.  (Encoding was not the cause: they are UTF-8 with a BOM, checked.)  A count over
+a set is only a baseline for the members that could have shown the thing.
+
+====

@@ -220,8 +220,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 19 Sep 23:23; `query session` shows it) — that is the owner's ruling, and it
 > means a reboot or a logoff costs one sign-in before the next elevated run.
 >
-> ***THE HELPER AND ONE PILOT ARE BUILT (20 SEP), UNWITNESSED ON A REAL
-> MACHINE.*** `gplbld/sdsys-seat.ps1` runs `sd.exe` as a task inside SDSYS's own
+> ***THE PILOT RAN ON A REAL MACHINE AND PASSED, 18 OF 18 (owner, elevated, 19
+> SEP 23:57).*** Every "unwitnessed" item in the next two paragraphs is now
+> witnessed — the seat (`46 SDSYS`, no refusal), the real task registration and
+> work-dir ACL, the BOM sink, `CREATE.ACCOUNT`'s password lines through the file,
+> and the doubled echo lines (**not new**: the 13 Sep run through the old pipe
+> printed them too). The cleanup warning `profile C:\Users\sdacct1 not removed`
+> is **not a regression**: all three completed runs on disk show it (row 9's
+> stuck-hive note, *reboot between full runs*). **The next two paragraphs are
+> kept as written and are otherwise superseded by this one.** The other 33
+> verifiers are still untouched. See RELEASE_1.1_FIXES 76 for the detail.
+>
+> ***THE HELPER AND ONE PILOT WERE BUILT (20 SEP).*** `gplbld/sdsys-seat.ps1` runs `sd.exe` as a task inside SDSYS's own
 > session and **refuses a seat that is not one** (identity must be SDSYS, token
 > elevated AND interactive, end marker present); `gplbld/test-sdsysseat-units.ps1`
 > is its free guard (79/79, and CLAUDE.md's free-tier list is now **52**).
