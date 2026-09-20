@@ -187,8 +187,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 16:18 mail moved to `done\`, watcher armed. **One fix beyond the handoff:** `assert-current` reported
 > `verify-internalgate.ps1`, `test-internalgate-units.py` and `mail.sh` as source newer than the install
 > (they were missing from `$neverShipped`, and `test-outputtrap-units.ps1` would have been next); all four
-> are listed now and it names only `login` and the 10922→12000 rename. **Still owed, in order: the cycle,
-> then `-Run b204 -Only verify-internalgate` (items (2)-(3) below).**
+> are listed now and it names only `login` and the 10922→12000 rename. ***THEN THE OWNER RAN THE CYCLE
+> (install 16:31:28, `assert-current` exit 0 live) AND `-Run b204 -Only verify-internalgate`: 25 OF 25, exit 0
+> — ITEMS (2) AND (3) BELOW ARE DONE AND RELEASE_1.1 82 IS WITNESSED IN FULL, THE ANNOUNCEMENT INCLUDED.***
+> Rows A/B read from the raw output: a refusal prints only *"Connection terminated"* with no message 12000; an
+> admission prints *"Internal session admitted (opened by <writer> pid=… …)"* before WHO answers. `b204` is
+> SPENT — use `b205`. **What is left is item (4), the ten verifiers still on `LOGTO SDSYS`, and (5).**
 >
 > ***FIRST THING, BEFORE ANYTHING ELSE: THE WORKING TREE HAS UNCOMMITTED WORK ON DISK, BECAUSE THE SHELL WAS
 > BLOCKED.*** *(Done 20 Sep, twenty-third pass — see above.)* Auto mode's safety check refused every Bash call from ~16:15 ("reacts to earlier conversation

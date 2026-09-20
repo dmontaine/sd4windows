@@ -66614,3 +66614,19 @@ The block is a property of the session, not of the work, and the cure is a fresh
 permission mode.  PROJECT_STATUS.md's closing handoff says commit first.
 
 ====
+20 Sep 2026, ~16:45 - TWENTY-THIRD PASS: THE BLOCKED WORK LANDED, AND THE ANNOUNCEMENT IS WITNESSED.
+
+A fresh session did what the shell block had stopped: re-ran the whole free tier (55 of 55 exit 0, counts read),
+committed the eleven pending files by name (c71cd55) and pushed. Linux's 16:18 note was moved to done/ and the
+watcher armed in the same call.  One thing beyond the handoff: assert-current listed verify-internalgate.ps1,
+test-internalgate-units.py and mail.sh as source newer than the install, because none was on $neverShipped
+(test-outputtrap-units.ps1 was missing too and would have been next).  Every new gplbld script that ships nowhere
+has to be listed in the commit that creates it; three commits in a row had not.  Listed now.
+
+The owner then ran cycle.ps1 (install 16:31:28, assert-current exit 0) and -Run b204 -Only verify-internalgate:
+25 of 25.  Rows A and B, the two added for the renumber, were read from the raw output: a refusal prints only
+"Connection terminated" and no message 12000, an admission prints "Internal session admitted (opened by <writer>
+pid=... ...)" before WHO answers.  RELEASE_1.1 82 is witnessed in full.  Left: the ten verifiers still on
+LOGTO SDSYS, and the untested case of Setup run over a kept data tree.
+
+====
