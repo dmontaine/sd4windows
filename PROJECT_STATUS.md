@@ -238,7 +238,29 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > so the printed lines were captured into the caller's variable instead of
 > reaching the screen. **A function that returns a value prints nothing, and
 > the caller prints** — fixed, and driven on the owner's own `routeA.txt`.
-> **The command above is the rerun**; only route B is still open.
+> ***RERUN, SAME DAY: BOTH ROUTES MEASURED AND NEITHER IS A SEAT. THEY FAIL
+> OPPOSITE HALVES OF ONE CONJUNCTION, AND THE RULING CANNOT BE BUILT AS IT
+> STANDS.*** `kernel.c:299` sets `USR_ADMIN` only for **`IsElevated()` AND
+> `IsInteractive()`**, read from the **same** group list — 544 for
+> `Administrators`, **4 for `S-1-5-4 INTERACTIVE`**. **Route A**: INTERACTIVE,
+> Medium, `Administrators` deny-only. **Route B**: High, `Administrators`
+> enabled — and **`S-1-5-3` BATCH, no `S-1-5-4`**. A has the desktop without
+> the privilege, B the privilege without the desktop; `K$ADMINISTRATOR` is
+> false either way and `login:792` refuses with **10002**, witnessed in the
+> raw output. ***THAT IS §5.25 WORKING AS RULED***, whose own sentence names
+> this case: *"a session whose origin cannot be established stays refused,
+> which is what keeps an unattended scheduled task out."*
+>
+> ***SO WHAT IS LEFT IS A DECISION AND IT IS THE OWNER'S — THREE OPTIONS:***
+> **(a)** run the elevated suite from a **Windows SDSYS sign-in** (the option
+> he declined, now with the measurement behind it, and the only one that needs
+> no change to anything); **(b)** a **third spawn** — `LogonUser` with
+> `LOGON32_LOGON_INTERACTIVE`, then the **linked** token via
+> `TokenLinkedToken` and `CreateProcessAsUser`, which would carry `S-1-5-4`
+> *and* the full token; **UNTESTED**, and this tree already has the probes to
+> try it (`probe-impersonate.c`, `probe-s4u.c`); **(c)** relax
+> `IsInteractive()` for this case, which is **changing the access model to
+> suit the test rig**. ***NOTHING IS BUILT ON ANY OF THEM.***
 >
 > **Why it comes before any rewriting**: `LOGIN`'s landing case needs the
 > identity **and an elevated token**, so a spawn that gets a UAC-**filtered**
