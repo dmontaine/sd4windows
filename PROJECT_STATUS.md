@@ -254,18 +254,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***THE OWNER RUNS THESE, AS HIMSELF, IN ELEVATED POWERSHELL — NO SWITCH TO SDSYS;
 > SDSYS'S SESSION (14 as of 19 Sep 23:23) MUST STILL BE ALIVE, `query session`.***
-> **RE-RUN WITH A FRESH TOKEN, `b199`** (`b198`'s prefixes left nothing behind, and
-> the only leftover on disk is the pilot's `SDACCT1`). **`profiledir` is left out —
-> it already passed.** **Four through the runner** (it derives every prefix from
-> the token and appends `verify-registersweep`; `apiport` and `scramlogin` edit
-> `sd.conf` and RESTART SD, which the seat survives because it is a Windows
-> session):
+> ***`-Run b199` RAN (owner, elevated, 20 SEP 00:57): ALL FOUR EXITED 0, READ FROM
+> THEIR TRANSCRIPTS — `accountacl` 21/21, `apiname` 16/16, `apiport` 13/13,
+> `scramlogin` 43/43, the register sweep 6/6.*** Each shows the seat proof, `WHO`
+> answering `<n> SDSYS`, **zero seat failures**, and **28 to 63 s** where the two
+> that hung took 180 s. **FIVE OF THE EIGHT ARE NOW WITNESSED** (`profiledir` 14/14
+> from `b198`), **including the hardest two**: `scramlogin` runs a BASIC client
+> through the seat and `apiport` restarts SD under it. RELEASE_1.1 83 is struck,
+> witnessed on four of its eleven files and guarded statically on the rest.
 >
-> ```
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1" -Run b199 -Only verify-accountacl,verify-apiname,verify-apiport,verify-scramlogin
-> ```
->
-> **Three by hand, each its own command** (fresh prefixes, lower case):
+> ***THREE REMAIN, ALL HAND-RUN, NOT YET RUN: `apiwire`, `delacc-xref`, `vocwrite`.***
+> `apiwire` and `vocwrite` are the two that `LOGTO <account>` away from SDSYS
+> inside a call — **the one shape no witnessed step has exercised**, so they are
+> the ones that could still surprise. **Each its own command** (fresh prefixes,
+> lower case):
 >
 > ```
 > powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiwire.ps1" -Prefix sdwire199

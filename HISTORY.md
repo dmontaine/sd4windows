@@ -66359,3 +66359,21 @@ product now refuses - arriving a third time, this time through the password.  Le
 found the system: no b198 leftovers, sd.conf untouched, the same SD process.
 
 ====
+20 Sep 2026 - THE REPEAT RUN PASSED: FIVE OF THE EIGHT WITNESSED.
+
+-Run b199, owner, elevated, 00:57: accountacl, apiname, apiport, scramlogin all exit 0,
+plus the register sweep.  Read from each step's transcript, not the exit code:
+accountacl 21/21, apiname 16/16, apiport 13/13, scramlogin 43/43 (63 rows), each with
+the seat proof, WHO answering "<n> SDSYS", zero seat failures, and 28-63 s where the two
+that hung earlier took 180 s.  With profiledir's 14/14 from b198 that is five of eight,
+and the hardest two are among them: scramlogin runs a BASIC client through the seat,
+and apiport restarts SD under it.
+
+The password defect is closed (83 struck) - witnessed on four of its eleven files and
+guarded statically on the other seven; a static guarantee about the password is not a
+statement that the verifier then passes, and the entry says so.
+
+Three remain, hand-run: apiwire, delacc-xref, vocwrite.  apiwire and vocwrite LOGTO to
+a test account inside a call, the one shape no witnessed step has exercised.  Not run yet.
+
+====
