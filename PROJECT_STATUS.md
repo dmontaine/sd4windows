@@ -216,7 +216,27 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > was reading field 5 as a tier**, which 64 gave to `ACC$SUSPENDED`; it would
 > have read blank on a healthy account and reported a product regression.
 >
-> ***THE QUESTION FOR THE OWNER, AND IT IS OPERATIONAL RATHER THAN TECHNICAL.***
+> ***THE OWNER RULED ON THE SEAT, 19 SEP 2026: THE SUITE IS GIVEN SDSYS'S
+> PASSWORD ONCE PER RUN AND SPAWNS ITS OWN SESSIONS.*** **One measurement
+> gates the whole re-aim and it is his to run**, elevated, as himself — it
+> asks for the SDSYS password at the keyboard, creates no SD account and
+> changes no SD state:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-sdsysseat.ps1"
+> ```
+>
+> **Why it comes before any rewriting**: `LOGIN`'s landing case needs the
+> identity **and an elevated token**, so a spawn that gets a UAC-**filtered**
+> one lands nowhere and is refused 10002 — the same refusal the `LOGTO` prefix
+> gets today, but in seventeen rigs whose output would not say why. The probe
+> measures both spawn routes (`Start-Process -Credential`, **expected
+> filtered**; a scheduled task at `RunLevel Highest`) and then asks SD. **If
+> neither is elevated that is an answer, not a failure** — it sends the ruling
+> back to the sign-in option or to a deliberate `LocalAccountTokenFilterPolicy`
+> decision, which is the owner's.
+>
+> ***THE QUESTION THAT RULING ANSWERED, AND WHY IT HAD TO BE ASKED.***
 > `verify-apiadmin.ps1:164` already says it, written during 64: *"THE LOGTO
 > SDSYS PREFIX EVERY DRIVER HERE USES IS REFUSED NOW (cproc:2789, 10002) - the
 > whole elevated suite is owed that re-aim"*. Under 64 `CREATE.ACCOUNT` is
@@ -224,11 +244,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `verify-routes.ps1` is *"the FIRST SDSYS-run rig"* — no `LOGTO`, a
 > `WindowsIdentity` gate refusing any other seat. **So either the elevated
 > suite is run from an SDSYS sign-in, or it is given SDSYS's password once per
-> run.** ***THIS IS WRITTEN IN THE CONDITIONAL BECAUSE NOTHING HERE HAS BEEN
-> RUN***: if the seat moves, every account-creating verifier loses its prefix
-> and gains the identity gate; what would falsify it is any account-creating
-> route that still works from an ordinary administrator's elevated session.
-> **Until it is answered, a full elevated suite run cannot pass** — three
+> run** — he took the password, and the probe above is what has to answer
+> before anything is rewritten. **Until it runs, a full elevated suite run
+> cannot pass** — three
 > steps (`verify-sshadmin`, `verify-apiremote`, `verify-privundetermined`)
 > also need 64's own rewrite and are declared PENDING in the guard rather than
 > quietly patched.
@@ -242,9 +260,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > chosen `ER_PERM`/3035 over an abort. Three orphans out of 163 messages at
 > 10000 or above.
 >
-> ***MAIL: ONE IN, PURE FYI, FILED TO `done\`; INBOX EMPTY; WATCHER RE-ARMED IN
-> THE SAME TOOL CALL, WHICH IS THE RULE THE LAST PASS WROTE.*** Linux built
-> both guard rows we suggested and 10921; nothing owed.
+> ***MAIL: TWO IN, ONE OUT, INBOX EMPTY, WATCHER RE-ARMED IN THE SAME TOOL CALL
+> EACH TIME — WHICH IS THE RULE THE LAST PASS WROTE AND IT HELD.*** Linux's
+> 18:30 was FYI (they built both guard rows we suggested, and 10921). **Their
+> 19:00 was the owner's own question, asked through them** — *"how do you run
+> your verify suite?"* — answered in `to-linux\2026-09-19T1920-windows-how-we-run-the-suite.md`:
+> the three entry points with their elevation, what `assert-current` compares
+> and that it has **no override**, what "the suite passed" is allowed to mean,
+> what still needs a person, the 49 free checks, the ~20 minutes — **and that
+> our elevated half cannot run at all tonight**, with 76 named. Their 19:35
+> answered back with a **measurement**: no fixture in their harness passes a
+> tier word to an account verb, so 76's defect does not reproduce there —
+> and they named a gap in their own `assert-current.py`, which **has no mirror
+> check**, arguing their installer covers it *"because it CLONES main"*. **Told
+> them the route past that argument** (19:45): the clone governs the INPUT, the
+> mirror governs the DISK, and they separate at an **upgrade** — which is
+> exactly how 10127 survived here. Nothing owed either way.
 >
 > ***⏸ HANDOFF — EIGHTEENTH PASS, 19 SEP 2026. 69, 72, 73, 74 AND 75 ARE ALL
 > BUILT, NONE IS WITNESSED, AND ALL FIVE OWE ONE CYCLE. WORKING TREE CLEAN,
