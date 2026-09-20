@@ -282,15 +282,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > wording** (`PROGRAMMER`, *"non-admin tier"*) in `vocwrite`, `apiadmin`,
 > `privundetermined`, `catgate` — a wider sweep is NOT done.
 >
-> ***CLEAR THE LITTER FIRST, THEN RE-RUN THE TWO.*** New tool, ELEVATED PowerShell as
-> yourself (it refuses, exit 2, unelevated). `DELETE.FILE` may ask a question; the
-> `Y` items answer it:
->
-> ```
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\sdsys-run.ps1" -Commands "DELETE.FILE ZZWIRE;Y;Y;DELETE.FILE ZZWIRED;Y;Y;DELETE.FILE ZZVOCW;Y;Y"
-> ```
->
-> Then, each its own command (fresh prefixes; the `199` ones cleaned up after
+> ***THE LITTER IS CLEARED (owner, 20 SEP 01:16, VERIFIED FROM DISK): `zzwire`,
+> `zzwired`, `zzvocw` gone from `C:\ProgramData\SD\sdsys`, and `voc`, `voc.dic`,
+> `accounts` intact.*** That also **witnesses the new tool**: `sdsys-run.ps1` ran a
+> real `DELETE.FILE` as SDSYS through the seat from an ordinary elevated prompt
+> (`DELETE.FILE` asked nothing, so the `Y` answers were harmless noise — give an
+> answer only to a command that really asks). **What is left is to re-run the two**,
+> each its own command (fresh prefixes; the `199` ones cleaned up after
 > themselves):
 >
 > ```

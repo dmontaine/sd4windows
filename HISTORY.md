@@ -66410,4 +66410,11 @@ so \S matched the next line's first character and a clean run failed.  Same-line
 
 Not run yet: the fix.  That sd -internal admits the LOGTO is read from the source.
 
+Litter cleared by the owner at 01:16 with the new sdsys-run.ps1 and VERIFIED FROM DISK, not
+from SD's own report: nothing named zz* left under SDSYS's directory or anywhere in
+ProgramData\SD, voc/voc.dic/accounts intact.  That is also the tool's first witness.  I had
+put "Y" answers after each DELETE.FILE in case it asked; it asked nothing, and SD replied
+"Y is not in your VOC" - which is why the tool's help now says to answer only a command that
+really asks.
+
 ====
