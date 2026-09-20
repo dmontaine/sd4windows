@@ -66178,3 +66178,17 @@ Built in source, not cycled, so open on the witness.  assert-current now reads
 STALE for exactly those three files and says so correctly.
 
 ====
+20 Sep 2026 - 80 WITNESSED AFTER THE OWNER'S CYCLE (cycle-20260919-225002.log,
+22:51 local, all three trees recreated).  The project's dates run a day ahead
+of this machine's local clock - the machine read 19 Sep 22:51 - so the docs say
+20 Sep for the same night.
+
+assert-current exit 0; installed 6131/6135/6140 are 24/41/41 bytes, tail
+29 3F 20 0A, identical to source, sibling 6146 unchanged as the control.
+verify-promptenter (unelevated, 9.7 s) 61/0.  BUT ITS LEG 4 MATCHES
+\(y/<n>\)\? UNANCHORED, SO IT WOULD HAVE PASSED WITHOUT THE SPACE: the witness is
+the log line, "(y/<n>)? " with the answer after the space ("(y/<n>)? Y").
+6131 is unreachable under D2 (its own header says so), so its bytes are
+verified and its display is not.  Row 80 struck.
+
+====

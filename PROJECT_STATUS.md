@@ -185,8 +185,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 79, now struck — see HISTORY for the six-id shape if it matters again) and
 > opened 80 (a trailing-space fix — ***DONE 20 SEP, LATER SAME NIGHT, WITH A
 > SCRIPT FILE: 6131, 6135 AND 6140 NOW END `)? ` LIKE THE LINUX PORT AND
-> UPSTREAM; BUILT IN SOURCE, NOT CYCLED, SO IT STAYS OPEN ON THE WITNESS.***
-> The "blocked on a tooling fact" wording that stood here is superseded).
+> UPSTREAM; CYCLED BY THE OWNER AND WITNESSED, SO NOW STRUCK IN
+> RELEASE_1.1_FIXES.***  The "blocked on a tooling fact" wording that stood here
+> is superseded).
 > 78's own evidence flipped: Winlogon says all ten SDSYS
 > sign-in attempts were **ACCEPTED** (`Result 0`, calibrated against real
 > `1326` failures in the same log) — the credential, deny rights and sign-in
@@ -218,12 +219,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > against everything, and confidently reported **zero** files needing work.
 > The corrected guard has a control that refuses to run blind.
 >
-> ***`assert-current` WILL NOW READ STALE FOR `sdsys/messages/6131`, `6135` AND
-> `6140`, AND THIS TIME IT IS RIGHT.*** *(Earlier this handoff called 6131's
-> newer mtime a harmless no-op `Write` artefact, byte-identical to HEAD. That
-> was true then and is superseded: all three files now genuinely differ from
-> the installed copy by one space — RELEASE_1.1 80.)* The next cycle clears
-> it; it is a real, intended difference, not corruption.
+> ***THE `6131` MTIME NOTE IS CLOSED: THE OWNER CYCLED AT 19 SEP 22:51 LOCAL
+> AND `assert-current` EXITS 0 AGAIN.*** *(It went STALE for `6131`, `6135` and
+> `6140` in between, correctly — all three genuinely differed from the install
+> by one space, RELEASE_1.1 80.)* The installed bytes equal source and
+> `verify-promptenter` (61/0) shows the trailing space on the real prompt.
+> **The tree is CURRENT as of that cycle; nothing here is owed a cycle** until
+> the next source change.
 >
 > ***THE PREVIOUS HANDOFF BELOW WAS ITSELF WRONG ABOUT THE CYCLE, AND THE
 > CORRECTION IS IN A LATER COMMIT, NOT HERE***: the 19 Sep 20:01 handoff said
