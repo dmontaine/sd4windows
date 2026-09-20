@@ -587,7 +587,10 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    19 Sep 2026*** by counting the names in this list and running each in its
    own process; the forty-eighth costs about a second, the forty-ninth
    0.2 s, the fiftieth 0.1 s, the fifty-first under a second and the
-   fifty-second (`test-sdsysseat-units.ps1`, 79 rows, 0.8 s) under a second.
+   fifty-second (`test-sdsysseat-units.ps1`, 101 rows, about 2 s — it was 79
+   rows and 0.8 s until the mechanical group added the shared `TERM` handling and
+   `Assert-SdSeat`, the latter observed through child processes because it ends
+   its script with `exit 2`) a couple of seconds.
    ***`test-sdsysseat-units.ps1` JOINED IT 20 SEP 2026 IN THE COMMIT THAT
    CREATED IT.*** It guards `gplbld/sdsys-seat.ps1`, RELEASE_1.1 76's helper
    that runs `sd.exe` as a task inside the OS SDSYS account's own live session

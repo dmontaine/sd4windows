@@ -66295,3 +66295,31 @@ it.  (Encoding was not the cause: they are UTF-8 with a BOM, checked.)  A count 
 a set is only a baseline for the members that could have shown the thing.
 
 ====
+20 Sep 2026 - THE MECHANICAL GROUP CONVERTED TO THE SEAT: EIGHT VERIFIERS.  BUILT,
+FREE-TIER GREEN, NOT WITNESSED ON A REAL MACHINE.
+
+Owner: "go, convert the mechanical group".  Reading each Invoke-SD FIRST is what
+showed they were not the pilot's shape: each sent LOGTO SDSYS then TERM 200,9999 and
+re-issued TERM after every LOGTO the caller sent, because LOGIN resets the terminal
+geometry on each account switch.  A body swap would have dropped that.  So the
+helper gained Expand-SeatCommands (that handling, once, with a mutant) and
+Invoke-SdSeatText (throws on a dead seat), and each verifier's Invoke-SD is one line.
+
+A second gap found by asking what a dead seat looks like from the OUTSIDE: it would
+surface as a thrown error at the first CREATE.ACCOUNT - exit 1, a stack trace, every
+appearance of a product defect.  The pilot avoided that with an inline precheck;
+that became Assert-SdSeat, called before anything is created, exit 2.  It ends its
+script with exit, so its test runs it in a CHILD PROCESS and reads the exit code.
+
+THE SURVEY'S "TIER" COLUMN WAS WRONG AGAIN, AND THE SAME WAY: it substring-matched
+the runner files, and VerifyInstall1's header COMMENT names apiwire, delacc-xref and
+vocwrite as "UNACCOUNTED FOR" - so they are in neither runner's step table.  Three of
+the eight have never run in the suite.  They are converted anyway (cheap) and are
+hand-run.  Lesson recorded twice now: a name appearing in a file is not a step in it.
+
+A dry-run unelevated of all eight proved the load and the elevation gate (exit 2,
+zero leftovers) and NOT the seat calls behind it.  The first dry-run stopped at the
+mandatory -Prefix check and reached neither; it took a second with a throwaway prefix
+to reach the gate.  Unit test 79 -> 101 rows; scope guard 33 -> 25.
+
+====

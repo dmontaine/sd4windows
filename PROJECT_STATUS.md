@@ -220,6 +220,47 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 19 Sep 23:23; `query session` shows it) — that is the owner's ruling, and it
 > means a reboot or a logoff costs one sign-in before the next elevated run.
 >
+> ***THE MECHANICAL GROUP IS CONVERTED (20 SEP): EIGHT VERIFIERS, FREE-TIER GREEN,
+> NOT YET WITNESSED.*** `accountacl`, `apiname`, `apiport`, `apiwire`,
+> `delacc-xref`, `profiledir`, `scramlogin`, `vocwrite` now run their SD calls as a
+> task inside SDSYS's session, each proving the seat (`Assert-SdSeat`, exit 2 if it
+> is dead) before creating anything. The helper gained `Expand-SeatCommands` (the
+> `TERM` handling they all carried) and `Invoke-SdSeatText` (throws on a dead
+> seat); the unit test is **101/101**; the scope guard is **25** (from 33).
+> **Unelevated dry-runs: all eight load and refuse at their elevation gate, zero
+> leftovers — that proves the load, NOT the seat calls behind the gate.**
+> ***THREE OF THE EIGHT ARE NOT SUITE STEPS*** (`apiwire`, `delacc-xref`,
+> `vocwrite` are in neither runner's table — `VerifyInstall1`'s header lists them
+> as UNACCOUNTED FOR; the survey's "tier" column was wrong about them twice), so
+> those are hand-run. `verify-pyapi` was left out (its own `Start-Job` timeout).
+>
+> ***THE OWNER RUNS THESE, AS HIMSELF, IN ELEVATED POWERSHELL — NO SWITCH TO SDSYS;
+> SDSYS'S SESSION (14 as of 19 Sep 23:23) MUST STILL BE ALIVE, `query session`.***
+> `b198` collides with nothing on disk (the only leftover is the pilot's
+> `SDACCT1`). **Five through the runner** (it derives every prefix from the token;
+> `apiport` and `scramlogin` edit `sd.conf` and RESTART SD, which the seat
+> survives because it is a Windows session):
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1" -Run b198 -Only verify-accountacl,verify-profiledir,verify-apiname,verify-apiport,verify-scramlogin
+> ```
+>
+> **Three by hand, each its own command** (fresh prefixes, lower case):
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiwire.ps1" -Prefix sdwire198
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-delacc-xref.ps1" -Prefix sddx198
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-vocwrite.ps1" -Prefix sdvocw198
+> ```
+>
+> **Written in the conditional, because none has run:** an exit 2 at *"proving the
+> SDSYS seat"* names which precondition failed; **what would falsify a conversion**
+> is a command whose output changes shape through the file round trip (a check
+> that counts lines, since SD echoes each command twice), or a `LOGTO <account>`
+> that behaves differently from a seat than from a hand-started SDSYS. **Read the
+> transcripts** (`%LOCALAPPDATA%\SD-verify\<name>-<stamp>.log`), not the paste —
+> and the runner's per-step logs are UTF-16, so read them with PowerShell.
+>
 > ***THE PILOT RAN ON A REAL MACHINE AND PASSED, 18 OF 18 (owner, elevated, 19
 > SEP 23:57).*** Every "unwitnessed" item in the next two paragraphs is now
 > witnessed — the seat (`46 SDSYS`, no refusal), the real task registration and
