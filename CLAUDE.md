@@ -581,8 +581,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-groupmember-units.py`, `test-psinterp-units.py`,
    `test-pwcomplex-units`, `test-acctkeywords-units.py`,
    `test-msgreserved-units.py`, `test-logtoreaim-units.ps1`,
-   `test-sdsysseat-units.ps1`, `test-pwgen-units.ps1`.
-   ***ALL FIFTY-THREE. Run these on
+   `test-sdsysseat-units.ps1`, `test-pwgen-units.ps1`,
+   `test-internalgate-units.py`.
+   ***ALL FIFTY-FOUR. Run these on
    every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
    own process; the forty-eighth costs about a second, the forty-ninth
@@ -592,7 +593,9 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `Assert-SdSeat`, the latter observed through child processes because it ends
    its script with `exit 2`, and then the `-Internal` switch, whose test observes
    `-internal` ARRIVE at a fake `sd` rather than reading it out of the script,
-   and now 132 rows: an eighth section asserts both runners guard each step call
+   and now 139 rows (the `-Internal` door writes LOGIN's one-shot marker, tested
+   through a `MarkerDir` seam so the unit test never touches the installed tree):
+   an eighth section asserts both runners guard each step call
    with a try/catch INSIDE the loop (a step that threw ended the whole suite,
    measured), and the hang tests show the seat now reports what SD had printed when
    it gave up; and the seventh section walks every `gplbld` script that touches the
@@ -603,7 +606,29 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    check could not see it: that script refuses at its elevation gate before
    reaching either line***) a
    few seconds and the fifty-third
-   (`test-pwgen-units.ps1`, 18 rows) about a second.
+   (`test-pwgen-units.ps1`, 18 rows) about a second, and the fifty-fourth
+   (`test-internalgate-units.py`, 35 rows) about 3 s, most of it one PowerShell
+   start.
+   ***`test-internalgate-units.py` JOINED IT 20 SEP 2026 IN THE COMMIT THAT
+   CREATED IT (RELEASE_1.1 82, THE OWNER'S GO).*** LOGIN admits an `sd -internal`
+   session only against a one-shot marker file and deletes it on admission;
+   whoever starts an internal session writes one first. **That is two halves in
+   different languages, and either works alone while both are wrong alone** — a
+   session start with no writer fails only inside an install or a cycle, hidden,
+   at the customer; a gate that stopped consuming the marker leaves the door open
+   and every legitimate caller still succeeds, so nothing would notice. BASIC cannot
+   be executed in a session, so **the gate is read the way `test-pwcomplex-units`
+   reads `pw_complex`: in ORDER** (the marker is deleted BEFORE the decision, and
+   before the expiry test), and the limit is stated in its header — this proves the
+   gate's shape and its ties to the writers, NOT that it admits a real session,
+   which is `verify-internalgate.ps1`, an elevated run on an installed system.
+   ***IT ASSERTS THE PARTITION:*** every quoted `-internal` token outside a comment
+   is a declared writer that really references the marker (or a declared
+   non-writer with its reason), and a declaration that no longer matches a session
+   start is a FAIL, so **a new internal session cannot appear without somebody
+   deciding who writes its marker**. It executes `internal-marker.ps1` against a
+   temp directory (no BOM, ASCII, one line, a missing directory is `$false` not a
+   throw). Mutants run on text and the live files are only read.
    ***`test-pwgen-units.ps1` JOINED IT 20 SEP 2026 IN THE COMMIT THAT CREATED
    IT (RELEASE_1.1 83), AND IT IS THE GUARD THAT WOULD HAVE SAVED THE OWNER'S
    FIRST ELEVATED RUN OF THE CONVERTED VERIFIERS.*** RELEASE_1.1 75 made SD

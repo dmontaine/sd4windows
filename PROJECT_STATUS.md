@@ -179,6 +179,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***▶ 20 SEP 2026 AFTERNOON — THE OWNER RULED "1 GO, 2 REWRITE, 3 CONVERT": RELEASE_1.1 82 (D2′) IS
+> BUILT, `verify-accountrules` IS REWRITTEN, AND A CYCLE IS NOW OWED.*** **Nothing below has been
+> run; the tree is STALE against the install** (`login` and the new shipped `internal-marker.ps1`
+> changed), so the next step is the owner's `cycle.ps1`. **Read row 82 of RELEASE_1.1_FIXES.md** —
+> the design, the two facts found by reading, and what was and was not compiled. In short: `login`'s
+> `K$INTERNAL` branch calls `internal.gate`, which admits a session only against a fresh `$internal`
+> marker in the SDSYS directory and deletes it before deciding; the installer's scripts,
+> `bootstrap.py`, the seat's `-Internal` door and four dev scripts write one before each session;
+> `test-internalgate-units.py` (free tier 54) guards both halves; `verify-internalgate.ps1` (a
+> `VerifyInstall2` step) is the witness. ***THE RISK IS THAT A WRONG GATE LOCKS OUT THE CYCLE THAT WOULD
+> PROVE IT, and BCOMP has not compiled `login`: `bbcmp` cannot reach the gate, so the subroutine was
+> compiled alone with four statements stubbed.*** **If the cycle dies at bootstrap, `login` is the
+> whole rollback (`git checkout HEAD~ -- sdb_ai/sd64/sdsys/gpl.bp/login`, nothing else depends on it).**
+> `verify-accountrules` steps 1 and 4 now measure silence-means-BOTH (with a NONE control) and the
+> ATTACH refusal; **unwitnessed, and its `sd -internal` leg needs the new marker.**
+>
 > ***▶ b201 RESULT, 20 SEP 2026 13:52 — NINE OF THE TEN ARE WITNESSED THROUGH THE SEAT; ONE
 > (`accountrules`) NEEDS A REWRITE.*** All seven steps exit 0: `createfilecase` 11/11,
 > `dictrename` 15/15, `twins` 13/13 (both doors), `nocaseupgrade` 31/31 (both doors),
