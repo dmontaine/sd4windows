@@ -220,8 +220,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 19 Sep 23:23; `query session` shows it) — that is the owner's ruling, and it
 > means a reboot or a logoff costs one sign-in before the next elevated run.
 >
-> ***THE MECHANICAL GROUP IS CONVERTED (20 SEP): EIGHT VERIFIERS, FREE-TIER GREEN,
-> NOT YET WITNESSED.*** `accountacl`, `apiname`, `apiport`, `apiwire`,
+> ***THE FIRST ELEVATED RUN (`-Run b198`, 20 SEP 00:38) FOUND A REAL DEFECT, AND
+> IT WAS NOT THE SEAT: RELEASE_1.1 83.*** **`verify-profiledir` PASSED 14 OF 14
+> through the seat** — so the seat is witnessed for `CREATE.ACCOUNT` and
+> `DELETE.ACCOUNT` on a real machine. **`accountacl` and `apiname` each HUNG for
+> exactly 180 s** (the seat reporting *"still running, LastTaskResult 267009"*, the
+> diagnostic working as designed) **on a password SD refuses since 75**: `GeneratePassword(24, 6)`
+> with no suffix is refused **5.7 %** of the time (1,140 of 20,000), and base64
+> alphanumerics + `'aA1'` has **no symbol and is refused every time**. **Nineteen
+> generator sites in eleven files, fixed** (`+ 'aA1!'` for Windows-side, `+ '-aA1'`
+> for the SD credentials — `-` is the one symbol safe through `bash -lc`), **and
+> guarded by `test-pwgen-units.ps1` (free tier, 18 rows; it fails, naming all
+> nineteen, against a reconstruction of the pre-fix tree).** `apiport` and
+> `scramlogin` **never ran**: `apiname`'s error escaped after its cleanup and ended
+> the in-process runner. **The system was left clean** (no `b198` leftovers,
+> `sd.conf` untouched, same SD process). **Not fixed and named: `verify-acctmsgs`'s
+> deliberately weak passwords now meet SD's OWN refusal before Windows' policy, so
+> its 10119 arm probably measures nothing** — it is in the untouched group.
+>
+> ***THE MECHANICAL GROUP IS CONVERTED (20 SEP): EIGHT VERIFIERS, FREE-TIER GREEN;
+> `profiledir` WITNESSED, THE OTHER SEVEN NOT YET.*** `accountacl`, `apiname`, `apiport`, `apiwire`,
 > `delacc-xref`, `profiledir`, `scramlogin`, `vocwrite` now run their SD calls as a
 > task inside SDSYS's session, each proving the seat (`Assert-SdSeat`, exit 2 if it
 > is dead) before creating anything. The helper gained `Expand-SeatCommands` (the
@@ -236,21 +254,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***THE OWNER RUNS THESE, AS HIMSELF, IN ELEVATED POWERSHELL — NO SWITCH TO SDSYS;
 > SDSYS'S SESSION (14 as of 19 Sep 23:23) MUST STILL BE ALIVE, `query session`.***
-> `b198` collides with nothing on disk (the only leftover is the pilot's
-> `SDACCT1`). **Five through the runner** (it derives every prefix from the token;
-> `apiport` and `scramlogin` edit `sd.conf` and RESTART SD, which the seat
-> survives because it is a Windows session):
+> **RE-RUN WITH A FRESH TOKEN, `b199`** (`b198`'s prefixes left nothing behind, and
+> the only leftover on disk is the pilot's `SDACCT1`). **`profiledir` is left out —
+> it already passed.** **Four through the runner** (it derives every prefix from
+> the token and appends `verify-registersweep`; `apiport` and `scramlogin` edit
+> `sd.conf` and RESTART SD, which the seat survives because it is a Windows
+> session):
 >
 > ```
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1" -Run b198 -Only verify-accountacl,verify-profiledir,verify-apiname,verify-apiport,verify-scramlogin
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1" -Run b199 -Only verify-accountacl,verify-apiname,verify-apiport,verify-scramlogin
 > ```
 >
 > **Three by hand, each its own command** (fresh prefixes, lower case):
 >
 > ```
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiwire.ps1" -Prefix sdwire198
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-delacc-xref.ps1" -Prefix sddx198
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-vocwrite.ps1" -Prefix sdvocw198
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiwire.ps1" -Prefix sdwire199
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-delacc-xref.ps1" -Prefix sddx199
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-vocwrite.ps1" -Prefix sdvocw199
 > ```
 >
 > **Written in the conditional, because none has run:** an exit 2 at *"proving the

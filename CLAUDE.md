@@ -581,16 +581,43 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-groupmember-units.py`, `test-psinterp-units.py`,
    `test-pwcomplex-units`, `test-acctkeywords-units.py`,
    `test-msgreserved-units.py`, `test-logtoreaim-units.ps1`,
-   `test-sdsysseat-units.ps1`.
-   ***ALL FIFTY-TWO. Run these on
+   `test-sdsysseat-units.ps1`, `test-pwgen-units.ps1`.
+   ***ALL FIFTY-THREE. Run these on
    every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
    own process; the forty-eighth costs about a second, the forty-ninth
-   0.2 s, the fiftieth 0.1 s, the fifty-first under a second and the
+   0.2 s, the fiftieth 0.1 s, the fifty-first under a second, the
    fifty-second (`test-sdsysseat-units.ps1`, 101 rows, about 2 s — it was 79
    rows and 0.8 s until the mechanical group added the shared `TERM` handling and
    `Assert-SdSeat`, the latter observed through child processes because it ends
-   its script with `exit 2`) a couple of seconds.
+   its script with `exit 2`) a couple of seconds and the fifty-third
+   (`test-pwgen-units.ps1`, 18 rows) about a second.
+   ***`test-pwgen-units.ps1` JOINED IT 20 SEP 2026 IN THE COMMIT THAT CREATED
+   IT (RELEASE_1.1 83), AND IT IS THE GUARD THAT WOULD HAVE SAVED THE OWNER'S
+   FIRST ELEVATED RUN OF THE CONVERTED VERIFIERS.*** RELEASE_1.1 75 made SD
+   refuse a password lacking any of lower, upper, digit and symbol, and **a
+   refused password does not fail — `CREATE.ACCOUNT` and `MODIFY.PASSWORD`
+   re-prompt, each re-prompt eats the next piped line, and SD ends at EOF where
+   it spins: the verifier HANGS for its whole timeout and reads as a product
+   failure.** Nineteen generator sites in eleven files were weak (`GeneratePassword(24, 6)`
+   with no suffix: **refused 5.7 % of the time, measured 1,140 of 20,000, a flake;**
+   and base64-alphanumerics + `'aA1'`: **no symbol, refused every time**), and
+   nothing in the tree could say so. It finds every password-named assignment
+   whose right side is a generator **by AST** and unions the character classes of
+   the string literals that are operands of the **top-level `+` chain** — the
+   only characters the expression *guarantees*. ***NOT EVERY LITERAL***: the
+   base64 shape carries the regex `'[^A-Za-z0-9]'`, whose characters look like a
+   symbol, and counting them would pass exactly the shape that fails 100 % of
+   the time. **Its own first run exposed its instrument, twice**: the assignment's
+   right side is a `CommandExpressionAst`, not a pipeline, so it extracted no
+   literals and reported *"missing all four"* for everything — and the
+   bare-`GeneratePassword` control PASSED BY COINCIDENCE, because "all four
+   missing" is also what nothing-extracted looks like; it was the controls
+   expecting a *pass* that gave it away. Then a one-element result unrolled on
+   return and `+` threw `op_Addition`. **Mutant control: run against a
+   reconstruction of the pre-fix tree it fails and names all nineteen sites.**
+   The rule is a copy tied to `gpl.bp/pw_complex` by asserting its ranges are still
+   present in the BASIC.
    ***`test-sdsysseat-units.ps1` JOINED IT 20 SEP 2026 IN THE COMMIT THAT
    CREATED IT.*** It guards `gplbld/sdsys-seat.ps1`, RELEASE_1.1 76's helper
    that runs `sd.exe` as a task inside the OS SDSYS account's own live session

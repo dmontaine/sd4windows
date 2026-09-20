@@ -66323,3 +66323,39 @@ mandatory -Prefix check and reached neither; it took a second with a throwaway p
 to reach the gate.  Unit test 79 -> 101 rows; scope guard 33 -> 25.
 
 ====
+20 Sep 2026 - THE FIRST ELEVATED RUN OF THE EIGHT HUNG, AND IT WAS THE PASSWORDS, NOT
+THE SEAT.  RELEASE_1.1 83.
+
+The owner ran the runner (-Run b198) and reported "step 1 hung".  The seat had proved
+itself (WHO answered "50 SDSYS") and the NEXT call sat for exactly 180 s.  The seat's
+own diagnostic said so: "still running, LastTaskResult 267009".
+
+WHAT MADE IT DIAGNOSABLE: reading the runner's state instead of theorising.  Steps ran
+on after the first, and verify-profiledir went through the seat, CREATE.ACCOUNT
+included, and PASSED 14 of 14 - so the seat and the call shape were fine, and the
+hang belonged to something accountacl had and profiledir did not.  Its password:
+'Pd-' + hex + '!7' against GeneratePassword(24, 6) bare.  SD's pw_complex (75) wants
+all four classes.  Then apiname, the second step, hung on a DIFFERENT call - its
+MODIFY.PASSWORD - with a password of base64 alphanumerics + 'aA1', which has no
+symbol: deterministic.  Two defects, not one: a 5.7 % flake (1,140 of 20,000) and a
+certainty.  Controls in the same sample: 0 of 20,000.
+
+Nineteen sites in eleven files, fixed, and guarded by test-pwgen-units.ps1 - which
+fails against a reconstruction of the pre-fix tree and names all nineteen.  MY FIRST
+COUNT, from a grep, said "17 in 14" and was wrong.
+
+THE GUARD'S OWN FIRST RUN FAILED HONESTLY AND THE WAY THAT MATTERS: every generator
+reported "missing all four classes", including the known-good controls, and the
+bare-GeneratePassword control PASSED - by coincidence, because "all four missing" is
+also what nothing-extracted looks like.  The AST's assignment right-hand side is a
+CommandExpressionAst, not a pipeline.  A control that can only pass one way proves
+nothing; the ones expecting a pass were the ones that told the truth.
+
+The unelevated dry-run I did before handing the eight over could not have found this:
+it stopped at the elevation gate, before any password reached SD.  It proved the load
+and I said so; what it could not prove is what the owner's run then paid for.  The class
+is the same as 76's keywords and the LOGTO prefix - the harness speaking a language the
+product now refuses - arriving a third time, this time through the password.  Left as it
+found the system: no b198 leftovers, sd.conf untouched, the same SD process.
+
+====
