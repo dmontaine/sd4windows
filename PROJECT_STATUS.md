@@ -286,7 +286,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > — **but `sh` is among the sixteen that went before the tag**, and a week's
 > difference in timing would have left the shell door in every upgraded account
 > with nothing able to report it. Read from source in both ports; **neither has
-> run it**. Nothing owed either way.
+> run it**. ***AND THE OWNER CORRECTED 77 THE MOMENT IT WAS PUT TO HIM***: the
+> row said nothing in a record distinguishes a withdrawn shipped id from a
+> site's own, and **`[locked]` in field 1 is exactly that marker** — his own
+> 2 Sep design, already honoured by the replace path and already reported by
+> 10165. **So the fix is a small shipped retired-ids list, not a design**: the
+> commit that deletes a record names it, the walk removes exactly those and
+> honours the lock, and 10166's promise — *"update.accounts only ever visits
+> records SD ships"* — survives, which a sweep of the account's VOC would not.
+> One question left for him, in the row. Nothing owed either way.
 >
 > ***⏸ HANDOFF — EIGHTEENTH PASS, 19 SEP 2026. 69, 72, 73, 74 AND 75 ARE ALL
 > BUILT, NONE IS WITNESSED, AND ALL FIVE OWE ONE CYCLE. WORKING TREE CLEAN,
