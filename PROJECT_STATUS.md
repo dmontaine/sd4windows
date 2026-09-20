@@ -275,7 +275,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > check**, arguing their installer covers it *"because it CLONES main"*. **Told
 > them the route past that argument** (19:45): the clone governs the INPUT, the
 > mirror governs the DISK, and they separate at an **upgrade** — which is
-> exactly how 10127 survived here. Nothing owed either way.
+> exactly how 10127 survived here. ***THEY RAN THE CHEAP ORPHAN CHECK AND IT
+> FOUND FOUR IN THEIR OWN RANGE*** — three lost their callers in one commit
+> five days ago, one was written and never wired: our 10052 and our 10074,
+> exactly. ***AND CHASING THE ROUTE FOUND THE REAL ONE, NOW RELEASE_1.1 77,
+> WHICH REPRODUCES HERE***: `login`'s `update.voc` selects `newvoc` and writes
+> each record into the account's VOC, **never walking the account's VOC**, so a
+> verb deleted from `newvoc` is never removed from an existing account. Inert
+> today — one `newvoc` deletion since `v1.0-0`, and 64 made both records dead
+> — **but `sh` is among the sixteen that went before the tag**, and a week's
+> difference in timing would have left the shell door in every upgraded account
+> with nothing able to report it. Read from source in both ports; **neither has
+> run it**. Nothing owed either way.
 >
 > ***⏸ HANDOFF — EIGHTEENTH PASS, 19 SEP 2026. 69, 72, 73, 74 AND 75 ARE ALL
 > BUILT, NONE IS WITNESSED, AND ALL FIVE OWE ONE CYCLE. WORKING TREE CLEAN,
