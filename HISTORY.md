@@ -66126,3 +66126,35 @@ reporting.  The same class as every other instrument rule here: the fix is the
 one that removes the chance to forget, not the reminder.
 
 ====
+20 Sep 2026 - THE COMMENT STRIPPER COULD NOT SEE A POWERSHELL BLOCK COMMENT
+(RELEASE_1.1 81), AND A PREDICTION IN 76 SPLIT WHEN IT WAS MEASURED.
+
+The twentieth pass ran out of credits with 76's scope guard staged and
+uncommitted, while its own handoff said "working tree clean, everything pushed".
+Committed first (dd91b22) so the sentence became true, then continued.
+
+Building that guard had forced two files to be declared COMMENT by hand: their
+"LOGTO SDSYS" sat inside a <# .SYNOPSIS #> help block that strip-comments.ps1's
+'hash' Kind could not see (it cuts at a line's first "#", and help prose mostly
+has none).  76 wrote that this "likely also affects" assert-current and the
+wording lint, not verified.  Measured: the lint, yes - 655 lines in 19 files
+reached its corpus as live text; assert-current, no - it strips only stage.py
+and sd.iss and stage.py has no block comment.  Nothing was firing on the leak,
+which is the only reason it survived.
+
+The fix is a new Kind, 'hashblock', and the trap is the ORDER of its two rules:
+hash-first eats the opener ("<#" contains "#"); block-first opens on any "#"
+comment that merely MENTIONS "<#" and swallows the file - and this tree writes
+those comments.  So it is one left-to-right machine deciding at each "#".
+'hash' is now refused on a .ps1, even for a missing file, because the obvious
+name was the trap.
+
+It hit the same trap one level up while being written: a comment in
+test-logtoreaim-units.ps1 spelled the closing delimiter and ended that file's
+own help block forty lines early - 8 parse errors, caught by the parse-check
+before anything ran.  Two COMMENT declarations deleted; guard 39 -> 37 live.
+
+Also: the owner said the other machine is off, so the mail watcher was stopped
+and not re-armed this session.
+
+====

@@ -201,10 +201,13 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > hit by role: **34 files genuinely need re-aiming** (32 DRIVER, 1
 > CALLER_SUPPLIED, 1 DRIVER+GATE), 1 is a GATE verifier that is NOT broken
 > (`verify-elevdoor.ps1` — the refusal is its subject), 2 are FIXTURE
-> (test files asserting another script's source), 2 are COMMENT (prose
-> inside a `<# #>` help block the shared stripper cannot see — **also likely
-> affects `assert-current.ps1` and `test-retired-wording-units.ps1`, NOT
-> VERIFIED, flagged for the next pass to check**). ***DO NOT WRITE THE FIX
+> (test files asserting another script's source). ***THERE WERE 2 MORE, DECLARED
+> "COMMENT" — PROSE INSIDE A `<# #>` HELP BLOCK THE STRIPPER COULD NOT SEE —
+> AND THEY ARE GONE: RELEASE_1.1 81, SAME NIGHT, GAVE THE STRIPPER A
+> `hashblock` KIND.*** Measured: the wording lint **was** affected (655 lines,
+> 19 files) and `assert-current.ps1` **was not** (it strips only `stage.py` and
+> `sd.iss`), so the "likely affects both, NOT VERIFIED" that stood here is
+> settled. **`hash` is now refused on a `.ps1`**; use `hashblock`. ***DO NOT WRITE THE FIX
 > ITSELF YET*** — every one of the 34 is blocked on 78 the same way it always
 > was: the change is "stop sending the prefix, assume the process already is
 > SDSYS," which cannot be written correctly until 78 says how a process
