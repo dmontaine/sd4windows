@@ -303,8 +303,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > than any door**); route the spawn through a **LocalSystem helper**, which
 > works and is machinery built only to defeat the product's own gate, with no
 > audit and no banner; the **SDSYS sign-in**; or **the owner's ticket**, which
-> at least says out loud what it is doing. ***NOTHING ELSE IS BUILT ON ANY OF
-> THEM.***
+> at least says out loud what it is doing.
+>
+> ***HE RULED, AND HE TOOK THE ROUTE THAT SATISFIES THE GATE RATHER THAN ONE
+> THAT DEFEATS IT: SDSYS IS SIGNED IN AND LEFT SIGNED IN.*** Sign in as SDSYS
+> once per boot, switch back to his own session with fast user switching — the
+> SDSYS session stays alive behind it — and the suite drives tasks registered
+> **`-LogonType Interactive -RunLevel Highest`**, which run **inside that live
+> session**: `S-1-5-4` because the desktop is real, High because the Task
+> Scheduler service runs as SYSTEM and **holds the `SeTcbPrivilege` route C
+> lacked**. ***NO PASSWORD IS PASSED AT ALL***, so the ticket is not needed.
+> **Built as route D, UNRUN.** It checks `qwinsta` first and refuses by name,
+> because a task registered against an account with no session does not fail —
+> it never runs, and the absent report would read as *"the route does not
+> work"*. The finder is driven both ways on the live machine.
+>
+> ***THE NEXT RUN NEEDS ONE THING FIRST: SIGN IN AS SDSYS, THEN SWITCH BACK.***
+> Without that, route D reports no session and says so; with it, `SEAT=True` on
+> route D is what unblocks the re-aim of the seventeen.
 >
 > **Why it comes before any rewriting**: `LOGIN`'s landing case needs the
 > identity **and an elevated token**, so a spawn that gets a UAC-**filtered**
