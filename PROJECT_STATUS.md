@@ -192,6 +192,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > (left unedited because editing `sd.iss` turns the fresh install stale); the installing user's own SD
 > password is asked for only when no credential exists (`Set-AttachedAccountPassword` reads `$cred` first),
 > and the tree of THAT run was fresh (`sdsys` created 15:34:51 — a cycle deletes both trees), so it was owed.
+> ***CLOSED: THE OWNER CONFIRMED HE RAN `cycle.ps1`, NOT SETUP DIRECTLY, SO BOTH PROMPTS WERE CORRECT.***
+> The open question that remains is only the other case — Setup run over a KEPT data tree should not ask for
+> the installing user's password (it reads `$cred` first) — and nothing has measured it yet.
 >
 > ***▶ 20 SEP 2026 AFTERNOON — THE OWNER RULED "1 GO, 2 REWRITE, 3 CONVERT": RELEASE_1.1 82 (D2′) IS
 > BUILT, `verify-accountrules` IS REWRITTEN, AND A CYCLE IS NOW OWED.*** **Nothing below has been
