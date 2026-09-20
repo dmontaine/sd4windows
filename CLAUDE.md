@@ -580,12 +580,12 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-lcnameslegs-units`, `test-kernelkeys-units.py`,
    `test-groupmember-units.py`, `test-psinterp-units.py`,
    `test-pwcomplex-units`, `test-acctkeywords-units.py`,
-   `test-msgreserved-units.py`.
-   ***ALL FIFTY. Run these on
+   `test-msgreserved-units.py`, `test-logtoreaim-units.ps1`.
+   ***ALL FIFTY-ONE. Run these on
    every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
    own process; the forty-eighth costs about a second, the forty-ninth
-   0.2 s and the fiftieth 0.1 s.
+   0.2 s, the fiftieth 0.1 s and the fifty-first under a second.
    ***AND THE COUNT IN THIS SENTENCE WAS ONE HIGH BEFORE THAT, WHICH IS THE
    ONE FAILURE A TYPED LIST STILL HAS.*** It read FORTY-SEVEN while the list
    held forty-six: `test-tiercounts-units` left on 18 Sep 2026 and the word did

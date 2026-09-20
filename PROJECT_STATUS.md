@@ -179,6 +179,58 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ HANDOFF — TWENTIETH PASS, 20 SEP 2026, OUT OF CREDITS MID-TASK.
+> WORKING TREE CLEAN, EVERYTHING PUSHED, FREE TIER 51 OF 51.*** Six mailbox
+> exchanges with the Linux port closed a message-number collision (RELEASE_1.1
+> 79, now struck — see HISTORY for the six-id shape if it matters again) and
+> opened 80 (a trailing-space fix, **approved by the owner, blocked on a
+> tooling fact**: `Edit` refuses a no-op and `Write` silently drops trailing
+> whitespace on every line — needs the script-file escape CLAUDE.md allows,
+> not yet written). 78's own evidence flipped: Winlogon says all ten SDSYS
+> sign-in attempts were **ACCEPTED** (`Result 0`, calibrated against real
+> `1326` failures in the same log) — the credential, deny rights and sign-in
+> screen are all cleared; what remains is between authentication and session
+> creation, and the elevated half of `probe-sdsyslogon.ps1 -Watch 3` (now
+> printing every Security event near each authentication) is still the
+> owner's to run.
+>
+> ***76'S DRIVER RE-AIM IS NOW MEASURED, NOT GUESSED — AND STILL BLOCKED ON
+> 78.*** Earlier passes wrote "~17 rigs" from a grep read by eye.
+> `gplbld/test-logtoreaim-units.ps1` (new, free tier) derives it by dot-
+> sourcing the shared stripper and hand-declaring every live `LOGTO SDSYS`
+> hit by role: **34 files genuinely need re-aiming** (32 DRIVER, 1
+> CALLER_SUPPLIED, 1 DRIVER+GATE), 1 is a GATE verifier that is NOT broken
+> (`verify-elevdoor.ps1` — the refusal is its subject), 2 are FIXTURE
+> (test files asserting another script's source), 2 are COMMENT (prose
+> inside a `<# #>` help block the shared stripper cannot see — **also likely
+> affects `assert-current.ps1` and `test-retired-wording-units.ps1`, NOT
+> VERIFIED, flagged for the next pass to check**). ***DO NOT WRITE THE FIX
+> ITSELF YET*** — every one of the 34 is blocked on 78 the same way it always
+> was: the change is "stop sending the prefix, assume the process already is
+> SDSYS," which cannot be written correctly until 78 says how a process
+> becomes SDSYS. Building the guard caught its own instrument failure first
+> — a first draft read the shared stripper's return keys wrong
+> (`.Number`/`.Line` instead of `.Line`/`.Text`), silently compared `$null`
+> against everything, and confidently reported **zero** files needing work.
+> The corrected guard has a control that refuses to run blind.
+>
+> ***A HARMLESS BUT CONFUSING SIDE EFFECT: `sdsys/messages/6131` NOW SHOWS AS
+> "newer than the install" IN `assert-current`.*** Content is byte-identical
+> to git HEAD (checked, `git diff` is empty) — a no-op `Write` attempt at
+> 80's trailing space bumped the file's mtime without changing a byte. The
+> next cycle clears it; do not chase it as corruption.
+>
+> ***THE PREVIOUS HANDOFF BELOW WAS ITSELF WRONG ABOUT THE CYCLE, AND THE
+> CORRECTION IS IN A LATER COMMIT, NOT HERE***: the 19 Sep 20:01 handoff said
+> "THE CYCLE IS STILL OWED"; it had actually run at 18:08 that same evening,
+> and RELEASE_1.1 69, 72, 73, 74 and 75 are **installed** (verified by
+> `assert-current` exit 0 and by reading the install's own deletions/bytes),
+> just not witnessed by any suite run. See the commit
+> "The cycle was not owed" for the measurement. **The rows below still read
+> "NOT CYCLED, SO OPEN" in places — that wording is superseded for anything
+> committed before 19 Sep 17:39; they stay open on the witness, not the
+> install.**
+>
 > ***⏸ HANDOFF — NINETEENTH PASS, 19 SEP 2026. WORKING TREE CLEAN, EVERYTHING
 > PUSHED, FREE TIER 49 OF 49. TWO NEW ENTRIES, 76 AND 78, AND ***78 IS THE ONE
 > TO READ FIRST: THE ONLY ADMINISTRATOR ACCOUNT SD HAS CANNOT HOLD A CONSOLE
