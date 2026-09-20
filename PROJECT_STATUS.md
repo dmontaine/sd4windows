@@ -245,6 +245,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > need only the refused `LOGTO` prefix deleted; **if 64's other half is meant to
 > land**, they need the seat too. It is a product decision, not a harness one, and
 > it also corrects 78's *"the internal door is not available to a person"*.
+> ***RULED BY THE OWNER, 20 SEP: `sd -internal` IS A DEVELOPMENT-ONLY LOGIN OPTION
+> AND IS TO BE CLOSED IN THE SYSTEM DELIVERED TO CLIENTS — RELEASE_1.1 82.***
+> **For the harness that means the six are development tools**, run against a
+> development build where the door stays open, so they need only the refused
+> `LOGTO SDSYS` prefix **deleted, not the seat**. **For the product it is a
+> design job, not a toggle**: six shipped scripts run `sd -internal` on client
+> machines (`upgrade-voc`, `-nocase`, `-dicts`, `attach-account`,
+> `finish-install`, `restore-sshonly`), so the installer and upgrade need their
+> own way in. **The fork is the owner's and is written up in 82**: (A) a
+> build-time split with a separate installer-only entry, (B) move the SD-side
+> work into the resident service (recommended, the largest), or (C) a runtime
+> switch in config (the one to refuse). Nothing is built.
 >
 > ***THE HELPER AND ONE PILOT WERE BUILT (20 SEP).*** `gplbld/sdsys-seat.ps1` runs `sd.exe` as a task inside SDSYS's own
 > session and **refuses a seat that is not one** (identity must be SDSYS, token
