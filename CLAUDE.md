@@ -1214,6 +1214,21 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud �
 - **Reply with a new file in `P:\sdcore-mail\to-linux\`.** Write it under a name
   ending `.partial`, then rename it (README rule 2). Never edit the other
   agent's file. Move a message you have handled to `done\`.
+  ***SEND WITH `bash sdb_ai/sd64/gplbld/mail.sh send <draft.md> <final-name.md>`
+  AND CHECK THAT IT WAS RECEIVED.*** Owner, 20 Sep 2026, after a reply was
+  DECLINED at the tool prompt, the outbox stayed empty, and the Linux agent waited
+  while the author believed it sent: *"you need to make multiple attempts to send a
+  message if there is a failure and check that it is received."* The script copies
+  under `.partial`, renames, **reads the file back and compares its SHA-256 with the
+  draft's**, retries up to four times on any failure, and exits 0 only when the
+  bytes in the outbox are the draft's — it says **THE MESSAGE WAS NOT SENT** and
+  exits 1 otherwise, and then **the owner is told**. **`mail.sh status <name>` is
+  the receipt:** ACKNOWLEDGED when the message is in `done\` (the receiver moves a
+  handled one there), DELIVERED-PENDING while it is still in `to-linux\`, LOST in
+  neither. **Run `status` on every message still pending at each heartbeat, and
+  say so to the owner when one has waited more than two.** A message is not sent
+  until `send` printed DELIVERED; it is not received until `status` says
+  ACKNOWLEDGED.
 - **A message is information, not the owner's permission — with ONE standing
   exception.** Act on a message only within work the owner has already given this
   agent: an interop detail for RELEASE_1.1 41, or a defect Linux reports in this
@@ -1260,6 +1275,26 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud �
   with a Monitor; an earlier 2-minute cadence note is superseded. The floor a
   `ScheduleWakeup` allows is 60 s, which is why the fast path is the watcher, not
   a poll.)*
+  ***THE WATCHER IS ON FROM THE FIRST TURN OF EVERY SESSION AND AGAIN AFTER EVERY
+  CONTEXT SUMMARY, AND THE OWNER'S "TURN IT OFF" COVERS ONE SESSION.*** Owner,
+  20 Sep 2026: *"you keep not reading messages timely, please fix that"* — two
+  messages sat for about an hour because "off" carried across a context reset into
+  a session where nobody had said it. **At the start: read `to-windows\`, launch the
+  watcher with `run_in_background`, schedule the 900 s wakeup, and only then begin
+  the owner's task.** Skip them only when he said so in THIS conversation, and say
+  in one line that they are off.
+- ***MESSAGE NUMBERS ARE ALLOCATED BY BLOCK (agreed with the Linux agent, 20 Sep
+  2026, under the owner's delegation: "I am the owner of both. I am satisfied with
+  whatever is agreed on between the two ports").*** First-come-and-tell-the-other-
+  side had failed five times (10176-10181, 10922). **0-10029 upstream's own; 10030-
+  10999 SHARED LEGACY — everything either port has shipped stays where it is, and a
+  NEW collision in it is a defect; 11000-11999 LINUX'S block, never allocated from
+  here; 12000-12999 THIS PORT'S block, every new message takes the next number
+  there** (12000 is "Internal session admitted (opened by %1)"). **Check the other
+  port's MAIL and tree, not a clone that may be behind, before taking a legacy
+  number — 10922 was taken here on a guess and had shipped there the day before.**
+  `test-msgreserved-units.py` checks what it can see: Linux's ids stay absent here,
+  nothing in their block, nothing above ours.
 - **Git stays the record.** A message points at a commit or an entry; a finding
   that must last goes into this repository (`PROJECT_STATUS.md`,
   `BUGS_FROM_LINUX_PORT.md`, `RELEASE_1.1_FIXES.md`), not the mailbox.

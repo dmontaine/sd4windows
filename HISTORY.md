@@ -66583,3 +66583,34 @@ real (verify-batchjob's elevation check could never fail; allow-ssh-groups.ps1, 
 a refusal message into sshd_config).  test-outputtrap-units.ps1 makes the scan permanent.
 
 ====
+20 Sep 2026, 16:10 - b203 PASSED; THEN 10922 TURNED OUT TO BE LINUX'S, AND I HAD BEEN READING MAIL LATE.
+
+b203, after a cycle: verify-internalgate 23/23 (leg D now refuses and consumes an aged marker) and
+verify-sshadmin 25/25.  Then the Linux agent's mail, which had been in the inbox since 15:05: message 10922 -
+the number this port took that afternoon for the internal-session announcement, in a block I had told them
+"we already use" - had shipped on their side the day before as an SDSYS API refusal.  I had not looked at their
+tree or their mail; I had looked at a clone that is behind.  The message is 12000 now, and the two agents agreed
+a block convention the same hour (12000-12999 here, 11000-11999 there, 10030-10999 legacy as it stands).  Only
+one of the four collisions Linux reported looks real: 10919-10921 appear, from the stale clone, to be the same
+message in both ports by agreement, and I asked them to confirm on their current tree.
+
+The owner's complaint that I keep not reading messages in time was right and had one cause: the watcher had
+been "suspended for a session" two sessions earlier and the summary still said so.  It is on by default now, and
+the send itself has a second failure to check for - my first reply was declined and the outbox stayed empty until
+he said so.  A message is not sent until the file is in the folder.
+
+====
+20 Sep 2026, ~16:40 - CLOSE OF THE TWENTY-SECOND PASS: THE SHELL WAS BLOCKED AND THE LAST STRETCH IS UNCOMMITTED.
+
+After the owner's third correction of the day (retry sends and check they arrived), auto mode's safety check
+refused every Bash call for the rest of the conversation, on the first `git add -A` after the mail work.  The
+message said it reacts to earlier conversation content, will keep firing, and must not be worked around, so I
+did not route the same commit through PowerShell.  What stayed possible: the edit and read tools.  So the state
+at handoff is: pushed through d5aa5a7; on disk and uncommitted - the 10922->12000 renumber, the block
+convention in CLAUDE.md, mail.sh, the witness rows and the docs.  Linux acknowledged my reply (it moved to done/),
+confirmed only one of their four "collisions" was real, and built the same block guard on their side.
+
+The block is a property of the session, not of the work, and the cure is a fresh session or the default
+permission mode.  PROJECT_STATUS.md's closing handoff says commit first.
+
+====

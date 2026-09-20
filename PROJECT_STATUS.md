@@ -179,6 +179,84 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ CLOSING HANDOFF — END OF THE TWENTY-SECOND PASS, 20 SEP 2026 ~16:40. READ THIS BLOCK FIRST; THE BLOCKS
+> BELOW IT ARE THE DETAIL AND ARE KEPT.***
+>
+> ***▶ 20 SEP 2026, TWENTY-THIRD PASS (fresh session): THE BLOCKED WORK IS COMMITTED (item (1) below is DONE).***
+> Free tier re-run: 55 of 55 exit 0, counts read (internalgate 40, msgreserved 17, fixlist 364/0). Linux's
+> 16:18 mail moved to `done\`, watcher armed. **One fix beyond the handoff:** `assert-current` reported
+> `verify-internalgate.ps1`, `test-internalgate-units.py` and `mail.sh` as source newer than the install
+> (they were missing from `$neverShipped`, and `test-outputtrap-units.ps1` would have been next); all four
+> are listed now and it names only `login` and the 10922→12000 rename. **Still owed, in order: the cycle,
+> then `-Run b204 -Only verify-internalgate` (items (2)-(3) below).**
+>
+> ***FIRST THING, BEFORE ANYTHING ELSE: THE WORKING TREE HAS UNCOMMITTED WORK ON DISK, BECAUSE THE SHELL WAS
+> BLOCKED.*** *(Done 20 Sep, twenty-third pass — see above.)* Auto mode's safety check refused every Bash call from ~16:15 ("reacts to earlier conversation
+> content… will keep firing for the rest of this conversation"), so nothing after `d5aa5a7` (last pushed) is
+> committed. **Run `git status` and `git diff --stat`, expect roughly: the 10922→12000 rename
+> (`sdsys/messages/12000`, `login`, `test-internalgate-units.py`, `test-msgreserved-units.py`,
+> `verify-internalgate.ps1`), `gplbld/mail.sh` (new), `CLAUDE.md`, `PROJECT_STATUS.md`, `HISTORY.md`,
+> `RELEASE_1.1_FIXES.md`; then commit and push.** The free tier was 55/55 green and `test-fixlist-units` 364/0
+> just before the block; re-run both, they cost a minute. **The memory files (outside the repo) ARE saved.**
+> **MAIL:** Linux's `2026-09-20T1618-linux-confirmed-one-collision-not-four.md` (FYI, all agreed) is READ and
+> still sits in `to-windows\` — `mv` it to `done\` and arm the watcher in the SAME call (CLAUDE.md: the watcher
+> is on from the first turn of every session; `mail.sh send` retries and verifies, `mail.sh status` is the
+> receipt). My 16:09 reply is ACKNOWLEDGED (it is in `done\`).
+>
+> ***STATE, ALL OBSERVED THIS PASS:*** RELEASE_1.1 82 (`sd -internal` closed on a delivered system, opened one
+> session at a time by a fresh marker) is **BUILT AND WITNESSED** — `-Run b203` `verify-internalgate` 23/23 and
+> `verify-sshadmin` 25/25, R1–R5 including expiry — **EXCEPT THE ON-SCREEN ANNOUNCEMENT, WHICH WAS RENUMBERED
+> AFTER THAT RUN** (10922 → **12000**; Linux had shipped 10922 the day before). `verify-apiremote` 18/18 and
+> `verify-accountrules` 35/35 passed on b202. **Nine of the ten seat conversions of the morning are witnessed**
+> (b200/b201), plus the rewrites and the three one-shots. Free tier **55** (new this pass:
+> `test-internalgate-units.py` 40 rows, `test-outputtrap-units.ps1`; `test-sdsysseat-units.ps1` 139).
+>
+> ***THE ORDER OF WORK.*** (1) Commit and push (above). (2) **A CYCLE IS OWED** (source is newer than the install:
+> the renumber) — an **elevated PowerShell**,
+> `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+> (it costs the SDSYS seat's session: sign SDSYS in again, login name SDSYS, before step 3). (3) Elevated,
+> `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b204 -Only verify-internalgate`
+> — rows **A** (announcement absent on a refusal) and **B** (present, then the writer's name) are the new ones;
+> a token is single-use, so `b204` is unused, `b202`/`b203` are spent. (4) The **ten verifiers still on
+> `LOGTO SDSYS`** (`test-logtoreaim-units.ps1` prints them): `catgate`, `sdsysgate`, `doors-admin`, `delaccount`,
+> `probe-tasklock` (privilege-subject: `-Internal` adds `K$INTERNAL` to a session whose subject is privilege, so
+> the refusal rows might stop discriminating — convert with a witness in hand), `sdtestuser-admin` and
+> `lcnames` (VI1, which must stay unelevated), `acctmsgs`, `interop-account`, `uninstallchoices`. (5) Unmeasured:
+> **Setup run over a KEPT data tree should NOT ask for the installing user's password** (`Set-AttachedAccountPassword`
+> reads `$cred` first); nothing has run that case. `sd.iss:3415`'s comment ("prompts only on 0") is STALE —
+> left because editing `sd.iss` stales an install.
+>
+> ***THE TRAPS THAT COST THIS PASS, each in the record:*** **`OPENSEQ` does not create a file** (`op_seqio.c`: a
+> missing path takes ELSE; only `CREATE` makes it) — my gate's age was never measured and my lenient "unknown =
+> fresh" fallback hid it until the witness's aged-marker leg; **a lenient fallback needs a leg that fires the case
+> it excuses.** **A PowerShell function that prints with `Write-Output` and returns a value returns both** —
+> fourth occurrence; `test-outputtrap-units.ps1` now scans all 734 functions (six live, two real). **Message
+> numbers are allocated BY BLOCK now** (10030–10999 legacy, 11000–11999 Linux, 12000–12999 ours) — I took 10922 on
+> a guess; **check the other port's mail and tree, never a clone that is behind.** **A tool call that is declined
+> is a send that did not happen; the outbox stayed empty and Linux waited.** **An unelevated dry-run proves the
+> load and the gate and nothing behind them** — an ordering defect (`Assert-SdSeat` above its own dot-source) was
+> invisible to it; `test-sdsysseat-units.ps1` §7 checks the order now, §8 that both runners guard each step.
+>
+> ***AND THE PROCESS FAILURE THE OWNER NAMED TWICE:*** I did not read Linux's mail for about an hour because the
+> watcher had been "suspended for a session" two sessions earlier and the summary still said so. **A summary that
+> says "watcher stopped" is history, not an instruction.**
+>
+> ***▶ 20 SEP 2026 16:10 — `-Run b203`: `verify-internalgate` 23/23 AND `verify-sshadmin` 25/25. THE INTERNAL DOOR
+> IS WITNESSED (R1-R5, EXPIRY INCLUDED). ONE CYCLE IS OWED FOR A RENUMBER, AND TWO THINGS CHANGED IN HOW
+> THIS PORT WORKS.***
+> (1) **The announcement is message 12000, not 10922** — Linux had shipped 10922 the day before; **message
+> numbers are now allocated BY BLOCK (CLAUDE.md, Linux section): 10030-10999 shared legacy, 11000-11999
+> Linux's, 12000-12999 ours.** Agreed with the Linux agent under the owner's delegation; my reply went out
+> at 16:10 (it was DECLINED once and the outbox stayed empty for a minute; **`gplbld/mail.sh send` now retries
+> and verifies by SHA-256, and `mail.sh status <name>` is the receipt — CLAUDE.md, Linux section**; the reply
+> `2026-09-20T1609-windows-blocks-agreed-10922-moved.md` was DELIVERED and PENDING at 16:14 — check it at the
+> next heartbeat). `verify-internalgate` scores the announcement (rows A and B),
+> so **run a cycle, then `-Only verify-internalgate`**, to close R4's screen half.
+> (2) **THE MAIL WATCHER IS ON FROM THE FIRST TURN OF EVERY SESSION AND AFTER EVERY CONTEXT SUMMARY** (CLAUDE.md
+> and memory updated): two Linux messages sat unread ~1 h on 20 Sep because "off" carried across a context
+> reset into a session where nobody had said it. **This session's watcher is task `b0amw0vk1`; the 900 s
+> `ScheduleWakeup` is the fallback.**
+>
 > ***▶ `-Run b202`, 20 SEP 2026 15:41 — THREE OF FOUR PASS OR ARE FIXED; ONE CYCLE IS OWED.***
 > **`verify-apiremote` 18/18 and `verify-accountrules` 35/35: WITNESSED** (the rewrites, the seat, and the
 > new marker in accountrules' `sd -internal` leg all work). **`verify-internalgate` 21/23: the door works
