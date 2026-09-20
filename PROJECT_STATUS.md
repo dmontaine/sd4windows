@@ -179,18 +179,67 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ NINETEENTH PASS, 19 SEP 2026 — RELEASE_1.1 76: THE HARNESS STILL
-> SPEAKS A LANGUAGE THE PRODUCT REFUSES, IN NINETEEN PLACES. ELEVEN FIXED,
-> THREE DECLARED PENDING, AND THE DRIVER IS A QUESTION FOR THE OWNER. FREE
-> TIER 49 OF 49.***
+> ***⏸ HANDOFF — NINETEENTH PASS, 19 SEP 2026. WORKING TREE CLEAN, EVERYTHING
+> PUSHED, FREE TIER 49 OF 49. TWO NEW ENTRIES, 76 AND 78, AND ***78 IS THE ONE
+> TO READ FIRST: THE ONLY ADMINISTRATOR ACCOUNT SD HAS CANNOT HOLD A CONSOLE
+> SESSION, AND UNDER 64 THAT IS THE ONLY ADMINISTRATION ROUTE THERE IS.***
 >
-> ***THE CYCLE BELOW IS STILL THE ONE THING THAT UNBLOCKS EVERYTHING AND IT IS
-> STILL THE OWNER'S.*** It now witnesses 69, 72, 73, 74 and 75; nothing this
-> pass changed needs it, because everything here is harness.
+> ***THE ORDER OF WORK IS 78, THEN 76, THEN THE CYCLE'S FIVE WITNESSES.***
+> 78 blocks 76 (the elevated suite cannot be given a seat until SDSYS can hold
+> one) and 76 blocks any full suite run. The cycle is independent of both and
+> is still owed.
+>
+> ***WHERE 78 STOPPED, AND THE NEXT COMMAND IS ONE RUN.*** The owner tried the
+> switch-user sign-in repeatedly; each time it took the password, began
+> entering, then returned him to his own session with no desktop. **Measured
+> and CLEARED: the password** (route A is a **type 2 Interactive** logon as
+> SDSYS through `CreateProcessWithLogonW` and it **succeeds**, with 4624s to
+> show for it), **the deny rights** (`SeDenyInteractiveLogonRight` names
+> `sdsshonly`, `sdrelay`, `Guest` and 46 dead SIDs — **not** SDSYS's own SID
+> nor any of its three group SIDs, while `SeInteractiveLogonRight` **does**
+> apply through `BUILTIN\Administrators`), **the profile** (`C:\Users\SDSYS`
+> exists, `ProfileList` points at it, no `.bak`, and `ace\SDSYS` holds
+> `FullControl`), and **the policies** (`HideFastUserSwitching` unset, no
+> `SpecialAccounts\UserList`, so nothing hides or blocks the tile).
+> ***WHAT THE WATCH CAUGHT: A WINLOGON `6000` PAIR THIRTEEN SECONDS APART AND
+> ONLY LOGOFF ROWS*** — `Don` type 2 twice, `UMFD-10`, `DWM-10` — a session
+> built and torn down, **no 4624 and no 4625 naming SDSYS**, and that account's
+> `LastLogon` is still a probe spawn: ***it has never held a console session on
+> this machine.***
+>
+> ***AND THE ONE THING THAT DECIDES WHETHER THAT ABSENCE MEANS ANYTHING IS NOT
+> YET READ — DO NOT CONCLUDE WITHOUT IT.*** "LSA never saw a credential" is
+> sound **only if FAILURE auditing is on**. Success plainly is; the two are
+> separate settings in one subcategory, and on a Success-only machine a refused
+> sign-in is recorded **nowhere**. `probe-sdsyslogon.ps1` now reads `auditpol`
+> first and says which reading the machine permits. **ELEVATED PowerShell; it
+> tells you when to go and try the sign-in and watches while you do:**
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-sdsyslogon.ps1" -Watch 3
+> ```
+>
+> ***TWO MEASUREMENTS THAT NARROW WHAT IS LEFT, TAKEN SO THE NEXT SESSION NEED
+> NOT.*** The only enabled accounts are `Don`, `SDSYS` and `sdrelay` — and the
+> deny rights **do** cover `sdrelay` — so **there is no third account to use as
+> a switch-user control** without making one, which is the control that would
+> separate *"SDSYS is special"* from *"switch-user is broken on this box"*.
+> And **RDP is off** (`fDenyTSConnections 1`, `TermService` stopped,
+> `Remote Desktop Users` empty), so §5.25's other sanctioned route — *"a
+> remote-control product or single-user remote desktop"* — **is not available
+> as an alternative without a machine change and a listening port. That is the
+> owner's ruling to make, not this agent's.**
+>
+> ***THE CYCLE IS STILL OWED AND IS STILL THE OWNER'S.*** It witnesses 69, 72,
+> 73, 74 and 75; nothing this pass changed needs it, because everything here is
+> harness or documentation.
 >
 > ```
 > powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
 > ```
+>
+> ***76 — THE HARNESS SPEAKS A LANGUAGE THE PRODUCT REFUSES, IN NINETEEN
+> PLACES. ELEVEN FIXED, THREE DECLARED PENDING, THE DRIVER PARKED BEHIND 78.***
 >
 > ***WHAT WAS FOUND, AND IT STARTED AS THE SMALLEST ROW ON THE LIST.*** 74's
 > last unfixed piece was one line of prose in `interop-account.ps1`. **The
