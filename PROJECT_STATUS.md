@@ -287,7 +287,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > **If route C fails, that is the design to build**, in the `sd-elevate` shape
 > CLAUDE.md blesses: minted only from an elevated INTERACTIVE session, short
 > window, loud audit, a banner, and the gate verifiers refusing to run under
-> it. ***NOTHING ELSE IS BUILT ON ANY OF THEM.***
+> it.
+>
+> ***ROUTE C IS CLOSED, 19 SEP: `DuplicateTokenEx failed, Win32 1346`
+> (`ERROR_BAD_IMPERSONATION_LEVEL`) — AND THE MECHANISM WAS THEN MEASURED
+> DIRECTLY, FOR NOTHING.*** On an ordinary **unelevated** token, no password,
+> no account: `TokenLinkedToken` returns impersonation level **1 =
+> `SecurityIdentification`**, and duplicating it to a PRIMARY token fails with
+> the identical **1346**. ***WITHOUT `SeTcbPrivilege` THE LINKED TOKEN CAN BE
+> READ BUT NOT SPAWNED WITH*** — which is exactly why HISTORY.md:48615 could
+> read it a fortnight ago and why this cannot start a process with it.
+> **Reading and spawning are different rights, and the earlier measurement did
+> not generalise the way this pass assumed it would.** What is left: grant
+> `SeTcbPrivilege` (*"act as part of the operating system"* — **a worse change
+> than any door**); route the spawn through a **LocalSystem helper**, which
+> works and is machinery built only to defeat the product's own gate, with no
+> audit and no banner; the **SDSYS sign-in**; or **the owner's ticket**, which
+> at least says out loud what it is doing. ***NOTHING ELSE IS BUILT ON ANY OF
+> THEM.***
 >
 > **Why it comes before any rewriting**: `LOGIN`'s landing case needs the
 > identity **and an elevated token**, so a spawn that gets a UAC-**filtered**
