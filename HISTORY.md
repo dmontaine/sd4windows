@@ -66418,3 +66418,30 @@ put "Y" answers after each DELETE.FILE in case it asked; it asked nothing, and S
 really asks.
 
 ====
+20 Sep 2026 - THE -Internal FIX RAN: vocwrite 7/7, apiwire THROUGH EVERY STEP THIS BOX CAN
+MEASURE.  THE MECHANICAL GROUP IS DONE.
+
+That sd -internal admits LOGTO <account> was read from logto.authorised; it is now OBSERVED,
+twice: the files exist in the test account's own directory (the new destination check
+passed), the SCRAM login verified, every OPEN and WRITE succeeded, and vocwrite's read-back
+CT after a LOGTO found both records - the read that had looked in the wrong account.
+
+apiwire then stopped at step 9, the packet capture, exit 2.  That is not new: on 15 Sep the
+capture was found impossible on one box (pktmon logs only loopback drop events), its own
+control refuses, and the owner accepted the two real cross-network interop runs as the TLS
+witness instead.  I found this by searching the record before treating it as a fault - and
+the record had the answer, with the ruling, from five days earlier.
+
+A CHECK OF MINE WAS WRONG AND LOOKED LIKE A LEAK.  I expected APIPORT to be absent from the
+installed sd.conf afterwards; it is present and something listens on 4243.  The tell was
+POSITION: a verifier appends APIPORT at the END of the file, and this was at line 53 with the
+config's own comments after it, so it was in its original place.  stage.py's own config text
+has APIPORT=4243 enabled, with the same distinctive comment lines as the installed file: the
+product ships with the API on (TLS-only), and the verifiers restore it from a backup they
+then delete.  The mtime could not settle it - Copy-Item preserves timestamps, so a restore
+and an original look the same.
+
+Eight verifiers converted: seven fully witnessed, the eighth as far as the machine allows.
+Left: 25 unconverted files (four of them will need -Internal) and RELEASE_1.1 82's fork.
+
+====

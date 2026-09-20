@@ -287,22 +287,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `accounts` intact.*** That also **witnesses the new tool**: `sdsys-run.ps1` ran a
 > real `DELETE.FILE` as SDSYS through the seat from an ordinary elevated prompt
 > (`DELETE.FILE` asked nothing, so the `Y` answers were harmless noise — give an
-> answer only to a command that really asks). **What is left is to re-run the two**,
-> each its own command (fresh prefixes; the `199` ones cleaned up after
-> themselves):
+> answer only to a command that really asks).
 >
-> ```
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiwire.ps1" -Prefix sdwire200
-> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-vocwrite.ps1" -Prefix sdvocw200
-> ```
->
-> **Written in the conditional, because the fix has not run:** that `sd -internal`
-> admits `LOGTO <account>` is read from `logto.authorised`'s first branch, not
-> observed; an exit 2 at *"proving the SDSYS seat, through sd -internal"* names
-> which precondition failed, and would mean the internal door is not reachable from
-> the seat. **What would falsify the design** is a command whose output changes
-> shape through the file round trip (a check that counts lines, since SD echoes
-> each command twice). **Read the
+> ***THE `-Internal` FIX RAN (owner, 20 SEP 01:18–01:20): `vocwrite` PASSED 7 OF 7 AND
+> `apiwire` PASSED EVERYTHING THAT CAN BE MEASURED ON THIS MACHINE.***
+> **`sd -internal` DOES ADMIT `LOGTO <account>` — observed twice, no longer read from
+> the source.** In both, the files now exist in the test account's own directory
+> (the new destination check passed), the SCRAM login verified, the API opened and
+> wrote every file, and `vocwrite`'s read-back `CT` after `LOGTO` found both
+> records. **`apiwire` stopped at step 9, the packet capture, with exit 2 — which is
+> its designed and PREVIOUSLY RULED outcome here**: 15 Sep, `pktmon` sees only
+> loopback drop events, its own control refuses, and the owner accepted the two
+> real cross-network interop runs as the TLS witness instead; the verifier was
+> *"kept for a future remote capture… no longer owed"*. **Nothing to fix.**
+> ***SO THE MECHANICAL GROUP IS DONE: SEVEN OF EIGHT FULLY WITNESSED, AND THE EIGHTH
+> AS FAR AS THIS MACHINE ALLOWS.*** The system was left clean (no `sdwire200`
+> leftovers, nothing stray in SDSYS's account). **One check of mine was wrong and
+> is corrected**: I expected `APIPORT` to be absent from the installed `sd.conf`
+> afterwards; **the product ships with `APIPORT=4243` enabled** (`stage.py`'s own
+> config text, TLS-only per 41/42) and the verifiers restore that from a backup, so
+> the API listening on 4243 is the default and not a leak. **Read the
 > transcripts** (`%LOCALAPPDATA%\SD-verify\<name>-<stamp>.log`), not the paste —
 > and the runner's per-step logs are UTF-16, so read them with PowerShell.
 >
