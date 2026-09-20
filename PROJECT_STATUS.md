@@ -198,10 +198,16 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 2. In an **elevated PowerShell**, run the ten as one targeted elevated step set — it
 >    derives every prefix from the `-Run` token:
 >
->    `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b200 -Only verify-twins,verify-nonet,verify-dictrename,verify-fold,verify-createfilecase,verify-accountrules,verify-vocverbs,verify-pygate,verify-pyapi,verify-nocaseupgrade`
+>    `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b201 -Only verify-twins,verify-nonet,verify-dictrename,verify-fold,verify-createfilecase,verify-accountrules,verify-vocverbs,verify-pygate,verify-pyapi,verify-nocaseupgrade`
+>
+>    ***`b200` WAS SPENT AND IT FOUND A DEFECT NO CHECK COULD:*** `verify-createfilecase`
+>    called `Assert-SdSeat` eleven lines ABOVE the dot-source that defines it and died
+>    "not recognized". Fixed, and a seventh section of `test-sdsysseat-units.ps1` now
+>    checks the order in every script that touches the seat (119 rows). My unelevated
+>    dry-run had stopped at the elevation gate and could not see it. Rerun with `b201`.
 >
 >    **A PARTIAL RUN, SAID SO IN ITS OWN BANNER.** *(Elevated: yes. The path is this
->    machine's; the token `b200` is unused in every document.)* *(A guess, and it would be
+>    machine's.)* *(A guess, and it would be
 >    falsified by all ten passing:)* `dictrename`, `pygate`, `pyapi` and `nocaseupgrade`
 >    are the ones that might say something unexpected — they were converted from three
 >    different `Invoke-SD` shapes and each has a step nobody has measured since 64.

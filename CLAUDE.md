@@ -591,7 +591,14 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    rows and 0.8 s until the mechanical group added the shared `TERM` handling and
    `Assert-SdSeat`, the latter observed through child processes because it ends
    its script with `exit 2`, and then the `-Internal` switch, whose test observes
-   `-internal` ARRIVE at a fake `sd` rather than reading it out of the script) a
+   `-internal` ARRIVE at a fake `sd` rather than reading it out of the script,
+   and now 119 rows: a seventh section walks every `gplbld` script that touches the
+   seat and asserts its dot-source comes BEFORE its first script-scope call —
+   ***added 20 Sep 2026 because `verify-createfilecase` died on the owner's first
+   elevated run with "Assert-SdSeat is not recognized", the call eleven lines
+   above the line that defines it, and the unelevated dry-run that stood in for a
+   check could not see it: that script refuses at its elevation gate before
+   reaching either line***) a
    few seconds and the fifty-third
    (`test-pwgen-units.ps1`, 18 rows) about a second.
    ***`test-pwgen-units.ps1` JOINED IT 20 SEP 2026 IN THE COMMIT THAT CREATED
