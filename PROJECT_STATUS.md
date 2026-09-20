@@ -226,6 +226,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-sdsysseat.ps1"
 > ```
 >
+> ***RUN ONCE ALREADY, 19 SEP: ROUTE A IS ANSWERED AND ROUTE B IS NOT.***
+> `Start-Process -Credential` gives a **Medium** token — `identity=ace\SDSYS`,
+> `isadmin=False`, `Administrators` **deny only** — so that spawn works and
+> that seat does not. **Route B never registered**: the principal was
+> `.\SDSYS` and Task Scheduler answered *"No mapping between account names and
+> security IDs was done"*; `.\` is a shell convention, not an LSA one, and
+> `Start-Process` accepts the same string, so two APIs disagree about a name
+> and only one says so. ***AND THE PROBE MEASURED ROUTE A CORRECTLY AND SHOWED
+> NOBODY***: its helpers called `Say`, which writes to the **output stream**,
+> so the printed lines were captured into the caller's variable instead of
+> reaching the screen. **A function that returns a value prints nothing, and
+> the caller prints** — fixed, and driven on the owner's own `routeA.txt`.
+> **The command above is the rerun**; only route B is still open.
+>
 > **Why it comes before any rewriting**: `LOGIN`'s landing case needs the
 > identity **and an elevated token**, so a spawn that gets a UAC-**filtered**
 > one lands nowhere and is refused 10002 — the same refusal the `LOGTO` prefix
