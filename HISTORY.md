@@ -66244,3 +66244,32 @@ its sd.exe call to a task in the SDSYS session and read the output back from a f
 and registering that task needs the caller elevated.  Nothing of it is built.
 
 ====
+20 Sep 2026 - THE SDSYS SEAT HELPER AND ITS PILOT, BUILT.  UNWITNESSED ON A REAL
+MACHINE.
+
+The owner said "start that way": a shared helper with a free unit test, adopted in
+ONE verifier (verify-createaccount.ps1, the guard's own control file), then one
+elevated run before touching the other 33.
+
+sdsys-seat.ps1 runs sd.exe as a task inside SDSYS's own session.  The owner
+pointed out mid-build that SD will not log in to SDSYS unless the process IS the
+OS SDSYS account - which is why the helper does not merely trust the task: the task
+script reports the identity and both token facts it actually ran with, and the
+validator REFUSES anything but SDSYS-elevated-interactive with an end marker.  A run
+as the wrong account looks exactly like SD refusing a command.
+
+The unit test (79 rows, 0.8 s) EXECUTES the generated task script against a fake
+sd.exe rather than reading it, and mutates each check on a copy.  Its first run
+found a contract gap: PowerShell's binder threw on an empty -Commands list and on a
+list holding an empty string, before the helper's refusal could run.
+
+Two smaller catches while adopting it: the scope guard's control file WAS the pilot,
+so it had to move to another live file or its "known-live line" control would have
+failed with "found 0"; and the pilot's seat precheck runs before anything is
+created, because CREATE.ACCOUNT makes a real Windows account.  The guard's count
+fell 34 -> 33 on its own.  The owner asked how to run it "in the Don account, not
+SDSYS": from an ordinary elevated prompt as Don - the task runs in session 14.
+
+CLAUDE.md's free-tier list is now 52.
+
+====

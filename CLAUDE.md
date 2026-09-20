@@ -580,12 +580,36 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-lcnameslegs-units`, `test-kernelkeys-units.py`,
    `test-groupmember-units.py`, `test-psinterp-units.py`,
    `test-pwcomplex-units`, `test-acctkeywords-units.py`,
-   `test-msgreserved-units.py`, `test-logtoreaim-units.ps1`.
-   ***ALL FIFTY-ONE. Run these on
+   `test-msgreserved-units.py`, `test-logtoreaim-units.ps1`,
+   `test-sdsysseat-units.ps1`.
+   ***ALL FIFTY-TWO. Run these on
    every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
    own process; the forty-eighth costs about a second, the forty-ninth
-   0.2 s, the fiftieth 0.1 s and the fifty-first under a second.
+   0.2 s, the fiftieth 0.1 s, the fifty-first under a second and the
+   fifty-second (`test-sdsysseat-units.ps1`, 79 rows, 0.8 s) under a second.
+   ***`test-sdsysseat-units.ps1` JOINED IT 20 SEP 2026 IN THE COMMIT THAT
+   CREATED IT.*** It guards `gplbld/sdsys-seat.ps1`, RELEASE_1.1 76's helper
+   that runs `sd.exe` as a task inside the OS SDSYS account's own live session
+   — the only way a verifier reaches SDSYS now that `LOGTO SDSYS` is refused
+   from any other account. It exists because the real runner needs elevation
+   AND a signed-in SDSYS and is otherwise reached only inside a ~20-minute
+   elevated run, while everything that DECIDES is reachable free through its
+   test seam: the session finder, the report validator (**a seat that ran as
+   the wrong account, or without an elevated interactive token, produces output
+   that looks exactly like SD refusing a command**), every refusal, and — the
+   part that is measured rather than read — **the generated task script is
+   EXECUTED against a fake `sd.exe`**, so its header, its echo of the piped
+   input, its end marker and *"input deleted before sd runs"* are observed.
+   **Four mutants** (identity, elevated, interactive, end-marker checks each
+   removed from a COPY) must be ACCEPTED where the live file refuses, and the
+   live file is asserted byte-identical afterwards. ***ITS FIRST RUN FOUND A
+   CONTRACT GAP***: an empty `-Commands` list is rejected by PowerShell's own
+   parameter binder as a terminating error, before the helper's refusal can
+   run, breaking the promise that every refusal is a result object with a
+   `Why` — twice, once for the empty list and once for a list holding an empty
+   string. It exits 0 unelevated, and its section 4 then exercises the
+   *refusal* path (`admin=False`); an elevated run exercises the accept path.
    ***AND THE COUNT IN THIS SENTENCE WAS ONE HIGH BEFORE THAT, WHICH IS THE
    ONE FAILURE A TYPED LIST STILL HAS.*** It read FORTY-SEVEN while the list
    held forty-six: `test-tiercounts-units` left on 18 Sep 2026 and the word did

@@ -220,8 +220,38 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 19 Sep 23:23; `query session` shows it) — that is the owner's ruling, and it
 > means a reboot or a logoff costs one sign-in before the next elevated run.
 >
+> ***THE HELPER AND ONE PILOT ARE BUILT (20 SEP), UNWITNESSED ON A REAL
+> MACHINE.*** `gplbld/sdsys-seat.ps1` runs `sd.exe` as a task inside SDSYS's own
+> session and **refuses a seat that is not one** (identity must be SDSYS, token
+> elevated AND interactive, end marker present); `gplbld/test-sdsysseat-units.ps1`
+> is its free guard (79/79, and CLAUDE.md's free-tier list is now **52**).
+> **`verify-createaccount.ps1` is the pilot**: no `LOGTO`, a seat precheck before
+> anything is created, and it throws rather than return `''` on a dead seat. The
+> scope guard now says **33 files** to re-aim, not 34. **The other 33 are
+> untouched on purpose** — convert them only after the pilot has run. **What the
+> unit test cannot reach**: the real `Register-ScheduledTask`, the work-dir ACL
+> grant, the BOM sink on a real `sd.exe`, the doubled echo lines seen on 19 Sep,
+> and `CREATE.ACCOUNT`'s password lines surviving the file round trip.
+>
+> ***THE OWNER RUNS THE PILOT, AS HIMSELF — HE DOES NOT SWITCH TO SDSYS.*** Elevated
+> PowerShell in the Don account; the task runs inside SDSYS's session 14, which
+> must still be alive (`query session` shows an SDSYS row):
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-createaccount.ps1"
+> ```
+>
+> **Written in the conditional, because it has never run:** if it passes, the
+> pilot is witnessed and the other 33 can follow one at a time, each deleting its
+> row from `test-logtoreaim-units.ps1` in the same commit; if it stops at
+> *"proving the SDSYS seat"* with exit 2, the message names which precondition
+> failed. **What would falsify the design**: a command whose output does not
+> survive being captured to a file — read the transcript
+> (`%LOCALAPPDATA%\SD-verify\verify-createaccount-<stamp>.log`), not the paste.
+>
 > ***THE CYCLE IS CURRENT, NOTHING IS OWED.*** The owner cycled at 19 Sep 22:51
-> local; `assert-current` exit 0, and 80 was witnessed on it (see its row).
+> local; `assert-current` exit 0 (the two new files are listed as never-shipped),
+> and 80 was witnessed on it (see its row).
 >
 > ***⏸ HANDOFF — TWENTIETH PASS, 20 SEP 2026, OUT OF CREDITS MID-TASK.
 > WORKING TREE CLEAN, EVERYTHING PUSHED, FREE TIER 51 OF 51.*** Six mailbox
