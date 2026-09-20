@@ -66494,3 +66494,31 @@ prompt that stopped it, and several converted scripts' comments still described 
 verify-fold was the guard's control file and is converted; the control moved to sdtestuser-admin.
 
 ====
+20 Sep 2026, AFTERNOON - THE FIRST ELEVATED RUN OF THE TEN (-Run b200): THREE WITNESSED, THE REST
+FOUND THREE DEFECTS IN THE HARNESS.
+
+fold 10/10, nonet 17/17 and vocverbs 36/36 passed through the seat.  accountrules threw at step 1: it
+sends CREATE.ACCOUNT with no access keyword and expects the 10082 refusal, which RELEASE_1.1 68
+withdrew the day before, so SD sat at the password prompt for the seat's 180 s.  A verifier with a
+stale subject, found the way every stale verifier is found - by the first run since the change.
+
+createfilecase died because I called Assert-SdSeat above the dot-source that defines it.  I had done
+an unelevated dry-run of all ten first and written that it "proves the load and the gate, NOT the
+calls behind them" the day before; the dry-run stopped at each script's elevation gate and could not
+reach the line.  The check that would have caught it is a static order check, and it exists now.
+
+THE RUN ENDED AT THAT ERROR, which was the third finding: the runners execute steps in their own
+process under $ErrorActionPreference = 'Stop', so one step's terminating error ends the whole suite.
+That had been noted as "runner in-process abort, unchanged" for two passes and was left because
+nothing had made it cost anything.  The seat made it cost: it adds a new way for a step to throw.
+Both runners now guard the step call.
+
+AND A LIMIT I HAD WRITTEN DOWN FROM READING THE HELPER WAS MEASURED THE SAME RUN: a hang throws with no
+text, so the cause of accountrules' hang was found by reading createa.  The seat now streams to
+<report>.part and the timeout quotes the tail.
+
+TWO SCANS OF MINE WERE WRONG BEFORE THEY WERE RIGHT, both by the same mechanism: an ordering scan that
+read $null line numbers through an invalid Measure-Object form and printed OK for 20 files, and a
+verdict that would have read the null as "in order".  A missing number is a failure now.
+
+====

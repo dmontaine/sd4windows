@@ -179,6 +179,26 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***▶ b200 RESULT, 20 SEP 2026 13:16, THE OWNER'S FIRST ELEVATED RUN OF THE TEN (SEAT
+> WORKING; THE RUN ENDED AT `createfilecase`):*** **`verify-fold` 10/10, `verify-nonet`
+> 17/17, `verify-vocverbs` 36/36 — WITNESSED THROUGH THE SEAT** (`WHO` answered as SDSYS at
+> the start of each). **`verify-accountrules` THREW at step 1**: its
+> `CREATE.ACCOUNT USER <name>` with no access keyword hung 180 s, because **RELEASE_1.1 68
+> withdrew the 10082 refusal (silence now means BOTH and the account IS made), so SD sat at
+> the password prompt** — a stale premise, not the seat; **its step 4 (ADOPT) is stale for
+> the same reason, 64 abolished ADOPT**, and steps 2 and 3 are unmeasured. It needs a
+> rewrite, so it is NOT in the rerun. **`createfilecase` died "Assert-SdSeat is not
+> recognized"** (call above the dot-source; fixed). **Because the runner ended there, nothing
+> after it ran: `dictrename`, `twins`, `nocaseupgrade`, `pyapi`, `pygate` are still
+> unwitnessed.** Nothing was left behind (checked: no users, groups, register records,
+> tasks or stray `sd.exe`). **THREE FIXES CAME OUT OF IT, ALL FREE-TIER GUARDED (132 rows in
+> `test-sdsysseat-units.ps1`):** (1) both runners now guard each step call with a try/catch,
+> so a step that throws is scored as that step failing and the rest still run — measured on
+> the runner's own shape: unguarded ends the loop, guarded continues; (2) a call that hits its
+> seat timeout now reports the last lines SD had printed (the task appends to `<report>.part`
+> as it goes) — this cost a source-reading session to find out for accountrules and would
+> have shown `Password:` at once; (3) the ordering guard above. **Rerun command below.**
+>
 > ***▶ TWENTY-SECOND PASS, 20 SEP 2026, MORNING — TEN MORE VERIFIERS CONVERTED TO THE
 > SDSYS SEAT, ALL BUILT AND FREE-TIER GREEN (53 OF 53), NONE WITNESSED.*** **The owner
 > asleep the night before; SDSYS's session was gone in the morning** (`qwinsta`: only
@@ -198,7 +218,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > 2. In an **elevated PowerShell**, run the ten as one targeted elevated step set — it
 >    derives every prefix from the `-Run` token:
 >
->    `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b201 -Only verify-twins,verify-nonet,verify-dictrename,verify-fold,verify-createfilecase,verify-accountrules,verify-vocverbs,verify-pygate,verify-pyapi,verify-nocaseupgrade`
+>    `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b201 -Only verify-twins,verify-dictrename,verify-createfilecase,verify-pygate,verify-pyapi,verify-nocaseupgrade` *(the six that have not yet run; `fold`, `nonet` and `vocverbs` passed on `b200` and `accountrules` needs its rewrite)*
 >
 >    ***`b200` WAS SPENT AND IT FOUND A DEFECT NO CHECK COULD:*** `verify-createfilecase`
 >    called `Assert-SdSeat` eleven lines ABOVE the dot-source that defines it and died

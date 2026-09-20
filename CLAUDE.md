@@ -592,7 +592,10 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `Assert-SdSeat`, the latter observed through child processes because it ends
    its script with `exit 2`, and then the `-Internal` switch, whose test observes
    `-internal` ARRIVE at a fake `sd` rather than reading it out of the script,
-   and now 119 rows: a seventh section walks every `gplbld` script that touches the
+   and now 132 rows: an eighth section asserts both runners guard each step call
+   with a try/catch INSIDE the loop (a step that threw ended the whole suite,
+   measured), and the hang tests show the seat now reports what SD had printed when
+   it gave up; and the seventh section walks every `gplbld` script that touches the
    seat and asserts its dot-source comes BEFORE its first script-scope call —
    ***added 20 Sep 2026 because `verify-createfilecase` died on the owner's first
    elevated run with "Assert-SdSeat is not recognized", the call eleven lines
