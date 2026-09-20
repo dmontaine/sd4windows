@@ -183,10 +183,11 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > WORKING TREE CLEAN, EVERYTHING PUSHED, FREE TIER 51 OF 51.*** Six mailbox
 > exchanges with the Linux port closed a message-number collision (RELEASE_1.1
 > 79, now struck — see HISTORY for the six-id shape if it matters again) and
-> opened 80 (a trailing-space fix, **approved by the owner, blocked on a
-> tooling fact**: `Edit` refuses a no-op and `Write` silently drops trailing
-> whitespace on every line — needs the script-file escape CLAUDE.md allows,
-> not yet written). 78's own evidence flipped: Winlogon says all ten SDSYS
+> opened 80 (a trailing-space fix — ***DONE 20 SEP, LATER SAME NIGHT, WITH A
+> SCRIPT FILE: 6131, 6135 AND 6140 NOW END `)? ` LIKE THE LINUX PORT AND
+> UPSTREAM; BUILT IN SOURCE, NOT CYCLED, SO IT STAYS OPEN ON THE WITNESS.***
+> The "blocked on a tooling fact" wording that stood here is superseded).
+> 78's own evidence flipped: Winlogon says all ten SDSYS
 > sign-in attempts were **ACCEPTED** (`Result 0`, calibrated against real
 > `1326` failures in the same log) — the credential, deny rights and sign-in
 > screen are all cleared; what remains is between authentication and session
@@ -217,11 +218,12 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > against everything, and confidently reported **zero** files needing work.
 > The corrected guard has a control that refuses to run blind.
 >
-> ***A HARMLESS BUT CONFUSING SIDE EFFECT: `sdsys/messages/6131` NOW SHOWS AS
-> "newer than the install" IN `assert-current`.*** Content is byte-identical
-> to git HEAD (checked, `git diff` is empty) — a no-op `Write` attempt at
-> 80's trailing space bumped the file's mtime without changing a byte. The
-> next cycle clears it; do not chase it as corruption.
+> ***`assert-current` WILL NOW READ STALE FOR `sdsys/messages/6131`, `6135` AND
+> `6140`, AND THIS TIME IT IS RIGHT.*** *(Earlier this handoff called 6131's
+> newer mtime a harmless no-op `Write` artefact, byte-identical to HEAD. That
+> was true then and is superseded: all three files now genuinely differ from
+> the installed copy by one space — RELEASE_1.1 80.)* The next cycle clears
+> it; it is a real, intended difference, not corruption.
 >
 > ***THE PREVIOUS HANDOFF BELOW WAS ITSELF WRONG ABOUT THE CYCLE, AND THE
 > CORRECTION IS IN A LATER COMMIT, NOT HERE***: the 19 Sep 20:01 handoff said

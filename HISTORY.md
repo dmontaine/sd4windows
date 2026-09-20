@@ -66158,3 +66158,23 @@ Also: the owner said the other machine is off, so the mail watcher was stopped
 and not re-armed this session.
 
 ====
+20 Sep 2026 - RELEASE_1.1 80 DONE WITH A SCRIPT FILE: 6131, 6135, 6140 NOW END
+"(y/<n>)? " LIKE UPSTREAM AND THE LINUX PORT.
+
+The owner approved the script.  Edit refuses a change whose whole content is a
+trailing space and Write strips trailing whitespace from every line, so the
+three one-byte changes have no route through either.  The script lives in the
+session scratchpad, not the repo: same method as reword-yn-prompts.ps1 (Latin-1
+round trip; whole-file expected old bytes; size +1, no CR) plus a refuse-before-
+write check that the new bytes EQUAL the Linux port's copy.  -WhatIf first.
+
+The "three" was measured, not quoted: of every message file both ports have,
+exactly three differ only in trailing whitespace.  The first sweep said
+identical=0, which was the instrument speaking - the Linux clone here is CRLF,
+ours LF.  The owner then pulled that clone mid-session (the set moved 1896 ->
+1894 common), so the sweep was re-run; the three were unchanged by the pull.
+
+Built in source, not cycled, so open on the witness.  assert-current now reads
+STALE for exactly those three files and says so correctly.
+
+====
