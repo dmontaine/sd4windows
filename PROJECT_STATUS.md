@@ -231,6 +231,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > kept as written and are otherwise superseded by this one.** The other 33
 > verifiers are still untouched. See RELEASE_1.1_FIXES 76 for the detail.
 >
+> ***THE 33 WERE SURVEYED (READ-ONLY) AND ONE FINDING NEEDS THE OWNER'S RULING.***
+> **28 have an `Invoke-SD` shaped like the pilot's**; about eight more use
+> redirected stdin with a kill-on-timeout and need reading, not a body swap; seven
+> are not suite steps. **Every one gates on elevation itself**, so the seat's
+> elevated-caller requirement is new for none of them (the survey's own "tier"
+> column said otherwise and is retracted). ***THE RULING: SIX FILES USE `sd
+> -internal` — `accountrules`, `createfilecase`, `dictrename`, `lcnames`,
+> `nocaseupgrade`, `twins` — AND `sd -internal` FROM AN ELEVATED PERSON STILL
+> LANDS IN SDSYS.*** `LOGIN:587` admits an internal-mode session on the elevation
+> seed alone, and `sd.c` names binding it to the Windows SDSYS identity *"the
+> other half of 64"* — **not in the code today**. **If the door stays**, those six
+> need only the refused `LOGTO` prefix deleted; **if 64's other half is meant to
+> land**, they need the seat too. It is a product decision, not a harness one, and
+> it also corrects 78's *"the internal door is not available to a person"*.
+>
 > ***THE HELPER AND ONE PILOT WERE BUILT (20 SEP).*** `gplbld/sdsys-seat.ps1` runs `sd.exe` as a task inside SDSYS's own
 > session and **refuses a seat that is not one** (identity must be SDSYS, token
 > elevated AND interactive, end marker present); `gplbld/test-sdsysseat-units.ps1`
