@@ -260,7 +260,34 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > *and* the full token; **UNTESTED**, and this tree already has the probes to
 > try it (`probe-impersonate.c`, `probe-s4u.c`); **(c)** relax
 > `IsInteractive()` for this case, which is **changing the access model to
-> suit the test rig**. ***NOTHING IS BUILT ON ANY OF THEM.***
+> suit the test rig**.
+>
+> ***(b) IS BUILT INTO THE PROBE AS ROUTE C, AND SEARCHING THE RECORD IS WHAT
+> MADE IT THE ANSWER RATHER THAN A GUESS.*** HISTORY.md:48615, 5 Sep 2026:
+> ***"ELEVATION KEEPS S-1-5-4 ... INTERACTIVE true in both legs, with
+> `BUILTIN\Administrators` moving FALSE → TRUE between them"***, with that
+> move as the control. **The property was measured here a fortnight ago**;
+> only "does it hold for ANOTHER account's logon" is open. **It is not a trick
+> played on the gate**: route A already does a real interactive logon whose
+> token carries `S-1-5-4`, and `TokenLinkedToken` returns the other half of
+> that same pair — what UAC grants when a person clicks Yes. The consent is
+> the owner's, at his keyboard, typing the password into the probe.
+> `CreateProcessWithTokenW` (needs `SeImpersonatePrivilege`, which an elevated
+> administrator has) rather than `CreateProcessAsUser` (needs
+> `SeAssignPrimaryTokenPrivilege`, which it does not). **The C# was lifted and
+> compiled on its own** so a compile error cannot kill a run after the
+> password has been typed.
+>
+> ***THE OWNER'S FOURTH IDEA — A ROTATING DEV-MODE SECRET IN THE CONFIG — IS
+> RECORDED IN 76 AND NOT BUILT.*** It would work; its costs are that the
+> mechanism **ships**, that its strength is only the ACL on the secret (so it
+> widens the gate from *elevated AND interactive* to *elevated* — the
+> population 5.25 exists to exclude), and that a suite run admitted by it
+> measures a **relaxed gate**, contaminating the steps that test the gate.
+> **If route C fails, that is the design to build**, in the `sd-elevate` shape
+> CLAUDE.md blesses: minted only from an elevated INTERACTIVE session, short
+> window, loud audit, a banner, and the gate verifiers refusing to run under
+> it. ***NOTHING ELSE IS BUILT ON ANY OF THEM.***
 >
 > **Why it comes before any rewriting**: `LOGIN`'s landing case needs the
 > identity **and an elevated token**, so a spawn that gets a UAC-**filtered**
