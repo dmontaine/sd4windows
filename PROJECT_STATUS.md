@@ -194,6 +194,22 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > whole rollback (`git checkout HEAD~ -- sdb_ai/sd64/sdsys/gpl.bp/login`, nothing else depends on it).**
 > `verify-accountrules` steps 1 and 4 now measure silence-means-BOTH (with a NONE control) and the
 > ATTACH refusal; **unwitnessed, and its `sd -internal` leg needs the new marker.**
+> **ALSO DONE THIS AFTERNOON, ALL UNWITNESSED:** `verify-sshadmin` and `verify-apiremote`
+> rewritten (the ssh door and the API door end to end; names kept), `clean-deadvoc`,
+> `probe-catprivate`, `probe-osex` converted to the seat; the LOGTO scope guard prints **10**;
+> message **10922** (*"Internal session admitted (opened by %1)"*) added and the Linux agent told.
+>
+> **THE OWNER'S NEXT STEP, AND IT IS ONE COMMAND:** an **elevated PowerShell**, the cycle —
+>
+> `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+>
+> — then, with SDSYS signed in, `VerifyInstall2.ps1 -Run b202 -Only verify-internalgate,verify-accountrules,verify-sshadmin,verify-apiremote`
+> (elevated; `verify-internalgate` is the witness for 82, and a cycle that gets through bootstrap
+> is already half of it). **If the cycle dies at bootstrap, read the SECOND.COMPILE / `login`
+> compile output first** — `login` is the whole rollback. **A CYCLE COSTS THE SDSYS SEAT'S SESSION:**
+> it recreates `sdusers` (a new SID), and Windows fixes a session's group membership at sign-in,
+> so the SDSYS session that is signed in now will be stale or gone afterwards — sign SDSYS in
+> again (login name SDSYS) before the second command. `qwinsta` shows whether the row is back.
 >
 > ***▶ b201 RESULT, 20 SEP 2026 13:52 — NINE OF THE TEN ARE WITNESSED THROUGH THE SEAT; ONE
 > (`accountrules`) NEEDS A REWRITE.*** All seven steps exit 0: `createfilecase` 11/11,

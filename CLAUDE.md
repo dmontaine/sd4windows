@@ -607,7 +607,7 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    reaching either line***) a
    few seconds and the fifty-third
    (`test-pwgen-units.ps1`, 18 rows) about a second, and the fifty-fourth
-   (`test-internalgate-units.py`, 35 rows) about 3 s, most of it one PowerShell
+   (`test-internalgate-units.py`, 37 rows) about 3 s, most of it one PowerShell
    start.
    ***`test-internalgate-units.py` JOINED IT 20 SEP 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 82, THE OWNER'S GO).*** LOGIN admits an `sd -internal`

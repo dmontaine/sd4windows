@@ -66537,3 +66537,31 @@ Read the other way, the seat itself has now run about twenty task registrations 
 without a fault, including both doors in twins and nocaseupgrade.
 
 ====
+20 Sep 2026, EVENING - THE OWNER'S "1 GO, 2 REWRITE, 3 CONVERT": THE INTERNAL DOOR IS BUILT, NOTHING IS RUN.
+
+Asked what I needed, I named three decisions; he answered in six characters.  (1) RELEASE_1.1 82: build
+(D2').  (2) verify-sshadmin and verify-apiremote: rewrite.  (3) The three one-shots: convert.
+
+82 was built as designed - login's K$INTERNAL branch admits a session only against a fresh $internal marker
+and deletes it before deciding; writers in the installer's scripts, bootstrap.py, the seat's -Internal door and
+four dev scripts; a guard that reads the gate in order and asserts every internal session start is a declared
+writer; a witness verifier.  TWO THINGS FOUND BY READING CHANGED IT, and both were things the design had assumed:
+that LOGIN would be called once per session (UPDATE.ACCOUNTS calls it again, but returns before the branch), and
+that BASIC could ask what time it is on the file system's clock (it cannot; the gate writes a scratch file and
+reads its mtime).  The four "unchecked items" of the previous night were all answerable by reading, and all
+four came back in the design's favour, which is the answer the design would have wanted and so was checked twice.
+
+WHAT WAS NOT DONE, AND IS THE RISK: BCOMP has not compiled login.  bbcmp stops at SETPU (line 302), before the gate,
+so the subroutine was compiled alone in a scratch program with four statements stubbed.  A wrong gate locks out the
+cycle that would prove it; login alone is the rollback.  A cycle is owed.
+
+THE TWO REWRITES had the same shape: an administrator subject that 64 abolished.  The replacement in both is the
+door itself, end to end, with the KEYWORD as the only variable between admitted and refused: an ssh account in over
+loopback (the control) and the LAN address, a NONE account and an API-only account refused by sshd; an API account in
+over both addresses, an SSH-only account refused with 10073 over both.  probe-osex was converted knowing the seat
+changes its question (elevated, not unelevated), and its header now says so.
+
+I sent the Linux agent a notice that message 10922 is taken.  The file name and Date line carry the wrong clock
+time (0850 for what was 1503 local), which nothing reads.
+
+====
