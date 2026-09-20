@@ -579,12 +579,13 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-tlsrelay-units.py`, `test-installservice-units`,
    `test-lcnameslegs-units`, `test-kernelkeys-units.py`,
    `test-groupmember-units.py`, `test-psinterp-units.py`,
-   `test-pwcomplex-units`, `test-acctkeywords-units.py`.
-   ***ALL FORTY-NINE. Run these on
+   `test-pwcomplex-units`, `test-acctkeywords-units.py`,
+   `test-msgreserved-units.py`.
+   ***ALL FIFTY. Run these on
    every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
-   own process; the forty-eighth costs about a second and the forty-ninth
-   0.2 s.
+   own process; the forty-eighth costs about a second, the forty-ninth
+   0.2 s and the fiftieth 0.1 s.
    ***AND THE COUNT IN THIS SENTENCE WAS ONE HIGH BEFORE THAT, WHICH IS THE
    ONE FAILURE A TYPED LIST STILL HAS.*** It read FORTY-SEVEN while the list
    held forty-six: `test-tiercounts-units` left on 18 Sep 2026 and the word did
@@ -1011,6 +1012,26 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    ways — a re-introduced keyword and a PEND that stopped naming one — with
    the live files asserted byte-identical afterwards. 0.2 s, no SD, install,
    elevation or cycle.
+
+   ***`test-msgreserved-units.py` JOINED IT 19 SEP 2026 IN THE COMMIT THAT
+   CREATED IT, AND THE CLASS IT GUARDS IS ONE NEITHER PORT COULD SEE.*** The
+   two ports share one message-number space and neither can read the other's
+   tree, so both sides tell each other before taking a number — but ***A
+   DELETION IS AS INVISIBLE AS AN ALLOCATION***, and that half was not written
+   down anywhere. RELEASE_1.1 64 deleted `sdsys/messages/10174` with the
+   administrator-route refusals; **10174 is live on Linux** and always was. So
+   a session here allocating by `ls sdsys/messages | sort -n` would take it
+   back in good faith and the two ports would ship different text under one id,
+   **with nothing in either tree able to report it**. The Linux agent asked on
+   19 Sep 2026 for the number to be recorded as spoken for; ***THIS FILE IS
+   THAT RECORD, AND IT IS A CHECK RATHER THAN A SENTENCE BECAUSE A SENTENCE IN
+   A DOCUMENT IS WHAT THE ALLOCATOR WOULD NOT BE READING.*** **It says what it
+   cannot see**: it asserts only that the reserved ids are absent here, and a
+   control requires a known-present neighbour (`10173`) to be found, so an
+   absent 10174 means absent rather than *"this script is looking at
+   nothing"*. **A reservation is added in the same commit as the reply that
+   grants it.** Mutants run on synthetic id lists, so the live tree is only
+   ever read. 0.1 s, no SD, install, elevation or cycle.
 
    ***`test-uninstallchoices-units` JOINED IT 16 Sep 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 38 and 50).*** It drives the two decisions inside
