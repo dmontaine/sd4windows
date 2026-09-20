@@ -230,13 +230,41 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > as an alternative without a machine change and a listening port. That is the
 > owner's ruling to make, not this agent's.**
 >
-> ***THE CYCLE IS STILL OWED AND IS STILL THE OWNER'S.*** It witnesses 69, 72,
-> 73, 74 and 75; nothing this pass changed needs it, because everything here is
-> harness or documentation.
+> ***THE CYCLE IS NOT OWED. IT RAN AT 18:08:43 ON 19 SEP 2026, AND THE
+> SENTENCE BELOW — WRITTEN AT 20:01 THE SAME EVENING — WAS ALREADY WRONG WHEN
+> IT WAS WRITTEN.*** Measured 20 Sep 2026 on the tree that was here, not
+> recalled: **`assert-current` exits 0** (*"the installed tree matches
+> source"*, 3061 files across six mirrored directories). **`C:\ProgramData\SD`,
+> `C:\ProgramData\SD\sdsys` AND `C:\Program Files\SD` all carry a CreationTime
+> of 19 Sep 18:08:43** — both trees deleted and recreated, which is a FRESH
+> cycle and not an upgrade — and `reconcile-accounts.log` for that run reports
+> **one** ACCOUNTS record, a virgin install. **The last product-source commit
+> is `8de4e93` at 17:39**; everything committed after it that evening is
+> documentation and the two probes. ***THE WITNESS IS 74's OWN DELETION***:
+> `messages/10052`, `10074` and `10127` went with `8de4e93` and are **absent
+> from the installed tree**, while `messages/10158` — the sentence 74
+> rewrote — is **byte-identical** to source in the install, and `sdsys/gcat`
+> was compiled at 18:08. **So 69, 72, 73, 74 and 75 are INSTALLED.**
+>
+> ***WHAT IS OWED IS THE WITNESSES, WHICH IS A DIFFERENT THING AND IS STILL
+> BLOCKED.*** An install is not a verification: no verifier has been run
+> against this tree, and the full suite is still parked behind 76. **Do not
+> read "installed" as "witnessed" anywhere below** — several RELEASE_1.1 rows
+> still say *"NOT CYCLED, SO OPEN"*, and for anything committed before 17:39 on
+> 19 Sep that half of the wording is superseded by this paragraph. They stay
+> open on the witness, not on the install.
+>
+> **The command is kept here because a cycle is still what a source change
+> costs**, and the next one is the owner's as always:
 >
 > ```
 > powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1"
 > ```
+>
+> *(Superseded wording, kept so the correction is legible: "THE CYCLE IS STILL
+> OWED AND IS STILL THE OWNER'S. It witnesses 69, 72, 73, 74 and 75; nothing
+> this pass changed needs it, because everything here is harness or
+> documentation." The last clause is the one that survives.)*
 >
 > ***76 — THE HARNESS SPEAKS A LANGUAGE THE PRODUCT REFUSES, IN NINETEEN
 > PLACES. ELEVEN FIXED, THREE DECLARED PENDING, THE DRIVER PARKED BEHIND 78.***
