@@ -318,9 +318,36 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > it never runs, and the absent report would read as *"the route does not
 > work"*. The finder is driven both ways on the live machine.
 >
-> ***THE NEXT RUN NEEDS ONE THING FIRST: SIGN IN AS SDSYS, THEN SWITCH BACK.***
-> Without that, route D reports no session and says so; with it, `SEAT=True` on
-> route D is what unblocks the re-aim of the seventeen.
+> ***AND TRYING TO DO THAT FOUND SOMETHING BIGGER — RELEASE_1.1 78, WHICH THE
+> SEAT QUESTION IS NOW DOWNSTREAM OF.*** The owner switched user to SDSYS
+> **several times**; each attempt took the password, began entering, then
+> **terminated back to his own session with no desktop**. ***UNDER 64 THAT
+> ACCOUNT IS THE ONLY ADMINISTRATOR SD HAS***, and §5.25 puts administration
+> at the console — so if it cannot hold an interactive session, **the shipped
+> product has no reachable administrator** outside the installer's own
+> `sd -internal` door. **Measured, and none of it is the cause**: the account
+> is active with no profile path, no home directory, no logon script and no
+> workstation or hours limit; it is in `sdusers` and `Administrators` and
+> **not** in `sdsshonly` (the only group the installer denies logon to), while
+> the owner's own account is in `sdusers` and signs in fine; `C:\Users\SDSYS`
+> exists with a good `ProfileList` entry and no `.bak`. ***THE DECISIVE FACT:
+> THE PROFILE SERVICE LOGGED NOTHING FOR ANY ATTEMPT*** — 0 entries after
+> 19:05 for attempts at 19:10–19:14 — so **the session ends before a profile
+> loads**; and the account's `Last logon` belongs to a **probe spawn**, so ***a
+> batch `LogonUser` as SDSYS works while the console one does not***, which
+> rules out the password.
+>
+> ***THE CAUSE NEEDS AN ELEVATED READ. THIS IS THE COMMAND, AND IT IS THE ONE
+> TO RUN NEXT — ELEVATED PowerShell, AFTER A FAILED SIGN-IN ATTEMPT:***
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-sdsyslogon.ps1"
+> ```
+>
+> It reads only — the Security log's 4624/4625 with Status and Sub Status, the
+> `secedit` user-rights export with every SID resolved, and the profile ACL —
+> signs nobody in, asks for no password, and **refuses an empty window** rather
+> than concluding from it. **Route D stays unrun until 78 is answered.**
 >
 > **Why it comes before any rewriting**: `LOGIN`'s landing case needs the
 > identity **and an elevated token**, so a spawn that gets a UAC-**filtered**
