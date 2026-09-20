@@ -179,6 +179,43 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***▶ TWENTY-SECOND PASS, 20 SEP 2026, MORNING — TEN MORE VERIFIERS CONVERTED TO THE
+> SDSYS SEAT, ALL BUILT AND FREE-TIER GREEN (53 OF 53), NONE WITNESSED.*** **The owner
+> asleep the night before; SDSYS's session was gone in the morning** (`qwinsta`: only
+> Don's; no reboot), so the seat could not be exercised. `assert-current` exit 0; no
+> cycle is owed (verifier scripts are not part of the installed tree).
+>
+> **DONE:** `verify-twins` (plain + `-Internal`), `nonet`, `dictrename`, `fold`,
+> `createfilecase`, `accountrules`, `vocverbs`, `pygate`, `pyapi`, `nocaseupgrade` (plain
+> + `-Internal`). The scope guard prints **15**, not 25. Detail, and the two ways these
+> differ from the first eight, is in RELEASE_1.1_FIXES.md 76 — **most important: a call
+> that hits its timeout now THROWS and no longer returns the prompt SD stopped at; that is
+> a limit of the helper, read from its source, not measured.**
+>
+> **THE OWNER'S PART, IN THIS ORDER, AND NOTHING ELSE IS OUTSTANDING:**
+> 1. Sign in as **SDSYS** (login name SDSYS) and switch back to Don without signing it
+>    out, so `qwinsta` shows an SDSYS row again.
+> 2. In an **elevated PowerShell**, run the ten as one targeted elevated step set — it
+>    derives every prefix from the `-Run` token:
+>
+>    `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run b200 -Only verify-twins,verify-nonet,verify-dictrename,verify-fold,verify-createfilecase,verify-accountrules,verify-vocverbs,verify-pygate,verify-pyapi,verify-nocaseupgrade`
+>
+>    **A PARTIAL RUN, SAID SO IN ITS OWN BANNER.** *(Elevated: yes. The path is this
+>    machine's; the token `b200` is unused in every document.)* *(A guess, and it would be
+>    falsified by all ten passing:)* `dictrename`, `pygate`, `pyapi` and `nocaseupgrade`
+>    are the ones that might say something unexpected — they were converted from three
+>    different `Invoke-SD` shapes and each has a step nobody has measured since 64.
+>
+> **NOT CONVERTED, 15, AND WHY IT IS NOT MY CALL TO PICK:** `verify-sshadmin` and
+> `verify-apiremote` (subject abolished by 64 — need the owner's ruling on what to
+> measure now); the **privilege-subject** five (`catgate`, `sdsysgate`, `doors-admin`,
+> `delaccount`, `probe-tasklock`) which need `-Internal` and might stop discriminating
+> under it — convert with a witness in hand; the **one-shots** `clean-deadvoc`,
+> `probe-catprivate`, `probe-osex` (convert or retire — the owner's call);
+> `sdtestuser-admin` and `verify-lcnames` (VI1); `acctmsgs`, `interop-account`,
+> `uninstallchoices`. **RELEASE_1.1 82 STILL NEEDS THE OWNER'S GO** — see the block
+> below; nothing of it is built.
+>
 > ***⏸ CLOSING HANDOFF — END OF THE TWENTY-FIRST PASS, 20 SEP 2026. TREE CLEAN AND
 > IN SYNC WITH ORIGIN AT `e0192c6`; FREE TIER 53 OF 53; `assert-current` EXIT 0 (THE
 > INSTALL OF 19 SEP 22:51 IS CURRENT — NOTHING IS OWED A CYCLE).*** Owner asleep, the

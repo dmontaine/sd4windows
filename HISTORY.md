@@ -66471,3 +66471,26 @@ State at close: tree clean and pushed at e0192c6, free tier 53/53, assert-curren
 cycle.  Nothing of D2' is built; it needs the owner's go.  See PROJECT_STATUS.md's closing handoff.
 
 ====
+20 Sep 2026, MORNING - TEN MORE VERIFIERS CONVERTED TO THE SDSYS SEAT, NONE WITNESSED.
+
+Started the day by checking the seat's precondition: SDSYS's console session from the night before was
+gone (qwinsta showed only Don's; no reboot), so nothing could be witnessed.  Converted what could be
+built and guarded free: twins, nonet, dictrename, fold, createfilecase, accountrules, vocverbs, pygate,
+pyapi, nocaseupgrade.  Free tier 53/53, scope guard 25 -> 15, unelevated dry-runs of all ten load and
+refuse at their own gates.
+
+TWO THINGS LEARNED BY READING FIRST.  (1) A survey of the runner tables measured which of the 25 are
+suite steps at all - fifteen in VerifyInstall2, two in VerifyInstall1, the rest hand-run - which is what
+made the order rational.  (2) Two of the 25, sshadmin and apiremote, are PENDING in test-acctkeywords
+because their subject is the administrator account 64 abolished; swapping their driver would have
+produced a verifier that still died at step 1, so they were left, with the reason written into the
+guard's table.  The five privilege-subject ones were left because -Internal adds K$INTERNAL to a session
+whose subject is privilege - the rows might stop discriminating, and that is only knowable with a run.
+
+A HELPER LIMIT FOUND BY READING ITS SOURCE, NOT BY A RUN: the seat's task writes its report when sd.exe
+exits, so a timed-out call throws and returns none of what SD printed; the old job form returned the
+prompt that stopped it, and several converted scripts' comments still described that.  Recorded in row 76.
+
+verify-fold was the guard's control file and is converted; the control moved to sdtestuser-admin.
+
+====
