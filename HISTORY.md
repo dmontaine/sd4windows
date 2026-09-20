@@ -66192,3 +66192,36 @@ the log line, "(y/<n>)? " with the answer after the space ("(y/<n>)? Y").
 verified and its display is not.  Row 80 struck.
 
 ====
+20 Sep 2026 - RELEASE_1.1 78 WAS NEVER A DEFECT: THE OWNER CHOSE THE WRONG LOGIN
+NAME.  A "B" ENTRY THAT SAID THE PRODUCT HAD NO REACHABLE ADMINISTRATOR, CLOSED.
+
+Asked to "do 78", and the entry's remaining step was the owner's elevated probe
+run, so instead of waiting for it I asked whether any log readable WITHOUT
+elevation could say more.  A differential over every readable log (121, 10 s)
+compared what the machine did after the ten "failed SDSYS" attempts with what it
+did after ordinary sign-ins: the failing windows held 24 event kinds, all of them
+also in working sign-ins, and 87 kinds a working sign-in produces were absent.
+No session was being logged on at all.
+
+The answer was in TerminalServices-LocalSessionManager/Operational, which no
+earlier pass had read.  Its "User:" field names the account that AUTHENTICATED:
+the ten attempts read "User: ace\Don" (new session, then Windows reconnected Don's
+own session 2 - "returned him to his own session with no desktop" exactly), and
+SDSYS has real Id 21 logons on 18 Sep 22:12:42 and 19 Sep 23:23:30.  Calibrated
+against the same field naming SDSYS on those two.  The owner, shown it: "the login
+to SDSYS works, I wasn't choosing the right login name."
+
+TWO CLAIMS IN THE RECORD WERE WRONG AND ONE INSTRUMENT ROW WAS MISREAD.  "It has
+never held a console session on this machine" rested on the account's Last logon
+reading a probe spawn - the LATEST logon, which says nothing about earlier ones.
+"The credential was accepted" (Winlogon Result 0) was TRUE and answered the wrong
+question: it does not say whose.  And severity B was wrong.
+
+WHAT WOULD HAVE ENDED IT: one question - "which tile did you click and what did
+you type?" - asked before the first probe.  Three passes, two elevated runs and a
+rewrite of the probe went in without it.  The probe now says so in its header.
+
+76 IS UNBLOCKED, not done: route D needs SDSYS signed in and session 14 is live
+(disconnected), so the owner's elevated probe-sdsysseat.ps1 run is the next step.
+
+====

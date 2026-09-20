@@ -179,6 +179,46 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ HANDOFF — TWENTY-FIRST PASS, 20 SEP 2026. RELEASE_1.1 78 IS CLOSED AND WAS
+> NEVER A DEFECT: THE OWNER WAS SIGNING IN WITH THE WRONG LOGIN NAME, AND SDSYS
+> SIGNS IN AT THE CONSOLE.*** **Every paragraph below that treats 78 as open,
+> as a blocker, or as *"SDSYS cannot hold a console session"* is SUPERSEDED**
+> (that includes *"it has never held a console session"* and the *"78, then 76"*
+> order of work). What those paragraphs cleared — the deny rights, the profile
+> ACL, the password — stays true. **The evidence, which needs no elevation:**
+> `Microsoft-Windows-TerminalServices-LocalSessionManager/Operational`, whose
+> `User:` field names the account that **authenticated**. All ten "failed"
+> attempts read `User: ace\Don` (a new session, then Windows reconnected Don's
+> own session 2); SDSYS has real Id 21 logons on **18 Sep 22:12:42** and **19 Sep
+> 23:23:30**. Full reading and calibration: RELEASE_1.1_FIXES 78.
+> ***WINLOGON'S `Authentication stopped. Result 0` MEANS A CREDENTIAL WAS
+> ACCEPTED AND NOT WHOSE***, and a "cannot sign in" report is answered first by
+> asking *which login name was used* — three passes and two elevated probe runs
+> were spent before anyone read the one log that says.
+>
+> ***WHAT IS NEXT IS 76, AND IT IS THE OWNER'S TO RUN.*** Route D (a task in
+> SDSYS's own live interactive session) is now measurable: SDSYS has **session
+> 14**, disconnected, as of 23:23 on 19 Sep, and the probe's finder reads
+> `qwinsta` for it. **It must stay signed in — do not log SDSYS off before the
+> run.** Elevated PowerShell; it asks for the SDSYS password at the keyboard
+> for routes A to C (already measured, re-run as the control) and route D itself
+> passes none:
+>
+> ```
+> powershell -ExecutionPolicy Bypass -File "C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\probe-sdsysseat.ps1"
+> ```
+>
+> **Written in the conditional, because route D has never run:** if its report
+> shows `elevated=True interactive=True SEAT=True`, the 34-file driver re-aim
+> in 76 is mechanical and unblocked; if not, 76's own alternatives stand (a
+> ticket, or a Windows SDSYS sign-in for every elevated run). **What would
+> falsify the "route D works" hope**: a High-integrity token without `S-1-5-4`,
+> or no report at all because the task never ran in a disconnected session —
+> and a disconnected session is exactly what 14 is, which is the untested part.
+>
+> ***THE CYCLE IS CURRENT, NOTHING IS OWED.*** The owner cycled at 19 Sep 22:51
+> local; `assert-current` exit 0, and 80 was witnessed on it (see its row).
+>
 > ***⏸ HANDOFF — TWENTIETH PASS, 20 SEP 2026, OUT OF CREDITS MID-TASK.
 > WORKING TREE CLEAN, EVERYTHING PUSHED, FREE TIER 51 OF 51.*** Six mailbox
 > exchanges with the Linux port closed a message-number collision (RELEASE_1.1
