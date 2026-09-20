@@ -66565,3 +66565,21 @@ I sent the Linux agent a notice that message 10922 is taken.  The file name and 
 time (0850 for what was 1503 local), which nothing reads.
 
 ====
+20 Sep 2026, EVENING - b202: THE WITNESS FOUND THAT EXPIRY NEVER FIRED, AND MY OWN FALLBACK HID IT.
+
+verify-apiremote 18/18, verify-accountrules 35/35.  verify-internalgate 21/23: leg D admitted an 11-minute-old
+marker with age=-1.  The gate reads "now" by writing a scratch file and comparing mtimes, and it opened that
+file with OPENSEQ, which does not create files (op_seqio.c: a missing path takes the ELSE clause; only CREATE
+makes the file).  So the age was never measured.  I had designed the fallback for exactly that - age unknown
+means fresh, "expiry is the weaker half" - and it turned a broken measurement into a quiet pass.  Consumption
+still worked, so the door was closed and single-use; only the bound was missing.  THE LESSON IS NOT "READ
+OPENSEQ": it is that a lenient fallback needs a witness that fires the case it excuses, which is why leg D
+existed, and it did its job on the first run.
+
+verify-sshadmin died on its first leg for a reason unrelated to the product: my Invoke-Leg printed with
+Write-Output and returned an object.  That is the fourth time this project has paid for PowerShell's
+print-and-return trap and the first time anyone scanned for it: 734 functions, six live instances, two of them
+real (verify-batchjob's elevation check could never fail; allow-ssh-groups.ps1, which ships, would have written
+a refusal message into sshd_config).  test-outputtrap-units.ps1 makes the scan permanent.
+
+====

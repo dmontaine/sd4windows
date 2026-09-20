@@ -179,6 +179,20 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***▶ `-Run b202`, 20 SEP 2026 15:41 — THREE OF FOUR PASS OR ARE FIXED; ONE CYCLE IS OWED.***
+> **`verify-apiremote` 18/18 and `verify-accountrules` 35/35: WITNESSED** (the rewrites, the seat, and the
+> new marker in accountrules' `sd -internal` leg all work). **`verify-internalgate` 21/23: the door works
+> and EXPIRY NEVER FIRED** — `OPENSEQ` does not create a file, so the gate could not read "now" and treated
+> every marker as fresh; **fixed in `login` with `CREATE`** (row 82 has the source reading), guard added,
+> NOT re-witnessed. **`verify-sshadmin` threw on its first leg**: my `Invoke-Leg` printed with
+> `Write-Output` and returned an object, so the caller got an array — the print-and-return trap, the
+> fourth occurrence; **fixed, and `test-outputtrap-units.ps1` (free tier 55) now scans all 734 functions
+> in the harness: it found SIX live instances, two REAL** (`verify-batchjob`'s `$elevOk` was always true;
+> `allow-ssh-groups.ps1`, which SHIPS, folded a refusal message into `$patterns`). **THE NEXT STEP: a cycle**
+> (`login` and the shipped `allow-ssh-groups.ps1` changed), then, with SDSYS signed in, the b203 command in
+> the hand-over: `verify-internalgate` (leg D is the one to watch) and `verify-sshadmin` (its fixture rows
+> passed; nothing after them has run).
+>
 > ***▶ 20 SEP 2026 15:35 — THE OWNER'S CYCLE RAN, AND THE INTERNAL GATE WORKED ON A REAL INSTALL (PARTLY
 > WITNESSED, NOT YET `verify-internalgate`).*** **Observed on the installed tree:** BCOMP compiled `login`
 > (object 15:34:14 — the compile risk in the block below did not bite); `attach-account.log` carries

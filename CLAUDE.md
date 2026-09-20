@@ -582,8 +582,8 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-pwcomplex-units`, `test-acctkeywords-units.py`,
    `test-msgreserved-units.py`, `test-logtoreaim-units.ps1`,
    `test-sdsysseat-units.ps1`, `test-pwgen-units.ps1`,
-   `test-internalgate-units.py`.
-   ***ALL FIFTY-FOUR. Run these on
+   `test-internalgate-units.py`, `test-outputtrap-units.ps1`.
+   ***ALL FIFTY-FIVE. Run these on
    every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
    own process; the forty-eighth costs about a second, the forty-ninth
@@ -609,6 +609,25 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    (`test-pwgen-units.ps1`, 18 rows) about a second, and the fifty-fourth
    (`test-internalgate-units.py`, 37 rows) about 3 s, most of it one PowerShell
    start.
+   ***`test-outputtrap-units.ps1` JOINED IT 20 SEP 2026 IN THE COMMIT THAT
+   CREATED IT, AND ITS FIRST SCAN FOUND SIX LIVE INSTANCES IN FILES NOBODY WAS
+   LOOKING AT.*** A function that prints with `Write-Output` AND returns a value
+   hands its caller both — `@('sdwind is up', $true)` — so `if (-not (Start-SD))`
+   tests an array that is true whether or not the server started. **It had cost
+   this project four times, each time fixed in the one function**, the fourth on
+   the owner's b202 run (verify-sshadmin: "The property 'Ran' cannot be found").
+   ***THE FIX IS NEVER THE ONE-LINE CAUSE:*** the scan of every function in the
+   harness (734, by AST, 0.3 s) found `verify-batchjob`'s `Invoke-BatchJobPhase`
+   returning an array that was ALWAYS true — **"elevation did not happen" could
+   never be detected** — and `allow-ssh-groups.ps1`'s `Get-Patterns`, which
+   **ships**, folding its refusal text into `$patterns` beside a `$null`, so the
+   caller went on to write an AllowGroups line containing the message. All six
+   now use `Write-Host`. It asserts zero, with a control that the scanner flags a
+   fixture, a control that it does NOT flag the `Write-Host` twin, a nested
+   function, or a bare `return`, and a null-case refusal (it must have read more
+   than 100 scripts and 200 functions). **It does not see a bare expression
+   statement or an uncaptured native command, which are the same trap by other
+   doors, and says so in its header.**
    ***`test-internalgate-units.py` JOINED IT 20 SEP 2026 IN THE COMMIT THAT
    CREATED IT (RELEASE_1.1 82, THE OWNER'S GO).*** LOGIN admits an `sd -internal`
    session only against a one-shot marker file and deletes it on admission;
