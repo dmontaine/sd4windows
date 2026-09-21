@@ -212,7 +212,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > The first two were invisible to `test-logtoreaim-units`, which matches only a literal `LOGTO SDSYS`; they build
 > `"LOGTO $account"`.
 >
-> ***NEXT, IN ORDER.*** (1) The four conversions (76). (2) One elevated run of the converted and the seven unwitnessed 20 Sep
+> ***NEXT, IN ORDER.*** (1) ~~The four conversions (76).~~ TWO DONE IN SOURCE, UNWITNESSED (`sdtestuser-admin`, `verify-lcnames`); TWO NOT STARTED (`verify-apiadmin`, `verify-privundetermined`) - the design, including the temporary `os.users\SDSYS` record the owner approved for their local OS.EXECUTE control, is in RELEASE_1.1 76's newest status; the record helpers are already built and tested in `sdsys-seat.ps1`. (2) One elevated run of the converted and the seven unwitnessed 20 Sep
 > conversions, then a full suite - none has run since 18 Sep 10:30. (3) `verify-accountmodel`'s first run (64). (4) The owner's
 > calls on 53, 59, 77, 69's severity and 71's nuance. `.claude/tools/agent-elevate*.ps1` is still untested and uncommitted; its
 > `-Start` has never run, and `agent-elevate.ps1:80` assigns PowerShell's automatic `$args` - rename it before the first use.
