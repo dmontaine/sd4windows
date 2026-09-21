@@ -212,6 +212,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `doors-admin`, `delaccount`, `probe-tasklock`** — row 76 puts all five in one privilege-subject group that needs
 > `-Internal`; I had named only `probe-tasklock` when I offered "the safe ones", which was incomplete.
 >
+> ***▶ 20 SEP 2026, LATER STILL — THE OWNER SAID "CONVERT THE REMAINING VERIFIERS": SIX MORE ARE CONVERTED
+> (`4051f21`), NONE WITNESSED.*** `verify-acctmsgs`, `verify-uninstallchoices` (`-Make`), `verify-doors-admin`,
+> `verify-delaccount`, `verify-sdsysgate` (its setup/teardown driver only; the `LOGTO SDSYS` gate line over ssh
+> is untouched and re-declared GATE) and `verify-catgate`. **Reading the call sites overturned row 76's
+> grouping:** doors-admin and delaccount call only CREATE/MODIFY/DELETE.ACCOUNT as SDSYS and need NO `-Internal`;
+> **only `verify-catgate` is genuinely privilege-subject**, and its driver picks the door PER CALL (`-Internal`
+> only where a call starts with `LOGTO`). ***ITS FIRST RUN: READ THE REFUSAL ROWS BEFORE BELIEVING ANY.***
+> `-Internal` adds `K$INTERNAL`; a false GREEN cannot come from it (every refusal row requires the refusal message,
+> and section 4's three also require gcat unchanged), but a RED is a finding to trace, and section 3's row is
+> message-only, so check gcat by hand after a red and run `-Cleanup`. **`test-sdsysseat-units` section 7 caught my
+> own ordering defect** (sdsysgate called `Assert-SdSeat` 47 lines above its dot-source) before it cost a run.
+> **STILL SENDING THE PREFIX (3):** `probe-tasklock` (held at the owner's word), and `sdtestuser-admin` +
+> `verify-lcnames`, which run in VerifyInstall1 and MUST stay unelevated, so the seat (which needs an elevated
+> caller) cannot serve them — they need a different mechanism, not done. Free tier 55/55; scope guard prints 3.
+>
 > ***FIRST THING, BEFORE ANYTHING ELSE: THE WORKING TREE HAS UNCOMMITTED WORK ON DISK, BECAUSE THE SHELL WAS
 > BLOCKED.*** *(Done 20 Sep, twenty-third pass — see above.)* Auto mode's safety check refused every Bash call from ~16:15 ("reacts to earlier conversation
 > content… will keep firing for the rest of this conversation"), so nothing after `d5aa5a7` (last pushed) is
