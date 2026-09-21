@@ -227,6 +227,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `verify-lcnames`, which run in VerifyInstall1 and MUST stay unelevated, so the seat (which needs an elevated
 > caller) cannot serve them — they need a different mechanism, not done. Free tier 55/55; scope guard prints 3.
 >
+> ***▶ 20 SEP 2026, LATER STILL — THE "Before you install" PAGE IS DELETED, ON THE OWNER'S INSTRUCTION, AND HE CANCELLED HIS CYCLE TO
+> RESTART AFTER IT.*** He asked *"is this true?"* of its last paragraph — *"SD Core users are not isolated from each
+> other: anyone who can use SD Core … can read another account's files outside SD Core"* — **and it was not**: each account
+> directory is locked to its own `sdu_<name>` group (`secure-account-dirs.ps1:19-24` records the pre-lock state, measured;
+> `createa:1341` stamps at creation; `verify-accountacl` witnessed 20 Sep; PRE_RELEASE 44 measured an ordinary token denied).
+> **I had kept the sentence "deliberately" in the cut that afternoon without checking it — that is the whole lesson.**
+> ***NOT VERIFIED, and said so to the owner:*** no live cross-account read test was run, and the shared `sdsys` areas were not
+> surveyed. `sd.iss`: `SummaryPage`, `DisclosureText` and their comment blocks are gone (net −204 lines), one gravestone
+> stands in their place, and three comments that pointed at the page were corrected; ISCC compiles. **Retired-wording lint
+> re-aimed again** (nine replacement rows now share the ssh task label; the `+`-straddle control moved to the OpenSSH-present
+> box). ***A CONSEQUENCE THE OWNER MAY NOT HAVE WEIGHED, flagged to him, NOT acted on:*** a person ticking *"Install the
+> OpenSSH server"* is no longer told, BEFORE installing, that every ssh session then lands in SD Core and `scp`/`sftp` stop working
+> for everyone — that now appears only in the box shown when OpenSSH is ALREADY installed and in the closing dialog. The
+> Windows changes (sdusers, sdsshonly, the ACL on the data tree, the service) are disclosed nowhere before the install.
+> `SDCoreWindowsDocs` may repeat the false sentence (separate repository, not checked); §5.9 of this file (14 Aug) says the
+> same and predates the ACLs.
+>
 > ***FIRST THING, BEFORE ANYTHING ELSE: THE WORKING TREE HAS UNCOMMITTED WORK ON DISK, BECAUSE THE SHELL WAS
 > BLOCKED.*** *(Done 20 Sep, twenty-third pass — see above.)* Auto mode's safety check refused every Bash call from ~16:15 ("reacts to earlier conversation
 > content… will keep firing for the rest of this conversation"), so nothing after `d5aa5a7` (last pushed) is
