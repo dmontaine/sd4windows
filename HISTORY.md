@@ -711,6 +711,21 @@ shown, by sending requests straight down the pipe past the client, to refuse an 
 script, a `..` path, an unsafe argument and a raw path on its own. The how-to and limits
 are in PROJECT_STATUS.md §4.0.1.
 
+## 21 Sep 2026 — the cycle that installed 64's leftovers, 95 and 96: what it settled
+
+`cycle-20260921-113302.log` reads `CYCLE COMPLETE`; installed 11:33:50, `assert-current` exit 0
+from the agent's shell. **`cproc` compiled under BCOMP with no errors** — the first real
+compile of the removed `elev.obtained` flag, the two bypasses and `logto.privilege.undo` with
+its four callers (`bbcmp` could not check it beforehand: it aborts on `$ifdef FORMATTED.MENUS`).
+**RELEASE_1.1 96 is closed by its named witness:** `C:\ProgramData\SD\reconcile-accounts.log`
+shows `windows=(not looked up: no login)` for `sdsys`, with the reworded exemption reason and no
+`ABSENT` line. **95's install half is seen** (the installed `sync-route-groups.ps1` no longer
+carries the administrator block); the half that mattered, a reinstall over kept accounts, is
+still owed — a fresh install is not it. The first targeted elevated step through the helper,
+`VerifyInstall2.ps1 -Run b206 -Only verify-nonet`, ran elevated and **could not run**: no live
+SDSYS session. The runner said so (`PARTIAL`, 1 COULD NOT RUN) instead of reading it as a pass,
+and `b206` is spent.
+
 ## 21 Sep 2026 — the 27th pass's handoff, as it stood when the consolidation replaced it
 
 The block below was PROJECT_STATUS.md's CURRENT PICKUP until the tracking

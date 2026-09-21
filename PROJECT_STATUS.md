@@ -42,45 +42,41 @@ OPEN TASKS wins and this block is the stale one. The 26th pass's handoff and
 every older one are in HISTORY.md under *"ARCHIVE 21 Sep 2026 — PROJECT_STATUS.md
 before consolidation"*; what they still owed was carried into OPEN TASKS.
 
-***21 Sep 2026, later — the teardown and harness tasks were worked from cheapest to most
-expensive, and finished as far as an agent that cannot elevate can finish them.***
-Built and checked (details in each entry): **96** and **95** (shipped wording and a removed
-block), **64**'s leftovers (dead code in `cproc`, a stale comment in `modifya`) and its
-**security evaluation (§5.28)**, and **76**'s last two verifiers converted to the SDSYS seat
-(`test-logtoreaim-units` now reports 0 drivers left). **Not done, and why:** **84**'s rewrite
-(the identity probe opens one file and lacks the status pair step 5 parses; it needs a live
-authenticated session to iterate against), **97**'s runtime proposals (they edit the runners
-or elevated verifiers), and `verify-accountmodel`'s first run (64) — all need your elevation.
+***21 Sep 2026, 11:33 — THE CYCLE RAN AND THE TREE IS CURRENT. What is blocked now is one sign-in.***
+`cycle-20260921-113302.log`: `CYCLE COMPLETE`, `cproc` compiled by BCOMP *"with no errors"* (the
+first real compile of 64's leftover removal), `assert-current` exit 0 from the agent's own shell,
+installed 21 Sep 11:33:50. **Witnessed since:** 96 — `reconcile-accounts.log` reads
+`windows=(not looked up: no login)` for `sdsys` with the new exemption text and no `ABSENT` line;
+and the installed `sync-route-groups.ps1` no longer carries the administrator block (95's
+install half). The agent elevation channel (§4.0.1) is committed and was used for the first
+targeted step: `VerifyInstall2.ps1 -Run b206 -Only verify-nonet` ran elevated through the helper
+(PARTIAL banner, `assert-current` passed) and **could not run** — *"no live session for SDSYS in
+qwinsta"* — which is the whole of what stands between the agent and the 76 witnesses.
+**b206 is spent** on that refusal.
 
-**Install: STALE, on purpose.** The 21 Sep 01:16:42 install no longer matches source: five
-shipped files changed — `reconcile-accounts.ps1` (96), `sync-route-groups.ps1` and `sd.iss`
-(95), `cproc` and `modifya` (64's leftovers: dead code and a comment, no behaviour change).
-`assert-current` says so and every verifier refuses until a cycle. **One cycle installs all
-five** and is also the first compile of the `cproc` change (BCOMP — `bbcmp` cannot reach it,
-measured), so watch its bootstrap step. **Checked:** free tier 52/52 in ~60 s; every edited
-script parses with the function count it had at HEAD; `sd.iss` compiles under ISCC (syntax
-only). **Committed and pushed:** `d45921a`. **Uncommitted:** all of the above; the
-untracked `.claude/tools/` is separate.
+***THE ONE THING THE OWNER HAS TO DO: sign in as SDSYS once.*** At the switch-user screen pick
+the login name **SDSYS**, not your own account's tile, then switch back; the session stays alive
+behind yours (`query session` will show its row). Every converted verifier — `verify-apiadmin`,
+`verify-privundetermined`, `verify-lcnames`, `sdtestuser-admin` and the seven 20 Sep conversions —
+runs its commands as a task inside that session, and a task registered without one never runs.
 
-***NEXT, IN ORDER.*** (1) One elevated **cycle**. (2) The two read-backs that need only the
-cycle: `C:\ProgramData\SD\reconcile-accounts.log` shows `(not looked up: no login)` for
-`sdsys` (96); and on a reinstall over kept accounts `sdssh` and `sdapi` still hold the
-administrators' own accounts (95). (3) One elevated run of the four converted verifiers and
-the seven unwitnessed 20 Sep conversions with SDSYS signed in, then a full suite — none has
-run since 18 Sep 10:30 (76). (4) `verify-accountmodel`'s first run (64). (5) The ruled
-builds, which want **one** more cycle together: 59's reader hardening (C), 71's SDSYS-only
-cross-account password rule and 77's retired-ids list (BASIC). (6) 84's rewrite and 97's
-proposals, in a session where you can run the elevated suite. (7) **The agent elevation
-channel works** (§4.0.1) and a helper may still be running from this session — it stops
-itself after 60 idle minutes, or `agent-elevate.ps1 -Stop`; it and its guard are
-**uncommitted** (`.claude/tools/` is untracked).
+***NEXT, IN ORDER.*** (1) **Sign in as SDSYS** (above). (2) The agent runs the converted
+verifiers through the helper (`agent-elevate.ps1 -Run -Script ...\VerifyInstall2.ps1 -ScriptArgs
+-Run,bNNN,-Only,<step>`, a fresh token each time) and reads the first red as a finding about the
+seat before anything is reverted; then a full suite by the owner — none has run since 18 Sep
+10:30 (76). (3) `verify-accountmodel`'s first run (64). (4) 95's remaining witness: a
+**reinstall over kept accounts**, reading `sdssh` and `sdapi` before and after — a fresh install
+is not it. (5) The ruled builds, which want **one** more cycle together: 59's reader hardening
+(C), 71's SDSYS-only cross-account password rule and 77's retired-ids list (BASIC). (6) 84's
+rewrite and 97's proposals. **A helper may still be running** — it stops itself after 60 idle
+minutes, or `agent-elevate.ps1 -Stop`.
 
 ---
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**16 open: 15 validated against the tree by the 27th pass, 21 Sep 2026, and 97 added
-since; 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**15 open: 14 validated against the tree by the 27th pass, 21 Sep 2026, and 97 added
+since (96 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -119,10 +115,9 @@ apply; 59 and 53 are what it flags. (2) The **leftovers in source** are removed:
 routine with its four callers, and `modifya`'s stale `route.apply` comment. The other
 `ADMINISTRATOR` lines in `modifya` are dated `START-HISTORY` records (the file's own
 convention) and the one live use, at `:195`, is today's meaning. **The `cproc` change
-cannot be compile-checked outside a cycle** — `bbcmp` aborts on `$ifdef` at the top of
-`cproc`, measured on the HEAD copy — so BCOMP in the next cycle is its first compile; a
-mistake stops at the bootstrap step, before anything installs, and no code reads the
-removed names (checked). **Survives and must not be swept up:** 60 (bounded copies in `clopts.c`), the
+compiled under BCOMP with no errors in the 21 Sep 11:33 cycle** (`bbcmp` could not check
+it beforehand: it aborts on `$ifdef` at the top of `cproc`); the behaviour is not yet
+exercised by a verifier, since none has run since (76). **Survives and must not be swept up:** 60 (bounded copies in `clopts.c`), the
 TLS/SCRAM tunnel (41, 42), 55's session-as-the-user handover and its SID-ACL'd
 pipe, and the `secure-*.ps1` ACL hardening. 95 and 96 were filed out of this.
 
@@ -212,24 +207,11 @@ install (it removed every Windows administrator from `sdssh` and added them to `
 is deleted from the script, and `sd.iss`'s comment that called the ungated step
 *"load-bearing"* is rewritten — it said the opposite of 64. **Checked:** the script
 parses with 0 errors and the same 3 functions as HEAD, `sd.iss` compiles under ISCC
-(syntax only), the free tier is 52/52. **Not run** — both are shipped, so the next cycle
-installs them, and the case that mattered was never observed: a reinstall or upgrade
+(syntax only), the free tier is 52/52. **Installed by the 21 Sep 11:33 cycle** (the installed script no longer carries the
+block — seen); the case that mattered is still unobserved: a reinstall or upgrade
 **over kept accounts**, where the old block would have taken an administrator's own
 account out of `sdssh`. **Owed:** on such a run, read `sdssh` and `sdapi` back before
 and after; a fresh install is not the witness, since ordering hid the defect there.
-
-### 96 · M — the two stale account-model texts are reworded; one read-back owed
-
-Built 21 Sep 2026, unattended. `reconcile-accounts.ps1`: the `sdsys` exemption reason no
-longer says SDSYS has no Windows user, and the log line now prints
-`windows=(not looked up: no login)` for an empty login — `Resolve-WindowsAccount` answers
-"not there" for one, so SDSYS and every GROUP account logged `windows=ABSENT`, which read
-as a missing Windows user when nothing had been asked. `cycle.ps1`: the empty-register
-message and its comment now say that 70 restored the attached account's password step, so
-a count of 0 means that step set none. Both parse with the function counts they had at
-HEAD; the free tier is 52/52. **Owed:** after the next cycle,
-`C:\ProgramData\SD\reconcile-accounts.log` should show `(not looked up: no login)` for
-`sdsys` — that is the witness.
 
 ### 84 · M (harness) — `verify-apiidentity.ps1` still drives `scram-probe.py`, not the real client library
 
