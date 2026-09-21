@@ -194,6 +194,24 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > admission prints *"Internal session admitted (opened by <writer> pid=… …)"* before WHO answers. `b204` is
 > SPENT — use `b205`. **What is left is item (4), the ten verifiers still on `LOGTO SDSYS`, and (5).**
 >
+> ***▶ 20 SEP 2026, LATER — (5) IS MEASURED, AND THE INSTALLER'S SCREENS WERE CUT.*** **(5):** the owner ran
+> `sd-setup-W1.1-0.exe` over the kept tree (17:00): **the installing user's SD-password prompt did NOT appear**
+> (*"The account Don already has an SD Core password, so it was left alone"*) and the SDSYS prompt DID, as ruled;
+> `sd.iss`'s "prompts only on 0" comment is corrected. **The owner then called the whole installer too verbose**
+> (*"only what the user needs to know to install the system, not detailed explanations"*): every shown screen was
+> rewritten — `sd.iss` (summary page, refusal boxes, upgrade note, every step-failure message, closing box, finish
+> label, uninstall questions), `finish-install.ps1` (Enter-keeps-or-type-new is now stated BEFORE the prompt),
+> `check-install.ps1`, `ssh-preflight.ps1`. **Facts kept:** every Windows change is still disclosed, every "run
+> this from an elevated PowerShell" command survives, and each weakened-security consequence is still one clause.
+> **Two stale sentences died in the cut** (existing-SDSYS "left alone - including its password", and a "tier" line
+> from before RELEASE_1.1 64) and are registered in `test-retired-wording-units.ps1`, whose replacement rows were
+> re-aimed at wording still on screen. ***NOT WITNESSED: the owner's fresh install (`cycle.ps1`) and an install over
+> the top are the witness.*** ISCC compiles (17 s, scratch dir); free tier 55/55. **Also:** `interop-account.ps1`
+> converted to the seat (unwitnessed; it makes a Windows account and opens a port). **Still to convert:**
+> `verify-acctmsgs` and `verify-uninstallchoices` (plain drivers). **HELD FOR A RULING: `catgate`, `sdsysgate`,
+> `doors-admin`, `delaccount`, `probe-tasklock`** — row 76 puts all five in one privilege-subject group that needs
+> `-Internal`; I had named only `probe-tasklock` when I offered "the safe ones", which was incomplete.
+>
 > ***FIRST THING, BEFORE ANYTHING ELSE: THE WORKING TREE HAS UNCOMMITTED WORK ON DISK, BECAUSE THE SHELL WAS
 > BLOCKED.*** *(Done 20 Sep, twenty-third pass — see above.)* Auto mode's safety check refused every Bash call from ~16:15 ("reacts to earlier conversation
 > content… will keep firing for the rest of this conversation"), so nothing after `d5aa5a7` (last pushed) is

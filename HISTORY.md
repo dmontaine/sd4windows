@@ -66630,3 +66630,22 @@ pid=... ...)" before WHO answers.  RELEASE_1.1 82 is witnessed in full.  Left: t
 LOGTO SDSYS, and the untested case of Setup run over a kept data tree.
 
 ====
+20 Sep 2026, ~17:15 - THE INSTALLER WAS CUT TO WHAT A PERSON NEEDS, AND SETUP OVER A KEPT TREE WAS MEASURED.
+
+The owner ran the built installer over the existing install: no prompt for the installing user's own SD
+password (it reads $cred first), the SDSYS prompt as ruled.  He then said the SDSYS screen was noise and did not
+say that Enter keeps the password, and, a minute later, that the whole installer was too verbose.  Every shown
+screen was rewritten to what happened, what to do, and the command to run if a step failed; the reasoning went.
+Two sentences turned out to be false rather than long: the existing-SDSYS line promising its password was
+"the one you set before" (the finishing window offers to change it), and an upgrade-memo line about account
+tiers, which RELEASE_1.1 64 abolished.
+
+The wording lint did what it is for: fifteen "replacement present" rows went red because the paragraphs carrying
+the replacement wording were the ones being cut.  The right response was to re-aim each row at wording still on
+screen, not to delete rows - the retired halves are what keep a false claim from returning - and to register
+the two false sentences.  interop-account.ps1 was converted to the seat in the same pass; verify-catgate,
+sdsysgate, doors-admin, delaccount and probe-tasklock are one group (LOGTO into a personal account, so -Internal
+on a session whose subject is privilege) and are held for the owner, which the offer that preceded the work
+had understated.  Not witnessed: the fresh install and the install over the top.
+
+====
