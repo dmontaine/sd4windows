@@ -227,6 +227,38 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `verify-apiidentity.ps1` is real work for a session with a test account's credentials in hand. (4) Item (6) from the
 > 23rd/24th pass — the Linux-agent mail about R4 — is already sent and acknowledged; nothing carried over from it.
 >
+> ***▶ 20 SEP 2026, LATER — A SURVEY OF THE REMAINING 24 OPEN `RELEASE_1.1_FIXES.md` ENTRIES, THEN THREE SMALL ONES CLOSED
+> FOR REAL.*** A subagent read all 21 entries this session had not already characterised and triaged them; its report was
+> useful but ***NOT TAKEN ON ITS WORD*** — two of its findings were re-verified directly before acting, and one turned out
+> wrong. ***65 (`cleanup-devlitter.ps1` deleted the working tree, 18 Sep) — CONFIRMED DONE AND STRUCK.*** Read in full,
+> then checked rather than trusted: the script is gone, commit `e228f38` exists, and all six remaining name-hits in the
+> tree are historical comments or `verify-doors-admin.ps1`'s own "is gone" line — a missed strikethrough, nothing more.
+> ***81 (the comment-stripper's two named gaps) — CLOSED AS TESTS, NOT A BEHAVIOUR CHANGE, AND STRUCK.*** Both gaps were
+> already documented as accepted, bounded limitations shared with `hash`/`basic`'s own string caveat — fixing them would
+> mean a string parser per language, which the file's own standing policy declines. Nine new checks in a SEPARATE fixture
+> (the existing one's last line is deliberately unterminated, so anything appended after it would prove nothing): both
+> predictions about the stripper's exact behaviour confirmed correct first try, 61 of 61. ***82 (the internal-session
+> gate, R1–R5) — THE SUBAGENT CALLED THIS ONE OPEN, AND IT WAS WRONG; CONFIRMED DONE AND STRUCK.*** Its "NOT YET COMPILED
+> BY BCOMP, NOT YET RUN" read is genuinely in the row, but it describes the state right after the design was built,
+> BEFORE `b202`/`b203`/`b204` — which this file records EARLIER in the same row (newest-first, this file's own
+> convention) and which show R1 through R5 witnessed, leg D included, and the R4 announcement witnessed separately, both
+> through the owner's real cycles. Worth remembering for whoever reads a subagent's survey of this file next: the
+> newest-first convention makes a naive read land on stale text. ***83's ONE NAMED EXCEPTION (`verify-acctmsgs`'s
+> deliberately-weak password) — FIXED.*** Both of `Select-RefusedPassword`'s branches shared the nineteen-site bug, not
+> just the one entry 83 named: both generated passwords with fewer than SD's own required four character classes, so SD
+> refused them before Windows was ever asked, and the arm measured nothing on any machine regardless of that machine's
+> real policy. The length branch's seed gained a symbol. The complexity-only branch is RE-AIMED, not patched: SD's
+> four-class rule now strictly subsumes Windows' standard three-of-four one, so no password can be both SD-legal and
+> Windows-complexity-illegal any more (short of the one thing SD does not check, the account name, which this
+> deliberately pure function has no way to test) — it now expects ACCEPTANCE, honestly, rather than a refusal that can no
+> longer happen. Verified without a live machine, matching the function's own PURE design: `test-acctmsgs-units.ps1`
+> gained `Test-AllFourClasses` (mirrors `pw_complex`'s own case order) and confirms both fixed branches actually clear
+> it, 33 of 33. Checked before trusting this was safe: `verify-acctmsgs.ps1`'s `.Expect` field is diagnostic only, never
+> a branch condition — the real skip/measure decision already reads SD's actual output, so this fix cannot regress that
+> logic, only give it a genuine chance to fire where it structurally never could before. ***All four files parse clean,
+> free tier 55/55, `test-fixlist-units` 365/0 throughout (open count now 21, down from 24).*** Four files changed, not
+> committed: `RELEASE_1.1_FIXES.md`, `test-acctmsgs-units.ps1`, `test-stripcomments-units.ps1`, `verify-acctmsgs.ps1`.
+>
 > ***⏸ THE 24th-PASS HANDOFF FOLLOWS. ITS BLOCK BEGINS:***
 >
 > ***STATE.*** `sd4windows` has TWO FILES CHANGED, NOT COMMITTED (`sd.iss`, `test-retired-wording-units.ps1`) — ask before
