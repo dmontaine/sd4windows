@@ -179,6 +179,67 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ CLOSING HANDOFF — END OF THE TWENTY-FOURTH PASS, 20 SEP 2026 ~20:03. READ THIS BLOCK FIRST. THE 23rd-PASS BLOCK BELOW IT IS
+> SUPERSEDED WHERE THE TWO DIFFER (its "THE CHANGE OWED" — the finish page — is now built and ISCC-clean).***
+>
+> ***STATE.*** `sd4windows` has TWO FILES CHANGED, NOT COMMITTED (`sd.iss`, `test-retired-wording-units.ps1`) — ask before
+> committing; nothing else in the tree moved. `SDCoreWindowsDocs` pushed through `de44f8e` this pass (owner said yes; the 23rd
+> pass's "ask again for de44f8e" is answered). Mail inbox empty at 19:56; watcher relaunched.
+>
+> ***THE FINISH PAGE IS BUILT, PER THE OWNER'S SPEC, AND COMPILE-VERIFIED — NOT YET SEEN ON A REAL INSTALL.*** Three open
+> questions from the 23rd pass were put to him and answered, recommended option each time: (1) failures/upgrade facts DO still
+> show, as extra paragraphs; (2) "Information status will be available if requested" IS the check-install.ps1 "Run the checks
+> now?" prompt; (3) push `de44f8e` — yes. Two more objections resolved as engineering calls, not asked: "SD" vs "SD Core" wording
+> unified to "SD Core"; the "next screen will ask for their passwords" line is now hedged (traced `finish-install.ps1`:
+> `Set-SdsysPassword` always asks, `Set-AttachedAccountPassword` reads `$cred` first and stays silent if already set — measured
+> true this pass, "The account Don already has an SD Core password, so it was left alone").
+>
+> ***THE SHAPE OF THE CHANGE, `sd.iss`.*** `FinishReport` (built in `CurStepChanged`) is no longer one flat string assembled in
+> old order; it is three script-level strings, all comment-documented at their assignment: `FinishReport` (extra paragraphs —
+> unchanged hole-messages, plus the FAILURE half only of `SshMsg`/`SshLimit`/`SshFw`/`ApiFw`/`AccountMsg`/`AttachMsg`, via new
+> `IsFailureText`), `StatusReport` (the three short status lines — the SUCCESS half of `SshMsg`/`SshFw`/`ApiFw`; `SshLimit`'s
+> success text is deliberately never shown), `AccountsReport` ("Two/One account(s) exist...", from `SdsysCode`/`AttachCode`).
+> `CurPageChanged` wraps all three in his fixed template; the old "When you click Finish, a window opens..." sentence is gone,
+> superseded by `AccountsReport`'s own line. `AccountMsg` code 2 is now `''` (superseded); `test-retired-wording-units.ps1` Ref
+> `20Sep-a`'s `Replacement` was RE-AIMED, not deleted, from that now-dead string to `'Two accounts exist: SDSYS'` — a
+> comment-stripped source scan cannot tell reachable text from dead code, so the old anchor would have kept passing while
+> proving nothing.
+>
+> ***VERIFIED TWICE THIS PASS*** (before and after the `AccountMsg` cleanup edit) ***— ISCC compile-check to scratch, both
+> clean: exit 0, 0 error lines, fresh `sd-setup-W1.1-0.exe` (15.98s, then 18.49s).*** Free tier: ALL 55 exit 0, including
+> `test-retired-wording-units` itself (4.6s), proving the re-aimed lint entry resolves. ***NOT VERIFIED: THE RENDERED PAGE.***
+> Nobody has looked at it — the 23rd pass's own caveat, still true. Worth a look especially on a failure path (an
+> `SdsysCode`/`AttachCode` failure, an ssh/API firewall FAILED) — nothing this pass could reach without an elevated cycle.
+>
+> ***ORDER OF WORK, CARRIED FROM THE 23rd PASS — ITS STEPS (1)-(2) ARE DONE, (3)-(6) STILL OWED.*** (3) A cycle, elevated
+> PowerShell: `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1` —
+> owed for the finish-page change here plus the 23rd pass's four stale shipped files (`sd.iss`, `finish-install.ps1`, `login`,
+> `set_acc_password`); then the owner's stand-alone install over the top, elevated: `Start-Process -FilePath
+> C:\Users\Don\sdout\sd-setup-W1.1-0.exe` (no `-Wait`). (4) Look at the last page for real: the paragraph stack, the memo
+> fallback, a failure path, white-on-white. (5) `login` changed (23rd pass), so `-Run b205 -Only verify-internalgate`, elevated:
+> `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall2.ps1 -Run
+> b205 -Only verify-internalgate`. (6) STILL NOT SENT, untouched this pass: tell the Linux agent this port suppresses R4's
+> on-screen announcement.
+>
+> ***▶ 20 SEP 2026, LATER — THE OWNER RAN THE CYCLE AND `-Run b205 -Only verify-internalgate` HIMSELF; STEPS (3) AND (5) ARE
+> PARTLY DONE.*** His paste: `verify-internalgate.ps1 exit 0`, `VerifyInstall2: PARTIAL - 1 of 34 step(s) run, all exited 0` —
+> correctly self-labelled PARTIAL, per §0, since `-Only` ran exactly one of 34 elevated steps. ***CONFIRMED LIVE, NOT TAKEN ON
+> HIS WORD:*** `assert-current.ps1`, unelevated, exit 0 — `installed at: 20 Sep 20:06:40`, `no source file is newer than the
+> install`, `sd.exe matches`. So the cycle used source that already carried this pass's finish-page edit (my last ISCC check was
+> 20:02:50, before the install), and the installed tree is genuinely current, not merely compiled. ***NOT YET CONFIRMED: WHETHER
+> THE PAGE WAS SEEN.*** Neither his paste nor `assert-current` says anything about what the finish page actually showed — that
+> needs him to say he looked (§0's instrument rule: no verdict from a run nobody observed). Item (4) is still open. `b205` is
+> now SPENT.
+>
+> ***▶ 20 SEP 2026, LATER STILL — ITEM (4) IS DONE: THE OWNER RAN `C:\Users\Don\sdout\sd-setup-W1.1-0.exe` HIMSELF (the exact
+> build the cycle above installed from, confirmed by mtime: written 20:06:23, 17s before that install completed) AND SAYS
+> "everything works correctly".*** His words, verbatim, no further detail volunteered and none invented here. Existing-accounts
+> path (`SdsysCode`/`AttachCode` both 2, since SD was already installed), so this witnesses the "Two accounts exist" line and
+> the hedged password sentence, not the fresh-account wording or any failure path — those remain unwitnessed on a real install,
+> same as any first-install or failure text in this file generally is until one actually occurs. ***THE FINISH-PAGE WORK IS
+> NOW DONE, BUILT, COMPILE-VERIFIED, CYCLE-VERIFIED AND OWNER-WITNESSED.*** Only (6) remains from the 23rd pass's order of
+> work (tell the Linux agent), unrelated to the page itself, still not sent. Three files changed and STILL NOT COMMITTED:
+> `sd.iss`, `test-retired-wording-units.ps1`, `PROJECT_STATUS.md` — asked twice, not yet answered.
 > ***⏸ CLOSING HANDOFF — END OF THE TWENTY-THIRD PASS, 20 SEP 2026 ~19:45. READ THIS BLOCK FIRST. THE 22nd-PASS BLOCK BELOW IT IS
 > SUPERSEDED WHERE THE TWO DIFFER (its steps 1–3 are done); the dated ▶ notes under it are the detail.***
 >
