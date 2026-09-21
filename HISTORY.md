@@ -726,6 +726,113 @@ still owed — a fresh install is not it. The first targeted elevated step throu
 SDSYS session. The runner said so (`PARTIAL`, 1 COULD NOT RUN) instead of reading it as a pass,
 and `b206` is spent.
 
+## 21 Sep 2026 — directory file versus dynamic file, measured: about 24x on reads, 30x on writes
+
+The question was whether SDSYS's VOC could go back to a directory file. `sdsys/changelog:5737`
+(Version 0.9-3) records upstream moving VOC to dynamic *"because it is constantly being
+accessed"*, and the owner recalled an earlier check showing the difference was marginal; **no
+such measurement was written in either document**, so this is one. `gplbld/probe-filespeed.ps1`
+(unelevated, the caller's own account, kept in the repo) times 1000 records on a scratch
+dynamic file and a scratch directory file with `SYSTEM(1020)` in BASIC: N writes, 5 read passes,
+N rewrites, ABBA order across three rounds, every read compared by record count and byte total.
+Two runs, same shape, 21 Sep 2026 on this machine (warm cache, one session, ~213-byte records):
+
+| median ms per 1000 | dynamic | directory | ratio | per record |
+|---|---|---|---|---|
+| write new | 10 | 293 | 29x | 293 us vs 10 us |
+| read (15 passes each) | 3 | 72 | 24x | 72 us vs 3 us |
+| rewrite | 7 | 233 | 33x | 233 us vs 7 us |
+
+On disk the dynamic file was `%0` (284,672 bytes) and `%1` (71,680); the directory file was
+1000 loose files. **The floor:** plain .NET `ReadAllBytes` of those 1000 files costs 22 us each,
+so SD's directory-file layer adds about 50 us per record on top of NTFS.
+
+**What it does and does not say.** The per-read difference is about 70 us; at 10 to 50 VOC reads
+a command that is 1 to 3 ms, unnoticeable typing at a prompt. **How many VOC reads a command or
+a session start makes was not measured**, so nothing here says whether an API or batch path
+would notice. Not covered: concurrent sessions, a cold cache, Defender exclusions other than
+this machine's, and VOC-specific behaviour (case folding, `%`-encoded ids). The owner's earlier
+check, if it timed whole commands, may be consistent with this. The first run of the probe also
+showed its own on-disk check was weak (it read the directory after `CLEARFILE`, so it saw 0
+entries); the programs no longer clear at the end, so the second run shows 1000.
+
+## 21 Sep 2026 — RELEASE_1.1 95 and 99 closed by a cycle and a real over-the-top upgrade
+
+**The owner's ruling:** *"do not keep voc_template after the install."* **Built:** `stage.py`'s
+`SDSYS_BUILD_SEED` (copied into the staged tree for `bbproc`, deleted by `remove_build_seeds()`
+after the bootstrap check), `voc_template` on `SDSYS_RETIRED` and off `SDSYS_SHIP` and
+`SDSYS_MIRROR`, `write_upgrade_iss()` refusals, `verify-upgrade`/`verify-lcnames` rows, a
+changelog line. The only reader of the installed directory had been `bbproc`, at build time.
+
+**The cycle** (`cycle-20260921-122537.log`, `CYCLE COMPLETE`, installed 12:26:32): the log shows
+`build seed voc_template removed from the staged tree`, `C:\ProgramData\SD\sdsys\voc_template`
+is absent, `assert-current` reads 5 mirrored directories. **The risk that the copy into SDSYS's
+VOC happened before the removal** was checked with `probe-sdsysvoc.ps1` (kept; read-only, in the
+seat, a control id that must count 0): SDSYS's VOC holds 430 records against the seed's 430, all
+417 plain ids present, 13 encoded ids covered only by the total.
+
+**The upgrade:** `verify-upgrade -Snapshot` once at 12:31, the owner ran `sd-setup-W1.1-0.exe`
+over the top at 12:32 (preserved directories date from 12:26, replaced ones from 12:32), then
+`-Compare`: **53 passed, 1 failed, 1 skipped of 55.** Both retired names removed, both probes
+behaved, a replaced name was recreated. **The one FAIL, `preserved unchanged: bp`, was the
+instrument:** the snapshot fingerprinted `bp` before planting the surviving probe in it, and
+`-Compare` after; the observed hash `BAC9A8AC...` is exactly the fingerprint of a directory
+holding only the probe (reproduced with the script's own algorithm) and the snapshot's `E3B0...`
+is the empty directory. It scores a false FAIL on any run where `bp` is empty. Fixed: `bp` is
+re-fingerprinted after the probe is planted; the "NEXT:" text (which named another machine's
+paths and the oldest installer, `sd-setup-W1.0-0.exe`, a downgrade here) is computed; the
+compare cleanup removes what the snapshot planted if the upgrade left it. **Self-tested** with a
+back-to-back snapshot and compare and no installer: `bp` PASS, and exactly the four rows that
+need an upgrade FAIL (the null case is caught), and the live tree was left clean.
+
+**95:** `sdssh` = Don and `sdapi` = Don before and after, `sdapi` did not gain SDSYS. Don is in
+the Windows Administrators group (SDSYS is too); the old block would have removed him from
+`sdssh` (removal half) and added SDSYS to `sdapi` (addition half), and neither happened. **Not
+witnessed:** the 13 encoded seed ids individually; `verify-lcnames`' new absence row (the
+directory itself was read directly); a program that builds the name `voc_template` in a variable
+would not have been found by the source search.
+
+## 21 Sep 2026 — 76: the first two seat verifiers ran, and a stale anchor was found in eight
+
+`VerifyInstall2 -Run b210 -Only verify-apiadmin,verify-privundetermined`, through the agent
+helper with SDSYS signed in: the seat and its `-Internal` door worked (both `Assert-SdSeat`
+calls, the account create), and **both failed one row, `credential set`**, and stopped. The raw
+output at that step read `Password accepted.` — the product had succeeded. `SET_ACC_PASSWORD`
+was reworded earlier that day (the installer-text ruling) from `Password set for account X`,
+and **eight verifiers** still matched the old wording (`-apiadmin`, `-apiname`, `-apiport`,
+`-apiwire`, `-doors-admin`, `-privundetermined`, `-scramlogin`, `-vocwrite`). Nothing could
+have caught it: `test-retired-wording-units.ps1` scans shipped text and skips `test-*` and
+`verify-*` on purpose. All eight anchors were changed and `test-verifieranchors-units.py` was
+added (data-driven, canary, null-case refusals, four mutants each red). `b211`: both exit 0,
+`verify-privundetermined` 27 of 27, `verify-apiadmin` all PASS with its designed N/A. Not done:
+the entry's falsification check (the local `OS.EXECUTE` control without the planted
+`os.users\SDSYS`), `verify-lcnames`, `sdtestuser-admin`, the full suite.
+
+## 21 Sep 2026 — RELEASE_1.1 64 closed: `verify-accountmodel` rewritten, run green, and it found 100
+
+**Closing the last owed item of the tier teardown.** The first run (`b209`) COULD NOT RUN and
+the instrument was at fault three ways: it disqualified on `not in your VOC` from the
+`UPDATE.ACCOUNTS` line although `COUNT VOC` had answered; `UPDATE.ACCOUNTS` is in `voc_template`
+and not `newvoc`, so an ordinary account cannot run it; and a new account's VOC holds more than
+`newvoc` with nothing refreshed, because `CREATEA` fills it. **Rewritten:** create a throwaway
+account in the seat, `LIST NEWVOC @ID NO.PAGE`; through the seat's `-Internal` door `LOGTO` it and
+`LIST VOC @ID NO.PAGE`; reconcile each listing against its own `COUNT` and its own "N record(s)
+listed" line (a listing that lost lines refuses rather than scoring as a smaller set); prove the
+`LOGTO` switched account by `CREATE.ACCOUNT` counting 0 in it; assert no `newvoc` id is missing;
+print the extras, then pin them from the measurement. `b212` refused on the reconcile — `COUNT
+NEWVOC` 395, `LIST` 394 — which is how **RELEASE_1.1 100** was found (`newvoc/%t`, the `~`
+record, lower-cased by the 19 Aug rename). `b213` green with the known unlisted entry pinned, the
+extras printed (`$command.stack`, `$hold`, `$savedlists`, `bp`), `b214` green with them pinned.
+
+**The rest of 64, for the record.** The owner's decision of 18 Sep 2026 (verbatim in the archived
+row) is done: the tier structure is removed, the post-removal security evaluation is §5.28, the
+leftovers in source are removed and `cproc` compiled under BCOMP on the 11:33 cycle. **It is now
+exercised:** `LOGTO <account>` through the seat's `-Internal` door ran in `verify-apiadmin`,
+`verify-privundetermined` and `verify-accountmodel` on the current install. **Not covered, and said
+so in the verifier's header:** the `update.voc` case machinery and a second refresh — `UPDATE.ACCOUNTS`
+is not reachable from an ordinary account and `UPDATE.ACCOUNTS ALL` would refresh every registered
+account, the owner's included; an upgrade run is the place for it.
+
 ## 21 Sep 2026 — the 27th pass's handoff, as it stood when the consolidation replaced it
 
 The block below was PROJECT_STATUS.md's CURRENT PICKUP until the tracking

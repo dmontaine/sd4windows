@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **98**, so **the next is 99** —
+`RELEASE_1.1`'s id space: the highest id issued is **100**, so **the next is 101** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -42,41 +42,34 @@ OPEN TASKS wins and this block is the stale one. The 26th pass's handoff and
 every older one are in HISTORY.md under *"ARCHIVE 21 Sep 2026 — PROJECT_STATUS.md
 before consolidation"*; what they still owed was carried into OPEN TASKS.
 
-***21 Sep 2026, 11:33 — THE CYCLE RAN AND THE TREE IS CURRENT. What is blocked now is one sign-in.***
-`cycle-20260921-113302.log`: `CYCLE COMPLETE`, `cproc` compiled by BCOMP *"with no errors"* (the
-first real compile of 64's leftover removal), `assert-current` exit 0 from the agent's own shell,
-installed 21 Sep 11:33:50. **Witnessed since:** 96 — `reconcile-accounts.log` reads
-`windows=(not looked up: no login)` for `sdsys` with the new exemption text and no `ABSENT` line;
-and the installed `sync-route-groups.ps1` no longer carries the administrator block (95's
-install half). The agent elevation channel (§4.0.1) is committed and was used for the first
-targeted step: `VerifyInstall2.ps1 -Run b206 -Only verify-nonet` ran elevated through the helper
-(PARTIAL banner, `assert-current` passed) and **could not run** — *"no live session for SDSYS in
-qwinsta"* — which is the whole of what stands between the agent and the 76 witnesses.
-**b206 is spent** on that refusal.
+***21 Sep 2026, ~13:10 — THE TREE IS CURRENT (12:26 cycle, upgraded over the top at 12:32); 64, 95, 96
+AND 99 ARE CLOSED; 76 IS HALF WITNESSED.*** This stretch, all elevated through the agent helper with SDSYS
+signed in: `verify-apiadmin` and `verify-privundetermined` green on `b211` after eight stale success
+anchors were fixed (`test-verifieranchors-units.py` guards the class); `verify-accountmodel` rewritten and
+green on `b213`/`b214` (no `newvoc` id missing from a new account; the four extras pinned), which found **100**.
+`verify-upgrade.ps1` was fixed and self-tested; `probe-filespeed.ps1` and `probe-sdsysvoc.ps1` are kept.
+The elevated helper stops after 60 idle minutes, or `agent-elevate.ps1 -Stop`.
 
-***THE ONE THING THE OWNER HAS TO DO: sign in as SDSYS once.*** At the switch-user screen pick
-the login name **SDSYS**, not your own account's tile, then switch back; the session stays alive
-behind yours (`query session` will show its row). Every converted verifier — `verify-apiadmin`,
-`verify-privundetermined`, `verify-lcnames`, `sdtestuser-admin` and the seven 20 Sep conversions —
-runs its commands as a task inside that session, and a task registered without one never runs.
+***CALL `agent-elevate.ps1` DIRECTLY FROM A POWERSHELL SESSION*** — `& <path>\agent-elevate.ps1 -Run
+-Script <gplbld>\VerifyInstall2.ps1 -ScriptArgs '-Run','bNNN','-Only','<step>'`. Through `powershell -File`,
+or from bash, the comma list collapses into ONE argument and the runner answers *"-Run was not given"*
+before running anything. `-Run` tokens `b206`–`b214` are spent.
 
-***NEXT, IN ORDER.*** (1) **Sign in as SDSYS** (above). (2) The agent runs the converted
-verifiers through the helper (`agent-elevate.ps1 -Run -Script ...\VerifyInstall2.ps1 -ScriptArgs
--Run,bNNN,-Only,<step>`, a fresh token each time) and reads the first red as a finding about the
-seat before anything is reverted; then a full suite by the owner — none has run since 18 Sep
-10:30 (76). (3) `verify-accountmodel`'s first run (64). (4) 95's remaining witness: a
-**reinstall over kept accounts**, reading `sdssh` and `sdapi` before and after — a fresh install
-is not it. (5) The ruled builds, which want **one** more cycle together: 59's reader hardening
-(C), 71's SDSYS-only cross-account password rule and 77's retired-ids list (BASIC). (6) 84's
-rewrite and 97's proposals. **A helper may still be running** — it stops itself after 60 idle
-minutes, or `agent-elevate.ps1 -Stop`.
+***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
+whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
+`powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1
+-Only verify-lcnames` from an **ordinary unelevated** prompt (it refuses an elevated one); its new
+"voc_template absent" row has never run. `sdtestuser-admin` is exercised by the full suite's door pair.
+Then a full suite by the owner — none has run since 18 Sep 10:30. (2) The ruled builds, which want one
+cycle together: 59's reader hardening (C), 71's SDSYS-only cross-account password rule, 77's retired-ids
+list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's proposals.
 
 ---
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**15 open: 14 validated against the tree by the 27th pass, 21 Sep 2026, and 97 added
-since (96 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**14 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97 and 100
+added since (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -87,43 +80,45 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
 
-### 64 · B — the tiered account structure is removed; one run remains
+### 100 · M — `newvoc/%t` is a mis-cased escape: the record for `~` is undecodable and never reaches an account
 
-***THE OWNER'S DECISION, 18 Sep 2026, verbatim because every clause is load-bearing:***
-*"we are going to rip out the whole tiered account structure. There will be one
-and only one administrator account SDSYS, which will also be tied to a Windows
-account administrator account of the same name. It will not be available with
-LOGTO. Only the Windows SDSYS account will have access to SD as an administrator
-from an elevated session, all other windows administrators will be refused. We
-will get rid of the standard level SD account, all non SDSYS accounts, both user
-and group will have the level of access of the current PROGRAMMER level accounts
-- so there will no longer be the issue of crossing tier boundaries. All accounts
-will have remote ssh and api access. The only limit on what they can to at the OS
-level is that imposed by Windows on it's standard accounts. As much of the
-complex framework we have built will be removed leaving only the embedded Python
-and data and password encrypted tunnel. Once everything is removed, we will
-evaluate the resulting security model."* **It supersedes 58, 62 and 63 — do not
-build any of them.** The evaluation is part of the decision, not an afterthought.
+Found 21 Sep 2026 by `verify-accountmodel` (its first passing run, `b213`). `COUNT NEWVOC` says
+**395** and `LIST NEWVOC` prints and reports **394**; ten of the eleven names the listing does
+not print are the `%`-encoded operator ids it prints decoded (`%E` `=`, `%G` `>`, `%L` `<`,
+`%P` `%`), and the eleventh is **`sdsys/newvoc/%t`**, whose content is `Keyword to test
+soundex code` / `33`. `op_dio3.c:42` says the directory-file mapping stores `~` as **`%T`**;
+the 19 Aug 2026 commit `e1095ab` (*"Every SDSYS file name is lower case on disk"*) turned it
+into `%t`, an escape the decoder does not know. **Observed:** a fresh account's VOC holds 398
+records = the 394 listed `newvoc` ids + `$command.stack`, `$hold`, `$savedlists`, `bp`, so
+**the `~` record reaches no account**; `voc_template` has no `~` record at all; `%t` is the
+only lower-cased escape in `sdsys` (swept 21 Sep). **Not measured — and it decides how much
+this matters:** whether `~` works as a keyword without the record (HISTORY.md carries a note that `<`
+and `>` "cannot be VOC records on this port" yet work, which says the parser may not read
+them from the VOC). **The fix, if wanted:** a case-only `git mv` of `newvoc/%t` to
+`newvoc/%T` (mind NTFS: it is a rename through a temporary name), then a cycle, then
+`verify-accountmodel`'s `$KnownUnlisted` goes 1 → 0 and its count rows go red until it is
+changed, which is intended. **Objection to the fix, so it is not lost:** the lower-case rule
+was made for record and file NAMES; an escape letter is not a name, but the decoder's
+case-handling was not read, so whether it would accept `%T` is inferred from the comment.
 
-**Open:** `verify-accountmodel.ps1` has never run — no transcript under
-`C:\Users\Don\AppData\Local\SD-verify`, no suite log names it; it needs an elevated
-run. **Done 21 Sep 2026, unattended:** (1) the post-removal **security evaluation** is
-written as §5.28 — its main finding is that `os.users` did not retire, so OS access
-stays default-deny and the worry that every account could start an interpreter does not
-apply; 59 and 53 are what it flags. (2) The **leftovers in source** are removed:
-`cproc`'s dead `elev.obtained` flag, its two bypasses and the `logto.privilege.undo`
-routine with its four callers, and `modifya`'s stale `route.apply` comment. The other
-`ADMINISTRATOR` lines in `modifya` are dated `START-HISTORY` records (the file's own
-convention) and the one live use, at `:195`, is today's meaning. **The `cproc` change
-compiled under BCOMP with no errors in the 21 Sep 11:33 cycle** (`bbcmp` could not check
-it beforehand: it aborts on `$ifdef` at the top of `cproc`); the behaviour is not yet
-exercised by a verifier, since none has run since (76). **Survives and must not be swept up:** 60 (bounded copies in `clopts.c`), the
-TLS/SCRAM tunnel (41, 42), 55's session-as-the-user handover and its SID-ACL'd
-pipe, and the `secure-*.ps1` ACL hardening. 95 and 96 were filed out of this.
+### 76 · B (harness) — the four verifiers are converted to the SDSYS seat; two are witnessed
 
-### 76 · B (harness) — the four verifiers are converted to the SDSYS seat; none is witnessed
+**Witnessed 21 Sep 2026, elevated through the agent helper, SDSYS signed in:** `verify-apiadmin`
+and `verify-privundetermined` on `b211` — both exit 0; `verify-apiadmin` every row PASS with
+its one designed N/A (the "not SYSTEM" row, unmeasurable once `OS.EXECUTE` is refused),
+`verify-privundetermined` **27 of 27**; the `os.users\SDSYS` fixture was planted and removed
+in both and the tree was left clean. **The first run, `b210`, failed at "credential set" in
+both — an instrument fault, not the product:** `SET_ACC_PASSWORD` was reworded that day to
+print `Password accepted.` and **eight** verifiers still matched `Password set for account`
+(`verify-apiadmin`, `-apiname`, `-apiport`, `-apiwire`, `-doors-admin`, `-privundetermined`,
+`-scramlogin`, `-vocwrite`); all eight are fixed and `test-verifieranchors-units.py` (free
+tier, four mutants red) fails when a `verify-*` anchors on a phrase in its RETIRED table —
+add a row there whenever a line a verifier matches on is reworded. **Still owed:**
+`verify-lcnames` and `sdtestuser-admin` (the unelevated tier, `VerifyInstall1`), the
+falsification check below (a local control run *without* the planted record was not done),
+and the full suite.
 
-Owner's ruling, 21 Sep 2026. **All four are converted in source, unwitnessed:**
+Owner's ruling, 21 Sep 2026. **All four were converted in source:**
 `sdtestuser-admin.ps1` and `verify-lcnames.ps1` earlier that day, and
 `verify-apiadmin.ps1` and `verify-privundetermined.ps1` unattended overnight.
 `test-logtoreaim-units.ps1` now reports **0 files still sending the refused prefix**
@@ -199,19 +194,6 @@ witness of the alternate-key write path; `VerifyInstall2`'s own comment says so)
 `verify-notyet`, `verify-cmdaudit`, `verify-elevdoor`. 32 of 65 steps have never failed
 in 8–31 runs, but a clean record is what a regression guard looks like; the run
 summaries do not say whether a failure was the product or the instrument.
-
-### 95 · S — the administrator route rule is removed from `sync-route-groups.ps1`; an install-over-kept-accounts run is owed
-
-Built 21 Sep 2026, unattended: the 100-line block that enforced 62's rule on every
-install (it removed every Windows administrator from `sdssh` and added them to `sdapi`)
-is deleted from the script, and `sd.iss`'s comment that called the ungated step
-*"load-bearing"* is rewritten — it said the opposite of 64. **Checked:** the script
-parses with 0 errors and the same 3 functions as HEAD, `sd.iss` compiles under ISCC
-(syntax only), the free tier is 52/52. **Installed by the 21 Sep 11:33 cycle** (the installed script no longer carries the
-block — seen); the case that mattered is still unobserved: a reinstall or upgrade
-**over kept accounts**, where the old block would have taken an administrator's own
-account out of `sdssh`. **Owed:** on such a run, read `sdssh` and `sdapi` back before
-and after; a fresh install is not the witness, since ordering hid the defect there.
 
 ### 84 · M (harness) — `verify-apiidentity.ps1` still drives `scram-probe.py`, not the real client library
 
@@ -635,7 +617,10 @@ SESSION.*** `.claude/tools/agent-elevate.ps1 -Start`, run by the owner from an o
 prompt, launches a resident elevated helper (one UAC click). After that the agent runs
 `agent-elevate.ps1 -Run -Script <repo>\sdb_ai\sd64\gplbld\<name>.ps1 -ScriptArgs <words>` and
 gets the script's real exit code plus its captured output (in
-`%LOCALAPPDATA%\SD-verify\agent-elevate\`, printed by the client); `-Stop` ends it and it
+`%LOCALAPPDATA%\SD-verify\agent-elevate\`, printed by the client). ***CALL THE CLIENT
+DIRECTLY FROM A POWERSHELL SESSION, WITH `-ScriptArgs '-Run','b210','-Only','x'` AS A REAL ARRAY***
+— measured 21 Sep: through `powershell -File`, or from bash, the comma list arrives as one
+string and the runner refuses *"-Run was not given"* without running anything. `-Stop` ends it and it
 stops itself after 60 idle minutes. **Proved live, 21 Sep 2026:** exit 0 and exit 1 both
 arrive with their output, and the *server* refuses a script outside `gplbld`, a `..` path,
 an unsafe argument and a raw path. **Limits, so it is not over-read:** only a `.ps1` directly
@@ -654,7 +639,11 @@ Do not undo these without reading the reasoning.
 ### 5.28 The security model after RELEASE_1.1 64, evaluated (21 Sep 2026)
 
 64's decision made this part of itself: *"Once everything is removed, we will evaluate
-the resulting security model."* **Method and limit: read from source this session
+the resulting security model."* (The decision is verbatim in HISTORY.md, RELEASE_1.1 64's
+archived row and its closing entry of 21 Sep 2026.) **What survives 64 and must not be swept
+up:** 60 (bounded copies in `clopts.c`), the TLS/SCRAM tunnel (41, 42), 55's
+session-as-the-user handover and its SID-ACL'd pipe, and the `secure-*.ps1` ACL
+hardening. **Method and limit: read from source this session
 (`op_sh.c`, `login`, `cproc`, `createa`) and joined to measurements already in the
 record (55, 59, 53, 60). Nothing was run, and this is not a penetration test** — every
 runtime claim is marked as reasoned.

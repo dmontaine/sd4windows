@@ -418,7 +418,7 @@ him** — he does not read them. So:
 - **Open tasks live in PROJECT_STATUS.md's OPEN TASKS and nowhere else** (owner,
   21 Sep 2026: *"there should be only one [source of truth], focused on the tasks
   currently at hand"*). A defect we would ship goes in as a new entry in the same
-  commit as the finding, continuing the `RELEASE_1.1` id space (next id: 99),
+  commit as the finding, continuing the `RELEASE_1.1` id space (next id: 101),
   cited as `RELEASE_1.1 <n>` and never as a bare number. **`RELEASE_1.1_FIXES.md`,
   `PRE_RELEASE_FIXES.md` and `BUGS_FROM_LINUX_PORT.md` no longer exist** — they are
   archived whole in HISTORY.md, where a citation such as `PRE_RELEASE 96` or
