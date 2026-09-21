@@ -179,8 +179,55 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ CLOSING HANDOFF — END OF THE TWENTY-FOURTH PASS, 20 SEP 2026 ~20:03. READ THIS BLOCK FIRST. THE 23rd-PASS BLOCK BELOW IT IS
-> SUPERSEDED WHERE THE TWO DIFFER (its "THE CHANGE OWED" — the finish page — is now built and ISCC-clean).***
+> ***⏸ CLOSING HANDOFF — END OF THE TWENTY-FIFTH PASS, 20 SEP 2026 ~21:30. READ THIS BLOCK FIRST. THE 24th-PASS BLOCK BELOW IT IS
+> SUPERSEDED WHERE THE TWO DIFFER (the finish page it closed out is unaffected by this pass).***
+>
+> ***STATE.*** Nine files changed, NOT COMMITTED — ask before committing: `RELEASE_1.1_FIXES.md`, `VerifyInstall2.ps1`,
+> `assert-current.ps1`, `clean-test-profiles.ps1`, `sdclilib/Makefile`, `sdsys/gpl.bp/createa` (modified); `messages/10032`,
+> `messages/10033` (deleted); `verify-accountmodel.ps1`, `sdclilib/tests/api_identity_probe.c` (new). Free tier 55/55 and
+> `test-fixlist-units` 364/0 confirmed AFTER every edit in this pass, not just at the end.
+>
+> ***THIS PASS WAS "DO ALL THREE" ON THE PRIOR PASS'S TEARDOWN REVIEW*** (RELEASE_1.1 64's four owed items, two of which
+> turned out already covered by files built since 18 Sep — `verify-doors-admin.ps1`/`verify-doors.ps1` for the SUSPENDED
+> round trip, `verify-routes.ps1`/`test-acctkeywords-units.py` for the tier keywords — checked by reading them, not assumed).
+>
+> ***(1) `make.admin` REMOVED FROM `createa`, DONE AND VERIFIED.*** Dead since the `ADMINISTRATOR` keyword started refusing
+> with 2018 before `create_user` is reached. Token-count diff matches exactly; `bbcmp.py` compiles both HEAD and the edit
+> clean (exit 0 each); the two orphaned messages it alone used (10032, 10033) are deleted, checked first that nothing else
+> references them. **Not cycled or BCOMP-witnessed** — `bbcmp` cannot compile `login`, and nothing here substitutes for a cycle.
+>
+> ***(2) `verify-accountmodel.ps1` BUILT, WIRED IN, NEVER RUN.*** Deliberately narrower than its name: only the
+> whole-of-NEWVOC count and the exact-match half of `update.voc`'s case machinery, since the other two of the four owed
+> items were already covered elsewhere (see above). The header names exactly which half of the case machinery is NOT
+> covered — the uppercase-rename fallback — and why: every record-planting route found needs either elevation (this agent
+> had none) or an unverified `COPY` incantation, and shipping an untested mechanism the owner would be first to discover
+> broken is worse than naming the gap. Wired into `assert-current.ps1`, `VerifyInstall2.ps1` (new `$AccountModelPrefix`
+> parameter, four integration points — param, `-Run` derivation, two validation loops), and `clean-test-profiles.ps1`'s
+> stem sweep. **A markdown-table mistake was made and caught here**: a blank line inside one of `RELEASE_1.1_FIXES.md`'s
+> single-line table rows broke `test-fixlist-units` to 307/51 — fixed by re-reading the row and removing the embedded
+> newline. Worth remembering: these table rows must never contain a literal blank line.
+>
+> ***(3) RELEASE_1.1 84 PARTLY CLOSED, NOT FULLY.*** The entry's own original claim — "needs sdclilib extended" — was
+> WRONG, found by finally reading `sdclilib.h`'s full export list: `SDOpen()` already sends the exact wire request
+> (`SrvrOpen`, 4) that `verify-apiidentity.ps1`'s `scram-probe.py` hand-builds, confirmed by reading `sdclilib.c`'s
+> implementation, not assumed. Built `gplsrc/sdclilib/tests/api_identity_probe.c` on that export alone — no sdclilib
+> change. Compiles clean (`-Wall -Wextra -Wpedantic`, zero warnings) and its CONNECT half ran LIVE against the real
+> `sdwind` on this machine (wrong credentials, correctly refused, exact wording captured) — genuine proof the TLS+SCRAM
+> handshake works through the real client library. Added a matching `check-api-identity` Makefile target, dry-run and
+> live-run both confirmed. **NOT DONE: wiring the probe into `verify-apiidentity.ps1` itself** — deliberately not
+> attempted, since that file's fixture-driving logic has never been watched running by this agent either, and the output
+> contract differs from `scram-probe.py`'s (`SDStatus()` doesn't reflect `SDOpen`'s failure the way the wire-level
+> `server_error` does — checked, not assumed), so it is a real rewrite of a currently-working file's core mechanism, not a
+> drop-in swap. That needs either elevation, real credentials, or both, in a session that can watch it run.
+>
+> ***NEXT, IN ORDER.*** (1) A cycle is owed regardless of anything else — elevated PowerShell:
+> `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1` — for
+> `createa` and the two deleted messages; `assert-current` already reports this correctly as STALE. (2) After the cycle,
+> `verify-accountmodel.ps1 -Prefix <fresh>` is owed its first-ever run, elevated. (3) Wiring `api_identity_probe.c` into
+> `verify-apiidentity.ps1` is real work for a session with a test account's credentials in hand. (4) Item (6) from the
+> 23rd/24th pass — the Linux-agent mail about R4 — is already sent and acknowledged; nothing carried over from it.
+>
+> ***⏸ THE 24th-PASS HANDOFF FOLLOWS. ITS BLOCK BEGINS:***
 >
 > ***STATE.*** `sd4windows` has TWO FILES CHANGED, NOT COMMITTED (`sd.iss`, `test-retired-wording-units.ps1`) — ask before
 > committing; nothing else in the tree moved. `SDCoreWindowsDocs` pushed through `de44f8e` this pass (owner said yes; the 23rd
