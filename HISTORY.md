@@ -66649,3 +66649,24 @@ on a session whose subject is privilege) and are held for the owner, which the o
 had understated.  Not witnessed: the fresh install and the install over the top.
 
 ====
+20 Sep 2026, ~19:45 - END OF THE TWENTY-THIRD PASS: THE INSTALLER WAS TAKEN APART SCREEN BY SCREEN, AND THE LAST
+SCREEN IS SPECIFIED BUT NOT BUILT.
+
+After the first real look the owner went through the installer one screen at a time and each request asked for less than
+the last: cut it, delete the "Before you install" page, turn the OpenSSH popup into a heading, then a standing rule that
+screens give options and results only and every warning and caveat lives in the installer documentation, then
+consolidate the closing popups onto the final page, then remove two lines of SD's own from the finishing window.  All of it
+is built, compiled and committed; none of it has been seen on an install, because he cancelled his cycle to restart after
+the changes.  His last message was a specification of the final page, and then "save that change for the next session":
+it is written into PROJECT_STATUS.md's closing handoff, verbatim, with the six objections to my own reading that I did not
+get to put to him - above all that the spec has no slot for a step that failed.
+
+Three things about how the pass went are worth keeping.  A sentence I had kept "deliberately" through a rewrite, that SD
+users can read each other's files, was false; he asked whether it was true and it was not.  I told him the scp/sftp cost
+was still in the closing dialog, and it never was - the popup I deleted had been its only home.  And the
+wording lint went red three times as the text was cut, each time because the replacement half of a row lived in text
+that had just gone; the right response each time was to re-aim the row, not delete it, since the retired half is what
+keeps a false claim from coming back.  Seven verifiers were converted to the seat along the way and reading their call
+sites overturned the fix list's grouping: only catgate is genuinely privilege-subject.
+
+====

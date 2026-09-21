@@ -179,7 +179,104 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
-> ***⏸ CLOSING HANDOFF — END OF THE TWENTY-SECOND PASS, 20 SEP 2026 ~16:40. READ THIS BLOCK FIRST; THE BLOCKS
+> ***⏸ CLOSING HANDOFF — END OF THE TWENTY-THIRD PASS, 20 SEP 2026 ~19:45. READ THIS BLOCK FIRST. THE 22nd-PASS BLOCK BELOW IT IS
+> SUPERSEDED WHERE THE TWO DIFFER (its steps 1–3 are done); the dated ▶ notes under it are the detail.***
+>
+> ***STATE, ALL OBSERVED THIS PASS.*** **`sd4windows` is committed and pushed through `15888bc`; the working tree was clean.**
+> **`SDCoreWindowsDocs` has ONE COMMIT NOT PUSHED (`de44f8e`).** Its remote is HTTPS and plain `git push` fails in the agent shell (no
+> credentials); the owner-approved route is `git -c credential.helper= -c "credential.helper=!gh auth git-credential" push` (`gh` is signed
+> in as `dmontaine`, scope `repo`, nothing written to config). **He said "push" for `1eb96f4` only — ask again for `de44f8e`.**
+> **RELEASE_1.1 82 IS WITNESSED IN FULL** (`-Run b204`, 25/25, announcement included). **`b204` is spent; use `b205`.** Free tier 55/55
+> at the last run; `test-sysmsg-units` exits 2 (documented "no tree to measure") whenever no install is present.
+>
+> ***WHAT THE OWNER ASKED FOR THIS PASS, ALL DONE, NONE SEEN ON A REAL INSTALL — he cancelled his cycle to restart after the changes:***
+> the installer text was cut to options and results (**standing rule in CLAUDE.md "Conventions"**: warnings and caveats live in
+> `SDCoreWindowsDocs/GettingStarted/markdown/01-installation.md`, "Warnings and things to know"); the "Before you install" page and the
+> OpenSSH-already-installed popup are deleted; the closing popups are consolidated onto the wizard's last page (`ShowFinishedReport`);
+> `set_acc_password:176` honours `-QUIET`; `login`'s admission announcement is suppressed only for writer `finish-install` AND `-QUIET`.
+> Seven verifiers were converted to the SDSYS seat, unwitnessed (`interop-account`, `acctmsgs`, `uninstallchoices`, `doors-admin`,
+> `delaccount`, `sdsysgate`, `catgate`); **`probe-tasklock` is held at his word; `sdtestuser-admin` and `verify-lcnames` cannot use the
+> seat (VerifyInstall1 must stay unelevated) and still need a different mechanism.** `test-logtoreaim-units` prints 3.
+>
+> ***THE CHANGE OWED, SAVED FOR THIS SESSION AT THE OWNER'S WORD ("save that change for the next session") — NOTHING OF IT IS BUILT.***
+> His specification of the wizard's last page, **verbatim, typos his**:
+>
+> ```
+> SD Core is installed
+>
+> You must sign out or restart before using SD.
+>
+> <SSH server status line>
+>
+> <SSH user availability line>        short one line only
+>
+> <API user availability line>        short one line only
+>
+> Two accounts exist: SDSYSY and <user name>
+> The next screen will ask for their passwords.
+>
+> Information status will be available if requested.
+> ```
+>
+> **How it would map onto the code, in the conditional (it is a reading of `sd.iss`, not a trace of a run).** `CurStepChanged` at
+> `ssPostInstall` assembles `FinishReport` from `SshMsg`, `SshLimit`, `SshFw`, `ApiFw`, `UpgMsg`, `VocDoneMsg`, `AccountMsg`, `AttachMsg`
+> and about a dozen "hole" messages (`CredMsg`…`RouteMsg`, `DictMsg`, `VocMsg`, `NocaseMsg`); `CurPageChanged(wpFinished)` wraps it in
+> "SD Core is installed." and "When you click Finish…" and draws it. **The spec would replace that wrapper**: the last page becomes
+> `FinishReport` alone, "the next screen will ask for their passwords" takes the place of the "When you click Finish" sentence, and
+> "Two accounts exist" is built from `SdsysCode` and `AttachCode` both in {0, 2} (`One account exists: SDSYS` if attach failed).
+> The three status lines would be the first paragraph of `SshMsg`, `SshFw` and `ApiFw` **on success only**, and their success strings
+> would need shortening at the source (`Other computers on your network can connect over ssh.`; `…can reach the SD Core API.`). The
+> `SshLimit` success text ("ssh is now limited to members of `sdssh`…") would not be shown — the docs carry it. **A discriminator that
+> would separate a failure from a status: the message contains `ELEVATED`, ` NOT ` or `FAILED`** (every failure string carries one; check
+> that against the current source before relying on it — that check is what would falsify this).
+>
+> ***THE OBJECTIONS I HAD TO MY OWN READING, NOT YET PUT TO HIM:*** **(1) THE SPEC HAS NO SLOT FOR A FAILED STEP.** "NOT locked", "could NOT
+> create its administrator account", "OpenSSH could NOT be installed" and the rest exist only when something went wrong. *I would show
+> them, only when they exist, as extra paragraphs after the sign-out line* — so a healthy install is exactly his page — rather than
+> make a security lock failing silent and "available on request". **That is my recommendation, not his ruling; ask.** **(2) The upgrade
+> path is not in the spec**: `UpgMsg` ("Your ssh and API settings were not changed."), the "database kept" line, and the two ACTION items
+> (`AccessMsg`: API access is not restored; `ApiRuleMsg`: no firewall rule) should probably survive. **(3) "Information status" — I read
+> it as "Installation status" and it would be the existing `Run the checks now? (y/<n>)` prompt in `check-install.ps1`; unconfirmed.**
+> **(4) "SD" versus "SD Core"** — he wrote "SD" in one line and "SD Core" in another; the rest of the installer says "SD Core". **(5) On an
+> upgrade "will ask for their passwords" is not always true**: the installing user's password is asked only when no credential exists
+> (`Set-AttachedAccountPassword` reads `$cred` first). **(6) Lint rows would break again** (`test-retired-wording-units.ps1`): dropping
+> `VocDoneMsg` orphans rows 70/70b/70c's replacement, dropping the code-2 `AccountMsg` orphans `20Sep-a`. Re-aim, do not delete.
+>
+> ***ORDER OF WORK.*** (1) Ask the owner (1)–(4) above, and whether to push `de44f8e`. (2) Build the page; compile-check `sd.iss` WITHOUT a
+> cycle (~16 s, output to a scratch dir so his `sdout` is untouched): `& "C:\Users\Don\AppData\Local\Programs\Inno Setup 6\ISCC.exe"
+> "/DStage=C:\Users\Don\stagetest" "/O<scratch dir>" C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\sd.iss` (Inno is a
+> PER-USER install on this machine, which is why a check for `Program Files (x86)` reports it missing; `cycle.ps1` resolves it the same
+> way; **require exit 0, zero error lines AND a fresh installer in the scratch dir** — an exit code alone is not the check), then run the
+> free tier. (3) **A cycle is owed for the four stale
+> shipped files** (`sd.iss`, `finish-install.ps1`, `login`, `set_acc_password`) — an **elevated PowerShell**, and the owner's second
+> install is the stand-alone one over the top:
+> `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`, then, elevated,
+> `Start-Process -FilePath C:\Users\Don\sdout\sd-setup-W1.1-0.exe` (no `-Wait`, it never returns). (4) **Look at the last page on a real
+> install** — it has never been seen: the paragraph stack, the scrolling-memo fallback, a long failure report, and white-on-white
+> (a `TPanel` was avoided on purpose because it paints grey). (5) `login` changed, so `-Run b205 -Only verify-internalgate`
+> (elevated `VerifyInstall2.ps1`, SDSYS signed in again after the cycle); then a suite run for the seven unwitnessed conversions,
+> **reading `verify-catgate`'s refusal rows first** — `-Internal` adds `K$INTERNAL` to a session whose subject is privilege. (6) **Tell
+> the Linux agent that this port suppresses R4's on-screen announcement in the finishing window** (the rule they asked both ports to
+> share); `mail.sh send`, then `mail.sh status`. I have NOT sent it.
+>
+> ***TRAPS THAT COST THIS PASS.*** *An unchecked sentence shipped inside a rewrite*: "SD Core users are not isolated from each other" was
+> kept "deliberately" through the cut and was false (account directories are locked to their own `sdu_` group; `verify-accountacl`).
+> **Verify a claim before it goes on a screen or in the docs.** *I told the owner the scp/sftp cost was still in the closing dialog; it
+> never was* — the deleted popup was its only home, so **it is now on no screen; it lives only in the docs.** *A comment of mine asserted a
+> property of a verifier ("every refusal row is also anchored on the filesystem")* and was wrong for one row; **read the rows before
+> writing the claim.** *`bbcmp` cannot compile `login` or even `READSEQ`* — the recipe that worked: from `sdb_ai/sd64`, in a SCRATCH root
+> holding a copy of `sdsys/gpl.bp/*.h`, `sdsys/syscom/` and an empty `gcat/`, extract the TAIL you edited into a small `$internal
+> subroutine` (same `$include` lines as `login`, plus assignments for the variables the cut-out head would have set), stub `void`, `prompt`,
+> `input`, `sleep` and `readvu` in the scratch copy only, and run `python gplbld/bbcmp.py <scratch root> gpl.bp/<file> out/<file>` — **once on
+> the `HEAD` version as a control and once on yours; both must exit 0.** `set_acc_password` compiles whole this way; `login` does not.
+> Confirm afterwards that `git status --short` shows nothing untracked (bbcmp writes its object to the scratch `gcat`, not the repo). *The agent-shell hook rejects a heredoc into `git commit`* sometimes — write the message with the Write tool and
+> `git commit -F`. *`test-sysmsg-units` exit 2 is a refusal, not a failure.*
+>
+> ***MAIL.*** The inbox was empty at 19:34, the watcher (`run_in_background`, ~1 h loop) was alive, and nothing of mine is pending. **The
+> watcher exits when it finds mail or after an hour: re-arm it in the same call that moves a message to `done\`.**
+>
+> ***⏸ THE 22nd-PASS HANDOFF FOLLOWS. ITS BLOCK BEGINS:***
+> ***CLOSING HANDOFF — END OF THE TWENTY-SECOND PASS, 20 SEP 2026 ~16:40. READ THIS BLOCK FIRST; THE BLOCKS
 > BELOW IT ARE THE DETAIL AND ARE KEPT.***
 >
 > ***▶ 20 SEP 2026, TWENTY-THIRD PASS (fresh session): THE BLOCKED WORK IS COMMITTED (item (1) below is DONE).***
