@@ -1308,3 +1308,15 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud â
   and is ignored apart from its README.
 - Explain *why* in commit messages, not just what. The reasoning is the part
   that does not survive in the diff.
+- **Installer text gives options and results, nothing else.** Owner, 20 Sep
+  2026: *"The installer dialogs should only deal with the installing task. All
+  the warnings and caveats should be in the installer documentation. The
+  installer text should be as terse as possible and just give the options, not
+  why they should be chosen or not."* It governs every screen the installer
+  shows: `sd.iss`, `finish-install.ps1`, `check-install.ps1`, `ssh-preflight.ps1`.
+  A caveat you would have put on a screen goes into `SDCoreWindowsDocs`
+  (`GettingStarted/markdown/01-installation.md`, "Warnings and things to know")
+  **in the same change**, and `test-retired-wording-units.ps1`'s replacement rows
+  must point at wording still on a screen. **Check any factual claim before it
+  ships in either place**: the "not isolated" sentence that stood on the
+  disclosure page was false, and had been kept "deliberately" unchecked.

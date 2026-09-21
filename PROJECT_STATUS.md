@@ -250,6 +250,23 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > NEVER SAID IT — that popup was the ONLY shown text that did, so it now appears on NO screen.*** Retired-wording row 129b's
 > replacement is therefore re-aimed at the one remaining scp/sftp line (an install with no ssh server) and its comment says
 > the cost disclosure is gone; if the owner wants it back, that row is where it returns.
+>
+> ***▶ 20 SEP 2026, LAST — A STANDING RULE FOR EVERY INSTALLER SCREEN, FROM THE OWNER: "The installer dialogs should only deal
+> with the installing task. All the warnings and caveats should be in the installer documentation. The installer text should be
+> as terse as possible and just give the options, not why they should be chosen or not."*** It is now in **CLAUDE.md
+> (Conventions)** and in memory. **Applied to all four screen sources in one pass:** `sd.iss` (refusals, task labels, upgrade memo,
+> every step-failure and result message, closing box, uninstall questions — the security "Until it is, any SD Core user can…"
+> consequences are gone from the dialogs), `finish-install.ps1` (no opening line, no recovery command, no explanation under any
+> prompt), `check-install.ps1` (banner is the action only; explanatory Info lines cut) and `ssh-preflight.ps1` (reasons without
+> the "SD supports only…" tails). **Nothing was dropped without a home:** `SDCoreWindowsDocs`
+> `GettingStarted/markdown/01-installation.md` has a new "Warnings and things to know" section (before-install, after-install, a
+> table of what each "NOT locked/NOT created/could NOT be installed" failure means, and uninstalling), plus a corrected "At the
+> end". ***THAT REPOSITORY IS COMMITTED LOCALLY AND NOT PUSHED — the owner has not said it may be.*** **Guards:** the wording lint
+> was re-aimed a third time (20 rows: replacement phrases now point at the task labels, `Every account has this release`, the
+> question titles, `sshd_config was updated`; the `+`-straddle control is now the ssh report's first line). ***TWO DISCLOSURES ARE
+> NOW ONLY IN THE DOCS AND ON NO SCREEN: that every ssh session lands in SD Core and that `scp`/`sftp` stop working for everyone.***
+> Free tier 54/55 (`test-sysmsg-units` exit 2 = no install present); ISCC compiles. **NOT WITNESSED: the owner's fresh install and
+> the install over the top, which he has cancelled and will restart.**
 > `SDCoreWindowsDocs` may repeat the false sentence (separate repository, not checked); §5.9 of this file (14 Aug) says the
 > same and predates the ACLs.
 >
