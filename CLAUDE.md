@@ -2,11 +2,11 @@
 
 ## Read this first
 
-**[PROJECT_STATUS.md](PROJECT_STATUS.md) is the handoff document. Read it
-before doing anything else in this repository.** It holds the current state,
-the decisions already made and why, the traps that have already cost time, and
-the ordered next steps. [HISTORY.md](HISTORY.md) is the append-only archive —
-read it when you need to know why something is the way it is, or whether an
+**[PROJECT_STATUS.md](PROJECT_STATUS.md) is the one file for what is open. Read
+it before doing anything else in this repository.** It holds the current pickup,
+every open task, and the standing rules, decisions and traps. There is no second
+task list. [HISTORY.md](HISTORY.md) is the archive of everything closed — read
+or grep it when you need to know why something is the way it is, or whether an
 approach has already been tried.
 
 This project moves between sessions, machines and accounts. Nothing carries
@@ -45,7 +45,8 @@ for — run the grep.
 
 **It applies to the first attempt, not just a retry**, and to commands that
 look trivial. What was walked into on 23 Aug 2026 was `echo WHO | sd`, which
-§START HERE already recorded as making an unusable session; it hung, and the
+the START HERE section (now in HISTORY.md) already recorded as making an
+unusable session; it hung, and the
 stray `sd.exe` cost an elevation to clear. **Some warnings are in the memory
 file rather than these two** — the `MEMORY.md` index is loaded every session,
 so read it as part of the same check.
@@ -61,7 +62,7 @@ ran `cycle.ps1 -Silent` instead of the documented `cycle.ps1`. His words: *"If I
 had been asked I would have asked for clarification and said no."*
 
 **The standing commands are written with their arguments** — in this file and in
-PROJECT_STATUS.md's "START HERE". **Anything you add to one is a change to the
+PROJECT_STATUS.md's CURRENT PICKUP. **Anything you add to one is a change to the
 owner's procedure, and it needs his yes first.** A flag that exists, is
 documented, and is off by default is not thereby approved: `-Silent` was all
 three.
@@ -187,7 +188,7 @@ started. **A script you have not watched load is not ready to submit.**
 **The trigger is the handoff, not the typing.** The moment a script goes to the
 owner's terminal, into `cycle.ps1`, or into `VerifyInstall1`, its failure lands
 away from you. Load it first with the tooling that will run it and **watch the
-result — do not hand it over `unrun`.** §START HERE's `verify-apiidentity` was
+result — do not hand it over `unrun`.** The old START HERE's `verify-apiidentity` (now in HISTORY.md) was
 handed over `unrun, deliberately`; it carried an embedded BOM, died on load as
 step 17 of `b18`, and the empty step scored a false green.
 
@@ -394,11 +395,15 @@ him** — he does not read them. So:
 - **Documentation is a small fraction of a session.** If it approaches half,
   stop and cut. Do not print line counts in the files or re-measure to keep
   them true.
-- **Update PROJECT_STATUS.md in the same commit as the work**, and never move
-  anything into "Verified" without observing it yourself that session.
-  Compiling is not running.
+- **Update PROJECT_STATUS.md in the same commit as the work**, and never mark
+  anything done without observing it yourself that session. Compiling is not
+  running. **A task that finishes is DELETED from OPEN TASKS in that commit — not
+  struck, not moved to a "done" list — and, if its story is worth keeping,
+  appended to HISTORY.md.** That is the whole bookkeeping: one list, and it only
+  ever holds what is open.
 - **Append to HISTORY.md** when work completes or an earlier claim proves
-  wrong. Append-only. Keep entries short.
+  wrong. Append-only (one owner-recorded exception, in its rule 1). Keep
+  entries short.
 - **`sdb_ai/sd64/sdsys/changelog` is the exception**: it ships to users, stays
   plain English, and gets anything a user would notice, in the same commit.
 - **[UPSTREAM_FIXES.md](UPSTREAM_FIXES.md) is the other exception**, and it is
@@ -410,22 +415,23 @@ him** — he does not read them. So:
   `Composer AI - 2026/06/10` marker is ours rather than upstream's unless the
   underlying flaw is there too. It is written for the upstream maintainer, so
   plain English and self-contained.
-- **[PRE_RELEASE_FIXES.md](PRE_RELEASE_FIXES.md) is the third**: everything that
-  needs deciding or fixing before W1.0-0 ships. Add an entry in the same commit
-  as the finding and move it to DONE with a date when it is fixed. Most of it
-  comes from writing the documentation, because making a sentence true checks
-  something that testing that it works does not.
+- **Open tasks live in PROJECT_STATUS.md's OPEN TASKS and nowhere else** (owner,
+  21 Sep 2026: *"there should be only one [source of truth], focused on the tasks
+  currently at hand"*). A defect we would ship goes in as a new entry in the same
+  commit as the finding, continuing the `RELEASE_1.1` id space (next id: 97),
+  cited as `RELEASE_1.1 <n>` and never as a bare number. **`RELEASE_1.1_FIXES.md`,
+  `PRE_RELEASE_FIXES.md` and `BUGS_FROM_LINUX_PORT.md` no longer exist** — they are
+  archived whole in HISTORY.md, where a citation such as `PRE_RELEASE 96` or
+  `RELEASE_1.1 64` resolves by grep. **Do not create a second list, an index
+  table, or a checker that compares two copies of a status.**
 
-  ***THE TWO FIX FILES ANSWER DIFFERENT QUESTIONS, AND A DEFECT IN BOTH TREES
-  GOES IN BOTH.*** Owner, 26 Aug 2026, correcting the "one defect, one file"
-  rule that stood here for one session and was wrong. **UPSTREAM_FIXES.md says
-  *"the maintainer of `sdb64` should know about this"*; PRE_RELEASE_FIXES.md
-  says *"we would ship this"*** — and being upstream's bug has never been a
-  reason to ship it. So: file it upstream if `sdb64` has it too, **and** list it
-  here for as long as our own tree still carries it, pointing at the upstream
-  entry rather than repeating the analysis. **Being fixed upstream is not being
-  fixed here.** Three entries were found this way the day the rule was
-  corrected, one of them silent data loss.
+  ***A DEFECT IN BOTH TREES GOES IN BOTH PLACES.*** Owner, 26 Aug 2026, and still
+  true. **UPSTREAM_FIXES.md says *"the maintainer of `sdb64` should know about
+  this"*; an OPEN TASKS entry says *"we would ship this"*** — and being upstream's
+  bug has never been a reason to ship it. So: file it upstream if `sdb64` has it
+  too, **and** keep an OPEN TASKS entry for as long as our own tree still carries
+  it, pointing at the upstream entry rather than repeating the analysis. **Being
+  fixed upstream is not being fixed here.**
 
 Full rules in §0 of PROJECT_STATUS.md. Follow those; this file only points.
 
@@ -495,7 +501,7 @@ find out whether a BASIC change compiles without spending an install.
 sequence had grown to four commands across three shells; the two faults that
 prompted it — a still-running SD service, and `ISCC` run from a directory where
 `gplbld\sd.iss` does not resolve — are now structurally impossible rather than
-merely written down. PROJECT_STATUS.md §"START HERE" has both.
+merely written down. The old START HERE section, now in HISTORY.md, had both.
 
 Why it is a rule and not a preference, ***CORRECTED 30 Aug 2026 —
 PRE_RELEASE_FIXES 71. THE RULE IS UNCHANGED AND THE REASON IT USED TO GIVE WAS
@@ -557,13 +563,12 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
 **Three tiers. Use the cheapest one that can answer the question.**
 
 1. **The free unit tests and `assert-current`** — seconds, no install, no
-   elevation, no run token: `test-fixlist-units`,
+   elevation, no run token:
    `test-verdict-units`, `test-sdtestuser-units`, `test-suiteonly-units`,
    `test-retired-wording-units`, `test-stemcoverage-units`,
    `test-dirscoverage-units`, `test-stripcomments-units`,
    `test-diffcapture-units`, `test-transcriptwhole-units`,
-   `test-apigate-units`, `check-stale-leads.py`,
-   `test-staleleads-units.py`, `test-edittokens-units.py`,
+   `test-apigate-units`, `test-edittokens-units.py`,
    `test-upgradeiss-units.py`, `test-acctmsgs-units`,
    `test-apiidentity-units`, `test-deletioncheck-units`,
    `test-doorsargv-units`, `test-reclaim-units`, `test-sdpath-units`,
@@ -583,7 +588,7 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    `test-msgreserved-units.py`, `test-logtoreaim-units.ps1`,
    `test-sdsysseat-units.ps1`, `test-pwgen-units.ps1`,
    `test-internalgate-units.py`, `test-outputtrap-units.ps1`.
-   ***ALL FIFTY-FIVE. Run these on
+   ***ALL FIFTY-TWO (was fifty-five until 21 Sep 2026). Run these on
    every change*** — ***50.1 s for forty-seven of them, all exit 0, measured
    19 Sep 2026*** by counting the names in this list and running each in its
    own process; the forty-eighth costs about a second, the forty-ninth
@@ -768,11 +773,15 @@ and the single step that decides a change is usually **30 to 90 seconds** of it.
    genuinely is named in `stage.py` or `sd.iss`, so it was one omission and not
    a rotted list.
 
-   ***`test-staleleads-units.py` JOINED THE LIST 2 Sep 2026 AND IT HAD BEEN RED
-   FOR DAYS, WHICH IS WHAT NOT BEING ON THE LIST COSTS.*** 12 of 13, and nobody
-   ran it. **`check-stale-leads.py` itself exited 0 throughout**, because the
-   failing case guards phase 1, which ranks and deliberately does not decide —
-   so the listed check passed while its own units test failed.
+   ***`test-fixlist-units`, `check-stale-leads.py` AND `test-staleleads-units.py`
+   LEFT THIS LIST 21 SEP 2026 — THE OWNER COLLAPSED TASK STATUS INTO ONE FILE, SO
+   THERE IS NOTHING LEFT FOR THEM TO COMPARE.*** All three existed because status
+   was kept in several places and nothing compared the copies (a session reported
+   36 open when 18 were; another was given a different list each time it asked).
+   Deleting the duplicate is the fix; a checker over two copies was the symptom.
+   Their history is in HISTORY.md. **A guard that had been red for days unread
+   (`test-staleleads-units`, 2 Sep) is also the reason a new one goes on this list
+   in the commit that creates it.**
    ***THE TEN THAT WERE STILL MISSING JOINED THE LIST ABOVE ON 3 Sep 2026***,
    the owner delegating the call — *"what tests are needed in the verification
    cycle are totally your call"*: `test-edittokens`, `test-upgradeiss`,
@@ -1296,8 +1305,8 @@ machines, and no Claude facility connects them. They share a mailbox on pCloud �
   `test-msgreserved-units.py` checks what it can see: Linux's ids stay absent here,
   nothing in their block, nothing above ours.
 - **Git stays the record.** A message points at a commit or an entry; a finding
-  that must last goes into this repository (`PROJECT_STATUS.md`,
-  `BUGS_FROM_LINUX_PORT.md`, `RELEASE_1.1_FIXES.md`), not the mailbox.
+  that must last goes into this repository (`PROJECT_STATUS.md` while it is open,
+  `HISTORY.md` once closed), not the mailbox.
 
 ## Conventions
 
