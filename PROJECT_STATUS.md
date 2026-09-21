@@ -241,6 +241,15 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > OpenSSH server"* is no longer told, BEFORE installing, that every ssh session then lands in SD Core and `scp`/`sftp` stop working
 > for everyone — that now appears only in the box shown when OpenSSH is ALREADY installed and in the closing dialog. The
 > Windows changes (sdusers, sdsshonly, the ACL on the data tree, the service) are disclosed nowhere before the install.
+> ***THEN THE OWNER SAW THE "OpenSSH Server is already installed" POPUP OPEN FIRST AND SAID IT SHOULD NOT — "the whole text
+> could be summarized on the screen where it would be chosen ... with the simple line 'The ssh server is already
+> installed.'"*** **Done:** the popup and the silent-mode guard that existed only for it are deleted, and that line is the GROUP
+> HEADING of the two present-server tasks (`sshremoteshut`/`sshremoteopen`), replacing "SSH Server - Availability and Access".
+> `CurPageChanged` verified to hold nothing else that could block a silent install. ***AND I MUST CORRECT AN EARLIER CLAIM OF
+> MINE: I told the owner the scp/sftp cost "now appears only in the ... box ... and in the closing dialog". THE CLOSING DIALOG
+> NEVER SAID IT — that popup was the ONLY shown text that did, so it now appears on NO screen.*** Retired-wording row 129b's
+> replacement is therefore re-aimed at the one remaining scp/sftp line (an install with no ssh server) and its comment says
+> the cost disclosure is gone; if the owner wants it back, that row is where it returns.
 > `SDCoreWindowsDocs` may repeat the false sentence (separate repository, not checked); §5.9 of this file (14 Aug) says the
 > same and predates the ACLs.
 >
