@@ -179,10 +179,48 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ HANDOFF — THE TWENTY-SEVENTH PASS, 21 SEP 2026. READ THIS BLOCK FIRST; THE BLOCKS BELOW ARE SUPERSEDED WHERE THEY
+> DIFFER.***
+>
+> ***WHAT THE OWNER ASKED:*** list the remaining queue with every item validated against the tree; mark everything done so it
+> never appears in a list again; strike or remove any text that could make a closed task read as open; check every verification
+> script against the tierless model and remove what no longer fits, with its tasks. Install unchanged: 21 Sep 01:16:42 from the
+> 01:15:29 cycle (`CYCLE COMPLETE`), `assert-current` exit 0. No product source changed this pass.
+>
+> ***THE QUEUE — `RELEASE_1.1_FIXES.md`, 16 OPEN (was 21); `test-fixlist-units` 365/0, `check-stale-leads` exit 0.*** Closed as
+> done, evidence in each row's lead: **60** (installed), **70** (all three legs seen), **72** (`verify-accountacl` 21/21 on
+> `b199`), **74** (seen in `b198`-`b202` output and the live reconcile log), **94** (owner: *"I watched the finish page"*, the
+> 01:15:29 cycle). Closed as superseded, not done: **58, 62, 63**. New: **95** (`sync-route-groups.ps1` still enforces 62's
+> administrator rule on every install; the reinstall case is reasoned, not run) and **96** (two texts describing the pre-64/70
+> model). Still open, each row now leading with its 21 Sep status: release gates **47 → 48 → 49** (not started); owner's calls
+> **53, 59, 77**; witnesses owed **69, 71, 73, 75** (75: two of four prompts seen); **64** (`verify-accountmodel` never run, the
+> post-removal security evaluation not begun, leftovers); **76**; **84**; **61** (docs); **95**; **96**.
+>
+> ***CONFLICTING TEXT.*** In every struck row, a status phrase that still read as open (*"NOT CYCLED"*, *"NOT RUN"*, *"a rerun is
+> owed"*, *"Not yet seen on a real install"*, *"STILL OPEN"*) is wrapped in `~~` with what happened since; `check-stale-leads.py`
+> already treats `~~` spans as withdrawn claims. Left on purpose: quoted *"(As filed: …)"* text, meta notes, program output, and
+> 7's true "never witnessed". The older handoff lines in this file that listed now-closed items as owed are struck the same way.
+> `PRE_RELEASE_FIXES.md` (frozen) and `HISTORY.md` (append-only) were not edited.
+>
+> ***VERIFIERS AGAINST THE TIERLESS MODEL.*** Deleted: `verify-logtoaccess.ps1` (its subject was the `sd_admin_tier` bypass; it
+> refused to run unless the caller's `ACC$TIER` read ADMINISTRATOR) and, on the owner's ruling, `probe-tasklock.ps1`. Tier leftovers
+> removed: `verify-createaccount.ps1`'s `-Tier`; `verify-doors-admin.ps1`'s two dead tier disqualifiers (now 10114's and 6003's
+> wording); the printed reasons in `verify-doors.ps1` and `test-sdtestuser-units.ps1`. Unwired from `VerifyInstall1`,
+> `assert-current`'s never-shipped list, `test-verdict-units`, `test-sdtestuser-units` and `test-logtoreaim-units`. Every edited
+> script parses 0 errors, function counts equal to HEAD, no embedded BOM, LF only. ***OWNER'S RULING, 21 SEP 2026: CONVERT
+> `verify-apiadmin`, `verify-privundetermined`, `verify-lcnames` AND `sdtestuser-admin` TO THE SDSYS SEAT*** (RELEASE_1.1 76).
+> The first two were invisible to `test-logtoreaim-units`, which matches only a literal `LOGTO SDSYS`; they build
+> `"LOGTO $account"`.
+>
+> ***NEXT, IN ORDER.*** (1) The four conversions (76). (2) One elevated run of the converted and the seven unwitnessed 20 Sep
+> conversions, then a full suite - none has run since 18 Sep 10:30. (3) `verify-accountmodel`'s first run (64). (4) The owner's
+> calls on 53, 59, 77, 69's severity and 71's nuance. `.claude/tools/agent-elevate*.ps1` is still untested and uncommitted; its
+> `-Start` has never run, and `agent-elevate.ps1:80` assigns PowerShell's automatic `$args` - rename it before the first use.
+>
 > ***⏸ CLOSING HANDOFF — END OF THE TWENTY-SIXTH PASS, 21 SEP 2026, CUT SHORT BY THE SESSION RUNNING OUT OF CREDITS. READ THIS BLOCK
 > FIRST.*** Whole pass was the owner live-watching real cycles of the finish page (`finish-install.ps1` → `check-install.ps1`) and
-> reporting what was actually on screen, one round at a time — RELEASE_1.1_FIXES **85 through 94**, all struck except 94 (open,
-> nothing left owed on it either, just not yet re-watched). Read the index rows in `RELEASE_1.1_FIXES.md`, not this paragraph, for
+> reporting what was actually on screen, one round at a time — RELEASE_1.1_FIXES **85 through 94**, all struck ~~except 94 (open,
+> nothing left owed on it either, just not yet re-watched)~~ - 94 is struck too: the owner watched it on the 21 Sep 01:15:29 cycle (27th pass, above). Read the index rows in `RELEASE_1.1_FIXES.md`, not this paragraph, for
 > the detail; this is only the shape.
 >
 > ***WHAT CHANGED, IN ORDER.*** 85: `Write-Wrapped`'s `-Indent` default was `''` and no caller passed one — fixed to `'  '`, then
@@ -205,21 +243,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***VERIFIED HOW, AND WHERE THE LINE ACTUALLY IS.*** Most of 85–93 WAS watched live by the owner on real cycles — that is how 86,
 > 89, 91's blank-line report, and 93's colour failure were each found: he ran the install and said what was actually on screen,
-> repeatedly, across this whole pass. ***94 (colour removed, "ERROR: " added) HAS NOT YET BEEN SEEN ON A CYCLE*** — it is
+> repeatedly, across this whole pass. ~~***94 (colour removed, "ERROR: " added) HAS NOT YET BEEN SEEN ON A CYCLE***~~ (seen since: the owner watched it on the 21 Sep 01:15:29 cycle) — it is
 > parse/compile-checked only: `finish-install.ps1` parses clean (`[System.Management.Automation.Language.Parser]::ParseFile`, 0
 > errors, repeated after every edit); `set_acc_password` compiled clean via the scratch-root `bbcmp.py` technique
 > (memory `bbcmp-compile-check`) after every BASIC edit, HEAD control included where it mattered, most recently **466 tokens, exit
 > 0**. Free tier confirmed green after every round: `test-fixlist-units` **365/0** throughout (open count 21, RELEASE_1.1 84
 > is the highest OTHER open item — nothing this pass added stayed open except 94, and 94 has nothing left owed but the watch),
 > `test-wraptext-units` 12/12, `test-retired-wording-units` 82/82, `test-pwcomplex-units` 71/71, `test-acctmsgs-units` all rows.
-> **A CYCLE IS OWED FOR 94 SPECIFICALLY** — everything before it in this pass has already been watched; 94 is the one round that
-> has not.
+> ~~**A CYCLE IS OWED FOR 94 SPECIFICALLY** — everything before it in this pass has already been watched; 94 is the one round that
+> has not.~~ (The 21 Sep 01:15:29 cycle was that cycle, and the owner watched the page.)
 >
-> ***NEXT, IN ORDER.*** (1) Elevated PowerShell: `powershell -ExecutionPolicy Bypass -File
+> ***NEXT, IN ORDER.*** ~~(1) Elevated PowerShell: `powershell -ExecutionPolicy Bypass -File
 > C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1` — watch the whole finish page end to end, confirm 94's
 > `"ERROR: "` prefixes read correctly on both the PowerShell and the BASIC side and that nothing prints in colour any more
-> anywhere on that page. (2) If it looks right, RELEASE_1.1_FIXES 94's row can be struck. (3) Everything from the 24th/25th pass
-> below this block ("A cycle is owed", `verify-accountmodel.ps1`'s first run, wiring `api_identity_probe.c` into
+> anywhere on that page. (2) If it looks right, RELEASE_1.1_FIXES 94's row can be struck.~~ (Both done: the 01:15:29 cycle, watched, 94 struck.) (3) Everything from the 24th/25th pass
+> below this block (~~"A cycle is owed"~~ - ran 01:15:29, `verify-accountmodel.ps1`'s first run, wiring `api_identity_probe.c` into
 > `verify-apiidentity.ps1`) is UNCHANGED and still owed — this pass never reached any of it, the whole session went to the finish
 > page instead.
 >
@@ -276,9 +314,9 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > `server_error` does — checked, not assumed), so it is a real rewrite of a currently-working file's core mechanism, not a
 > drop-in swap. That needs either elevation, real credentials, or both, in a session that can watch it run.
 >
-> ***NEXT, IN ORDER.*** (1) A cycle is owed regardless of anything else — elevated PowerShell:
+> ***NEXT, IN ORDER.*** ~~(1) A cycle is owed regardless of anything else — elevated PowerShell:
 > `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1` — for
-> `createa` and the two deleted messages; `assert-current` already reports this correctly as STALE. (2) After the cycle,
+> `createa` and the two deleted messages; `assert-current` already reports this correctly as STALE.~~ (Ran: 21 Sep 01:15:29, `CYCLE COMPLETE`, `assert-current` exit 0.) (2) After the cycle,
 > `verify-accountmodel.ps1 -Prefix <fresh>` is owed its first-ever run, elevated. (3) Wiring `api_identity_probe.c` into
 > `verify-apiidentity.ps1` is real work for a session with a test account's credentials in hand. (4) Item (6) from the
 > 23rd/24th pass — the Linux-agent mail about R4 — is already sent and acknowledged; nothing carried over from it.
@@ -403,8 +441,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > OpenSSH-already-installed popup are deleted; the closing popups are consolidated onto the wizard's last page (`ShowFinishedReport`);
 > `set_acc_password:176` honours `-QUIET`; `login`'s admission announcement is suppressed only for writer `finish-install` AND `-QUIET`.
 > Seven verifiers were converted to the SDSYS seat, unwitnessed (`interop-account`, `acctmsgs`, `uninstallchoices`, `doors-admin`,
-> `delaccount`, `sdsysgate`, `catgate`); **`probe-tasklock` is held at his word; `sdtestuser-admin` and `verify-lcnames` cannot use the
-> seat (VerifyInstall1 must stay unelevated) and still need a different mechanism.** `test-logtoreaim-units` prints 3.
+> `delaccount`, `sdsysgate`, `catgate`); **~~`probe-tasklock` is held at his word;~~ (deleted 21 Sep 2026 on the owner's ruling) `sdtestuser-admin` and `verify-lcnames` cannot use the
+> seat (VerifyInstall1 must stay unelevated) and still need a different mechanism.** ~~`test-logtoreaim-units` prints 3.~~ (It prints 2 since, and it could not see two more - RELEASE_1.1 76's 21 Sep status.)
 >
 > ***THE CHANGE OWED, SAVED FOR THIS SESSION AT THE OWNER'S WORD ("save that change for the next session") — NOTHING OF IT IS BUILT.***
 > His specification of the wizard's last page, **verbatim, typos his**:
@@ -1595,18 +1633,18 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >    account HAS a credential and this prompt never fires — so this witness and
 >    70's are mutually exclusive on the same install. Read 70's first; 69's
 >    needs an account made without one.)*
-> 6. **72** — nothing to read. It is invisible when it works; the witness is
->    that account creation still stamps the ACL (`verify-accountacl`).
-> 7. **74** — `DELETE.ACCOUNT` on any account: the warning before the
+> 6. ~~**72** — nothing to read. It is invisible when it works; the witness is
+>    that account creation still stamps the ACL (`verify-accountacl`).~~ DONE: `verify-accountacl` 21/21 on `b199`.
+> 7. ~~**74** — `DELETE.ACCOUNT` on any account: the warning before the
 >    confirmation should offer `modify.account <name> unsuspended`, not a
->    tier.
+>    tier.~~ DONE: seen in the `b198`-`b202` transcripts.
 > 8. **73** — **not reachable by just running a delete**, because the delete
 >    normally works. To see it, hold a file open in the account's directory
 >    (a shell `cd`'d into it will do) and then delete the account: 10919 names
 >    the directory and the rest of the deletion still finishes.
-> 9. **75** — **the install's own SDSYS prompt now states the rule before
+> 9. **75** — ~~**the install's own SDSYS prompt now states the rule before
 >    asking, and refuses a weak password**, counting it as one of the three
->    attempts. Then a weak one at **`MODIFY.PASSWORD`**, at **`CREATE.ACCOUNT`**
+>    attempts. Then a weak one at **`MODIFY.PASSWORD`**,~~ (both seen on real cycles since, 20-21 Sep) at **`CREATE.ACCOUNT`**
 >    (which should print 10920 and still offer the retry) and at the
 >    **elevated first login**. `Abcdef1!` is the shortest thing that passes;
 >    `Abcdefg1` fails for want of a symbol.
@@ -1653,8 +1691,8 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > offered the reader a **tier**. ***BOTH WERE CHECKED HERE BEFORE THEY WERE
 > BELIEVED***, which is what the rule asks, and **74 came out wider than they
 > reported** — `10127` does not mention a tier, it **explains a rule made of
-> tiers**, and it is filed unfixed because rewording it means saying what the
-> rule IS now.
+> tiers**, and ~~it is filed unfixed because rewording it means saying what the
+> rule IS now~~ (it had no caller and was deleted; 74 is closed, witnessed 20-21 Sep 2026).
 >
 > ***THE TWO PORTS' KEYWORDS DIFFERED — THEIRS `unsuspend`, OURS `UNSUSPENDED`
 > (`modifya:355`) — AND IT IS ALREADY CLOSED, IN OUR SPELLING, WITH NO OWNER
@@ -1755,7 +1793,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > CAN SUBSTITUTE*** — `bbcmp` cannot compile `createa`, and nothing here can run
 > the finishing window. **Four things to read afterwards, in this order:**
 >
-> 1. **The finishing window ASKS for an SD password** and `C:\ProgramData\SD\sdsys\$cred\don` **appears** (70). *It did not, last install — see the trap below.*
+> 1. ~~**The finishing window ASKS for an SD password** and `C:\ProgramData\SD\sdsys\$cred\don` **appears** (70). *It did not, last install — see the trap below.*~~ DONE: seen on real cycles, 20-21 Sep 2026 (RELEASE_1.1 70).
 > 2. **`MODIFY.PASSWORD` typed alone in `don`** asks for the current password and succeeds (71).
 > 3. **`MODIFY.PASSWORD sdsys` from `don`, UNELEVATED**, is refused with **2001** (71's other half; unelevated is the point — elevated is allowed by design).
 >    - ***WITNESS 2 IS THE ONE THAT MIGHT FAIL, AND LINUX SAID WHY BEFORE WE
@@ -1767,7 +1805,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >      refused outright (`$cred` is `0700`), which is why they sent the same
 >      ruling to their owner as **W.10** instead of building it. **If 2 fails,
 >      it is a privilege question, not a vocabulary one.**
-> 4. **A SECOND install over kept accounts does NOT ask again** (70's reinstall leg — the function reads `$cred` and leaves a live credential alone).
+> 4. ~~**A SECOND install over kept accounts does NOT ask again** (70's reinstall leg — the function reads `$cred` and leaves a live credential alone).~~ DONE: measured 20 Sep 2026 (RELEASE_1.1 70).
 >
 > ***DONE AND WITNESSED THIS SESSION: 66, 67, 68.*** The installing user gets an
 > ordinary account (ATTACH); its name folds; the route keyword is optional and
@@ -1834,7 +1872,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > *(The per-pass notes below are the detail behind the above and are kept.)*
 >
-> ***70 IS BUILT, NOT CYCLED — THE INSTALL ASKS THE INSTALLING USER FOR AN SD
+> ***70 IS BUILT, ~~NOT CYCLED~~ (CYCLED AND WITNESSED SINCE; RELEASE_1.1 70 IS CLOSED) — THE INSTALL ASKS THE INSTALLING USER FOR AN SD
 > PASSWORD AGAIN, REQUIRED, AND SAYS IT IS FOR REMOTE ACCESS ONLY.*** Owner,
 > 19 Sep, after meeting 69 himself. ***IT IS NOT A REVERSAL OF THE 18 Sep "NO
 > PASSWORD AT INSTALL" RULING*** — that reason was *"the installing user has
@@ -2391,7 +2429,7 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 >
 > ***THE RULING, 18 Sep 2026:*** *"the administrator should not be able to reach
 > the machine through ssh or api, but should be able to use the api locally."*
-> **62 has the whole consequence set and what is owed; 63 has the migration.**
+> ~~**62 has the whole consequence set and what is owed; 63 has the migration.**~~ (Both superseded by 64 the same day and closed; the part of them that shipped anyway is RELEASE_1.1 95.)
 > ***IT IS SAFE ONLY BECAUSE 58's `DisableForwarding` IS IN THE BUILD*** — the
 > peer test reads `accept()`'s address and an `ssh -L` forward makes a remote
 > connection arrive from `127.0.0.1`, so without that line this posture would
@@ -12980,7 +13018,8 @@ embedded python back into this version."*
    route cost, all closed. What remains is `RELEASE_1.1` 18 (the zip) and
    the owner's call on a 21st program (`SD_PyListCrte` 2220, unreferenced) —
    ***ruled 15 Sep 2026, "add a 21st program": `gpl.bp/py_listcreate`, in
-   source with its `sdpyfunc.h` deffun and a `verify-pyapi` list leg, uncycled.***
+   source with its `sdpyfunc.h` deffun and a `verify-pyapi` list leg, ~~uncycled~~.*** Witnessed since:
+   `[PASS] PY_LISTCREATE returned 0` in `verify-pyapi` 19 of 19 on `b201`, 20 Sep 2026.
 
 **Also carried into 1.1-0**: `RELEASE_1.1` 8 and 9, which were PRE_RELEASE 178
 and 185 and had not been closed by the time W1.0-0 was tagged. Both are

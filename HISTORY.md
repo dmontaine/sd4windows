@@ -66670,3 +66670,26 @@ keeps a false claim from coming back.  Seven verifiers were converted to the sea
 sites overturned the fix list's grouping: only catgate is genuinely privilege-subject.
 
 ====
+
+
+21 Sep 2026 - TWENTY-SEVENTH PASS: THE QUEUE VALIDATED AGAINST THE TREE, 21 OPEN BECAME 16.
+
+The owner asked for the remaining queue with each item checked to be really open.  Both index guards agreed on 21 open
+RELEASE_1.1 entries; the tree, the 01:16 install and the SD-verify transcripts said four of them were already met - 60
+(its only condition was a cycle), 70 (all three legs seen across three passes), 72 (its named witness, verify-accountacl,
+passed 21/21 on b199 against an install carrying the fix) and 74 (its text visible in b198-b202 output and the live
+reconcile log) - and three were superseded by 64 (58, 62, 63).  All seven are struck; 94 was struck already and the owner
+confirmed he watched it.  The lesson is the one test-fixlist-units' header states: the guards compare documents, not
+reality, and a witness that lands in a later pass does not go back and close the row that asked for it.
+
+Two findings.  62's "administrator: no ssh, API ensured" migration, superseded with DO NOT BUILD, had shipped anyway in
+sync-route-groups.ps1 inside the 64 decision commit; install ordering hides it on a fresh install and a reinstall over
+kept accounts would, by reading, strip a Windows administrator's ssh (RELEASE_1.1 95, not run).  And the LOGTO SDSYS scope
+guard matches only the literal phrase, so two elevated verifiers that build "LOGTO $account" and pass SDSYS in were
+invisible to it (76).
+
+On the owner's instruction every closed row's stale status phrase was struck with what happened since, and the verifiers
+were checked against the tierless model: verify-logtoaccess.ps1 (tier-only) and probe-tasklock.ps1 deleted, three
+scripts' tier leftovers removed, and four scripts ruled for conversion to the SDSYS seat.
+
+====
