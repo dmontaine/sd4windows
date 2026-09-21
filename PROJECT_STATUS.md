@@ -237,9 +237,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > path (`SdsysCode`/`AttachCode` both 2, since SD was already installed), so this witnesses the "Two accounts exist" line and
 > the hedged password sentence, not the fresh-account wording or any failure path — those remain unwitnessed on a real install,
 > same as any first-install or failure text in this file generally is until one actually occurs. ***THE FINISH-PAGE WORK IS
-> NOW DONE, BUILT, COMPILE-VERIFIED, CYCLE-VERIFIED AND OWNER-WITNESSED.*** Only (6) remains from the 23rd pass's order of
-> work (tell the Linux agent), unrelated to the page itself, still not sent. Three files changed and STILL NOT COMMITTED:
-> `sd.iss`, `test-retired-wording-units.ps1`, `PROJECT_STATUS.md` — asked twice, not yet answered.
+> NOW DONE, BUILT, COMPILE-VERIFIED, CYCLE-VERIFIED AND OWNER-WITNESSED.***
+>
+> ***▶ 20 SEP 2026 20:2X — COMMITTED, PUSHED, AND ITEM (6) IS SENT.*** Owner said "yes, commit them" then "push it send it".
+> Commit `70cbbc9` ("Finish page matches the owner's spec; the password line is now accurate"), the three files above,
+> `Co-Authored-By` line included. Pushed: `b68cb47..70cbbc9 main -> main` (SSH remote, no credential workaround needed —
+> that trick was `SDCoreWindowsDocs`-only, an HTTPS remote). ***ITEM (6) IS NOW SENT, NOT JUST NOT-FORGOTTEN.*** Read
+> `login:1314-1334` directly rather than paraphrasing the earlier handoff, to state the exact condition rather than a
+> summary of a summary: `gate.writer[1,14] = 'finish-install'` AND `CMD.QUIET` both true suppresses the SCREEN line only;
+> `K$AUDIT`'s `INTERNAL SESSION ADMITTED ...` line is unconditional, R4's audit half untouched. Sent
+> `2026-09-20T2025-windows-r4-exception-finish-install-quiet.md` via `mail.sh send`: **DELIVERED**, sha256 confirmed
+> (`2da05d1...`), 2360 bytes — **not yet ACKNOWLEDGED**, check with `bash mail.sh status
+> 2026-09-20T2025-windows-r4-exception-finish-install-quiet.md` at the next heartbeat. Stated honestly, not oversold: the
+> mail says the SUPPRESSION ITSELF (the finish-install+QUIET case) was not specifically witnessed on screen this pass —
+> the owner confirmed the finish page generally, not that one line's absence, only that the code path ran without incident.
+>
 > ***⏸ CLOSING HANDOFF — END OF THE TWENTY-THIRD PASS, 20 SEP 2026 ~19:45. READ THIS BLOCK FIRST. THE 22nd-PASS BLOCK BELOW IT IS
 > SUPERSEDED WHERE THE TWO DIFFER (its steps 1–3 are done); the dated ▶ notes under it are the detail.***
 >
