@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **96**, so **the next is 97** —
+`RELEASE_1.1`'s id space: the highest id issued is **97**, so **the next is 98** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -53,10 +53,14 @@ from 2.99 MB to 0.44 MB, and a task's status from six places to one.**
 
 **Install: unchanged** — 21 Sep 01:16:42 from the 01:15:29 cycle (`CYCLE COMPLETE`);
 `assert-current` exit 0, run 21 Sep after the consolidation ("the installed tree
-matches source"). Nothing shipped changed, so **no cycle is owed for the
-consolidation.** **Uncommitted:** this consolidation (`PROJECT_STATUS.md`,
-`HISTORY.md`, `CLAUDE.md`, `assert-current.ps1`, and the six deletions); the
-untracked `.claude/tools/` is separate.
+matches source"). Nothing shipped changed, so **no cycle is owed.** **Committed and
+pushed:** the consolidation (`05778c9`). **Uncommitted, from the overnight
+validation-suite work (entry 97):** `assert-current.ps1` (derived exemption list),
+the new `check-free-tier.ps1`, 14 deleted probes, and edits to `CLAUDE.md`,
+`HISTORY.md` and this file; the untracked `.claude/tools/` is separate.
+**Checked overnight:** free tier 52/52 in 57 s, `assert-current` exit 0 with and
+without the two mutants, byte checks clean. **Not run: the elevated suite — nothing
+touched it.**
 
 ***NEXT, IN ORDER.*** (1) Finish **76** — convert `verify-apiadmin.ps1` and
 `verify-privundetermined.ps1` to the SDSYS seat (`sdtestuser-admin.ps1` and
@@ -65,17 +69,25 @@ temporary `os.users\SDSYS` record the owner approved for their local
 `OS.EXECUTE` control, is in entry 76, and the record helpers are already built and
 tested in `sdsys-seat.ps1`. (2) One elevated run of the converted scripts and the
 seven unwitnessed 20 Sep conversions, then a full suite — none has run since
-18 Sep 10:30. (3) `verify-accountmodel`'s first run (64). (4) The owner's calls on
-53, 59, 77, 69's severity and 71's nuance. (5) `.claude/tools/agent-elevate*.ps1`
+18 Sep 10:30. (3) `verify-accountmodel`'s first run (64). (4) **The owner's calls
+are all ruled** (59, 77, 69, 71, the three verifiers; 53 deferred to W1.2) — what is
+owed is building them: 59's hardening of the privileged reader (C), 71's SDSYS-only
+cross-account password rule and 77's retired-ids list (BASIC) are shipped source, so
+they want **one** cycle together, then their witnesses; nothing was built unattended
+because a source change makes the installed tree stale. (5) `.claude/tools/agent-elevate*.ps1`
 is untested and uncommitted; its `-Start` has never run, and
 `agent-elevate.ps1:80` assigns PowerShell's automatic `$args` — rename it before
-the first use.
+the first use. (6) Entry 97: the owner's three calls, then its runtime proposals
+(a)-(d) in a session where he can run the elevated suite.
 
 ---
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**16 open, validated against the tree by the 27th pass, 21 Sep 2026.** `B` blocks
+**16 open: 15 validated against the tree by the 27th pass, 21 Sep 2026, and 97 added
+overnight; 53 is deferred to W1.2 (its own section, below the gates).** Every call
+that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
+is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
 what is owed; **the row it came from, with every earlier status layered under it,
 is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stood"*
@@ -148,6 +160,62 @@ a `finally` backstop. **What would falsify it:** the local control passing
 **Owed after conversion:** see CURRENT PICKUP — one elevated run, then a full
 suite (none since 18 Sep 10:30).
 
+### 97 · S (harness) — the validation suites: upkeep cut, runtime still to do
+
+***21 Sep 2026, overnight and unattended (owner asleep, judgement delegated; nothing
+committed).*** **Done and verified:** `assert-current.ps1`'s 1,450-line hand-kept
+`$neverShipped` list is derived — every `verify-/test-/probe-/check-/clean-*` file in
+`gplbld` that `stage.py` and `sd.iss` do not name, plus a 40-name residual that
+should not grow (equivalence proved over all three watched trees; a new `verify-*`
+stays exempt and a non-family file still raises STALE, both run); `check-free-tier.ps1`
+takes the free list from the directory (52 guards, 57 s, no registration and no
+count); 14 unreferenced probes deleted; CLAUDE.md's 43 KB free-tier block archived
+to HISTORY. **Not done, and it needs an attended session** because every change to
+the elevated suite needs the owner's elevation to prove: **runtime**.
+
+**Measured:** a complete set is cycle 3–12 min + free 1 + unelevated ~4.6 (26 steps,
+no per-step logs exist) + elevated **15.4 (32 timed steps, 18 Sep)**. 30% of all
+commits touch the 192 validation scripts (69,873 lines); `assert-current.ps1` (205
+commits) and the two runners (46, 37) are the most-edited files in `gplbld` because
+each new script was registered by hand in up to four places. **Where elevated time
+goes:** literal `Start-Sleep` is only 32 s; it is account creation and deletion
+(`delaccount` 14 creates/10 deletes, 65 s; `accountrules` 16 creates, 47 s) and
+**service stop/start — each of the seven API-cluster steps (`apiremote`, `apiadmin`,
+`apiname`, `apiport`, `scramlogin`, `relayidentity`, `peerlog`) contains about six**,
+592 s together with `routes`, `sshadmin` and the account cluster.
+
+**Proposals, by payoff, each unproven until run:** (a) one shared *API on* window —
+the runner enables the API once, runs the cluster, disables it — with `verify-apiport`
+(whose subject is the toggling) left standalone; (b) one shared account fixture for
+`routes`, `accountrules`, `sshadmin`, `apiremote`, `createaccount`, `sshonly`,
+`profiledir`; (c) log per-step durations in `VerifyInstall1` (the unelevated half has
+none); (d) derive `VerifyInstall2`'s 20 hand-plumbed `*Prefix` parameters and their
+`-Run` derivation from the step declarations. **Not built tonight: (a)-(d) all edit
+the runners or the elevated verifiers, which cannot be run without him.**
+
+**Ruled 21 Sep 2026 by the agent, on the owner's delegation (*"i have no opinion, you
+make the call"*): all three verifiers stay.** `verify-privundetermined` (69 s, 1,035
+lines) — the first reading here, *"two free guards cover its tables"*, was wrong: those
+guards check strings, and the step's own header says the tri-state's logging *"has
+never been executed by anything"* and that a zero looks identical whether the logging
+works or was never reached; this step makes it non-zero on purpose three times and is
+the only thing that proves the path fires, so 76's conversion of it stands. Its
+unit guard `test-privundetermined-units` exists for that verifier's leg table and
+goes with it if it is ever retired. `verify-lcnames` (1,093 lines) — already
+converted in source; the lower-case standard is stable and this is its widest net, and
+the churn was the 5.12 conversion rather than steady-state; one witness run is owed.
+`verify-apiidentity` (failed 15 of 42 recorded runs) — it is the only witness of 55's
+session-as-the-user property, so do 84's rewrite rather than retire it, in a session
+that can watch it run, and keep `scram-probe.py` (`verify-scramlogin` uses it too)
+until the rewrite is witnessed. **What would reverse these:** after its conversion is
+witnessed, a verifier failing for an *instrument* reason more than twice.
+**Examined and kept — do not retire on a second pass:** `probe-akwrite` (the only
+witness of the alternate-key write path; `VerifyInstall2`'s own comment says so),
+`verify-nonet` (5 s), the eight case verifiers (each a distinct mechanism, 5–7 s),
+`verify-notyet`, `verify-cmdaudit`, `verify-elevdoor`. 32 of 65 steps have never failed
+in 8–31 runs, but a clean record is what a regression guard looks like; the run
+summaries do not say whether a failure was the product or the instrument.
+
 ### 95 · S — `sync-route-groups.ps1` still enforces the abolished administrator rule
 
 ***Reasoned from the code and NOT RUN.*** The block at `sync-route-groups.ps1:134`
@@ -196,6 +264,9 @@ done: wiring it into `verify-apiidentity.ps1`.** It is not a drop-in swap:
 `SDStatus()` does not reflect `SDOpen`'s failure the way the wire-level
 `server_error` does, so it is a rewrite of a working file's core mechanism, and
 needs elevation and/or real credentials in a session that can watch it run.
+**Ruled 21 Sep 2026 (agent, on the owner's delegation): keep `verify-apiidentity` and
+do this rewrite; it is not retired** — it is the only witness of 55's
+session-as-the-user property (see 97).
 
 ### 77 · M — an upgrade never removes a VOC record
 
@@ -208,8 +279,22 @@ installer walk. **No retired-ids list exists beside `newvoc`.** **Inert today,
 by measurement:** `v1.0-0` is `a2e04e4`, and exactly one `newvoc` deletion has
 landed since (`a47526f`, 13 Sep, which moved `TIER.ADD.ADMINISTRATOR` and
 `TIER.OMIT.STANDARD` to `tier.policy`; 64 then deleted `tier.policy`) — two dead
-records in an upgraded VOC that nothing reads. **The owner's one question on the
-design is unanswered** — it is in the archived row.
+records in an upgraded VOC that nothing reads.
+
+**Ruled 21 Sep 2026 (agent, on the owner's delegation), and the owner's one question
+is answered: a withdrawn VERB record is removed even if it carries `[locked]`; any
+other withdrawn record honours the lock.** Reasoning: his own ruling is that verbs are
+not the user's to modify (*"every verb (119) because users should not be modifying
+them"*), a withdrawn `V`/`IN` record's field 3 is a number that may now dispatch
+somewhere else entirely, and overruling a lock on a removal hands the site nothing
+where overruling it on a replacement hands them the new record. **To build, in the
+conditional:** a retired-ids list shipped beside `newvoc`, named in the commit that
+deletes a verb (the discipline `test-retired-wording-units`' `$RETIRED` table already
+runs); `update.voc` visits only those ids, so 10166's promise (*"only ever visits
+records SD ships"*) still holds; a walk of the account's VOC that deletes whatever
+`newvoc` lacks would break it and is not to be built. `login` cannot be compiled by
+`bbcmp`, so it needs a cycle and a witness: an account holding a retired verb loses it
+across `UPDATE.ACCOUNTS`, and a locked non-verb record survives. **Not built.**
 
 ### 75 · S — SD requires a complex password even where the OS does not
 
@@ -243,8 +328,25 @@ added; the split was already enforced (`set_acc_password:87-92`, `:123-126`), so
 no code beyond the vocabulary entry. **Owed:** `MODIFY.PASSWORD` typed alone in
 `don` (asks for the current password, succeeds) and `MODIFY.PASSWORD sdsys` from
 `don` **unelevated**, refused with 2001. The false comment the row names now sits
-at `set_acc_password:172-175`, unchanged. **Awaiting the owner:** an elevated
-ordinary session can set anyone's password — does he accept that?
+at `set_acc_password:172-175`, unchanged.
+
+**Ruled 21 Sep 2026 (agent, on the owner's delegation), on the nuance: an elevated
+ordinary session must NOT be able to set another account's password — only SDSYS may.**
+Today `K$ADMINISTRATOR` means *an elevated session*, so an elevated `don` can (checked:
+`set_acc_password:147` tests only that flag). That is the reading of §5.6.1 (*"a Windows
+administrator is an SD administrator"*), but 64 is newer and says there is one
+administrator, SDSYS, and every other Windows administrator is refused; the wider rule
+also buys no security, since an elevated Windows administrator can already rewrite
+`$cred` by hand, so it only muddies which identity is accountable. Owner-chosen (a)
+stands: everyone changes their own password (current one required). **To build, in
+the conditional:** the cross-account branch additionally requires the session's
+account to be SDSYS; install-time password setting runs as SDSYS through `sd -internal`
+and so is unaffected — **which is the thing to check first, because it is the one
+condition that would break the finish page** (does `@logname` read `SDSYS`, and in what
+case, inside an internal session?). Compile-check with `bbcmp`, then a cycle, then the
+two witnesses above plus `MODIFY.PASSWORD sdsys` from an **elevated** `don`, refused
+with 2001. **Not built** — a shipped-BASIC change would make the installed tree stale
+and force a cycle before the witnesses already owed can run.
 
 ### 69 · S — first-login credential wording fixed in four copies; witness owed
 
@@ -255,7 +357,11 @@ asks for a credential every time; it asks only in an **elevated** session
 (`login:1080-1089`), and what a missing credential costs is the *remote* doors.
 Installed (`assert-current` exit 0, 21 Sep 01:16). **Witness owed:** an elevated
 first login into an account with no `$cred`; since 70 no normal install produces
-one, so make it by hand. **The severity is the owner's call.**
+one, so make it by hand. **Ruled 21 Sep 2026 (agent, on the owner's delegation):
+severity stays S, not B** — the wrong sentence is fixed and installed, nothing is
+functionally broken, and what is owed is a witness, not a fix; the gap it exposed
+(ssh and the API by default, no credential until an elevated login) is now stated
+in the message. It becomes B only if the witness shows the message still wrong.
 
 ### 61 · B — the shipped documentation says things that are false
 
@@ -268,7 +374,7 @@ fix here.** Folded into 48's documentation task in practice.
 
 ### 59 · B — SD's own system segment is writable by every SD user, and a LocalSystem process reads it
 
-**Owner's call.** Re-measured 21 Sep on the 01:16 install:
+Re-measured 21 Sep on the 01:16 install:
 `C:\ProgramData\SD\shm\sd_shm_716d0301` still grants `ace\sdusers:(RX,W)`,
 `sysseg.c:326` still creates it `0666`, `sdwind` still calls `check_lost_users()`;
 **nothing of the remedy is built.** Measured 18 Sep unelevated with a control: an
@@ -283,20 +389,28 @@ from it.** The remedy is a design, in the conditional, in the archived row.
 Linux's copy is broader (`shmget(… 0666)`); reported to the Linux agent
 18 Sep 2026.
 
-### 53 · S — an ordinary local user can open the SD service's MSYS2 shared section for write
-
-**Owner's call (recommended).** Measured 16 Sep unelevated (`probe-cygshared.c`):
-in `msys-2.0S5-11f4a83b0f193bff` (inferred to be SD's runtime — it holds
-LocalSystem's `S-1-5-18.1`), `shared.5` opened **READ and WRITE** as `ace\Don` at
-Medium integrity; at **Low** integrity, WRITE no on every section (0 of 8).
-**Not measured:** whether writing `shared.5` can influence a LocalSystem MSYS2
-process — **the deciding experiment has not been run.** Re-measured 21 Sep: the
-installed `sdwind.exe` (20 Sep 22:38 build) still names `msys-2.0.dll`;
-`sdsvc.exe` and `sdtlsrelay.exe` do not. This is the MSYS2 runtime's design, not
-SD code, so the remedy is not obvious; **59 answers the unmeasured half on a
-different object** (SD's own segment) and rules out the cheap option of a
-separately-pathed `msys-2.0.dll` copy, since SD's segment and semaphores live in
-that namespace.
+**Ruled 21 Sep 2026 (agent, on the owner's delegation): it stays B and 1.1 does not ship
+without a hardening of the privileged reader; the broker re-architecture is deferred
+to W1.2.** The archived row's remedy — move the privileged surface into a small native
+broker so `sdwind` can drop to an unprivileged account — is the right end state and
+would also dissolve 53, but it is a redesign of the service on a release that still has
+its parity audit, documentation and packaging gates to pass (47→48→49), and 64's own
+instruction is to *remove* framework, not build new. The segment cannot be fixed by a
+DACL (every session writes it, `stage.py:600`), so **the reader must trust nothing in
+it.** **To build, in the conditional:** in `check_lost_users()` (`sdwind.c:257-290`)
+and `cleanup()` (`clopts.c:295`, `:359`) take the table's base, stride and count from
+the daemon's own constants, never from the segment's header (`UPtr` in
+`sysseg.h:227` takes all three from the writable segment, which is why 60's string
+bounds were not the fix for the class); read one integer `pid` per slot into a local
+and validate it; never hand a string from the segment to `fork/exec` — `sd -cleanup`
+gets a slot number only. **What would falsify it:** `sd -cleanup` turning out to need
+a per-user string from the segment, in which case that string must be re-derived from
+a trusted source (the account register). **Witness, in the conditional:** with the
+service running, an ordinary account writes hostile values into the segment (huge
+count, negative stride, `pid` 1, a 200-character string) and the daemon stays up and
+starts no `sd -cleanup` for the forged slot. Reading the C and compile-checking it
+with MSYS2 gcc are possible unattended; **running it is not** — it needs a cycle. **Not
+built.**
 
 ### 47 → 48 → 49 · B — the release gates, in order, none started
 
@@ -325,6 +439,35 @@ task above; 48 on 47; 49 on 48.**
   may not apply here — but the choice must be pinned and compared with Linux. No
   W1.1 staging directory or zip exists (only `SDCore-W1.0-0.zip` and the cycle's
   `sd-setup-W1.1-0.exe`).
+
+---
+
+## DEFERRED TO W1.2
+
+Not open for 1.1 and not done: **out of the open count above**, not struck (that reads
+as done) and not left as an open 1.1 row (owner's rule, 16 Sep 2026). Each entry says
+what would bring it back.
+
+### 53 · S — an ordinary local user can open the SD service's MSYS2 shared section for write
+
+***Deferred to W1.2, ruled 21 Sep 2026 by the agent on the owner's delegation.*** It
+is the MSYS2 runtime's own design rather than SD code, the only remedy is to take the
+runtime out of the LocalSystem daemon, and that is the same re-architecture as 59's
+broker — so it goes with it, and 1.1 ships 59's hardening instead. **Until the
+deciding experiment is run, no document may say a local user *cannot influence* the
+service through this section** — the claim is unmeasured, and saying less is the
+honest wording for 1.1.
+
+Measured 16 Sep unelevated (`probe-cygshared.c`): in `msys-2.0S5-11f4a83b0f193bff`
+(inferred to be SD's runtime — it holds LocalSystem's `S-1-5-18.1`), `shared.5` opened
+**READ and WRITE** as `ace\Don` at Medium integrity; at **Low** integrity, WRITE no on
+every section (0 of 8). Re-measured 21 Sep: the installed `sdwind.exe` (20 Sep 22:38
+build) still names `msys-2.0.dll`; `sdsvc.exe` and `sdtlsrelay.exe` do not. **The first
+task when it returns:** the deciding experiment — whether a write into `shared.5` can
+influence a LocalSystem MSYS2 process — before any remedy is chosen. 59 rules out the
+cheap option of a separately-pathed `msys-2.0.dll` copy, since SD's segment and
+semaphores live in that namespace. **What brings it back into 1.1:** the experiment
+showing influence is possible, or the broker work in 59 being pulled forward.
 
 ---
 
@@ -452,8 +595,9 @@ not by wiring it in.** The blocker is not effort:
    compile C probes at run time. `verify-tierapi` additionally needs
    `sd-connect.exe` from the **separate `sdclilib32` repository**.
 3. **None of the verify scripts is shipped.** `stage.py` ships a named list;
-   they are not on it, and they are on `$neverShipped` precisely because they
-   cannot reach an install.
+   they are not on it, and `assert-current` exempts them (every `verify-`,
+   `test-`, `probe-`, `check-` or `clean-` file in `gplbld` that `stage.py` and
+   `sd.iss` do not name) precisely because they cannot reach an install.
 4. **It is aggressive for a user's machine**: it creates and deletes Windows
    accounts, restarts the SD service, and plants synthetic records in the error
    log. Directly after an install, on somebody else's computer, that is not a
@@ -3317,7 +3461,8 @@ Each of these cost real time. Read before debugging anything similar.
   because `stage.py` discusses it in a comment.
 
   **WHY IT MATTERS RATHER THAN BEING COSMETIC:** the file leaves
-  `$neverShipped`, so the next edit to it makes the tree report STALE - and
+  `assert-current`'s exemption (a name `stage.py` or `sd.iss` quotes is watched
+  again), so the next edit to it makes the tree report STALE - and
   `verify-apiadmin.ps1` **calls `assert-current` and refuses on a non-zero
   exit**, so it would refuse to run on the strength of its own newness. That
   is the self-blocking shape the `verify-accountacl.ps1` note in
@@ -3464,8 +3609,8 @@ Each of these cost real time. Read before debugging anything similar.
   place short. Both exclusions are now in both checks.
 
 - **ORDER EXEMPT FIXES FIRST, THEN RE-MEASURE, THEN TOUCH `sdsys`.** 18 Aug
-  2026, and it cost a cycle. A verify script is in `assert-current`'s
-  `$neverShipped` list and cannot make an install stale; a shipped file under
+  2026, and it cost a cycle. A verify script is exempt in `assert-current` (the
+  harness name family) and cannot make an install stale; a shipped file under
   `sdsys` can. Correcting a verifier and a message file in one go therefore
   voids the install being measured, for the sake of the half that did not need
   to.
