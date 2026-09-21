@@ -42,43 +42,38 @@ OPEN TASKS wins and this block is the stale one. The 26th pass's handoff and
 every older one are in HISTORY.md under *"ARCHIVE 21 Sep 2026 — PROJECT_STATUS.md
 before consolidation"*; what they still owed was carried into OPEN TASKS.
 
-***21 Sep 2026 — the tracking documents were consolidated into this file (owner: one
-source of truth, at least 75% less bookkeeping).*** Task status now lives in OPEN
-TASKS below and nowhere else. `RELEASE_1.1_FIXES.md`, `PRE_RELEASE_FIXES.md` and
-`BUGS_FROM_LINUX_PORT.md` were archived whole into HISTORY.md and deleted, with
-the three checkers that compared their copies (`test-fixlist-units.ps1`,
-`check-stale-leads.py`, `test-staleleads-units.py`); CLAUDE.md's maintenance rules
-and free-tier list (now 52) say so. **The five maintained tracking documents went
-from 2.99 MB to 0.44 MB, and a task's status from six places to one.**
+***21 Sep 2026, later — the teardown and harness tasks were worked from cheapest to most
+expensive, and finished as far as an agent that cannot elevate can finish them.***
+Built and checked (details in each entry): **96** and **95** (shipped wording and a removed
+block), **64**'s leftovers (dead code in `cproc`, a stale comment in `modifya`) and its
+**security evaluation (§5.28)**, and **76**'s last two verifiers converted to the SDSYS seat
+(`test-logtoreaim-units` now reports 0 drivers left). **Not done, and why:** **84**'s rewrite
+(the identity probe opens one file and lacks the status pair step 5 parses; it needs a live
+authenticated session to iterate against), **97**'s runtime proposals (they edit the runners
+or elevated verifiers), and `verify-accountmodel`'s first run (64) — all need your elevation.
 
-**Install: unchanged** — 21 Sep 01:16:42 from the 01:15:29 cycle (`CYCLE COMPLETE`);
-`assert-current` exit 0, run 21 Sep after the consolidation ("the installed tree
-matches source"). Nothing shipped changed, so **no cycle is owed.** **Committed and
-pushed:** the consolidation (`05778c9`). **Uncommitted, from the overnight
-validation-suite work (entry 97):** `assert-current.ps1` (derived exemption list),
-the new `check-free-tier.ps1`, 14 deleted probes, and edits to `CLAUDE.md`,
-`HISTORY.md` and this file; the untracked `.claude/tools/` is separate.
-**Checked overnight:** free tier 52/52 in 57 s, `assert-current` exit 0 with and
-without the two mutants, byte checks clean. **Not run: the elevated suite — nothing
-touched it.**
+**Install: STALE, on purpose.** The 21 Sep 01:16:42 install no longer matches source: five
+shipped files changed — `reconcile-accounts.ps1` (96), `sync-route-groups.ps1` and `sd.iss`
+(95), `cproc` and `modifya` (64's leftovers: dead code and a comment, no behaviour change).
+`assert-current` says so and every verifier refuses until a cycle. **One cycle installs all
+five** and is also the first compile of the `cproc` change (BCOMP — `bbcmp` cannot reach it,
+measured), so watch its bootstrap step. **Checked:** free tier 52/52 in ~60 s; every edited
+script parses with the function count it had at HEAD; `sd.iss` compiles under ISCC (syntax
+only). **Committed and pushed:** `d45921a`. **Uncommitted:** all of the above; the
+untracked `.claude/tools/` is separate.
 
-***NEXT, IN ORDER.*** (1) Finish **76** — convert `verify-apiadmin.ps1` and
-`verify-privundetermined.ps1` to the SDSYS seat (`sdtestuser-admin.ps1` and
-`verify-lcnames.ps1` are done in source, unwitnessed); the design, including the
-temporary `os.users\SDSYS` record the owner approved for their local
-`OS.EXECUTE` control, is in entry 76, and the record helpers are already built and
-tested in `sdsys-seat.ps1`. (2) One elevated run of the converted scripts and the
-seven unwitnessed 20 Sep conversions, then a full suite — none has run since
-18 Sep 10:30. (3) `verify-accountmodel`'s first run (64). (4) **The owner's calls
-are all ruled** (59, 77, 69, 71, the three verifiers; 53 deferred to W1.2) — what is
-owed is building them: 59's hardening of the privileged reader (C), 71's SDSYS-only
-cross-account password rule and 77's retired-ids list (BASIC) are shipped source, so
-they want **one** cycle together, then their witnesses; nothing was built unattended
-because a source change makes the installed tree stale. (5) `.claude/tools/agent-elevate*.ps1`
-is untested and uncommitted; its `-Start` has never run, and
-`agent-elevate.ps1:80` assigns PowerShell's automatic `$args` — rename it before
-the first use. (6) Entry 97: the owner's three calls, then its runtime proposals
-(a)-(d) in a session where he can run the elevated suite.
+***NEXT, IN ORDER.*** (1) One elevated **cycle**. (2) The two read-backs that need only the
+cycle: `C:\ProgramData\SD\reconcile-accounts.log` shows `(not looked up: no login)` for
+`sdsys` (96); and on a reinstall over kept accounts `sdssh` and `sdapi` still hold the
+administrators' own accounts (95). (3) One elevated run of the four converted verifiers and
+the seven unwitnessed 20 Sep conversions with SDSYS signed in, then a full suite — none has
+run since 18 Sep 10:30 (76). (4) `verify-accountmodel`'s first run (64). (5) The ruled
+builds, which want **one** more cycle together: 59's reader hardening (C), 71's SDSYS-only
+cross-account password rule and 77's retired-ids list (BASIC). (6) 84's rewrite and 97's
+proposals, in a session where you can run the elevated suite. (7)
+`.claude/tools/agent-elevate*.ps1` is untested and uncommitted; its `-Start` has never run,
+and `agent-elevate.ps1:80` assigns PowerShell's automatic `$args` — rename it before the
+first use.
 
 ---
 
@@ -96,7 +91,7 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
 
-### 64 · B — the tiered account structure is removed; three things remain
+### 64 · B — the tiered account structure is removed; one run remains
 
 ***THE OWNER'S DECISION, 18 Sep 2026, verbatim because every clause is load-bearing:***
 *"we are going to rip out the whole tiered account structure. There will be one
@@ -114,51 +109,45 @@ and data and password encrypted tunnel. Once everything is removed, we will
 evaluate the resulting security model."* **It supersedes 58, 62 and 63 — do not
 build any of them.** The evaluation is part of the decision, not an afterthought.
 
-**Open:** (1) `verify-accountmodel.ps1` has never run — no transcript under
-`C:\Users\Don\AppData\Local\SD-verify`, no suite log names it. (2) The
-post-removal security evaluation has not begun. **What it must face:** the Python
-helper's authority is `os.users` field 2 (`sdpy_session.c`, no connection-type
-check), so if `os.users` retires with the framework, **every account — remote
-ones included — can start an interpreter**, which is native code with that user's
-token; that is what makes 59 and 53 *remote* privilege escalations rather than
-local ones. (3) Leftovers in source: `cproc`'s dead `elev.obtained` bypass
-(`:2655`, `:4065`, `:4138`, `:4141`) and about 34 tier-era `ADMINISTRATOR` comment
-lines in `modifya` (its one live use is the `K$ADMINISTRATOR` check at `:195`).
-**Survives and must not be swept up:** 60 (bounded copies in `clopts.c`), the
+**Open:** `verify-accountmodel.ps1` has never run — no transcript under
+`C:\Users\Don\AppData\Local\SD-verify`, no suite log names it; it needs an elevated
+run. **Done 21 Sep 2026, unattended:** (1) the post-removal **security evaluation** is
+written as §5.28 — its main finding is that `os.users` did not retire, so OS access
+stays default-deny and the worry that every account could start an interpreter does not
+apply; 59 and 53 are what it flags. (2) The **leftovers in source** are removed:
+`cproc`'s dead `elev.obtained` flag, its two bypasses and the `logto.privilege.undo`
+routine with its four callers, and `modifya`'s stale `route.apply` comment. The other
+`ADMINISTRATOR` lines in `modifya` are dated `START-HISTORY` records (the file's own
+convention) and the one live use, at `:195`, is today's meaning. **The `cproc` change
+cannot be compile-checked outside a cycle** — `bbcmp` aborts on `$ifdef` at the top of
+`cproc`, measured on the HEAD copy — so BCOMP in the next cycle is its first compile; a
+mistake stops at the bootstrap step, before anything installs, and no code reads the
+removed names (checked). **Survives and must not be swept up:** 60 (bounded copies in `clopts.c`), the
 TLS/SCRAM tunnel (41, 42), 55's session-as-the-user handover and its SID-ACL'd
 pipe, and the `secure-*.ps1` ACL hardening. 95 and 96 were filed out of this.
 
-### 76 · B (harness) — convert four verifiers to the SDSYS seat
+### 76 · B (harness) — the four verifiers are converted to the SDSYS seat; none is witnessed
 
-Owner's ruling, 21 Sep 2026. **`sdtestuser-admin.ps1` and `verify-lcnames.ps1`
-are converted in source and unwitnessed; `verify-apiadmin.ps1` and
-`verify-privundetermined.ps1` are not started** (a half-built `verify-apiadmin`
-was reverted rather than committed). `test-logtoreaim-units.ps1` now also matches
-`Invoke-SDIn 'SDSYS'` and prints 2; `test-sdsysseat-units` is 173/0.
+Owner's ruling, 21 Sep 2026. **All four are converted in source, unwitnessed:**
+`sdtestuser-admin.ps1` and `verify-lcnames.ps1` earlier that day, and
+`verify-apiadmin.ps1` and `verify-privundetermined.ps1` unattended overnight.
+`test-logtoreaim-units.ps1` now reports **0 files still sending the refused prefix**
+(its two rows for the last pair left the table in the same change) and
+`test-sdsysseat-units` passes; both verifiers parse with the function counts they had
+at HEAD. **What the last two do:** `Invoke-SDSys` is a plain seat call; `Invoke-SDIn
+<personal account>` is `Invoke-SdSeatText -Commands (@("LOGTO $account") + ...) -Internal`
+and refuses `SDSYS`; `Assert-SdSeat` runs twice (plain, then `-Internal`) before anything
+is created. **The local `OS.EXECUTE` control** plants `os.users\SDSYS` immediately before
+it and removes it immediately after, refuses to start if one already exists, and has a
+`finally` backstop (`Set-SeatOsUsersRecord`/`Remove-SeatOsUsersRecord`, never overwrite,
+never remove one they did not write); it adds two fixture rows to each verifier's tally.
 
-**Design for the last two, worked out and not built:** (1) `Invoke-SDSys` becomes
-`Invoke-SdSeatText -Commands ... -TimeoutSec 180`, and `Invoke-SDIn <personal
-account>` becomes `Invoke-SdSeatText -Commands (@("LOGTO $account") + ...)
--TimeoutSec 180 -Internal` — a LOGTO into a personal account is admitted only to
-a `K$INTERNAL` session (`cproc logto.authorised`) and the seat's `-Internal`
-switch is that door. Drop `$sdExe`; dot-source `sdsys-seat.ps1` before any
-script-scope call; `Assert-SdSeat` twice (plain, then `-Internal`) before
-anything is created; `Invoke-SDIn` must refuse `SDSYS`. (2) **The local
-`OS.EXECUTE` control would fail without a fixture — read from source, not run:**
-the seat's LOGTO into the throwaway account clears `USR_ADMIN` (`cproc` calls
-`kernel(K$ADMINISTRATOR, 0)`; `op_kernel.c:587-592`, honoured only for a
-`$internal` program), so `os_permitted()` falls to `os.users\SDSYS`, which is empty
-on the live install, and the control's row fails. **The owner approved the fix,
-21 Sep 2026:** plant `os.users\SDSYS` = `no` LF `yes` LF for that one leg and
-remove it. `Set-SeatOsUsersRecord` and `Remove-SeatOsUsersRecord` are built in
-`sdsys-seat.ps1` and unit-tested (they never overwrite a record and never remove
-one they did not write). **Callers still need:** refuse at pre-flight if
-`os.users\SDSYS` exists; plant just before the local control (`verify-apiadmin`
-step 5, `verify-privundetermined` step 4); remove straight after with a `Note`;
-a `finally` backstop. **What would falsify it:** the local control passing
-*without* the record, meaning `USR_ADMIN` survives the LOGTO under `-Internal`.
-**Owed after conversion:** see CURRENT PICKUP — one elevated run, then a full
-suite (none since 18 Sep 10:30).
+**Owed:** one elevated run with SDSYS signed in, then a full suite (none since
+18 Sep 10:30). **What would falsify the `os.users` fixture:** the local control passing
+*without* the record, meaning `USR_ADMIN` survives the LOGTO under `-Internal` and the
+record is unneeded; and **read the first red as a finding about the seat or the door
+before reverting anything** — the `-Internal` door itself was witnessed on 20 Sep for
+`verify-apiwire` and `verify-vocwrite`, which is the evidence it works, not for these two.
 
 ### 97 · S (harness) — the validation suites: upkeep cut, runtime still to do
 
@@ -216,36 +205,31 @@ witness of the alternate-key write path; `VerifyInstall2`'s own comment says so)
 in 8–31 runs, but a clean record is what a regression guard looks like; the run
 summaries do not say whether a failure was the product or the instrument.
 
-### 95 · S — `sync-route-groups.ps1` still enforces the abolished administrator rule
+### 95 · S — the administrator route rule is removed from `sync-route-groups.ps1`; an install-over-kept-accounts run is owed
 
-***Reasoned from the code and NOT RUN.*** The block at `sync-route-groups.ps1:134`
-(*"THE ADMINISTRATOR RULE, ENFORCED ON EVERY INSTALL"*) arrived in the 64 decision
-commit (`2db9b57`, 18 Sep 2026) and was never removed; `sd.iss:3951` runs it
-ungated on every install, upgrades included. It **removes every Windows
-administrator from `sdssh`** and **adds every Windows administrator in `sdusers`
-to `sdapi`** — 62's rule, where 64's is that every account has ssh and the API
-and SDSYS has neither. **Harmless on a fresh install only because of ordering:**
-`install-sdsys.ps1` runs later (`sd.iss:4030`) and removes SDSYS from `sdapi`,
-and `attach-account.ps1` then grants the installing user both routes. Read back on
-the 21 Sep 01:16 install: `sdssh` = `ace\Don`, `sdapi` = `ace\Don`, SDSYS in
-neither. **In the conditional:** on a reinstall or upgrade over kept accounts it
-would take every Windows administrator's own account out of `sdssh` and leave it
-out. **Owed:** remove or gate the block, then a cycle; the reinstall case needs a
-run to confirm.
+Built 21 Sep 2026, unattended: the 100-line block that enforced 62's rule on every
+install (it removed every Windows administrator from `sdssh` and added them to `sdapi`)
+is deleted from the script, and `sd.iss`'s comment that called the ungated step
+*"load-bearing"* is rewritten — it said the opposite of 64. **Checked:** the script
+parses with 0 errors and the same 3 functions as HEAD, `sd.iss` compiles under ISCC
+(syntax only), the free tier is 52/52. **Not run** — both are shipped, so the next cycle
+installs them, and the case that mattered was never observed: a reinstall or upgrade
+**over kept accounts**, where the old block would have taken an administrator's own
+account out of `sdssh`. **Owed:** on such a run, read `sdssh` and `sdapi` back before
+and after; a fresh install is not the witness, since ordering hid the defect there.
 
-### 96 · M — two texts still describe the pre-64/70 account model
+### 96 · M — the two stale account-model texts are reworded; one read-back owed
 
-(1) **Shipped:** `reconcile-accounts.ps1:244` exempts the `sdsys` register record
-with the reason *"sdsys has no Windows user by design"* and its log prints
-`windows=ABSENT` — but since 64's eighth pass `install-sdsys.ps1` creates a
-Windows account `SDSYS` by design. The exemption is still right; the stated
-reason and the `ABSENT` reading are wrong (`C:\ProgramData\SD\reconcile-accounts.log`,
-21 Sep 01:16 install). (2) **Dev tooling:** `cycle.ps1:860-863`'s empty-register
-warning says nothing collects an SD password at install, and its comment at
-`:832-841` says *"No install collects an SD password now"* — false since 70
-restored the attached account's password step; it prints only when the register
-is empty. Neither changes behaviour; (1) needs a cycle once reworded.
-Files: `reconcile-accounts.ps1:244`, `:509-511`; `cycle.ps1:832-863`.
+Built 21 Sep 2026, unattended. `reconcile-accounts.ps1`: the `sdsys` exemption reason no
+longer says SDSYS has no Windows user, and the log line now prints
+`windows=(not looked up: no login)` for an empty login — `Resolve-WindowsAccount` answers
+"not there" for one, so SDSYS and every GROUP account logged `windows=ABSENT`, which read
+as a missing Windows user when nothing had been asked. `cycle.ps1`: the empty-register
+message and its comment now say that 70 restored the attached account's password step, so
+a count of 0 means that step set none. Both parse with the function counts they had at
+HEAD; the free tier is 52/52. **Owed:** after the next cycle,
+`C:\ProgramData\SD\reconcile-accounts.log` should show `(not looked up: no login)` for
+`sdsys` — that is the witness.
 
 ### 84 · M (harness) — `verify-apiidentity.ps1` still drives `scram-probe.py`, not the real client library
 
@@ -667,6 +651,65 @@ so they would need that call made conditional before any of them could ship.
 ## 5. Decisions and why
 
 Do not undo these without reading the reasoning.
+
+### 5.28 The security model after RELEASE_1.1 64, evaluated (21 Sep 2026)
+
+64's decision made this part of itself: *"Once everything is removed, we will evaluate
+the resulting security model."* **Method and limit: read from source this session
+(`op_sh.c`, `login`, `cproc`, `createa`) and joined to measurements already in the
+record (55, 59, 53, 60). Nothing was run, and this is not a penetration test** — every
+runtime claim is marked as reasoned.
+
+| principal | what it holds | enforced by |
+|---|---|---|
+| SDSYS, the Windows account of that name, elevated | the **only** SD administrator: the session flag is granted at login after `elevate('START')` (`login`: `admin.granted = kernel(K$ADMINISTRATOR, 1)`) | LOGIN; `LOGTO SDSYS` is refused outright (`cproc`, 10002); `sd -internal` is forced to SDSYS by `sd.c` and needs LOGIN's one-shot marker (82) |
+| any other Windows administrator | an ordinary SD account like everybody else; refused SDSYS | LOGIN |
+| every ordinary SD account, USER and GROUP | the whole of `newvoc` (the former PROGRAMMER level; no tiers); ssh and the API **by default** — silence means both (`createa:611-615`) | `createa`; the `sdssh` and `sdapi` Windows groups |
+| OS.EXECUTE, `SH` and Python, for that account | **default deny**: `os_user_permitted` (`op_sh.c`) allows only an internal program, the administrator flag, or `os.users\<login>` field 2 = `yes`; `os.users` ships empty and `CREATE.ACCOUNT` no longer writes a record | `op_sh.c`; the Python gate calls the same function (RELEASE_1.1 23) |
+| an API session | TLS + SCRAM; runs **as** the authenticated user (55); confined to its account root, nine read-only SDSYS entries and `NETDIRS` | `apisrvr`; the containment gate in `op_dio2.c` |
+| the data tree | `$cred` readable only by SYSTEM and Administrators; the rest per the `secure-*.ps1` scripts | Windows ACLs |
+
+**Findings, worst first:**
+
+1. **59 (B)** — the LocalSystem daemon `sdwind` reads a segment every SD user can write.
+   Ruled in its entry: 1.1 hardens the reader so it trusts nothing in the segment; the
+   native-broker redesign is W1.2.
+2. **53 (deferred to W1.2)** — an ordinary local user can open the daemon's MSYS2 shared
+   section for write; whether that can influence the service is **unmeasured**, so no
+   document may claim it cannot.
+3. **The decision text and the build disagree about OS-level access, and the build is the
+   safer one.** 64 says *"the only limit on what they can do at the OS level is that
+   imposed by Windows on its standard accounts"*; what is built is default-deny per
+   account (table above). The worry recorded in row 64 — that if `os.users` retired,
+   every account, remote ones included, could start an interpreter — **does not apply,
+   because `os.users` did not retire.** **Ruled 21 Sep 2026 (agent, on the owner's
+   delegation): default-deny stays.** 59 and 53 are why a remote interpreter is worth
+   more to an attacker than it looks, and an administrator can still grant it per
+   account. The documentation must say *no OS access until an administrator grants
+   it*, not *Windows' limits*.
+4. **Every account has the remote doors by default but no credential until an elevated
+   interactive sign-in (69).** That fails closed — an account with no `$cred` cannot
+   authenticate remotely — and the message now says so.
+5. **A Windows administrator can grant themselves anything by hand** (`os.users`,
+   `sdssh`, `sdapi`, `$cred`). By the owner's 21 Aug 2026 ruling this is out of scope
+   (*"if users want to degrade security after the fact, that is their right"*): the
+   model defends the product **as delivered**, and 95's fix keeps the installer from
+   doing it for them.
+6. **What 64 removed is what it gained:** no tier boundary to cross, no
+   administrator-as-themselves bypass, no promotion or demotion paths, no second
+   administrator identity — fewer places for a boundary bug to sit.
+
+**Carried forward from the 24 Aug record, still true and not re-measured:** an
+application's own `OS.EXECUTE`/`EXECUTE` built from user input is an escape (less
+reachable now that OS.EXECUTE is default-deny); and on a machine where SD did not
+install the ssh server, `ForceCommand` is never written, so a user reaches `cmd.exe`
+and never meets SD (`git show 07b0e49:PROJECT_STATUS.md`, §8 *how many kinds of user*).
+
+**Not examined, and worth doing in 47's parity audit or 48's documentation pass:** the
+phantom and background-process path, and ssh's `ForceCommand` on a real second machine.
+**What would change these rulings:** the 53 experiment showing influence is possible;
+a measurement showing the `os.users` default-deny can be bypassed by an unprivileged
+account.
 
 ### 5.1 POSIX IPC replaces System V
 
