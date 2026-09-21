@@ -179,6 +179,62 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 
 ## NEXT SESSION: START HERE, IT IS SHORT
 
+> ***⏸ CLOSING HANDOFF — END OF THE TWENTY-SIXTH PASS, 21 SEP 2026, CUT SHORT BY THE SESSION RUNNING OUT OF CREDITS. READ THIS BLOCK
+> FIRST.*** Whole pass was the owner live-watching real cycles of the finish page (`finish-install.ps1` → `check-install.ps1`) and
+> reporting what was actually on screen, one round at a time — RELEASE_1.1_FIXES **85 through 94**, all struck except 94 (open,
+> nothing left owed on it either, just not yet re-watched). Read the index rows in `RELEASE_1.1_FIXES.md`, not this paragraph, for
+> the detail; this is only the shape.
+>
+> ***WHAT CHANGED, IN ORDER.*** 85: `Write-Wrapped`'s `-Indent` default was `''` and no caller passed one — fixed to `'  '`, then
+> LATER REVERSED (see below). 86→87: a manifest/`N of M` section layout was built to look like SD Core for Linux's installer,
+> layout only, not wording — two passwords here, three there, deliberately different counts. 88: found and fixed a duplicate
+> "Password set." (this script's own, printed right after `SET_ACC_PASSWORD`'s identical line). 89→90: the owner then ruled the
+> WHOLE page should be flush-left instead — `SET_ACC_PASSWORD`'s three lines (`New password:` / `Repeat new password:` /
+> `Password set for account X`) are inherited console I/O from a child `sd.exe` and can never be indented from PowerShell, so
+> **85's default was reverted to `''`** and every hardcoded margin in both `finish-install.ps1` and `check-install.ps1` was removed
+> to match — "if we can't indent those lines then nothing should be indented," his words. 91: `set_acc_password` itself had the
+> SAME retry-order defect `finish-install.ps1`'s own SDSYS step had already been fixed for (validity checked after only the FIRST
+> entry, attempt count naming the wrong entry) — fixed in the BASIC, not routed around, because it is the one verb every password
+> change in the product goes through. 92: matching blank-line and wording fixes in the same verb, once the mechanism was
+> understood — `input ... HIDDEN` echoes its own Enter-newline, so the bare `display` that followed it was a REDUNDANT second one;
+> removed. 93: tried ANSI colour (owner supplied the exact byte table, `CHAR(27):"[33m"`/`"[0m"`) so BASIC's errors could be
+> yellow like PowerShell's. 94: **93 was watched on a real cycle and the colour did not render** — plain text, same as before —
+> so it was reverted on BOTH sides (not left half-built on one), and `"ERROR: "` text prefixes replace colour everywhere colour
+> used to carry meaning, on both PowerShell and BASIC, because plain text works whether or not a given console does anything with
+> ANSI bytes.
+>
+> ***VERIFIED HOW, AND WHERE THE LINE ACTUALLY IS.*** Most of 85–93 WAS watched live by the owner on real cycles — that is how 86,
+> 89, 91's blank-line report, and 93's colour failure were each found: he ran the install and said what was actually on screen,
+> repeatedly, across this whole pass. ***94 (colour removed, "ERROR: " added) HAS NOT YET BEEN SEEN ON A CYCLE*** — it is
+> parse/compile-checked only: `finish-install.ps1` parses clean (`[System.Management.Automation.Language.Parser]::ParseFile`, 0
+> errors, repeated after every edit); `set_acc_password` compiled clean via the scratch-root `bbcmp.py` technique
+> (memory `bbcmp-compile-check`) after every BASIC edit, HEAD control included where it mattered, most recently **466 tokens, exit
+> 0**. Free tier confirmed green after every round: `test-fixlist-units` **365/0** throughout (open count 21, RELEASE_1.1 84
+> is the highest OTHER open item — nothing this pass added stayed open except 94, and 94 has nothing left owed but the watch),
+> `test-wraptext-units` 12/12, `test-retired-wording-units` 82/82, `test-pwcomplex-units` 71/71, `test-acctmsgs-units` all rows.
+> **A CYCLE IS OWED FOR 94 SPECIFICALLY** — everything before it in this pass has already been watched; 94 is the one round that
+> has not.
+>
+> ***NEXT, IN ORDER.*** (1) Elevated PowerShell: `powershell -ExecutionPolicy Bypass -File
+> C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1` — watch the whole finish page end to end, confirm 94's
+> `"ERROR: "` prefixes read correctly on both the PowerShell and the BASIC side and that nothing prints in colour any more
+> anywhere on that page. (2) If it looks right, RELEASE_1.1_FIXES 94's row can be struck. (3) Everything from the 24th/25th pass
+> below this block ("A cycle is owed", `verify-accountmodel.ps1`'s first run, wiring `api_identity_probe.c` into
+> `verify-apiidentity.ps1`) is UNCHANGED and still owed — this pass never reached any of it, the whole session went to the finish
+> page instead.
+>
+> ***NOT COMMITTED AT SESSION END, THEN WAS: `RELEASE_1.1_FIXES.md`, `sdb_ai/sd64/gplbld/check-install.ps1`,
+> `sdb_ai/sd64/gplbld/finish-install.ps1`, `sdb_ai/sd64/sdsys/gpl.bp/set_acc_password`*** — committed and pushed at the owner's
+> instruction ending this pass ("out of credits handoff, commit, push"), after this handoff was written, not before.
+>
+> ***`.claude/tools/agent-elevate.ps1` AND `agent-elevate-helper.ps1` EXIST, UNTRACKED, NOT COMMITTED, UNTESTED.*** A resident
+> elevation helper (one UAC prompt via `-Start`, then a named-pipe channel for the rest of the session), same shape as
+> `gplbld/sd-elevate.ps1` but for this agent's own shell rather than SD's product. Built early in this session on the owner's
+> go-ahead, parse-checked, never actually invoked (`-Start` never run) — the session moved to live bug-fixing on the finish page
+> before it was used. Deliberately left OUT of this commit: untested infrastructure mixed into a verified bug-fix batch would blur
+> the commit's purpose. Still on disk at `.claude/tools/` for whichever session picks this up next; try `-Start` there before
+> building a second one.
+
 > ***⏸ CLOSING HANDOFF — END OF THE TWENTY-FIFTH PASS, 20 SEP 2026 ~21:30. READ THIS BLOCK FIRST. THE 24th-PASS BLOCK BELOW IT IS
 > SUPERSEDED WHERE THE TWO DIFFER (the finish page it closed out is unaffected by this pass).***
 >
