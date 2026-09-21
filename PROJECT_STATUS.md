@@ -267,6 +267,21 @@ install-time route into SD is `adopt-account.ps1` — `-start`, `sd -internal
 > NOW ONLY IN THE DOCS AND ON NO SCREEN: that every ssh session lands in SD Core and that `scp`/`sftp` stop working for everyone.***
 > Free tier 54/55 (`test-sysmsg-units` exit 2 = no install present); ISCC compiles. **NOT WITNESSED: the owner's fresh install and
 > the install over the top, which he has cancelled and will restart.**
+>
+> ***▶ 20 SEP 2026, AFTER HIS FIRST LOOK AT THE NEW SCREENS — THE CLOSING POPUPS ARE ON THE FINAL PAGE, AND TWO SD LINES ARE OUT OF
+> THE FINISHING WINDOW.*** (1) **`ssPostInstall` no longer shows anything**: it ASSEMBLES `FinishReport` (the old "SD Core is
+> installed" box, the `sshd_config` popup — placed directly under the ssh result — and, on an upgrade, the "database kept" box) and
+> `CurPageChanged(wpFinished)` draws it through `ShowFinishedReport`, which lays paragraphs out on the page itself and falls back to a
+> scrolling `TNewMemo`. `ShowSummaryBox` and the `GetSystemMetrics` import are gone. **THE FINAL PAGE'S LAYOUT IS UNSEEN** (it compiles;
+> a `TPanel` host was deliberately avoided because it paints grey on the white page): the owner's next install is the witness, and the
+> `Para: array[0..63]` overflow path, the memo, and long failure reports are what to look at. First line is now "SD Core is installed."
+> (2) **`set_acc_password:176` honours `-QUIET`** (the installer already passes it). (3) ***`login`'s admission announcement (message
+> 12000, RELEASE_1.1 82 R4 — the rule the Linux agent asked both ports to share) is suppressed ONLY when the writer is `finish-install`
+> AND the session is `-QUIET`***; every other use still announces and every use is still audited. I chose the narrow form over "-QUIET
+> silences it" because the latter would hide it in the installer's hidden steps too; `test-internalgate-units.py` now has 45 rows and
+> four mutants that fail a blanket, a writer-only, a widened or a default-off exception. **BASIC compile-checked with `bbcmp` (gate tail
+> extracted; `HEAD` control and the edit both exit 0; only the stubs differ) — NOT COMPILED BY BCOMP, so `login` is the rollback if the
+> cycle dies at bootstrap.** **DIVERGES FROM LINUX ON THE ANNOUNCEMENT** (the owner asked; their side announces every use): tell them.
 > `SDCoreWindowsDocs` may repeat the false sentence (separate repository, not checked); §5.9 of this file (14 Aug) says the
 > same and predates the ACLs.
 >
