@@ -683,6 +683,34 @@ carries its purpose today.
    session when they were missing, and none of them can be exercised by running
    the thing on a healthy tree.
 
+## 21 Sep 2026 — the agent elevation channel: built, proved live, and its first run found a real bug
+
+The owner asked for a way for the coding agent to run elevated commands itself. A first
+draft (`.claude/tools/agent-elevate*.ps1`, from the 26th pass) existed, untested, with a
+known defect: it assigned PowerShell's automatic `$args`. On the owner's yes it was
+rebuilt around a library of pure decisions (`agent-elevate-lib.ps1`): a script is run only
+if it is a `.ps1` directly in `gplbld`, arguments are plain words, the SERVER re-checks
+every request, output goes outside the repo, a run has a 30-minute limit, and the client
+accepts a reply only if the output files it names exist and are fresh. Free guard:
+`test-agentelevate-units.ps1`, 50/50, with a mutant control for every check. The Claude
+Code permission classifier blocked the first write of the client ("Create Unsafe
+Agents"); the owner chose to allow it and the retry went through.
+
+**Its own review found two more defects before anything ran:** a regex anchored with `$`
+would have let an argument with a trailing newline through (`$` matches before a final
+newline in .NET; `\z` does not), and a reply could be faked by another process of the
+user that grabbed the pipe name first, which is why the client demands evidence.
+
+**The first live run found one more, and the evidence rule caught it.** The helper ran
+the script but replied with an EMPTY exit code: `Start-Process -PassThru` leaves
+`ExitCode` null after `WaitForExit(ms)` unless the process `Handle` is touched. The client
+refused it as "NO EVIDENCE" rather than reading empty as success. Fixed (the helper touches
+the handle; the library can no longer emit an empty code), the helper restarted, and the
+second run delivered both an exit 0 and an exit 1 with their output. The server was also
+shown, by sending requests straight down the pipe past the client, to refuse an outside
+script, a `..` path, an unsafe argument and a raw path on its own. The how-to and limits
+are in PROJECT_STATUS.md §4.0.1.
+
 ## 21 Sep 2026 — the 27th pass's handoff, as it stood when the consolidation replaced it
 
 The block below was PROJECT_STATUS.md's CURRENT PICKUP until the tracking

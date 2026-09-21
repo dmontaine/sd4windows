@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **97**, so **the next is 98** —
+`RELEASE_1.1`'s id space: the highest id issued is **98**, so **the next is 99** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -70,17 +70,17 @@ the seven unwitnessed 20 Sep conversions with SDSYS signed in, then a full suite
 run since 18 Sep 10:30 (76). (4) `verify-accountmodel`'s first run (64). (5) The ruled
 builds, which want **one** more cycle together: 59's reader hardening (C), 71's SDSYS-only
 cross-account password rule and 77's retired-ids list (BASIC). (6) 84's rewrite and 97's
-proposals, in a session where you can run the elevated suite. (7)
-`.claude/tools/agent-elevate*.ps1` is untested and uncommitted; its `-Start` has never run,
-and `agent-elevate.ps1:80` assigns PowerShell's automatic `$args` — rename it before the
-first use.
+proposals, in a session where you can run the elevated suite. (7) **The agent elevation
+channel works** (§4.0.1) and a helper may still be running from this session — it stops
+itself after 60 idle minutes, or `agent-elevate.ps1 -Stop`; it and its guard are
+**uncommitted** (`.claude/tools/` is untracked).
 
 ---
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
 **16 open: 15 validated against the tree by the 27th pass, 21 Sep 2026, and 97 added
-overnight; 53 is deferred to W1.2 (its own section, below the gates).** Every call
+since; 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -647,6 +647,23 @@ so they would need that call made conditional before any of them could ship.
 > user or `sdu_` group, no `os.users` record, `batch.jobs` empty, no stray
 > `sd.exe`. `verify-osusers` says so itself: *"Nothing was measured and nothing
 > was left behind."* **So the token is NOT spent and can be reused.**
+
+***21 Sep 2026 — THERE IS NOW A ROUTE AROUND "ONLY DIRECTLY", AND IT COSTS ONE CLICK PER
+SESSION.*** `.claude/tools/agent-elevate.ps1 -Start`, run by the owner from an ordinary
+prompt, launches a resident elevated helper (one UAC click). After that the agent runs
+`agent-elevate.ps1 -Run -Script <repo>\sdb_ai\sd64\gplbld\<name>.ps1 -ScriptArgs <words>` and
+gets the script's real exit code plus its captured output (in
+`%LOCALAPPDATA%\SD-verify\agent-elevate\`, printed by the client); `-Stop` ends it and it
+stops itself after 60 idle minutes. **Proved live, 21 Sep 2026:** exit 0 and exit 1 both
+arrive with their output, and the *server* refuses a script outside `gplbld`, a `..` path,
+an unsafe argument and a raw path. **Limits, so it is not over-read:** only a `.ps1` directly
+in `gplbld`, with plain arguments; a run is killed at 30 minutes (exit 124); **it cannot
+run `cycle.ps1`** — the installer's finish page asks for passwords in windows a hidden,
+non-interactive process cannot answer — **and it does not lift the rule above**: the full
+suite's parent must stay unelevated and nested elevation is still refused. **The intended
+use, not yet tried:** an elevated verifier step, `VerifyInstall2.ps1 -Run bNNN -Only <step>`.
+**The allow-list stops accidents, not an agent that writes a script into `gplbld`.** Free
+guard: `test-agentelevate-units.ps1`.
 
 ## 5. Decisions and why
 
