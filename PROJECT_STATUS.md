@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **101**, so **the next is 102** —
+`RELEASE_1.1`'s id space: the highest id issued is **103**, so **the next is 104** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -55,8 +55,12 @@ The elevated helper stops after 60 idle minutes, or `agent-elevate.ps1 -Stop`.
 or from bash, the comma list collapses into ONE argument and the runner answers *"-Run was not given"*
 before running anything. `-Run` tokens `b206`–`b214` are spent.
 
-***22 Sep 2026 — 101 (SDSYS gets the API route with the administrator flag, off by default) IS BUILT AND UNRUN; it rides in the same
-cycle as item (2) below, and its entry lists what is unmeasured.***
+***22 Sep 2026 — 101 WAS BUILT, WITNESSED AND THEN WITHDRAWN BY THE OWNER IN ONE SESSION; THE TREE IS BACK TO
+THE CONSOLE-ONLY SDSYS MODEL.*** What survives is one message (12001) and two findings the revert does not
+undo, now **102** (an API session's token is fully elevated, and §5.25/§5.28 do not say so) and **103**
+(LOGIN demands an SD password for SDSYS, which the owner says is not needed). ***THE INSTALL IS STALE AGAINST
+SOURCE — `assert-current` exits 1, and `ace\SDSYS` IS STILL IN `sdapi` FROM THE WITHDRAWN BUILD.*** The next
+cycle removes both; until it runs, this machine still has the elevated API route open.
 
 ***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
 whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
@@ -71,7 +75,7 @@ list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's propos
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**15 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100 and 101
+**17 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100, 101, 102 and 103
 added since (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
@@ -83,78 +87,104 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
 
-### 101 · S — SDSYS has the API route like every other account, off until `MODIFY.ACCOUNT SDSYS API` grants it
+### 103 · M — LOGIN demands an SD password for SDSYS at the console, which the owner says is not needed
 
-**Owner's request, 22 Sep 2026: *"make the SDSYS account like every other with the capacity to
-use api and ssh. Only difference, rather than being on by default, have them off by default after
-installation. SDSYS user can open them up using the modify.account verb."*** **Rulings the same day:
-ssh is dropped** (*"the sdsys account already has to be logged in to use it"*); **an API session in
-SDSYS gets the administrator flag** (*"it is the admin's choice as the security level"*, said after
-being told an API session needs no Windows sign-in of SDSYS); **remote API for SDSYS takes TWO steps, both
-at the console as Windows SDSYS: `MODIFY.ACCOUNT SDSYS API` and `MODIFY.PASSWORD SDSYS`** (owner, later
-the same day; **the verb is `MODIFY.PASSWORD` — `SET.PASSWORD` was renamed on 21 Aug and I named it
-wrongly earlier in the session**). This already holds by construction and needed no code: the
-installer's SDSYS prompt calls `Set-LocalUser` (the WINDOWS password only, `finish-install.ps1:448`),
-`Set-AttachedAccountPassword` — the only installer path that writes `$cred` — is called for
-`$AttachUser`, which `sd.iss:3083` fills from `{username}`, the installing person, and
-`set_acc_password` writes `$cred` alone (`CRED_SET`, :369), never the Windows password. An SDSYS with
-no `$cred` fails SCRAM, so a grant without a password is inert. **`MODIFY.ACCOUNT SDSYS API` now says so:
-message `12002` (`sdsys/messages/12002`, `modifya` label `sdsys.cred.reminder`) when `$cred` holds no
-stored key for SDSYS, also after "nothing changed". Compiles; no `verify-routes` row asserts it.** **Unconfirmed on an installed tree,
-and one hole:** if the installing Windows user is literally `SDSYS`, `$AttachUser` would name it.
-**WITNESSED 21 Sep 2026, after the owner's 17:25 cycle, run as Windows SDSYS elevated (`b217`,
-`VerifyInstall2 -Only verify-routes`): 42/42, `assert-current` clean; Step 5 all 12 rows PASS — SDSYS starts
-with no route, `API` gives 10077 and route `api`, `NONE` gives 10079 and `none`, `SSH`/`BOTH` give 12003,
-`SUSPENDED`/`SH-ON`/`ADD` give 12001, ends `none`, never in `sdsshonly`. NOT witnessed: the 12002 reminder
-(no row asserts it), and everything on the API side — the flag in an API session, the `$cred` absence, an
-SDSYS login. The "NOTHING RUN" wording below is the state before that run.** **Source written and compiled;
-before that run, NOTHING RUN — no cycle, no elevation, owner away.** Free tier 54/54
-green (last run before the ssh-drop and admin-flag edits — re-run it); `modifya` compiles under
-`bbcmp` in a scratch root with `prompt`/`void` stubbed (last compiled before those edits too);
-`apisrvr` passes pass 1 only (pass 2 aborts at `HUSH`, a chain of unsupported statements, well before
-either edit).
+**Observed 21 Sep 2026** on the owner's own machine, signing in to SD as the Windows SDSYS account after the
+17:25 cycle: the session printed ***"Account SDSYS needs a password"*** with LOGIN's paragraph about ssh and
+the API, and **would not continue without one** — *"A password is required. Pressing Enter on an empty line
+does not give you an account without one - it ends this session."* A password was set, so
+`C:\ProgramData\SD\sdsys\$cred\sdsys` exists on this machine from that date.
 
-**What changed.** `modifya`: SDSYS is no longer refused up front; `sdsys.acct` admits it for `API`
-and `NONE` only (`SSH` and `BOTH` answer message **12003**, "ssh is not available to the SDSYS user...";
-everything else answers **12001**; both in `sdsys/messages/`), and
-`account.user` returns the Windows user `SDSYS` for it (its `ACC$GROUP` is `sdsys`, not `sdu_`).
-`apisrvr`: the `ACC$GROUP` entry test, which could never pass for SDSYS, is replaced for SDSYS by "the
-proven name is `SDSYS`"; `sdapi` membership is still tested first in `vb.scram.final`; and just before
-the LOGIN paragraph runs, `kernel(K$ADMINISTRATOR, 1)` for SDSYS and `0` for every other account —
-because `kernel.c` never seeds the flag for a socket session and `apisrvr` is `$internal`.
-`install-sdsys.ps1` no longer removes SDSYS from `sdapi` (it runs on every install, an upgrade
-included, and would have undone every grant) but still removes `sdssh` and `sdsshonly`.
-`sync-route-groups.ps1` leaves SDSYS out of the `sdssh` seed. `verify-routes` Step 5 grants API,
-checks 10077, restores NONE, and pins 12001 for SSH, BOTH, SUSPENDED, SH-ON and ADD.
-"Off by default" holds because nothing joins SDSYS to `sdapi` and uninstall deletes the group.
+***THE OWNER'S RULING, 22 Sep 2026: "no remote access for sdsys and no need for a sd sdsys password."***
+So either LOGIN should not ask SDSYS for one, or the ruling is about the API alone and the console prompt is
+correct. **`install-sdsys.ps1`'s header already states the opposite of what was observed** — *"SD's own
+credential register is empty at install (the cycle prints 'NO ACCOUNT HAS A PASSWORD') and a console login is
+by Windows identity, so SD needs no password of SDSYS's - this one is Windows'."* One of the two is wrong.
 
-**The widest API session there is, and 5.28 should say so.** For SDSYS the account root IS the system
-tree, so the containment gate (`op_dio2.c`, `net_path_permitted`) confines it to nothing that matters;
-`os_permitted()` (`op_sh.c`) reads the flag, so the session can run `OS.EXECUTE` — as the session
-process's Windows token, which was not measured. `kernel.c:207-296` records why the flag was withheld
-from socket sessions (a LocalSystem token had made every remote client an administrator) and 5.25 rules
-that administration needs an interactive desktop; **this is a deliberate exception to both, the owner's,
-limited to SDSYS and to an account that was explicitly given `API`.**
+**Not diagnosed. What to read:** LOGIN's `require.credential` path and message 10089, and which branch an
+SDSYS landing takes; RELEASE_1.1 69 is the neighbouring entry (first-login credential wording, in four
+copies). **Nothing was changed** — this is the tree's existing behaviour, found while building 101.
+**Why it matters beyond tidiness:** an SD password on SDSYS is a credential that can authenticate a remote
+API session, and 102 is what such a session turns out to hold.
 
-**Unmeasured, and each could make the feature not work rather than merely differ:**
-1. **Whether the flag survives.** `kernel(K$ADMINISTRATOR, n)` changes it only for an `$internal`
-   program; `apisrvr` is one (its header says so) but no run has seen the flag set in an API session.
-   Also unread: whether some later step in `apisrvr` (a LOGTO to another account) clears or re-derives it.
-2. **`$cred\sdsys` must be ABSENT after a fresh install** — that is what makes `MODIFY.PASSWORD SDSYS` the
-   second step. Read from source (paragraph above), never looked for on disk: `assert` it after the cycle.
-3. **Whether `SDSYS` as the SCRAM name resolves** — `vb.scram` looks the name up in `$cred` by lower
-   case; nothing else about the name was read.
+### 102 · S — an API session's Windows token is FULLY ELEVATED, and §5.25 and §5.28 do not say so
 
-**`test-sysmsg-units` FAILS until the cycle, by design of the guard, not by fault:** it reads the
-messages from the INSTALLED tree (`C:\ProgramData\SD\sdsys\messages`), and `12001` (which
-`verify-routes` now matches) exists only in source until then. The other 53 free guards pass.
+***MEASURED 21 Sep 2026, not inferred.*** `SH whoami /groups` inside a real API session (SCRAM over TLS 1.3
+to 127.0.0.1:4243, `scram-probe.py`) returned **`Mandatory Label\High Mandatory Level` (S-1-16-12288)** and
+**`BUILTIN\Administrators` — `Enabled group, Group owner`**, not deny-only, beside `NT AUTHORITY\NETWORK` and
+`S-1-5-114` (*local account and member of Administrators*). `SH whoami` returned **`ace\sdsys`**: the session
+runs as the authenticated user, which is 55's handover working, **and the 20 Aug finding that a remote API
+client got SYSTEM no longer describes this route.**
 
-**Owed:** a cycle; then `verify-routes -Only verify-routes` (Step 5 is new and unrun); an API login as
-SDSYS from another machine or loopback after `MODIFY.ACCOUNT SDSYS API` — and inside it, `WHO`, an
-administrator-only verb, and `OS.EXECUTE` (all expected to work) — then `MODIFY.ACCOUNT SDSYS NONE`
-and the same login refused. A `verify-*` for the API half does not exist. Documentation:
-`SDCoreWindowsDocs` says nothing false about this (grepped); its `MODIFY.ACCOUNT` page should list
-SDSYS's two words, and the security page should carry the exception above.
+**WHERE IT COMES FROM.** `sdwind` runs as LocalSystem and builds the logon token itself, so the
+`LocalAccountTokenFilterPolicy` filtering that would strip a local administrator's network logon never
+applies — the identical mechanism `kernel.c:262-266` already records for OpenSSH. **This is a property of the
+tree as it stands, for any account that reaches the API**; it was found while building 101 and it survives
+101's revert untouched.
+
+***WHAT IT CONTRADICTS.*** §5.25 is *"administration requires an interactive desktop"* (owner, 5 Sep 2026)
+and §5.28 row 3 records OS access as default-deny per account. A network-arriving session holding a
+High-integrity administrator token is not described by either. **`sdwind.c:419` binds `INADDR_ANY`** and this
+machine's firewall rule `SD API (SDClient)` reads **`enabled, Allow, RemoteAddress = Any`** (measured
+21 Sep) — the owner: *"the firewall is not closed, other users have access through the api."*
+
+***WHAT STOPS IT BEING REACHABLE TODAY, AND IT IS ONE THING ONLY.*** `os_permitted()` (`op_sh.c`) grants
+`OS.EXECUTE`, `SH` and Python to an internal program, to `USR_ADMIN`, or to an `os.users` field-2 grant.
+`kernel.c` withholds `USR_ADMIN` from every `CN_SOCKET` session and `os.users` ships empty — **so no API
+session can run an OS command, and the elevated token is unreachable rather than absent.** 101 briefly set
+the flag for SDSYS and the shell opened at once, which is how this was measured. ***THE TOKEN IS STILL THERE;
+ONLY THE DOOR IS SHUT.***
+
+**Owed:** a decision on whether the model should be written down as it is, or the token narrowed (a
+restricted or filtered token for a socket session would need `sdwind`'s handover to build one deliberately).
+At minimum §5.25 and §5.28 must be amended to describe what is actually true, and the documentation pass
+(61) should carry it. **Nothing here is a regression** — it is the model, newly measured.
+
+### 101 · M — SDSYS keeps its console-only model; `MODIFY.ACCOUNT` now says why it refuses it
+
+***RULED AND REVERTED, 22 Sep 2026, IN ONE SESSION. THE CODE THAT SHIPPED FROM THIS ENTRY IS ONE MESSAGE.***
+The owner first asked for *"the SDSYS account like every other with the capacity to use api and ssh… off by
+default… opened up using the modify.account verb"*; it was built, witnessed, and then withdrawn by him the
+same evening: ***"turns out the original design was correct - no remote access for sdsys and no need for a sd
+sdsys password"***, and ***"the modify.account verb should not accept api or ssh commands for the sdsys
+account — remote access is always off."*** **What remains built:** `modifya` refuses SDSYS exactly where and
+when it always did, with new message **12001** (`sdsys/messages/12001`) — *"Remote access is never available
+to SDSYS; it is administered at this computer"* — in place of **2202** *"Account name is invalid"*, which told
+somebody typing `MODIFY.ACCOUNT SDSYS SSH` that they had the NAME wrong, the one part they had right.
+`verify-routes` Step 5 asserts 12001 and adds an `SSH` row beside the `BOTH` one. `apisrvr`,
+`install-sdsys.ps1`, `sync-route-groups.ps1` and the rest of `verify-routes` are byte-restored to `305bca0`.
+
+***WHAT THE BUILT-THEN-REVERTED VERSION MEASURED, WHICH IS THE PART WORTH KEEPING.*** Two runs on the owner's
+17:25 cycle of 21 Sep 2026, one elevated as Windows SDSYS and one through `scram-probe.py` over TLS 1.3 to
+127.0.0.1:4243. **These are facts about the tree as it stands, not about the reverted code**, except where
+said:
+
+1. ***AN API SESSION'S WINDOWS TOKEN IS FULLY ELEVATED*** — **moved out to its own entry, 102**, because it
+   is a property of the tree rather than of this change and must not close when this does.
+2. **The administrator flag can be set from `apisrvr` and it works.** `MODIFY.ACCOUNT` inside the API session
+   answered 10080 rather than 2001, and `modifya`'s first statement is the `K$ADMINISTRATOR` refusal — so
+   reaching 10080 *is* the flag. `kernel.c` still withholds it from a `CN_SOCKET` session; the flag came from
+   the (now reverted) `kernel(K$ADMINISTRATOR, 1)` in `vb.account`.
+3. **The machine's API firewall rule `SD API (SDClient)` is `enabled, Allow, RemoteAddress = Any`**, and
+   `sdwind.c:419` binds `INADDR_ANY`. Measured 21 Sep. **So `remote.api local` is NOT this machine's state and
+   cannot be assumed anywhere** — the owner: *"the firewall is not closed, other users have access through
+   the api."*
+4. **LOGIN demands an SD credential on the first SDSYS sign-in** — **moved out to its own entry, 103**, for
+   the same reason.
+
+***THE EXPOSURE THAT EXISTED WHILE IT WAS BUILT, AND HOW IT WAS CLOSED.*** Between the grant and the revert
+this machine had a **network-reachable, fully elevated administrator shell gated only by SDSYS's SD
+password**: `ace\SDSYS` in `sdapi`, firewall `Any`, listener on every interface, flag set, `OS.EXECUTE`
+permitted. **The owner closed it with a cycle** (uninstall deletes `sdssh`/`sdapi`, `sync-route-groups`
+recreates them empty), which is also why no `MODIFY.ACCOUNT SDSYS NONE` was ever run. **Check after that
+cycle that `ace\SDSYS` is in neither group** — `Get-LocalGroupMember -Group sdapi` — because the revert
+above only stops it happening again.
+
+**Owed, and it is small:** a cycle, then `verify-routes` (Step 5 asserts 12001 and now sends `SSH` as well as
+`BOTH`). **Free tier 54/54 after the revert; `modifya` compiles under `bbcmp`.** ***`test-sysmsg-units`
+PASSES ONLY BY ACCIDENT UNTIL THAT CYCLE***: it reads the INSTALLED messages, and the install still carries
+12001 with the withdrawn text *"SDSYS accepts only API or NONE"*, plus 12002 and 12003 which source no longer
+has. **The two findings this entry produced are 102 and 103 and do not close with it.**
 
 ### 100 · M — `newvoc/%t` is a mis-cased escape: the record for `~` is undecodable and never reaches an account
 
