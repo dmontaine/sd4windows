@@ -102,7 +102,13 @@ no `$cred` fails SCRAM, so a grant without a password is inert. **`MODIFY.ACCOUN
 message `12002` (`sdsys/messages/12002`, `modifya` label `sdsys.cred.reminder`) when `$cred` holds no
 stored key for SDSYS, also after "nothing changed". Compiles; no `verify-routes` row asserts it.** **Unconfirmed on an installed tree,
 and one hole:** if the installing Windows user is literally `SDSYS`, `$AttachUser` would name it.
-**Source written and compiled; NOTHING RUN — no cycle, no elevation, owner away.** Free tier 54/54
+**WITNESSED 21 Sep 2026, after the owner's 17:25 cycle, run as Windows SDSYS elevated (`b217`,
+`VerifyInstall2 -Only verify-routes`): 42/42, `assert-current` clean; Step 5 all 12 rows PASS — SDSYS starts
+with no route, `API` gives 10077 and route `api`, `NONE` gives 10079 and `none`, `SSH`/`BOTH` give 12003,
+`SUSPENDED`/`SH-ON`/`ADD` give 12001, ends `none`, never in `sdsshonly`. NOT witnessed: the 12002 reminder
+(no row asserts it), and everything on the API side — the flag in an API session, the `$cred` absence, an
+SDSYS login. The "NOTHING RUN" wording below is the state before that run.** **Source written and compiled;
+before that run, NOTHING RUN — no cycle, no elevation, owner away.** Free tier 54/54
 green (last run before the ssh-drop and admin-flag edits — re-run it); `modifya` compiles under
 `bbcmp` in a scratch root with `prompt`/`void` stubbed (last compiled before those edits too);
 `apisrvr` passes pass 1 only (pass 2 aborts at `HUSH`, a chain of unsupported statements, well before
