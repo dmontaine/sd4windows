@@ -50,6 +50,39 @@ corrected.
 
 ---
 
+## 22 Sep 2026 — PROJECT_STATUS.md §5/§6 trimmed: 329,082 → 142,944 bytes (57%)
+
+Owner's overnight housekeeping task, run unattended per the CURRENT PICKUP handoff left by the
+prior session, with one addition given at the start: shorten retained entries to their essential
+issues, not only remove superseded ones.
+
+**What moved, by kind — no decision, rule, open task or distinct §6 trap lesson was dropped:**
+
+- **§5 (decisions):** each entry now states the current decision and its *why* only. Cut:
+  multi-round "corrected on X, corrected again on Y" sagas (kept the final corrected fact and one
+  line on what it replaced), install-timestamp/byte-count/hash blow-by-blow from measurement runs
+  that already ended in a settled result, and repeated restatement of an already-settled point
+  across several paragraphs. 5.12 (the lower-case conversion) and 5.27 (the Python helper) were
+  the largest cuts — both are long, fully DONE, heavily narrated build logs; kept the traps (fold
+  ordering, `_VOC_REF`'s separate fold, hard-coded literals bypassing the fold, `bp.OUT`) and the
+  renamed-so-far inventory, cut the per-install verification transcripts.
+- **§6 (traps):** every trap kept, per §0 rule 4 ("never cut a trap for size") — tightened to
+  what-happened / root-cause / fix / general-lesson in a few sentences each, with the reusable
+  recipe (a command, a code shape, an anchor to grep on) kept verbatim where the entry had one.
+  Cut the narrative color, exact reproduction step counts, and secondary corrections-of-earlier-
+  wording once the corrected version alone says what's needed.
+- **§4.0.1:** condensed the elevation-refusal correction history (three passes: 19 Aug, 22 Aug,
+  23 Aug) to the current table and rule; kept the 21 Sep `agent-elevate.ps1` route-around intact,
+  since it is still-live tooling.
+- **CURRENT PICKUP, §0, §8:** left substantially as they were (already tight, and §8 is explicitly
+  "only open questions stay").
+
+**Full pre-trim text:** `git show 375c611:PROJECT_STATUS.md`. Nothing beyond that commit's content
+was consulted or changed — this is a rewording/condensing pass, not a fact-finding one, and no new
+decision or ruling is recorded here.
+
+---
+
 ## 22 Sep 2026 — RELEASE_1.1 69 closed on 10089's evidence; 10101 not pursued
 
 10089's corrected wording (*"you need only your Windows password... it still works here at the
