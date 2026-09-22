@@ -40,16 +40,27 @@ or *"— PRE_RELEASE_FIXES.md"*; grep the number there.
 it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
-***22 Sep 2026 — 71, 69, 73, 76, 97 and 105 all closed today.*** Detail: HISTORY.md, 22 Sep 2026
-(search `RELEASE_1.1` plus the id). §5/§6 also trimmed (329,082 → 142,944 bytes, `git show
-375c611:PROJECT_STATUS.md` for the pre-trim text). `-Run` tokens spent through `b230`; next is
-`b231`. **97 closed on the owner's scope call, 22 Sep**: one proposal shipped (per-step/whole-half
-duration logging in `VerifyInstall1.ps1`), the other three declined — *"we don't run the full
-suite that often, just drop this task."*
+***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 47's first pass done.***
+Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
+detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
+security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
+(329,082 → 142,944 bytes, `git show 375c611:PROJECT_STATUS.md` for pre-trim text). `-Run` tokens
+spent through `b231`; next is `b232`.
 
-**Only one entry left open: 47 → 48 → 49**, the release gates, in order, none started. 47 has a
-method/precedent pointer from the Linux side now (its own entry); 48 has a scope check showing
-three `GettingStarted` pages need a rewrite, not an edit, for the withdrawn tier model.
+***106, 22 Sep 2026 — owner's ruling: "the only privileged account is SDSYS," elevation no longer
+grants SD privilege in an ordinary account.*** Fixed (one line, `login`), cycled, targeted-witnessed
+clean (`-Run b231`, 8 steps). **Owed:** `verify-osusers`/`verify-doors-suite` (need a human at the
+keyboard — both raise their own nested UAC prompts) and a full milestone suite. **A related doc
+requirement is filed under gate 48**, not built as code: the installing administrator's own
+account now grants like any other — sign in to Windows as SDSYS, run `sd` elevated.
+
+***47, 22 Sep 2026 — first-pass parity audit done, bidirectional (checked with a mechanical
+`newvoc`/`voc_template` diff, not just prose).*** Most axes align once "only the result counts,
+the mechanism may differ" is applied. Two real action items: **send 106 to Linux over the
+mailbox** (box was off this session — next time it's on) since Linux's privilege model may have
+the same bug shape in a different mechanism; and **Linux's own `MODIFY.PASSWORD` self-service is
+ruled but not built** (`set_acc_password:79-80` names the conflict itself). Full detail in 47's
+own entry — read it before starting 48.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
@@ -148,25 +159,145 @@ account. **Documented as a gate-48 item** (below) rather than built as a code ch
 Owner via the Linux mailbox, 15 Sep 2026 18:12. **47 is gated on every other 1.1
 task above; 48 on 47; 49 on 48.**
 
-- **47 — Windows↔Linux parity audit.** Audit feature and behaviour parity and
-  resolve what it finds. Linux's matching task waits on our "1.1 done" call, so
-  this is the shared critical path. *Done when* a written comparison exists and
-  its findings are resolved or filed. No 1.1-scoped parity document exists in
-  either repository yet, but **there is a method and a precedent, on the Linux
-  side, not to reinvent** (read 22 Sep 2026, `SDCore4Linux` clone — label
-  anything from it as a snapshot, per the mailbox rule): Linux's own gate is
-  **S.21** in its `PROJECT_STATUS.md`, *"PRE-RELEASE 1 of 3 (owner, 15 Sep
-  2026): the parity audit, and fixing what it finds... BLOCKED ON THE PORT
-  [Windows], NOT ON THIS TREE. Method exists: the 10 Sep audit (S.5,
-  `witness-release-run.sh` §12's list) is the precedent to widen rather than
-  reinvent."* That 10 Sep pass found **12 drifts, corrected and compiled**
-  (Linux `PROJECT_STATUS.md`, "Parity audit vs the Windows port, 10 Sep").
-  §12 of `sdb_ai/sd64/gplbld/witness-release-run.sh` (Linux tree) is a live,
-  numbered witness checklist (S./Q./W.-prefixed items — account model, LOGTO,
-  SUSPENDED, the API door, TLS/SCRAM, message numbers) that is the actual
-  shape of a completed audit pass over there; start from it rather than a
-  blank comparison. **48 (docs) explicitly starts from updated Windows text**
-  on the Linux side too, so 47 gates both ports' documentation, not just ours.
+- **47 — Windows↔Linux parity audit.** *Done when* a written comparison exists
+  and its findings are resolved or filed. **First pass done 22 Sep 2026** — a
+  structured comparison across the major axes, not yet the full verb-by-verb
+  sweep (scoped at the bottom). Still open: the next-pass items, the mailbox
+  send for 106, and Linux's own `MODIFY.PASSWORD` build.
+
+  ***THE TEST FOR EVERY ROW, STATED BY THE OWNER ON BOTH SIDES: ONLY THE
+  RESULT COUNTS. THE MECHANISM MAY DIFFER TO FIT EACH OS.*** Linux's own
+  governing rule (owner, 20 Sep 2026, `SDCore4Linux` S.40): *"if something
+  works on Windows it needs to work here... if something prevents a
+  particular behavior on Windows that behavior needs to be prevented here...
+  the mechanism to achieve parity can vary given the capabilities of the
+  underlying OS."* And, wider (owner, 15 Sep 2026, Linux `CLAUDE.md`): *"the
+  linux port should follow the windows port decisions where not
+  contraindicated by the differences between the two operating systems"* —
+  adopted on the Linux side without re-asking the owner, except where an OS
+  difference is named and forwarded. **This audit is checked in both
+  directions** — a Linux capability Windows lacks counts exactly the same as
+  the reverse.
+
+  **Method:** `SDCore4Linux` cloned and pulled fresh (`2d4a45a`, 22 Sep 2026)
+  — label everything from it as a snapshot, per the mailbox rule. Read
+  Linux's own governing decisions (`CLAUDE.md` "Project stance") against
+  `sd4windows`'s §5; then a **mechanical, bidirectional diff of both ports'
+  `newvoc` and `voc_template` directories** (the actual shipped verb surface,
+  not a description of it) to find one-sided capabilities directly, rather
+  than trust either side's prose. `newvoc`: 397 (Windows) vs 399 (Linux).
+  `voc_template`: 430 (Windows) vs 424 (Linux).
+
+  **Aligned — same result, mechanism differs as the OS requires; no action:**
+  - Tiered account model removed on both sides, independently, ~18 Sep 2026,
+    to the same shape: one VOC layer (`newvoc`) for every account, one
+    administrator (SDSYS), ssh and the API open to every account except
+    SDSYS by default (Windows §5.28; Linux `CLAUDE.md` "Project stance",
+    18 Sep, `e41d318`).
+  - SDSYS has zero remote access on both sides, refused at the door, not
+    merely ungranted (Windows: `modifya:246`, `sysmsg 12001`; Linux: S.35,
+    19 Sep 2026, "sdsys should not have any remote access from ssh or api").
+  - `batch.jobs`: Linux's S.40 (20 Sep 2026) was built explicitly to Windows
+    parity under the rule quoted above, after finding the two OS identity
+    models needed different mechanisms for the same allowlist behaviour.
+  - TLS 1.3 + SCRAM API tunnel: interop tested both directions, 15 Sep 2026
+    (RELEASE_1.1 41), both passed.
+  - Shared legacy message-number block (10030–10999): no live collisions.
+    Windows's recent additions (105, 106) and Linux's recent ones
+    (10073–10087, 11000–11002) checked byte-identical where numbers
+    coincide, or correctly in each side's own block otherwise
+    (`test-msgreserved-units.py`, 17/17).
+
+  **Deliberate divergence, OS-difference justified, confirmed by the VOC
+  diff (not assumed from prose) — record, do not "fix":**
+  - **`os.users`/`GRANT`/`REVOKE`/`LIST.GRANTS` are Windows-only, confirmed
+    absent from Linux's `voc_template` entirely** (not merely unused).
+    Windows needs a separate SD-level allow-list for `SH`/`OS.EXECUTE`
+    because Windows has no native way to sandbox what a shelled-out process
+    can do per SD-account; Linux's *"SH and OS.EXECUTE run at the account's
+    own Linux permissions"* (Linux `CLAUDE.md`) gets the same result for
+    free from real Unix file permissions every account already carries.
+    **`GRANT` on Windows turns out to be a pure convenience wrapper, not an
+    extra capability** — `granta`'s own history says so: *"the grant is a
+    Windows group membership and can be made without SD"* — exactly what
+    Linux's `usermod -aG` does directly, outside SD. Same result, and
+    Windows's version is *narrower* in one respect worth knowing: `os.users`
+    gives two independent switches (`SH-ON`, `OS-ON`) where Linux's native
+    permissions answer only one all-or-nothing question.
+  - **`UMASK`**: Linux-only, and already reasoned on both sides — Windows
+    removed it (`d913eac`, 24 Aug 2026, *"essentially inert on Windows where
+    security is ACL-based"*); Linux kept it as *"a real mechanism here"*
+    (Linux `CLAUDE.md` "Project stance").
+  - **`APPEND.PATH`, `SSH.SERVER`**: Windows-only, no Linux equivalent found
+    or needed — Windows has no single shared PATH-management primitive and
+    ships no ssh server by default the way virtually every Linux
+    distribution does, so both are genuinely Windows-side installer/admin
+    concerns with nothing to mirror.
+  - **`nano`**: Linux-only, and turns out to be cosmetic — its `voc_template`
+    record is `CA $EDIT`, the *same* catalogued program `MICRO`/`EDIT`
+    already point to on both sides, just a second, Linux-familiar name for
+    it. Easy to add on Windows if wanted; not a capability gap.
+  - **`%T`/`%t`** (soundex-test keyword): identical content, differ only in
+    record-name case — **not a feature gap, a Windows TODO**. Confirms §5.12
+    (lower case everywhere) is genuinely unfinished for the `$`/`%`/`@`
+    records Windows deliberately excluded from its sweep so far; Linux's own
+    lower-case work (`CLAUDE.md`: *"AND COMPLETE, WHICH THE PORT IS NOT"*)
+    has already gone past it. Low priority, no functional effect either way.
+
+  **Open gap, needs work — not yet resolved on either side:**
+  - **`MODIFY.PASSWORD` self-service is ruled but not built on Linux.**
+    Owner ruled, 19 Sep 2026, on the Linux side, binding both ports under the
+    governance rule above: *"user can only change their own password, sdsys
+    can change any."* Matches Windows exactly (RELEASE_1.1 71, built and
+    witnessed). **Linux's own `set_acc_password:79-80` records the conflict
+    itself**: `$cred` is `sdsys:sdusers 0700`, so an ordinary Linux session
+    cannot write even its own record, and the verb refuses before any prompt
+    is even shown — the ruling and the file permissions disagree. A
+    mechanism is proposed there (`euid 0` for `$MODIFY.PASSWORD`, mirroring
+    how `CPROC` already grants it to `$CREATEA`/`$DELACC`/`$MODIFYA`) but
+    marked *"Needs the owner."* **Next Linux session: build it, or get the
+    owner's yes on the `euid 0` approach.**
+
+  **Needs to go out over the mailbox — decided on Windows tonight, Linux not
+  yet told, and the governance rule says it binds Linux too unless an OS
+  difference is named:**
+  - **RELEASE_1.1 106 (22 Sep 2026, Windows, commit `17b0ae25`): "The only
+    privileged account is SDSYS."** An elevated Windows administrator no
+    longer gets any extra SD privilege in their own ordinary account —
+    `CATALOG GLOBAL`, `SH`/`EDIT`/`MICRO` without an `os.users` grant,
+    `BREAK ON USER`, `PDUMP` of another user's process all now require
+    actually being SDSYS. **Linux's privilege model is `sudo`/root-based,
+    not UAC-elevation-based, so the specific mechanism (`kernel.c`'s
+    `IsElevated()` seed) doesn't translate — but the *question* does: does a
+    Linux session started via `sudo sd` (or any root-equivalent path)
+    currently carry SD-level privilege into an *ordinary* account it lands
+    in, the same shape of bug Windows just closed?** This needs an actual
+    check on the Linux tree, not an assumption either way, per the
+    result-only test above. **Not sent yet — the Linux box was off this
+    session.** Send via `mail.sh` next time it's on, citing this entry and
+    commit `17b0ae25`.
+
+  **Not yet audited — scoped for a next pass, not started tonight:**
+  - Full verb-surface semantic comparison (the diff above found *presence*,
+    not *behaviour* — a verb existing on both sides was not re-checked for
+    matching result).
+  - ssh mechanism: Windows's `ForceCommand`+`DisableForwarding`+`AllowGroups`
+    vs whatever (if anything) Linux relies on, given `SH` already runs at
+    native Linux permissions there.
+  - Console/interactive-login restriction: Windows's `sdsshonly` deny-rights
+    group vs Linux's equivalent, if any.
+  - Full message-*text* comparison beyond the shared-legacy-block number
+    check above (wording drift, not just numbering collisions).
+  - Doc parity — gate 48 on each side; Linux's own S.22 explicitly waits for
+    Windows's docs to be current first, so sequence 48 before returning here.
+
+  **Precedent, not reinvented:** Linux's own gate is **S.21** in its
+  `PROJECT_STATUS.md`, blocked on Windows's 1.1 the same way this was blocked
+  on nobody having started it; its method note points at its own 10 Sep 2026
+  pass (**S.5**, `witness-release-run.sh` §12 — a live, numbered witness
+  checklist: account model, LOGTO, SUSPENDED, the API door, TLS/SCRAM,
+  message numbers) as *"the precedent to widen rather than reinvent."* The
+  next-pass items above are exactly what §12 already knows how to check.
 - **48 — documentation current with 1.1.** Bring `SDCoreWindowsDocs` up to date
   with every W1.1 change (API TLS, the SDSYS elevation gate, `delete.account`'s
   skip, the VOC-write fix, prompt defaults, …) — it still describes account tiers
