@@ -40,53 +40,24 @@ or *"— PRE_RELEASE_FIXES.md"*; grep the number there.
 it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
-***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 47's second pass done for
-ssh mechanism, console-login (S.27/S.41), message text, and a source-diff verb sweep. Owner's
-"parity goes both ways" ruling (relayed via Linux, S.42) acted on same-session: `nano` built here
-(not yet cycled), `UMASK` re-examined and confirmed structurally covered by NTFS inheritance, a
-real Python-list-creation gap found on Linux's side and sent (built there too, S.43). **48: the
-tier-model doc rewrite and sweep are DONE** — every page across all three `SDCoreWindowsDocs` sets
-rewritten against verified source, the scattered-sentence sweep completed and re-checked, and all
-three broken tier-era tools (`mktclsyntax.py`/`tclmap.py`/`verbcounts.py`) fixed and mutually
-agreeing (148 verbs, 128 every account, 20 SDSYS-only). **The sharpest finding: `LOGTO SDSYS` is
-refused unconditionally now**, not just elevation-gated (`cproc:2784-2787`) — seven pages told a
-reader to type it as a working command; all fixed. Only the PDF/book rebuild (absorbed old 18) is
-left of gate 48. A live witness run (not source-read) also remains, large enough to be its own
-pass.***
-Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
-detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
-security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
-(329,082 → 142,944 bytes, `git show 375c611:PROJECT_STATUS.md` for pre-trim text). `-Run` tokens
-spent through `b231`; next is `b232`.
+***22 Sep 2026, END OF SESSION — 71, 69, 73, 76, 97, 105 and 106 closed/fixed; 47's second pass
+(ssh mechanism, console-login S.27/S.41, message text, source-diff verb sweep) and 48 (the whole
+tier-model doc rewrite and sweep across all three `SDCoreWindowsDocs` sets, plus the three broken
+tier-era tools) are both DONE.*** Detail is in each id's own OPEN TASKS entry below, not repeated
+here — read those, not this block, for specifics. Full narrative: HISTORY.md, 22 Sep 2026 (search
+`RELEASE_1.1` plus the id). §5/§6 also trimmed (329,082 → 142,944 bytes, `git show
+375c611:PROJECT_STATUS.md` for pre-trim text). `-Run` tokens spent through `b231`; next is `b232`.
 
-***106, 22 Sep 2026 — owner's ruling: "the only privileged account is SDSYS," elevation no longer
-grants SD privilege in an ordinary account.*** Fixed (one line, `login`), cycled, targeted-witnessed
-clean (`-Run b231`, 8 steps). **Owed:** `verify-osusers`/`verify-doors-suite` (need a human at the
-keyboard — both raise their own nested UAC prompts) and a full milestone suite. **A related doc
-requirement is filed under gate 48**, not built as code: the installing administrator's own
-account now grants like any other — sign in to Windows as SDSYS, run `sd` elevated.
-
-***47, 22 Sep 2026 — first-pass parity audit done, bidirectional (checked with a mechanical
-`newvoc`/`voc_template` diff, not just prose); its two mailbox-dependent action items are now
-closed, but the "next pass" scope in 47's own entry (ssh mechanism, console-login restriction,
-full message-text comparison, doc parity) is still unaudited.*** Read 47's own entry before
-starting 48.
-
-***106 mail round-trip closed, 22 Sep 2026*** — sent 13:00, ACKNOWLEDGED (Linux moved it to
-`done/`); reply `2026-09-22T1500-linux-release-1.1-106-reply.md` (mailbox `done/`, `SDCore4Linux
-main c88ab9e`) read and filed here, per mailbox rule 5 (git is the record). **Linux checked
-against source, not assumed: no K$ADMINISTRATOR-shape leak on their port.** Their `USR_ADMIN`
-flag has no pre-identity seed to begin with (`my_uptr->flags = 0` at session init,
-`gplsrc/kernel.c:157`) — it is granted in exactly one place, `sdsys/gpl.bp/cproc:424,432`, and
-only *after* identity is known (OS user `sdsys` + local session + kernel-set audit loginuid
-`sdsys`), so `sudo sd`/`su - sdsys` from another account carries that account's loginuid and is
-refused (10195/10176) rather than granted. Grant is post-identity and single-site — the opposite
-shape from Windows's bug (pre-identity seed + a missed clear). Not a fresh live witness — a
-source re-read against Windows's question, against the prior live witness on `60ac74a` (19 Sep
-2026, M8a-h). `sudo sd` as root itself is refused outright (10190), same ruling as Windows's W.5.
-**Corrected 15:30, same day** — Linux's `MODIFY.PASSWORD` self-service was
-already built and witnessed 19 Sep 2026 (W.10), before this audit's 22 Sep
-read of `set_acc_password`; the line numbers had moved. See 47's entry below.
+**Start here next session:**
+1. **106's own verify-osusers/verify-doors-suite and a full milestone suite** are still owed —
+   both need a human at the keyboard (nested UAC prompts). See 106's entry.
+2. **47's live witness run** (not source-reading) is the one item its own entry still lists as
+   unaudited — Linux's §12 precedent is the method if it's wanted; needs Linux's own half too.
+3. **48's PDF/book rebuild** (absorbed old 18, `tools\release.ps1`) is the only sizeable piece of
+   gate 48 left — everything else in it is done.
+4. **Absorb 61's two remaining facts** (only SDSYS administers; an ssh session's reach is bounded
+   by NTFS, not by SD) as one standalone sentence each in the docs — currently said only in
+   context across the rewritten pages.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
