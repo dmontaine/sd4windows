@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **100**, so **the next is 101** —
+`RELEASE_1.1`'s id space: the highest id issued is **101**, so **the next is 102** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -55,6 +55,9 @@ The elevated helper stops after 60 idle minutes, or `agent-elevate.ps1 -Stop`.
 or from bash, the comma list collapses into ONE argument and the runner answers *"-Run was not given"*
 before running anything. `-Run` tokens `b206`–`b214` are spent.
 
+***22 Sep 2026 — 101 (SDSYS gets the API route with the administrator flag, off by default) IS BUILT AND UNRUN; it rides in the same
+cycle as item (2) below, and its entry lists what is unmeasured.***
+
 ***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
 whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
 `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1
@@ -68,7 +71,7 @@ list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's propos
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**14 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97 and 100
+**15 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100 and 101
 added since (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
@@ -79,6 +82,73 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
+
+### 101 · S — SDSYS has the API route like every other account, off until `MODIFY.ACCOUNT SDSYS API` grants it
+
+**Owner's request, 22 Sep 2026: *"make the SDSYS account like every other with the capacity to
+use api and ssh. Only difference, rather than being on by default, have them off by default after
+installation. SDSYS user can open them up using the modify.account verb."*** **Rulings the same day:
+ssh is dropped** (*"the sdsys account already has to be logged in to use it"*); **an API session in
+SDSYS gets the administrator flag** (*"it is the admin's choice as the security level"*, said after
+being told an API session needs no Windows sign-in of SDSYS); **remote API for SDSYS takes TWO steps, both
+at the console as Windows SDSYS: `MODIFY.ACCOUNT SDSYS API` and `MODIFY.PASSWORD SDSYS`** (owner, later
+the same day; **the verb is `MODIFY.PASSWORD` — `SET.PASSWORD` was renamed on 21 Aug and I named it
+wrongly earlier in the session**). This already holds by construction and needed no code: the
+installer's SDSYS prompt calls `Set-LocalUser` (the WINDOWS password only, `finish-install.ps1:448`),
+`Set-AttachedAccountPassword` — the only installer path that writes `$cred` — is called for
+`$AttachUser`, which `sd.iss:3083` fills from `{username}`, the installing person, and
+`set_acc_password` writes `$cred` alone (`CRED_SET`, :369), never the Windows password. An SDSYS with
+no `$cred` fails SCRAM, so a grant without a password is inert. **`MODIFY.ACCOUNT SDSYS API` now says so:
+message `12002` (`sdsys/messages/12002`, `modifya` label `sdsys.cred.reminder`) when `$cred` holds no
+stored key for SDSYS, also after "nothing changed". Compiles; no `verify-routes` row asserts it.** **Unconfirmed on an installed tree,
+and one hole:** if the installing Windows user is literally `SDSYS`, `$AttachUser` would name it.
+**Source written and compiled; NOTHING RUN — no cycle, no elevation, owner away.** Free tier 54/54
+green (last run before the ssh-drop and admin-flag edits — re-run it); `modifya` compiles under
+`bbcmp` in a scratch root with `prompt`/`void` stubbed (last compiled before those edits too);
+`apisrvr` passes pass 1 only (pass 2 aborts at `HUSH`, a chain of unsupported statements, well before
+either edit).
+
+**What changed.** `modifya`: SDSYS is no longer refused up front; `sdsys.acct` admits it for `API`
+and `NONE` only (`SSH` and `BOTH` answer message **12003**, "ssh is not available to the SDSYS user...";
+everything else answers **12001**; both in `sdsys/messages/`), and
+`account.user` returns the Windows user `SDSYS` for it (its `ACC$GROUP` is `sdsys`, not `sdu_`).
+`apisrvr`: the `ACC$GROUP` entry test, which could never pass for SDSYS, is replaced for SDSYS by "the
+proven name is `SDSYS`"; `sdapi` membership is still tested first in `vb.scram.final`; and just before
+the LOGIN paragraph runs, `kernel(K$ADMINISTRATOR, 1)` for SDSYS and `0` for every other account —
+because `kernel.c` never seeds the flag for a socket session and `apisrvr` is `$internal`.
+`install-sdsys.ps1` no longer removes SDSYS from `sdapi` (it runs on every install, an upgrade
+included, and would have undone every grant) but still removes `sdssh` and `sdsshonly`.
+`sync-route-groups.ps1` leaves SDSYS out of the `sdssh` seed. `verify-routes` Step 5 grants API,
+checks 10077, restores NONE, and pins 12001 for SSH, BOTH, SUSPENDED, SH-ON and ADD.
+"Off by default" holds because nothing joins SDSYS to `sdapi` and uninstall deletes the group.
+
+**The widest API session there is, and 5.28 should say so.** For SDSYS the account root IS the system
+tree, so the containment gate (`op_dio2.c`, `net_path_permitted`) confines it to nothing that matters;
+`os_permitted()` (`op_sh.c`) reads the flag, so the session can run `OS.EXECUTE` — as the session
+process's Windows token, which was not measured. `kernel.c:207-296` records why the flag was withheld
+from socket sessions (a LocalSystem token had made every remote client an administrator) and 5.25 rules
+that administration needs an interactive desktop; **this is a deliberate exception to both, the owner's,
+limited to SDSYS and to an account that was explicitly given `API`.**
+
+**Unmeasured, and each could make the feature not work rather than merely differ:**
+1. **Whether the flag survives.** `kernel(K$ADMINISTRATOR, n)` changes it only for an `$internal`
+   program; `apisrvr` is one (its header says so) but no run has seen the flag set in an API session.
+   Also unread: whether some later step in `apisrvr` (a LOGTO to another account) clears or re-derives it.
+2. **`$cred\sdsys` must be ABSENT after a fresh install** — that is what makes `MODIFY.PASSWORD SDSYS` the
+   second step. Read from source (paragraph above), never looked for on disk: `assert` it after the cycle.
+3. **Whether `SDSYS` as the SCRAM name resolves** — `vb.scram` looks the name up in `$cred` by lower
+   case; nothing else about the name was read.
+
+**`test-sysmsg-units` FAILS until the cycle, by design of the guard, not by fault:** it reads the
+messages from the INSTALLED tree (`C:\ProgramData\SD\sdsys\messages`), and `12001` (which
+`verify-routes` now matches) exists only in source until then. The other 53 free guards pass.
+
+**Owed:** a cycle; then `verify-routes -Only verify-routes` (Step 5 is new and unrun); an API login as
+SDSYS from another machine or loopback after `MODIFY.ACCOUNT SDSYS API` — and inside it, `WHO`, an
+administrator-only verb, and `OS.EXECUTE` (all expected to work) — then `MODIFY.ACCOUNT SDSYS NONE`
+and the same login refused. A `verify-*` for the API half does not exist. Documentation:
+`SDCoreWindowsDocs` says nothing false about this (grepped); its `MODIFY.ACCOUNT` page should list
+SDSYS's two words, and the security page should carry the exception above.
 
 ### 100 · M — `newvoc/%t` is a mis-cased escape: the record for `~` is undecodable and never reaches an account
 
