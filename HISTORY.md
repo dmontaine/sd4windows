@@ -36490,3 +36490,44 @@ place, naming the measurement and the ruling. No code changed. The password LOGI
 `$cred`; the one `install-sdsys.ps1` generates is the Windows one, and they are unrelated.
 
 ====
+
+## RELEASE_1.1 84 — verify-apiidentity onto the real client library, and the seat conversion it forced (22 Sep 2026)
+
+**DONE AND WITNESSED, `sdapiidb222`, owner elevated, SDSYS signed in: `verify-apiidentity: PASSED`.** The
+decisive row — *"the API session writes as the authenticated user"* — is green with `ZZAPI` owned by
+`ace\sdapiidb222` and `ZZLOCAL` by `ace\SDSYS`; ALLOW opens, DENY refused, USER-ONLY opens (the three
+non-decisive rows). The whole session ran through the **shipped `sdclilib`** — `SDConnect` (login+attach),
+`SDOpen` per fixture, `SDWrite`+`SDRead` readback — via `gplsrc/sdclilib/tests/api_identity_probe.c`, rewritten
+from a one-open smoke into a full session probe and driven by `build-api-identity` (a build-only target added
+to both Makefiles) then run from `localtest` with the runtime PATH, the way `verify-apiremote` drives its own
+probe. `scram-probe.py` stays — `verify-scramlogin`, `-apiwire`, `-vocwrite` still use it. This closes 64's
+slice-5a debt (both `verify-apiremote` and `verify-apiidentity` now read the real library) and keeps
+`verify-apiidentity` as the only witness of 55's session-as-the-user property.
+
+***THE PROBE SWAP WAS THE EASY HALF. THE FIRST WITNESS (`b220`) FAILED AT `CREATE.ACCOUNT` "not in your VOC"***
+— `verify-apiidentity` was the FIFTH verifier 76 never converted to the SDSYS seat, and its `Invoke-SD` (a
+non-interactive `sd.exe` child) is refused SDSYS since 101 (`sdsys-seat.ps1:7`, 10002). Converted the same way
+as the other four: `Invoke-SDSys` (plain seat) for CREATE.ACCOUNT / MODIFY.PASSWORD / DELETE.ACCOUNT,
+`Invoke-SDIn` (the `-Internal` door) for the Step 3 LOGTO into the throwaway account, `Assert-SdSeat`
+plain+`-Internal` before anything is created. Steps 3a/3d count two WHOs now (the seat owns the LOGTO), which
+read `SDAPIIDB222 from SDSYS` — the login name stays SDSYS through the LOGTO, which is exactly why `ZZLOCAL` is
+owned by `ace\SDSYS` and the ownership control still separates the two writers.
+
+***TWO MORE SEAT SIDE-EFFECTS SURFACED, ONE PER WITNESS, AND BOTH WERE THE SAME CLASS: THE SETUP RUNS AS SDSYS
+NOW, NOT AS THE CALLER.*** (`b221`) Step 4's `icacls /grant` got *"Access is denied"* on `%0` because the
+fixture files are created by the seat and owned by the SDSYS-side identity, not the elevated verifier —
+pre-101 the console kept the caller's token, so the caller owned them. Fixed with `Reclaim-Ownership`
+(`takeown /R` on `$base` before the grants; it does not touch `ZZIDOWN`, so the ownership control is
+untouched, and it sets the owner to the verifier, not the API user, so fixture access stays DACL-decided).
+And a stale anchor the same run would have hit: Step 1 matched `'Password set'`, but `set_acc_password:375`
+prints `Password accepted.` since 21 Sep (`verify-apiidentity` was not among the eight fixed then) — now
+anchored on the success wording with the `ERROR: Unable to set password` disqualifier.
+
+**Parser change, by design:** `sdclilib` exposes no wire `server_error` getter (`SDStatus` returns
+`sd_status`, which `SDOpen` never sets), so a refused open reads as `OPEN NAME: REFUSED: <SDError text>`
+(DENY's text was empty in the witness — harmless, the boolean is what is scored) and login+attach as
+`PROBE.CONNECT=YES`; message 5277 is still detected in the refusal text. **Files:**
+`gplbld/verify-apiidentity.ps1`, `gplsrc/sdclilib/tests/api_identity_probe.c`, `gplsrc/sdclilib/Makefile`,
+`Makefile`. Commits `5bb7f23`, `c1f0c31`, `f95eca4`.
+
+====
