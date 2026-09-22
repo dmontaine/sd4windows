@@ -231,13 +231,42 @@ recreates them empty), which is also why no `MODIFY.ACCOUNT SDSYS NONE` was ever
 cycle that `ace\SDSYS` is in neither group** — `Get-LocalGroupMember -Group sdapi` — because the revert
 above only stops it happening again.
 
-***OWED, AND IT IS THE LAST THING: THE ADMIT SIDE OF THE LOCAL ROUTE.*** Everything above measures that SDSYS
-is REFUSED where it should be; **nothing has yet shown it ADMITTED where it should be.** It needs an elevated
-session owned by Windows SDSYS running a client that calls `SDConnectLocal("SDSYS")`, then `WHO` and an
-administrator-only verb inside it. `make check-local`'s binary hardcodes the refusal and
-`verify-localconnect` refuses an elevated run by design, so this wants a small probe of its own — **not
-written.** ***IF `IsInteractive()` IS FALSE FOR A ConnectLocal CHILD, THIS IS WHERE IT SHOWS, AND THE ROUTE
-SIMPLY DOES NOT WORK*** — it opens nothing either way, so the failure is inert rather than dangerous. **`make check-local` in `gplsrc/sdclilib` is the
+***THE ADMIT SIDE IS THE LAST CLAIM, AND THE PROBE FOR IT IS WRITTEN AND BUILT — BUT IT HAS NOT BEEN RUN
+AGAINST SDSYS, WHICH IS THE WHOLE POINT OF IT.*** Everything above measures that SDSYS is REFUSED where it
+should be; **nothing yet shows it ADMITTED where it should be.** New:
+`gplsrc/sdclilib/tests/local_sdsys_probe.c` → `localtest/local-sdsys-probe.exe`, built by `all` (so `make sd`
+and every cycle build it), and `gplbld/verify-sdsyslocal.ps1`, the wrapper that checks the principal.
+
+**Three separate claims, three exit codes, so a refusal cannot read as a pass:** admitted (1 if not); `WHO`
+names SDSYS (2 if it names something else — `vb.account`'s `revert.to.old.account` leaves a session open in
+the account it started in, so "connected" is not "in SDSYS"); and an administrator-only verb runs (**4** if
+refused). **The verb is `MODIFY.ACCOUNT` with no arguments**: MODIFYA's first statement is the
+`K$ADMINISTRATOR` test (2001) and its next act with no account name is to print its syntax block, so the two
+outcomes are one line apart and **nothing is read, written or changed either way**. Anchored on
+*"Command Syntax"*, with *"administrator privileges"* as a disqualifier, and **a reply carrying neither is its
+own failure (5)** rather than a pass.
+
+***THE WRAPPER REFUSES THE WRONG PRINCIPAL AND BOTH REFUSALS ARE PROVEN TO FIRE.*** It reads elevation and
+the owner from the token, prints both, and exits 2 on either. **Measured 21 Sep 2026:** run unelevated as
+`ace\Don` it printed `caller ace\Don`, `elevated False`, *"CANNOT RUN — this session is NOT elevated … Nothing
+was measured"*, exit 2; and the owner test evaluates `ace\Don` → refuse, `ace\SDSYS` → proceed. **It is in
+neither runner, deliberately**: `VerifyInstall1` is unelevated and `VerifyInstall2`'s elevated half runs as
+whoever started it, so neither can promise a session owned by SDSYS (§4.0.1). It also calls `assert-current`
+and refuses a stale tree.
+
+**Checked before hand-over, per CLAUDE.md:** `verify-sdsyslocal.ps1` **0 parse errors, 3 functions, no
+embedded BOM**; the probe **compiles under `gcc -Wall -Wextra -Wpedantic` with no warnings** and its Makefile
+rule **builds for real** (`make localtest/local-sdsys-probe.exe`, exit 0 — so the cycle's `make sd` will not
+break on it); and the probe's **null case refuses out loud**, exit 6, with no argument. ***WHAT REMAINS UNRUN
+IS EXACTLY THE MEASUREMENT: nobody has run it from an elevated SDSYS session.*** ***IF `IsInteractive()` IS
+FALSE FOR A ConnectLocal CHILD IT EXITS 4 AND THE ROUTE CARRIES NO RIGHTS*** — it opens nothing either way, so
+the failure is inert rather than dangerous.
+
+```
+powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-sdsyslocal.ps1
+```
+
+**Elevated, in the Windows SDSYS session.** Also copied to `P:\command-sdsyslocal.txt`. **`make check-local` in `gplsrc/sdclilib` is the
 nearest existing harness and its binary hardcodes the refusal**, so the admit side wants either a flag on
 that binary or a short probe; **neither is written.** *(The 21 Sep measurement that an API session's token is
 fully elevated was taken on the SOCKET path and says nothing about `CN_PIPE` — see 102.)*
