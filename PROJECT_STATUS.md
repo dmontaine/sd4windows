@@ -65,11 +65,14 @@ own entry — read it before starting 48.
 ***OWNER'S STANDING INSTRUCTION FOR THE NEXT SESSION, 22 Sep 2026: SEND THE 106 MAIL AS SOON AS
 THE LINUX BOX IS CONFIRMED BACK ON.*** Do this before anything else that session touches 47/48/49
 — it's a short, cheap send and the Linux side can't start checking its own privilege model for
-the same bug shape until it has the message. Content is already written: summarise 106 (commit
-`17b0ae25`, the changelog entry, and the "needs to go out over the mailbox" paragraph in 47's
-OPEN TASKS entry) into a normal `to-linux/` message via `mail.sh send`, then `mail.sh status` to
-confirm ACKNOWLEDGED per CLAUDE.md's mailbox section — do not report it sent on `send`'s DELIVERED
-alone.
+the same bug shape until it has the message. **A full draft is already written**, covering 106's
+root cause/fix/witness, the "check your own sudo/root path for the same shape" ask, and the
+`MODIFY.PASSWORD` self-service reminder — at
+`C:\Users\Don\AppData\Local\Temp\claude\C--Users-Don-SDCoreProject-sd4windows\0420a4bb-ea8b-4b68-8f2e-c369e14daaf6\scratchpad\mail-to-linux-106.md`.
+**That path is a prior session's scratchpad and may not survive** — if it's gone, the same content
+is fully recoverable from commit `17b0ae25`, entry `106`, and entry `47`'s "needs to go out over
+the mailbox" paragraph, all in this file. Either way: `mail.sh send <draft> <YYYY-MM-DDTHHMM-windows-release-1.1-106.md>`,
+then `mail.sh status` to confirm ACKNOWLEDGED — do not report it sent on `send`'s DELIVERED alone.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
