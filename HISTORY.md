@@ -50,6 +50,65 @@ corrected.
 
 ---
 
+## 22 Sep 2026 — RELEASE_1.1 105 closed: `sh`/`!` restored to `newvoc`, witnessed on `b230`
+
+Found by 76's owed full-suite pass (`-Run b229`): `verify-osusers.ps1` refused cleanly — *"SH is
+not in Don's VOC"* — instead of measuring the OS.USERS gate, because no ordinary account could
+even type `SH` or `!` any more, only SDSYS. Traced to source: `d913eac` (24 Aug 2026, the tier
+split) deleted `sh`/`!` from `newvoc`, correctly under the three-tier model — they stayed
+ADMINISTRATOR-tier-only via `TIER.ADD.ADMINISTRATOR` pulling them from `voc_template`.
+`RELEASE_1.1 64` (18 Sep) then deleted the whole tier system, `TIER.ADD.ADMINISTRATOR` included,
+and nothing ever put `sh`/`!` back into `newvoc` — an unintended casualty of the tier removal, not
+a deliberate tightening.
+
+Owner's ruling, 22 Sep 2026: *"sh and ! should go back because the admin may decide to allow an
+account os access and those verbs need to be ready if he does."* Fixed: `sdsys/newvoc/sh` and
+`sdsys/newvoc/!` restored, byte-identical to their `voc_template` counterparts. `SH-ON` (OS.USERS
+field 1, `CPROC`) is the switch that gates the verb itself, separate from `OS-ON` (field 2,
+`os_user_permitted()`, the `OS.EXECUTE` statement and the screen editors) — both were already
+correctly wired; only the VOC records were missing. `sdsys/changelog` carries the user-facing
+entry.
+
+**Witnessed 22 Sep 2026 on a fresh cycle, `-Run b230`:** `verify-osusers.ps1` exit 0, actually
+measuring the OS.USERS admit/refuse transition rather than refusing at the precondition. Full
+suite otherwise unaffected — see the `76` closure entry below, same run.
+
+| `sdsys/newvoc/sh`, `sdsys/newvoc/!`; `sdsys/gpl.bp/cproc` (SH-ON), `gplsrc/op_sh.c` (OS-ON);
+commit `d913eac`; entries 64, 76
+
+---
+
+## 22 Sep 2026 — RELEASE_1.1 76 closed: all four verifiers seat-converted and witnessed; full suite `b230` clean
+
+Owner's ruling, 21 Sep 2026: convert `verify-apiadmin`, `verify-privundetermined`, `verify-lcnames`
+and `sdtestuser-admin` to the SDSYS seat so none needs a genuine SDSYS Windows sign-in switch.
+Built and witnessed in stages through 21-22 Sep (see the entries above this one for `verify-routes`'
+seat conversion and the two stale-verifier fixes found on `b223`); the falsification check — does
+the `os.users\SDSYS` fixture the two API verifiers plant for their local control actually matter,
+or would the control pass anyway without it — was the last piece.
+
+**Both verifiers gained a `-NoFixture` switch, 22 Sep 2026**, so the check runs without manual
+editing: it skips planting the fixture and reports the result under a differently-named check
+(`falsification: ...`) rather than a flipped expected value on the existing one (entry 64's rule).
+**Witnessed the same day, owner's own elevated runs, SDSYS already signed in:**
+`verify-apiadmin -NoFixture -Prefix sdapia13`: 23/24 (the usual one designed N/A) plus
+`falsification: WITHOUT the fixture, the control is refused` — **True/True, PASS**;
+`verify-privundetermined -NoFixture -Prefix sdpwb115`: **26/26, no N/A**, plus its own
+falsification row — **True/True, PASS**. Both confirm: without the fixture the local OS.EXECUTE
+control is genuinely refused, so `USR_ADMIN` does not survive the seat's `LOGTO` under `-Internal`
+— the fixture does real work, nothing to revert.
+
+**The remaining owed item — a full suite run, none since 18 Sep 10:30 — closed the same day,
+`-Run b230`, after a cycle that also picked up 105's `sh`/`!` fix: 26 of 26 unelevated steps exit
+0, 35 of 35 elevated steps exit 0, 61 of 61 total.** `verify-osusers.ps1` (105's witness) and every
+seat-converted verifier passed in the same run.
+
+| `gplbld/verify-apiadmin.ps1`, `verify-privundetermined.ps1`, `verify-lcnames.ps1`,
+`sdtestuser-admin.ps1`, `sdsys-seat.ps1`; `-Run` tokens `b210`, `b211`, `b223`, `b224`, `b225`,
+`b226`, `b229`, `b230`; entries 45, 64, 76, 97, 105
+
+---
+
 ## 22 Sep 2026 — PROJECT_STATUS.md §5/§6 trimmed: 329,082 → 142,944 bytes (57%)
 
 Owner's overnight housekeeping task, run unattended per the CURRENT PICKUP handoff left by the

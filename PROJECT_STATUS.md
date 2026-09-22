@@ -40,9 +40,13 @@ or *"— PRE_RELEASE_FIXES.md"*; grep the number there.
 it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
-***22 Sep 2026 — Bundle A CLOSED: 71, 69, 73, 76's remaining witnesses, `verify-routes`' seat conversion.***
-Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1 71`, `69`, `73`, `76`, `verify-routes`). `-Run`
-tokens spent through `b228`; next is `b229`.
+***22 Sep 2026 — Bundle A CLOSED: 71, 69, 73, 76's remaining witnesses, `verify-routes`' seat
+conversion, THEN 105 (found mid-run, ruled, fixed) AND 76 ITSELF, both closed same day.*** Detail:
+HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1 71`, `69`, `73`, `76`, `105`, `verify-routes`).
+`-Run` tokens spent through `b230` — **`-Run b229` found `sh`/`!` missing from every ordinary
+account's VOC** (105; the fix restored `sdsys/newvoc/sh` and `/!`), and after a cycle **`-Run
+b230` ran the full suite clean: 26 of 26 unelevated, 35 of 35 elevated, 61 of 61.** Next token:
+`b231`.
 
 ***22 Sep 2026, overnight — §5/§6 TRIMMED*** to the owner's instruction, with retained entries
 shortened to their essential issues as well. PROJECT_STATUS.md: **329,082 → 142,944 bytes**
@@ -52,17 +56,11 @@ otherwise unchanged; no decision, rule, open task or distinct §6 trap lesson wa
 only the narrated measurement trails, superseded corrections-of-corrections, and repeated
 restatement around them.
 
-***22 Sep 2026 — 76's falsification check DONE AND CONFIRMING*** (`verify-apiadmin -NoFixture`
-23/24, `verify-privundetermined -NoFixture` 26/26, both owner-run elevated with SDSYS signed in —
-detail in OPEN TASKS entry 76).
-
-***22 Sep 2026 — THE OWED "76 FULL SUITE" RUN (`-Run b229`) FOUND A REAL DEFECT AND STOPPED AT IT:
-`SH`/`!` WERE MISSING FROM EVERY ORDINARY ACCOUNT'S VOC*** — RELEASE_1.1 105, ruled and fixed
-same day, see its entry below. **The tree is now STALE (source changed): `-Run b229`'s partial
-result is void, and any full-suite result before a fresh cycle is not to be trusted.** **Next, in
-order:** cycle, then the full suite again with a fresh `-Run b230` (this is 76's owed item and
-105's witness in one run); 97's suite-speedup proposals; the 47 → 48 → 49 gates (parity audit →
-docs → staging/zips), none started.
+**Next, in order:** 97's suite-speedup proposals (needs an attended, elevated session to test
+any runner edit); the 47 → 48 → 49 gates (parity audit → docs → staging/zips), none started —
+47 has a method/precedent pointer from the Linux side now (its own entry), and 48 has a scope
+check showing three `GettingStarted` pages need a rewrite, not an edit, for the withdrawn tier
+model.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
@@ -78,9 +76,9 @@ joined string). `bbcmp` compiles `set_acc_password`/`createa`, not `login`. `ISC
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**6 open (ids across 4 entries): 59, 69, 71, 73, 75, 77, 84, 100–104, 64, 95, 96 and 99 all closed
-22 Sep, 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below the gates); 105
-filed and fixed the same day it was found.** Every call
+**4 open (ids across 2 entries): 59, 69, 71, 73, 75, 76, 77, 84, 100–105, 64, 95, 96 and 99 all
+closed 22 Sep, 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below the gates).**
+Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -90,99 +88,6 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
-
-### 105 · B — `sh`/`!` were absent from every ordinary account's VOC; ruled and fixed, owed a cycle+witness
-
-**Owner's ruling, 22 Sep 2026: *"sh and ! should go back because the admin may decide to allow an
-account os access and those verbs need to be ready if he does."*** Found the same day, mid-run,
-by `76`'s owed full-suite pass (`-Run b229`): `verify-osusers.ps1` refused cleanly — *"SH is not in
-Don's VOC"* — rather than measuring the OS.USERS gate at all.
-
-**Root cause, traced to source:** [d913eac](d913eac) (24 Aug 2026, tier split) deleted `sh` and
-`!` from `sdsys/newvoc`, correctly for the three-tier model of the time — they stayed
-ADMINISTRATOR-tier-only, reached via `TIER.ADD.ADMINISTRATOR` pulling them from
-`sdsys/voc_template`. **RELEASE_1.1 64 (18 Sep) then deleted the whole tier system**, including
-`TIER.ADD.ADMINISTRATOR` — so every ordinary account's VOC became `newvoc` directly, and nothing
-ever put `sh`/`!` back into it. Net effect: no SD account except SDSYS could even type the `SH`
-or `!` command — not gated, absent. This was an unintended casualty of 64's tier removal, not a
-deliberate tightening: §5.28's own table documents OS.EXECUTE/SH as "default deny, admin can
-grant" — a runtime gate — not "the verb does not exist."
-
-**Fixed 22 Sep 2026:** `sdsys/newvoc/sh` and `sdsys/newvoc/!` restored, byte-identical to their
-`voc_template` counterparts (`V\nOS\n`). **`SH-ON` is the switch that matters for the verb
-itself** (`CPROC`, OS.USERS field 1, `sh.rec<1> = 'YES'`) — separate from `OS-ON` (field 2,
-`os_user_permitted()`, gates the `OS.EXECUTE` BASIC statement and the screen editors). Both were
-already correctly wired and untouched by this fix; only the VOC records were missing.
-`sdsys/changelog` carries the user-facing entry with the right verb (`MODIFY.ACCOUNT <account>
-SH-ON`). Free tier re-run clean after the fix: `test-voctwins-units.py` (no case-collision
-introduced, `newvoc` now 397 records) and all 54 free guards, 0 failures.
-
-**Owed:** a cycle (the tree is stale — source changed) and a witnessed `verify-osusers.ps1` pass
-showing the OS.USERS gate actually measured rather than refused. This is the same run 76 already
-owed — one fresh full-suite pass covers both.
-
-### 76 · B (harness) — the four verifiers are converted to the SDSYS seat; two are witnessed
-
-**Witnessed 21 Sep 2026, elevated through the agent helper, SDSYS signed in:** `verify-apiadmin`
-and `verify-privundetermined` on `b211` — both exit 0; `verify-apiadmin` every row PASS with
-its one designed N/A (the "not SYSTEM" row, unmeasurable once `OS.EXECUTE` is refused),
-`verify-privundetermined` **27 of 27**; the `os.users\SDSYS` fixture was planted and removed
-in both and the tree was left clean. **The first run, `b210`, failed at "credential set" in
-both — an instrument fault, not the product:** `SET_ACC_PASSWORD` was reworded that day to
-print `Password accepted.` and **eight** verifiers still matched `Password set for account`
-(`verify-apiadmin`, `-apiname`, `-apiport`, `-apiwire`, `-doors-admin`, `-privundetermined`,
-`-scramlogin`, `-vocwrite`); all eight are fixed and `test-verifieranchors-units.py` (free
-tier, four mutants red) fails when a `verify-*` anchors on a phrase in its RETIRED table —
-add a row there whenever a line a verifier matches on is reworded. `verify-lcnames` AND
-`sdtestuser-admin` **WITNESSED 22 Sep 2026**, unelevated (`-Run b224` for the account pair):
-`verify-lcnames` 165/165; `sdtestuser-admin` Create/Remove both instrumented before/after,
-driving `verify-nocase` (5/5) and `verify-lineendings` (17/17). ***THE FULL SUITE RAN 22 Sep 2026,
-`-Run b223`, elevated: 31 of 35 clean.*** Two were stale verifiers (`verify-elevdoor`,
-`verify-sdsysgate` — both asserted `RELEASE_1.1 45`'s withdrawn model; fixed and re-witnessed
-clean, `-Run b225`). Two could not run on `b223`: `verify-routes` demanded the genuine SDSYS
-Windows session (predated the seat); `verify-print` could not set its throwaway default printer
-in the helper's non-interactive session (cleaned up correctly, untested interactively).
-***`verify-routes.ps1` CONVERTED TO THE SDSYS SEAT AND RE-WITNESSED SAME DAY, `-Run b226`:
-35 of 35, no account switch*** — see HISTORY.md, 22 Sep 2026. **The falsification check
-below is also now done, confirming** — see below.
-
-Owner's ruling, 21 Sep 2026. **All four were converted in source:**
-`sdtestuser-admin.ps1` and `verify-lcnames.ps1` earlier that day, and
-`verify-apiadmin.ps1` and `verify-privundetermined.ps1` unattended overnight.
-`test-logtoreaim-units.ps1` now reports **0 files still sending the refused prefix**
-and `test-sdsysseat-units` passes; both verifiers parse with the function counts they had
-at HEAD. **What the last two do:** `Invoke-SDSys` is a plain seat call; `Invoke-SDIn
-<personal account>` is `Invoke-SdSeatText -Commands (@("LOGTO $account") + ...) -Internal`
-and refuses `SDSYS`; `Assert-SdSeat` runs twice (plain, then `-Internal`) before anything
-is created. **The local `OS.EXECUTE` control** plants `os.users\SDSYS` immediately before
-it and removes it immediately after, refuses to start if one already exists, and has a
-`finally` backstop (`Set-SeatOsUsersRecord`/`Remove-SeatOsUsersRecord`, never overwrite,
-never remove one they did not write); it adds two fixture rows to each verifier's tally.
-
-**Owed:** a full suite (none since 18 Sep 10:30) — see the falsification result below,
-which is DONE. **What would have falsified the `os.users` fixture:** the local control
-passing *without* the record, meaning `USR_ADMIN` survives the LOGTO under `-Internal`
-and the record is unneeded — measured 22 Sep 2026, and it did not (below); the
-`-Internal` door itself was witnessed on 20 Sep for `verify-apiwire` and
-`verify-vocwrite`.
-
-***22 Sep 2026 — BOTH VERIFIERS NOW TAKE `-NoFixture`***, so the check no longer needs a
-manual edit: it skips planting `os.users\SDSYS` for the local control and reports the
-result under a differently-named check (`falsification: ...`), not a flipped expected
-value on the existing one. Reaches SDSYS through the seat's own scheduled task
-(`sdsys-seat.ps1`), so the operator does not switch sessions to run it.
-
-***BOTH VERIFIERS' `-NoFixture` RUNS WITNESSED 22 Sep 2026, owner's own elevated runs,
-SDSYS already signed in — THE FALSIFICATION CHECK IS DONE AND CONFIRMING, NOT
-FALSIFYING.*** `verify-apiadmin -Prefix sdapia13`: 23/24, same shape as the witnessed
-`b211` run (23 decisive checks, 1 designed N/A on "not running as SYSTEM" —
-unmeasurable once OS.EXECUTE is refused) plus the new row `falsification: WITHOUT the
-fixture, the control is refused` — **True/True, PASS.** `verify-privundetermined -Prefix
-sdpwb115`: **26/26, no N/A**, plus its new row `falsification: WITHOUT the fixture,
-OS.EXECUTE does NOT run` — **True/True, PASS.** Both agree: without the planted
-`os.users\SDSYS` record the local OS.EXECUTE control is genuinely refused, so
-`USR_ADMIN` does **not** survive the seat's `LOGTO` under `-Internal` — the fixture is
-doing real, necessary work, not papering over anything. **Nothing to revert.**
 
 ### 97 · S (harness) — the validation suites: upkeep cut, runtime still to do
 
@@ -224,7 +129,8 @@ makes it non-zero on purpose three times, the only thing proving the path fires.
 unit guard `test-privundetermined-units` goes with it if it is ever retired.
 `verify-lcnames` (1,093 lines) — already converted in source; the lower-case standard
 is stable and this is its widest net, and the churn was the 5.12 conversion rather
-than steady-state; one witness run is owed (now done, see 76). `verify-apiidentity` —
+than steady-state; one witness run is owed (now done — HISTORY.md, 22 Sep 2026, "RELEASE_1.1 76
+closed"). `verify-apiidentity` —
 the only witness of 55's session-as-the-user property; 84's rewrite onto the real
 `sdclilib` and its SDSYS-seat conversion are DONE AND WITNESSED (22 Sep, `sdapiidb222`),
 and `scram-probe.py` stays. **What would reverse these:** a verifier failing for an
