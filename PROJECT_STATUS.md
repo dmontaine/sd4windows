@@ -113,15 +113,40 @@ and the `sdsys` and `SD` directories themselves. ***WHAT IS CORRECTLY LOCKED, AN
 ACL is not even readable unelevated, and `C:\Program Files\SD` is clean. **The designed hardening works; these
 two are the gap.**
 
-***IT LOOKS LIKE AN OMISSION RATHER THAN A DECISION.*** `sd.iss:3444-3451` hands `secure-sysdirs.ps1` exactly
-**seven** paths — `accounts`, `$map`, `messages`, `newvoc`, `bp`, `cat`, `sd.conf` — and that script's own
-criterion is *"take Modify off the SDSYS system directories that nothing writes"*. `voc` and `gpl.bp` fit that
-criterion and are simply not on the list. **Both look safe to add**: SDSYS's own VOC is rewritten by
-`UPDATE.ACCOUNT` / `$LOGIN` mode 2 run **in SDSYS**, an administrator, and Administrators keep access through
-the same grant; recompiling `GPL.BP` is already documented as an elevated window (`secure-gcat.ps1`).
-***NOT VERIFIED — the `$ipc` precedent in `secure-sysdirs.ps1`'s header is exactly the trap*** ($ipc looks
-lockable and is written by every session), so each one needs `probe-syswrites.ps1`-style evidence before it is
-locked, and `verify-sysdiracl.ps1` is where a new row would go.
+***IT WAS AN OMISSION, AND THE SAME ONE IN THREE PLACES.*** `sd.iss` handed `secure-sysdirs.ps1` exactly
+**seven** paths — `accounts`, `$map`, `messages`, `newvoc`, `bp`, `cat`, `sd.conf` — `verify-sysdiracl.ps1`
+carried the same seven, and ***`probe-syswrites.ps1`'s OWN ROOT LIST STOPPED THERE TOO***, so the question
+*"does anything ordinary write them"* had never been asked of either directory. The script's criterion is
+*"take Modify off the SDSYS system directories that nothing writes"*, and both fit it.
+
+***EVIDENCE TAKEN 22 Sep 2026, THE SAME KIND THE OTHER SEVEN HAVE.*** `probe-syswrites.ps1` was extended with
+both paths and run **unelevated as `ace\Don`** against the 19:20:42 install: an ordinary user's session (16
+verbs) and a separate **PHANTOM** pass each changed ***only*** `$ipc\%0` — `voc` and `gpl.bp` **untouched in
+both**, alongside the six already locked. The probe printed *"SESSION RAN IN FULL - the per-target verdict
+above is evidence"* and exited 0. **Why locking them breaks nothing that does write them:** SDSYS's own VOC is
+rewritten by `UPDATE.ACCOUNT` / `$LOGIN` mode 2 run **in SDSYS**, and `GPL.BP` when the BASIC is recompiled —
+both administrator actions, and Administrators keep Modify through the grant `secure-sysdirs.ps1` leaves. `$ipc`
+stays deliberately out, per that script's header.
+
+***AND THE PROBE COULD NOT PRODUCE A VERDICT AT ALL UNTIL IT WAS FIXED, WHICH IS A FINDING IN ITS OWN RIGHT.***
+Its workload named **`LISTU` and `LIST.LOCKS`, neither of which exists in this port** — absent from
+`sdsys/newvoc` in source and installed, and from every account's VOC. Each answered *"X is not in your VOC"*,
+and the BOM guard **counted every such line**, so two of them made it conclude a verb had been swallowed and
+***refuse its own findings on every run*** — while 15 of 15 commands had echoed and the BOM had eaten nothing.
+**The guard could not tell "the BOM ate a verb" from "this account has no such verb".** It now names the
+missing verb instead of counting lines, and reports that as its own condition. `LISTF`, `LISTQ` and
+`LIST.FILES` replace the two, **isolated first** as this file requires (each alone over the same pipe: 0.0 s,
+present in the VOC, 1809 / 1054 / 550 bytes). ***A SECOND FAULT WAS PAID FOR ON THE WAY***: the first fix
+excluded the BOM with a single-quoted `\u` escape, which PowerShell does not process, so it matched the escape
+as literal text and the probe refused itself again; and writing that explanation into the comment **put a real
+BOM into the file**, caught by the byte-scan and not by the parser, which read it with 0 errors.
+
+***WHAT IS OWED: A CYCLE, AND THE `sd.iss` EDIT IS UNCOMPILED.*** `ISCC` cannot compile `sd.iss` from here —
+it needs `stage/upgrade.iss`, which `stage.py` generates and which is not present — so the two new
+`LockOsUsersPath` branches are **parse-unchecked** and the cycle is their first real test. The two PowerShell
+files are clean (0 parse errors, no embedded BOM, probe exits 0). ***AND `verify-sysdiracl` WILL FAIL UNTIL
+THAT CYCLE***, by design: its list now says what the install *ought* to look like, which its own header calls
+the safer direction of the two drifts.
 
 **WHY IT MATTERS ON ONE TRANSPORT ONLY.** `net_path_permitted()` returns TRUE for every path unless the
 session is `CN_SOCKET` (`op_dio1.c:704`), and an ssh session is `CN_CONSOLE` — so from ssh, ordinary BASIC
