@@ -740,7 +740,12 @@ Do not undo these without reading the reasoning.
 
 ### 5.29 SECURE THE TRANSPORT; WHAT THE ADMINISTRATOR DOES AFTER THAT IS THEIRS (owner, 22 Sep 2026)
 
-***HIS WORDS, VERBATIM, BECAUSE THIS GOVERNS HOW EVERY LATER FINDING IS TRIAGED:*** *"Pick systems have
+> ***"We are responsible for the transport and the default unmodified system, after that it is the wild
+> west."*** — the owner's own one-line form, 22 Sep 2026. **If you read nothing else in this section, read
+> that. It is the whole triage rule, and the two halves are the test: is this the TRANSPORT, or is this the
+> DEFAULT UNMODIFIED SYSTEM? If neither, it is not ours.**
+
+***AND THE LONGER FORM HE GAVE FIRST, VERBATIM, BECAUSE IT SAYS WHY:*** *"Pick systems have
 always had the attitude that security was possible, but it was up to the admin to enforce it. I have no
 problem retaining that philosophy as this is a Pick-like system. If it were something else, I would care
 more. My desire is to only make the transport tunnel secure. What the admin decides after the user arrives
