@@ -44,14 +44,15 @@ OPEN TASKS wins and this block is the stale one.
 ssh mechanism, console-login (S.27/S.41), message text, and a source-diff verb sweep. Owner's
 "parity goes both ways" ruling (relayed via Linux, S.42) acted on same-session: `nano` built here
 (not yet cycled), `UMASK` re-examined and confirmed structurally covered by NTFS inheritance, a
-real Python-list-creation gap found on Linux's side and sent (built there too, S.43). **48: 17 pages
-rewritten** against verified source across all three `SDCoreWindowsDocs` sets — the security-posture
-section and the 106 addition are both done. **The sharpest finding: `LOGTO SDSYS` is refused
-unconditionally now**, not just elevation-gated (`cproc:2784-2787`) — seven pages told a reader to
-type it as a working command; all fixed. Still open: the rest of a 35-file scattered-sentence sweep
-(mostly probably false positives), a tier-era tooling defect (`verbcounts.py`/`tclmap.py` crash on
-deleted `TIER.*` files), and the PDF/book rebuild. A live witness run (not source-read) also
-remains, large enough to be its own pass.***
+real Python-list-creation gap found on Linux's side and sent (built there too, S.43). **48: the
+tier-model doc rewrite and sweep are DONE** — every page across all three `SDCoreWindowsDocs` sets
+rewritten against verified source, the scattered-sentence sweep completed and re-checked, and all
+three broken tier-era tools (`mktclsyntax.py`/`tclmap.py`/`verbcounts.py`) fixed and mutually
+agreeing (148 verbs, 128 every account, 20 SDSYS-only). **The sharpest finding: `LOGTO SDSYS` is
+refused unconditionally now**, not just elevation-gated (`cproc:2784-2787`) — seven pages told a
+reader to type it as a working command; all fixed. Only the PDF/book rebuild (absorbed old 18) is
+left of gate 48. A live witness run (not source-read) also remains, large enough to be its own
+pass.***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -555,33 +556,43 @@ task above; 48 on 47; 49 on 48.**
   NTFS, not by SD**) are said repeatedly in context across the rewritten
   pages but not yet as one standalone sentence anywhere.
 
-  ***A found tooling defect, not yet fixed***: `SDCoreWindowsDocs/tools/verbcounts.py`,
-  `tclmap.py` and `mktclsyntax.py` all crash or misbehave against the current
-  tree — they read `newvoc/TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR`,
-  both deleted by 64. `docmap.py` and `confmap.py` are unaffected (411/411,
-  clean) — the damage is confined to the tier-counting tools, matching where
-  the doc content itself broke. Needs a design decision before it can be
-  fixed, not just a patch: the old three-number story (Standard/Programmer/
-  Administrator verb counts) has no replacement of the same shape — there are
-  now two, an ordinary account's `newvoc` count and SDSYS's additional
-  `voc_template`-only verbs, matching this session's own `comm -23` count (20
-  real SDSYS-only verbs, `append.sd.path`/`clean.account`/`clear.locks`/
-  `config`/`create.account`/`delete.account`/`grant`/`list.grants`/`list.locks`/
-  `list.readu`/`listu`/`lock`/`modify.account`/`remote.api`/`remote.ssh`/
-  `revoke`/`set.date`/`ssh.server`/`unlock`/`update.accounts` — used directly
-  in the `06-administrator-commands.md` rewrite's "full list").
+  ***DONE, 22 Sep 2026, LATER THE SAME SESSION — the sweep finished and all
+  three tooling defects fixed.*** 15 more `SDCoreWindowsDocs` commits
+  (`04f1e7f` `35bb919` `f6b1978` `703c1da` `e2eadb2` `1b0db2b` `4980901`
+  `f41d447` `41068b8` `d0e3057`, plus small fixes folded into the same run)
+  covered every file the `grep -rl -i tier` ceiling named: the rest of
+  `Administrator` (`01a`, `02`, `05`, `06`, `07`), all 13 remaining `User`-set
+  BASIC/TCL reference pages, the two VOC-structure pages, and the glossary.
+  A second, clean re-run of the same grep afterward found 19 files with a
+  hit — every one individually read and confirmed to be this session's own
+  correct usage (explaining the tier is gone, describing SDSYS), not a leftover
+  error. **`mktclsyntax.py`, `tclmap.py` and `verbcounts.py` are all fixed** —
+  the design decision flagged above (two rosters, not three: `newvoc` for
+  every ordinary account, `voc_template` for SDSYS) is what they now compute,
+  reading the two directories directly instead of the deleted `TIER.*` lists.
+  All three agree with each other and with this session's own hand-derived
+  count: **148 verbs total, 128 every account, 20 SDSYS-only.** Regenerating
+  `95-sd-tcl-syntax.md` with the fixed generator caught one real gap on its
+  own — `nano` (built earlier this session) had no shape line and no page;
+  both added. `verbcounts.py`'s prose check now passes clean: 3 figures found
+  in the whole doc set, 0 unaccounted for.
 
-  ***Still open***: the **scattered-sentence sweep** across the rest of the
-  doc set — a loose `grep -rl -i tier` found **35 files** with a hit; the
-  highest-traffic ones (start-here, installation, first-run, security,
-  ssh/API access, scheduled jobs, hardening) are now individually read and
-  fixed, so the ceiling is smaller than 35, but the remainder (mostly `User`
-  set BASIC/TCL reference pages) has not been swept — likely mostly false
-  positives from ordinary English ("standard subroutines"), not yet
-  confirmed; the tooling fix above; `08-ssh-access.md` landed at 13,693 chars
-  and `13-hardening.md` at 14,042, both close to or just over the ~14,000
-  split guideline — worth checking before either grows further; and the
-  PDF/book rebuild (absorbed old 18, `tools\release.ps1`).
+  ***Two more errors caught along the way, both instructive.*** `08-ssh-
+  access.md`/`09-api-access.md` had the same false "local administrator
+  connection still works" claim `Administrator/03` did — fixed the same way,
+  SDSYS has neither route from anywhere. And `01-installation.md` /
+  `User/00b-sd-introduction.md` each had one more `logto sdsys`-shaped or
+  tier-shaped claim that survived an earlier "fixed" pass — found only on a
+  *third*, deliberately independent re-grep done specifically to check the
+  first two passes rather than trust them.
+
+  ***Still open***: absorbing 61's two facts (**only SDSYS administers**; **an
+  ssh session's reach is bounded by NTFS, not by SD**) as one standalone
+  sentence each, rather than said only in context; `08-ssh-access.md` (13,693
+  chars) and `13-hardening.md` (14,042) sit at or just over the ~14,000 split
+  guideline, worth a look before either grows further; and the PDF/book
+  rebuild (absorbed old 18, `tools\release.ps1`) — the only sizeable piece of
+  gate 48 left.
 
   ***Both the security-posture section and the 106 addition are DONE, 22 Sep
   2026*** — the posture section is in `12-security.md` ("What ships secured,
