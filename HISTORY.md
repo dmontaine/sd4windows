@@ -36371,6 +36371,72 @@ TREE"*. It was not needed in the end.
 
 ====
 
+## RELEASE_1.1 100 — `newvoc/%t`, the record for `~` that reached no account (22 Sep 2026)
+
+**DONE AND WITNESSED.** `sdsys/newvoc/%t` was renamed to **`%T`** — a case-only rename, done through a
+temporary name because `core.ignorecase` is true and NTFS resolves the two to one file — and
+`verify-accountmodel` on `b219` reports ***`COUNT NEWVOC` 395, `LIST NEWVOC` printed 395 and said 395***
+where it had been 395 against 394, with `$KnownUnlisted` **1 → 0** and **10/10 checks passed**. ***THE
+SUBSTANTIVE PROOF IS THE OTHER NUMBER: a fresh account's VOC is now 399 records, up from 398*** — the `~`
+record reaches accounts, which is the whole point and is not visible in the `NEWVOC` counts at all.
+
+***THE OBJECTION ON RECORD WAS ANSWERED BY MEASUREMENT RATHER THAN OVERRULED.*** It was that nobody had read
+the decoder's case-handling, so `%T` being right was inferred from a comment. Read on 22 Sep 2026:
+**`op_dio4.c:1135` tests `*(p + 1) == 'T'`, upper case and first character only**, so a lower-case `%t` falls
+through to the generic loop where PRE_RELEASE 128 keeps an unknown escape **literal** — the id read back as
+`%t` and never as `~`. The `UpperCaseString()` at `:1119` does not rescue it: it sits under
+`CASE_INSENSITIVE_FILE_SYSTEM`, which `dh_open.c:581` records as *"a macro this tree never defines"*. The
+19 Aug 2026 lower-case rename (`e1095ab`) is what broke it, and **an escape letter is not a name**, which is
+why this one file is exempt from that rule.
+
+***ONE THING IS LEFT AND IT WAS NEVER PART OF THE APPROVED FIX: `voc_template` HAS NO `~` RECORD AT ALL***
+(re-checked 22 Sep — it holds `%E`, `%G`, `%L`, `%P` and their pairs, no `%T`). `voc_template` is what SDSYS's
+own VOC is built from, so **every ordinary account now has the record and SDSYS still does not.** Whether that
+matters is unmeasured, and rests on the same open question this entry always carried: whether `~` works as a
+keyword without a VOC record at all — HISTORY notes that `<` and `>` *"cannot be VOC records on this port"*
+yet work, which suggests the parser may not read them from the VOC, and would make the whole thing cosmetic.
+**Not filed as its own entry; raised with the owner instead.**
+
+**Files:** `sdsys/newvoc/%T` (renamed from `%t`), `gplbld/verify-accountmodel.ps1` (`$KnownUnlisted`).
+
+## RELEASE_1.1 104 — two unlocked system directories, and the probe that could not report (22 Sep 2026)
+
+**DONE AND WITNESSED.** `C:\ProgramData\SD\sdsys\voc` and `…\gpl.bp` were the only two of SDSYS's
+inherited-`Modify` directories still writable by every SD user. Both are now locked, and
+`verify-sysdiracl` — run **unelevated**, which is the only way the question means anything — reports
+**nine** paths read-only with `voc` and `gpl.bp` reading `ace\sdusers:(OI)(CI)(RX)`, every read PASS and
+every WRITE **False**, and ***`$ipc` still `(M)` and still WRITABLE***, which is the negative control that
+stops the script passing in a world where something locked the whole tree.
+
+***THE OMISSION WAS IN THREE PLACES, WHICH IS WHY NOBODY HAD NOTICED.*** `sd.iss` handed
+`secure-sysdirs.ps1` seven paths, `verify-sysdiracl.ps1` carried the same seven — and
+***`probe-syswrites.ps1`'s OWN ROOT LIST STOPPED AT THEM TOO***, so the evidence tool that decides
+*"does anything ordinary write this"* had never been pointed at either directory. All three now name nine.
+**Evidence, taken unelevated as `ace\Don`:** the extended probe ran an ordinary 16-verb session and a separate
+PHANTOM pass, and each changed ***only*** `$ipc\%0`. Locking breaks neither writer that matters: SDSYS's own
+VOC is rewritten by `UPDATE.ACCOUNT` / `$LOGIN` mode 2 **in SDSYS**, `GPL.BP` when the BASIC is recompiled, and
+Administrators keep `Modify` through the grant the script leaves.
+
+***AND THE PROBE HAD BEEN REFUSING ITS OWN RESULT ON EVERY RUN — FOUND ONLY BY USING IT.*** Its workload named
+**`LISTU` and `LIST.LOCKS`, neither of which exists in this port** (absent from `newvoc` in source and
+installed, and from every account's VOC). Each answered *"X is not in your VOC"*, and the BOM guard **counted
+every such line**, so two of them made it conclude a verb had been swallowed — while 15 of 15 commands had
+echoed and the BOM had eaten nothing. ***THE GUARD COULD NOT TELL "THE BOM ATE A VERB" FROM "THIS ACCOUNT HAS
+NO SUCH VERB".*** It now names the missing verb instead of counting lines, and that is its own reported
+condition. `LISTF`, `LISTQ` and `LIST.FILES` replace the two, **isolated first** as that file requires.
+**Two further faults were paid for in the fixing**, both worth keeping: an exclusion written as a
+single-quoted `\u` escape matched the escape as literal text, because PowerShell does not process escapes in
+single quotes, and the probe refused itself again; and writing *that* explanation into the comment put a
+**real BOM into the file**, caught by the byte-scan and not by the parser, which read it with 0 errors.
+
+**One stale sentence went with it:** the closing line read *"the seven are readable and not writable"* and now
+takes its count from the list, so the next path added cannot leave it quietly wrong the way this one just did.
+***THE `sd.iss` BRANCHES WENT IN UNCOMPILED AND THE CYCLE WAS THEIR FIRST TEST*** — `ISCC` cannot build
+`sd.iss` outside a staged tree (it needs `stage/upgrade.iss`), which is worth knowing before promising a
+compile-check of that file.
+
+**Files:** `gplbld/sd.iss` (`LockSysDirs`), `gplbld/verify-sysdiracl.ps1`, `gplbld/probe-syswrites.ps1`.
+
 ## RELEASE_1.1 102 — an API session's token, and the question that actually mattered (22 Sep 2026)
 
 **CLOSED BY RULING. THE MEASUREMENT STANDS; THE CONCERN IT WAS FILED UNDER WAS THE WRONG ONE.** Filed after

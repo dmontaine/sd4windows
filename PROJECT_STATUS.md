@@ -66,8 +66,11 @@ cares about — is a STANDARD user restricted — was already witnessed green on
 (*"API session was refused OS.EXECUTE by name"*, plus `$cred` refused both ways, on a real API connection).
 Both are in HISTORY.md; 102's documentation half moved to **61**. `-Run` tokens `b206`–`b218` are spent.
 
-***100 IS FIXED IN SOURCE AND NEEDS THE NEXT CYCLE*** (`newvoc/%t` → `%T`, `$KnownUnlisted` 1 → 0), then
-`verify-accountmodel`.
+***22 Sep 2026, LATE — 100 AND 104 ARE BOTH CLOSED ON THE 20:54 CYCLE.*** 100: `newvoc/%t` → `%T`,
+`verify-accountmodel` on `b219` **10/10**, `COUNT NEWVOC` and `LIST NEWVOC` agreeing at **395/395**, and a
+fresh account's VOC up from 398 to **399** — the `~` record reaches accounts. 104: `sdsys\voc` and
+`sdsys\gpl.bp` locked, `verify-sysdiracl` **unelevated** reporting **nine** paths read-only with `$ipc` still
+writable as the control. **`-Run` tokens `b206`–`b219` are spent.** Both entries are in HISTORY.md.
 
 ***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
 whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
@@ -82,8 +85,8 @@ list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's propos
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**15 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100 and 104
-added since (101, 102 and 103 closed 22 Sep) (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**13 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97
+added since (100, 101, 102, 103 and 104 all closed 22 Sep) (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -93,119 +96,6 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
-
-### 104 · M — `sdsys\voc` and `sdsys\gpl.bp` keep `sdusers:Modify` while their six siblings are locked
-
-***SCOPED BY §5.29 (owner, 22 Sep 2026) AND KEPT ON ONE GROUND ONLY: THIS IS A DEFAULT WE SHIP, NOT A CHOICE
-AN ADMINISTRATOR MADE.*** His ruling is *"only make the transport tunnel secure … what the admin decides after
-the user arrives is his responsibility"*, and that correctly disposes of the larger claim this entry was first
-written around — *"an account at TCL with `BASIC`/`RUN` can write any path NTFS allows over ssh"* — which is
-true, is the administrator's to prevent (remove `BASIC` and `RUN`; lock the account into an application with
-no break key), and **is not a defect.** ***WHAT IS LEFT IS NARROW: the installer locks six `sdsys`
-directories and silently leaves two, on a criterion that fits all eight.*** Dropped from S to M accordingly.
-It is a consistency fix in our own delivered default, and nothing in it asks the product to defend a site
-against its own administrator.
-
-**Measured 22 Sep 2026, unelevated, on the 19:20:42 install.** `C:\ProgramData\SD\sdsys\voc` and
-`…\sdsys\gpl.bp` both carry **`ace\sdusers = Modify, Synchronize`**, inherited. So does `…\shm` (that is 59)
-and the `sdsys` and `SD` directories themselves. ***WHAT IS CORRECTLY LOCKED, AND IT IS MOST OF IT:***
-`gcat`, `newvoc`, `messages`, `accounts`, `cat` and `os.users` all read **no ordinary-user write**, `$cred`'s
-ACL is not even readable unelevated, and `C:\Program Files\SD` is clean. **The designed hardening works; these
-two are the gap.**
-
-***IT WAS AN OMISSION, AND THE SAME ONE IN THREE PLACES.*** `sd.iss` handed `secure-sysdirs.ps1` exactly
-**seven** paths — `accounts`, `$map`, `messages`, `newvoc`, `bp`, `cat`, `sd.conf` — `verify-sysdiracl.ps1`
-carried the same seven, and ***`probe-syswrites.ps1`'s OWN ROOT LIST STOPPED THERE TOO***, so the question
-*"does anything ordinary write them"* had never been asked of either directory. The script's criterion is
-*"take Modify off the SDSYS system directories that nothing writes"*, and both fit it.
-
-***EVIDENCE TAKEN 22 Sep 2026, THE SAME KIND THE OTHER SEVEN HAVE.*** `probe-syswrites.ps1` was extended with
-both paths and run **unelevated as `ace\Don`** against the 19:20:42 install: an ordinary user's session (16
-verbs) and a separate **PHANTOM** pass each changed ***only*** `$ipc\%0` — `voc` and `gpl.bp` **untouched in
-both**, alongside the six already locked. The probe printed *"SESSION RAN IN FULL - the per-target verdict
-above is evidence"* and exited 0. **Why locking them breaks nothing that does write them:** SDSYS's own VOC is
-rewritten by `UPDATE.ACCOUNT` / `$LOGIN` mode 2 run **in SDSYS**, and `GPL.BP` when the BASIC is recompiled —
-both administrator actions, and Administrators keep Modify through the grant `secure-sysdirs.ps1` leaves. `$ipc`
-stays deliberately out, per that script's header.
-
-***AND THE PROBE COULD NOT PRODUCE A VERDICT AT ALL UNTIL IT WAS FIXED, WHICH IS A FINDING IN ITS OWN RIGHT.***
-Its workload named **`LISTU` and `LIST.LOCKS`, neither of which exists in this port** — absent from
-`sdsys/newvoc` in source and installed, and from every account's VOC. Each answered *"X is not in your VOC"*,
-and the BOM guard **counted every such line**, so two of them made it conclude a verb had been swallowed and
-***refuse its own findings on every run*** — while 15 of 15 commands had echoed and the BOM had eaten nothing.
-**The guard could not tell "the BOM ate a verb" from "this account has no such verb".** It now names the
-missing verb instead of counting lines, and reports that as its own condition. `LISTF`, `LISTQ` and
-`LIST.FILES` replace the two, **isolated first** as this file requires (each alone over the same pipe: 0.0 s,
-present in the VOC, 1809 / 1054 / 550 bytes). ***A SECOND FAULT WAS PAID FOR ON THE WAY***: the first fix
-excluded the BOM with a single-quoted `\u` escape, which PowerShell does not process, so it matched the escape
-as literal text and the probe refused itself again; and writing that explanation into the comment **put a real
-BOM into the file**, caught by the byte-scan and not by the parser, which read it with 0 errors.
-
-***WHAT IS OWED: A CYCLE, AND THE `sd.iss` EDIT IS UNCOMPILED.*** `ISCC` cannot compile `sd.iss` from here —
-it needs `stage/upgrade.iss`, which `stage.py` generates and which is not present — so the two new
-`LockOsUsersPath` branches are **parse-unchecked** and the cycle is their first real test. The two PowerShell
-files are clean (0 parse errors, no embedded BOM, probe exits 0). ***AND `verify-sysdiracl` WILL FAIL UNTIL
-THAT CYCLE***, by design: its list now says what the install *ought* to look like, which its own header calls
-the safer direction of the two drifts.
-
-**WHY IT MATTERS ON ONE TRANSPORT ONLY.** `net_path_permitted()` returns TRUE for every path unless the
-session is `CN_SOCKET` (`op_dio1.c:704`), and an ssh session is `CN_CONSOLE` — so from ssh, ordinary BASIC
-(`OSWRITE`, `OPENSEQ`) reaches any path NTFS allows. **On that transport the containment is the NTFS ACL, not
-SD.** An API session is contained and does not have this reach.
-
-***THE TCL QUESTION IS CLOSED BY §5.29 AND IS RECORDED HERE ONLY SO IT IS NOT RE-OPENED.*** The owner's two
-answers — *"the admin can remove the ability to issue BASIC and RUN to any account, leaving them with only
-access to cataloged programs"*, and *"they can also lock them into an application and remove the break key"* —
-are the site's to apply, and whether removing `BASIC`/`RUN` is a hard boundary or a speed bump (an account's
-own VOC is writable by it, and `newvoc` is readable to it) is **the administrator's problem, not the
-product's.** ***DO NOT RE-FILE IT.*** **The fix here is independent of all of that**: locking the two
-directories costs nothing and does not depend on how any site configures its accounts.
-
-### 100 · M — `newvoc/%t` is a mis-cased escape: FIXED IN SOURCE 22 Sep 2026, witness owed
-
-***THE OWNER APPROVED THE FIX, 22 Sep 2026 ("a cycle is fine, it takes 90 seconds"), AND IT IS DONE IN
-SOURCE: `git mv newvoc/%t` → `newvoc/%T`***, a case-only rename through a temporary name because
-`core.ignorecase` is true and NTFS resolves the two to one file. `verify-accountmodel`'s `$KnownUnlisted` is
-**1 → 0**, which is what that constant was built to announce, and its two count rows now require
-`COUNT NEWVOC` and `LIST NEWVOC` to agree exactly. **Owed: a cycle, then `verify-accountmodel`.**
-
-***THE RECORDED OBJECTION IS ANSWERED BY MEASUREMENT RATHER THAN OVERRULED.*** It was that the decoder's
-case-handling had not been read. It has now: **`op_dio4.c:1135` decodes the `~` escape by testing
-`*(p + 1) == 'T'`, upper case and first character only**, so a lower-case `%t` falls through to the generic
-loop where PRE_RELEASE 128 keeps an unknown escape **literal** — the id reads back as `%t` and never as `~`.
-The `UpperCaseString()` at `:1119` does not rescue it: it sits under `CASE_INSENSITIVE_FILE_SYSTEM`, which
-`dh_open.c:581` records as *"a macro this tree never defines"*. So `%T` is what the decoder expects, and an
-escape letter is not a name, which is why this one file is exempt from the lower-case rule.
-
-**Still open underneath it, and NOT part of the approved fix:** `voc_template` has no `~` record at all
-(re-checked 22 Sep — it holds `%E`, `%G`, `%L`, `%P` and their pairs, no `%T`), so **SDSYS's own VOC still
-lacks it** even after this. That is a second change to a different file and was never ruled on. **And still
-not measured:** whether `~` works as a keyword without the record at all — HISTORY notes that `<` and `>`
-*"cannot be VOC records on this port"* yet work, which suggests the parser may not read them from the VOC,
-and would make the whole thing cosmetic.
-
-The original finding follows.
-
-### 100 (as found) — `newvoc/%t` is a mis-cased escape: the record for `~` is undecodable and never reaches an account
-
-Found 21 Sep 2026 by `verify-accountmodel` (its first passing run, `b213`). `COUNT NEWVOC` says
-**395** and `LIST NEWVOC` prints and reports **394**; ten of the eleven names the listing does
-not print are the `%`-encoded operator ids it prints decoded (`%E` `=`, `%G` `>`, `%L` `<`,
-`%P` `%`), and the eleventh is **`sdsys/newvoc/%t`**, whose content is `Keyword to test
-soundex code` / `33`. `op_dio3.c:42` says the directory-file mapping stores `~` as **`%T`**;
-the 19 Aug 2026 commit `e1095ab` (*"Every SDSYS file name is lower case on disk"*) turned it
-into `%t`, an escape the decoder does not know. **Observed:** a fresh account's VOC holds 398
-records = the 394 listed `newvoc` ids + `$command.stack`, `$hold`, `$savedlists`, `bp`, so
-**the `~` record reaches no account**; `voc_template` has no `~` record at all; `%t` is the
-only lower-cased escape in `sdsys` (swept 21 Sep). **Not measured — and it decides how much
-this matters:** whether `~` works as a keyword without the record (HISTORY.md carries a note that `<`
-and `>` "cannot be VOC records on this port" yet work, which says the parser may not read
-them from the VOC). **The fix, if wanted:** a case-only `git mv` of `newvoc/%t` to
-`newvoc/%T` (mind NTFS: it is a rename through a temporary name), then a cycle, then
-`verify-accountmodel`'s `$KnownUnlisted` goes 1 → 0 and its count rows go red until it is
-changed, which is intended. **Objection to the fix, so it is not lost:** the lower-case rule
-was made for record and file NAMES; an escape letter is not a name, but the decoder's
-case-handling was not read, so whether it would accept `%T` is inferred from the comment.
 
 ### 76 · B (harness) — the four verifiers are converted to the SDSYS seat; two are witnessed
 
