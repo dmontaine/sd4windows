@@ -243,8 +243,22 @@ task above; 48 on 47; 49 on 48.**
 - **47 — Windows↔Linux parity audit.** Audit feature and behaviour parity and
   resolve what it finds. Linux's matching task waits on our "1.1 done" call, so
   this is the shared critical path. *Done when* a written comparison exists and
-  its findings are resolved or filed. No parity document exists in either
-  repository.
+  its findings are resolved or filed. No 1.1-scoped parity document exists in
+  either repository yet, but **there is a method and a precedent, on the Linux
+  side, not to reinvent** (read 22 Sep 2026, `SDCore4Linux` clone — label
+  anything from it as a snapshot, per the mailbox rule): Linux's own gate is
+  **S.21** in its `PROJECT_STATUS.md`, *"PRE-RELEASE 1 of 3 (owner, 15 Sep
+  2026): the parity audit, and fixing what it finds... BLOCKED ON THE PORT
+  [Windows], NOT ON THIS TREE. Method exists: the 10 Sep audit (S.5,
+  `witness-release-run.sh` §12's list) is the precedent to widen rather than
+  reinvent."* That 10 Sep pass found **12 drifts, corrected and compiled**
+  (Linux `PROJECT_STATUS.md`, "Parity audit vs the Windows port, 10 Sep").
+  §12 of `sdb_ai/sd64/gplbld/witness-release-run.sh` (Linux tree) is a live,
+  numbered witness checklist (S./Q./W.-prefixed items — account model, LOGTO,
+  SUSPENDED, the API door, TLS/SCRAM, message numbers) that is the actual
+  shape of a completed audit pass over there; start from it rather than a
+  blank comparison. **48 (docs) explicitly starts from updated Windows text**
+  on the Linux side too, so 47 gates both ports' documentation, not just ours.
 - **48 — documentation current with 1.1.** Bring `SDCoreWindowsDocs` up to date
   with every W1.1 change (API TLS, the SDSYS elevation gate, `delete.account`'s
   skip, the VOC-write fix, prompt defaults, …) — it still describes account tiers
