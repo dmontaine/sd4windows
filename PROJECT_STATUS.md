@@ -98,8 +98,8 @@ generates — so an `sd.iss` edit is parse-unchecked until a cycle.
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**12 open (ids across 10 entries): validated against the tree by the 27th pass,
-21 Sep 2026, plus 97; 84, 100–104, 64, 95, 96 and 99 all closed 22 Sep; 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**11 open (ids across 9 entries): validated against the tree by the 27th pass,
+21 Sep 2026, plus 97; 75, 84, 100–104, 64, 95, 96 and 99 all closed 22 Sep; 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -231,19 +231,6 @@ records SD ships"*) still holds; a walk of the account's VOC that deletes whatev
 `newvoc` lacks would break it and is not to be built. `login` cannot be compiled by
 `bbcmp`, so it needs a cycle and a witness: an account holding a retired verb loses it
 across `UPDATE.ACCOUNTS`, and a locked non-verb record survives. **Not built.**
-
-### 75 · S — SD requires a complex password even where the OS does not
-
-Built 19 Sep 2026 (the owner found it running the cycle: Linux demanded a strong
-password, ours took anything — both ports had been deferring to the OS, and
-Windows' machine policy here is minimum length 0, complexity off). **Two of the
-four prompts have been seen refusing a weak password and taking a strong one on
-real cycles:** the finish page's SDSYS prompt (the PowerShell copy of the rule;
-89 was found there) and its `MODIFY.PASSWORD` prompt (`set_acc_password` →
-`pw_complex`; 91 was found there), 20–21 Sep. **Still owed:** a weak password at
-`CREATE.ACCOUNT` (10920, then the retry) and at the elevated first login
-(`require.credential`) — since 70 sets a password at install, the second needs an
-account made without a `$cred`.
 
 ### 73 · S — `DELETE.ACCOUNT` says when files could not be removed; installed, never witnessed
 

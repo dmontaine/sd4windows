@@ -36531,3 +36531,15 @@ anchored on the success wording with the `ERROR: Unable to set password` disqual
 `Makefile`. Commits `5bb7f23`, `c1f0c31`, `f95eca4`.
 
 ====
+
+## RELEASE_1.1 75 — SD's own password complexity, CLOSED BY RULING (22 Sep 2026)
+
+**Owner, 22 Sep 2026: *"75 is alright, only care about access to SD."*** 75 was filed 19 Sep when SD took any
+password while Linux demanded a strong one (both ports deferred to the OS, and this machine's policy is length
+0 / complexity off). The complexity rule was then built and two of the four prompts were witnessed refusing a
+weak password and taking a strong one on real cycles — the finish page's SDSYS prompt (89) and `MODIFY.PASSWORD`
+(`set_acc_password` → `pw_complex`, 91). The owner's concern was only ever access to SD, which the built rule
+meets, so the two remaining witnesses (a weak password at `CREATE.ACCOUNT`, and at the elevated first login for
+an account made without a `$cred`) are **not required**. Code stands as built; nothing changed to close it.
+
+====
