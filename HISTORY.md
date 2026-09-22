@@ -36543,3 +36543,30 @@ meets, so the two remaining witnesses (a weak password at `CREATE.ACCOUNT`, and 
 an account made without a `$cred`) are **not required**. Code stands as built; nothing changed to close it.
 
 ====
+
+## RELEASE_1.1 59 — the writable shm segment, CLOSED BY RULING under §5.29 (22 Sep 2026)
+
+**Owner, 22 Sep 2026: 59 is decided by the "wild west" ruling (§5.29) — *"we care for the tunnel and the
+original setup; what the admin does after that is not our responsibility; by default SD users cannot access
+the OS."*** So 59 is the administrator's side of that line, not a 1.1 shipping blocker. **This OVERRODE last
+session's carve-out**, which had held 59 open as a B: §5.29 as first written listed it among the things
+*"open on merit and not answered by this ruling ... an unprivileged-to-SYSTEM path that needs no grant from
+anybody."* The owner's reasoning (22 Sep, verbatim gist): **every SD account is tied to a standard Windows account, so
+the account's own token has no ability to escalate**; ssh users are dumped into SD with no choice
+(`ForceCommand`'d), with **no `sh` and no `OS.EXECUTE`**; **`BASIC` and `RUN` can be removed from their VOC**,
+and the admin can **load them into an app at login with the break key disabled**. The segment
+(`C:\ProgramData\SD\shm\sd_shm_*`, `sdusers:(RX,W)`, created `0666` at `sysseg.c:326`, read by the LocalSystem
+`sdwind`'s `check_lost_users()`) is reachable only through BASIC `OSWRITE`/`OPENSEQ` over ssh — so by default
+the account is locked out of the OS, and opening the path takes **several deliberate admin steps, his choice**
+— the same class as *"a user left at TCL can do X"* that §5.29 already rules is not a defect.
+
+**The concern, kept for the record because it was measured:** it is a genuine unprivileged→SYSTEM path (an
+ordinary Medium account wrote the segment 18 Sep unelevated with `sd.exe` as a refused control; `sdwind`
+`kill(pid,0)`s and fork/execs `sd -cleanup` as LocalSystem off values in it, `sdwind.c:257-290`). Code
+execution from it was never claimed. The reader-hardening remedy in the archived row — `check_lost_users()`
+and `cleanup()` take base/stride/count from the daemon's own constants, validate one integer `pid` per slot,
+and hand `fork/exec` a slot number rather than any string from the segment (the broker re-architecture that
+would also dissolve 53) — **remains a legitimate W1.2 improvement but is not required for 1.1.** §5.29's
+closing paragraph is corrected to match. Nothing changed in code to close it.
+
+====

@@ -42,12 +42,15 @@ OPEN TASKS wins and this block is the stale one. The 26th pass's handoff and
 every older one are in HISTORY.md under *"ARCHIVE 21 Sep 2026 — PROJECT_STATUS.md
 before consolidation"*; what they still owed was carried into OPEN TASKS.
 
-***22 Sep 2026 — SIX entries closed (100–104, and 84). 84 DONE AND WITNESSED: `verify-apiidentity` PASSED on
-`sdapiidb222`, the real `sdclilib` probe and the SDSYS-seat conversion both green, decisive ownership row
-`ZZAPI`=`ace\sdapiidb222` vs `ZZLOCAL`=`ace\SDSYS`.*** The owner cycled (install 21:29:24) and `assert-current`
-is **exit 0**. Free tier **54/54**. **Prefixes `sdapiidb220`–`b222` spent on 84 witnesses; `-Run` suite tokens
-start at `b222`.** ***THE FULL SUITE HAS NOT RUN SINCE 18 Sep 10:30 — CLAUDE.md wants one before the release.***
-Every closed entry is in HISTORY.md; do not re-derive them.
+***22 Sep 2026 — 84 DONE AND WITNESSED, then 75 and 59 closed by ruling and 61 folded into gate 48.*** 84:
+`verify-apiidentity` PASSED on `sdapiidb222` — the real `sdclilib` probe and the SDSYS-seat conversion both
+green, decisive ownership row `ZZAPI`=`ace\sdapiidb222` vs `ZZLOCAL`=`ace\SDSYS`. **75** closed (owner: SD
+password complexity is alright, only access to SD matters). **59** closed under §5.29 (owner: the shm path is
+the administrator's after delivery — SD accounts are tied to standard Windows accounts, ssh has no
+`sh`/`OS.EXECUTE`, `BASIC`/`RUN` are removable, app-lock available; §5.29's carve-out corrected). **61** folded
+into gate 48. The owner cycled (install 21:29:24), `assert-current` **exit 0**, free tier **54/54**. **Prefixes
+`sdapiidb220`–`b222` spent; `-Run` suite tokens start at `b222`.** ***THE FULL SUITE HAS NOT RUN SINCE 18 Sep
+10:30 — CLAUDE.md wants one before the release.*** Every closed entry is in HISTORY.md; do not re-derive them.
 
 ***THE FULL SUITE HAS NOT RUN SINCE 18 Sep 10:30, AND CLAUDE.md WANTS ONE BEFORE A HANDOFF.*** This handoff
 is made without it. Nine steps ran green today (`verify-routes` 35/35 `b218`, `verify-sdsyslocal`,
@@ -72,13 +75,9 @@ default unmodified system, after that it is the wild west."*
    has never run.
    `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Only verify-lcnames`
    (`sdtestuser-admin`, 76's other half, is exercised by the full suite's door pair.) **Then a full suite.**
-2. **61** — its local half is DONE (§5.25 carries a correction box; §5.28's table gained the API token and a
-   new ssh row). What remains is the SHIPPED documentation in `SDCoreWindowsDocs`, clean at `de44f8e`, at the
-   six `file:line` references the entry lists, plus: only SDSYS administers, and an ssh session's reach is
-   bounded by NTFS rather than by SD.
-3. **The ruled builds, which want one cycle together:** 59's reader hardening (C), 71's SDSYS-only
-   cross-account password rule, 77's retired-ids list (BASIC).
-4. **97's proposals**, then the 47 → 48 → 49 gates.
+2. **The ruled builds, which want one cycle together:** 71's SDSYS-only
+   cross-account password rule, and 77's retired-ids list (BASIC).
+3. **97's proposals**, then the 47 → 48 → 49 gates (48 now carries the shipped-docs work that was 61).
 
 ***ONE THING RAISED WITH THE OWNER AND NOT FILED, SO IT IS NOT LOST:*** `voc_template` has no `~` record at
 all, and it is what SDSYS's own VOC is built from — so after 100, every ordinary account has that record and
@@ -98,8 +97,8 @@ generates — so an `sd.iss` edit is parse-unchecked until a cycle.
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**11 open (ids across 9 entries): validated against the tree by the 27th pass,
-21 Sep 2026, plus 97; 75, 84, 100–104, 64, 95, 96 and 99 all closed 22 Sep; 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**9 open (ids across 7 entries): validated against the tree by the 27th pass,
+21 Sep 2026, plus 97; 59, 75, 84, 100–104, 64, 95, 96 and 99 all closed 22 Sep, and 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -286,80 +285,6 @@ functionally broken, and what is owed is a witness, not a fix; the gap it expose
 (ssh and the API by default, no credential until an elevated login) is now stated
 in the message. It becomes B only if the witness shows the message still wrong.
 
-### 61 · B — the shipped documentation says things that are false
-
-In `SDCoreWindowsDocs` (a separate repository, `de44f8e`, matching its remote):
-`Administrator/markdown/01-accounts-and-security.md:85`, `:88`, `:165`;
-`03-operating-system-access.md:189`; `05a-managing-accounts.md:101`, `:153` —
-58 removed the administrator's API access, so *"Administrators have API access
-and `OS.EXECUTE` access automatically"* is half false. **This is a pointer, not a
-fix here.** Folded into 48's documentation task in practice.
-
-**Added 22 Sep 2026 from RELEASE_1.1 102, which closed into this one — and THIS REPOSITORY'S HALF IS NOW
-DONE.** §5.25 carries a correction box at its head (its `PEER_LOCAL` mechanism was deleted by 64 and the
-section described a gate that no longer exists; the rule itself is now satisfied by construction, since SDSYS
-is the only administrator and has no remote route), and §5.28's table gained the API session's token
-(unfiltered, so `High` + `Administrators` only if the account already holds them; a standard account gets a
-standard token, and SD requests no elevation — `win32s4u.c:294`) **plus a new row for an ssh session**, which
-had none and is the transport where `net_path_permitted()` does not confine anything.
-
-***WHAT IS STILL OWED HERE IS THE SHIPPED DOCUMENTATION, IN THE OTHER REPOSITORY***, at the six `file:line`
-references above, plus the same two facts: that only SDSYS administers, and that an ssh session's reach is
-bounded by NTFS rather than by SD. **`SDCoreWindowsDocs` is clean at `de44f8e`, matching its remote** (checked
-22 Sep), so nothing is half-edited there.
-
-### 59 · B — SD's own system segment is writable by every SD user, and a LocalSystem process reads it
-
-Re-measured 21 Sep on the 01:16 install:
-`C:\ProgramData\SD\shm\sd_shm_716d0301` still grants `ace\sdusers:(RX,W)`,
-`sysseg.c:326` still creates it `0666`, `sdwind` still calls `check_lost_users()`;
-**nothing of the remedy is built.** Measured 18 Sep unelevated with a control: an
-ordinary Medium account opened it for write, the control (`sd.exe`) was refused,
-the mtime did not move. **The privileged reader is real:** `sdwind.exe` imports
-`msys-2.0.dll` and runs under the LocalSystem service; `check_lost_users()` walks
-the user table in that segment, `kill(pid,0)`s a pid out of it and fork/execs
-`sd -cleanup` as LocalSystem (`sdwind.c:257-290`). Reachable by an ordinary
-account over ssh (an ssh session is `CN_CONSOLE`, and `net_path_permitted()`
-returns TRUE for every path unless `CN_SOCKET`). **Not claimed: code execution
-from it.** The remedy is a design, in the conditional, in the archived row.
-Linux's copy is broader (`shmget(… 0666)`); reported to the Linux agent
-18 Sep 2026.
-
-***IT NEEDS NO `SH` AND NO `OS.EXECUTE`, AND THAT IS THE THING TO BE CLEAR ABOUT.*** Asked
-22 Sep 2026 whether this and 53 are reachable only by an account holding OS access: **53 yes,
-this one no.** The segment is an ordinary FILE (`C:\ProgramData\SD\shm\sd_shm_*`) whose ACL
-grants `ace\sdusers:(RX,W)`, and `net_path_permitted()` returns TRUE for every path on a
-session that is not `CN_SOCKET` (`op_dio1.c:704`). An ssh session is `CN_CONSOLE`. **So plain
-BASIC file I/O — `OSWRITE`, `OPENSEQ` — reaches it from an ordinary account over ssh, with no
-OS grant of any kind.** Over the API it is blocked, that being the one transport the gate
-covers. **53 is different**: it was measured with a compiled program run as a local Windows
-user, which an SD-created account cannot become (`sdsshonly` denies console and RDP, ssh gives
-a `ForceCommand`'d SD session) — so for an SD account 53 does need `SH`/`OS.EXECUTE`, while its
-real population is any local Windows user, who needs no SD grant at all.
-
-**Ruled 21 Sep 2026 (agent, on the owner's delegation): it stays B and 1.1 does not ship
-without a hardening of the privileged reader; the broker re-architecture is deferred
-to W1.2.** The archived row's remedy — move the privileged surface into a small native
-broker so `sdwind` can drop to an unprivileged account — is the right end state and
-would also dissolve 53, but it is a redesign of the service on a release that still has
-its parity audit, documentation and packaging gates to pass (47→48→49), and 64's own
-instruction is to *remove* framework, not build new. The segment cannot be fixed by a
-DACL (every session writes it, `stage.py:600`), so **the reader must trust nothing in
-it.** **To build, in the conditional:** in `check_lost_users()` (`sdwind.c:257-290`)
-and `cleanup()` (`clopts.c:295`, `:359`) take the table's base, stride and count from
-the daemon's own constants, never from the segment's header (`UPtr` in
-`sysseg.h:227` takes all three from the writable segment, which is why 60's string
-bounds were not the fix for the class); read one integer `pid` per slot into a local
-and validate it; never hand a string from the segment to `fork/exec` — `sd -cleanup`
-gets a slot number only. **What would falsify it:** `sd -cleanup` turning out to need
-a per-user string from the segment, in which case that string must be re-derived from
-a trusted source (the account register). **Witness, in the conditional:** with the
-service running, an ordinary account writes hostile values into the segment (huge
-count, negative stride, `pid` 1, a 200-character string) and the daemon stays up and
-starts no `sd -cleanup` for the forged slot. Reading the C and compile-checking it
-with MSYS2 gcc are possible unattended; **running it is not** — it needs a cycle. **Not
-built.**
-
 ### 47 → 48 → 49 · B — the release gates, in order, none started
 
 Owner via the Linux mailbox, 15 Sep 2026 18:12. **47 is gated on every other 1.1
@@ -373,8 +298,25 @@ task above; 48 on 47; 49 on 48.**
 - **48 — documentation current with 1.1.** Bring `SDCoreWindowsDocs` up to date
   with every W1.1 change (API TLS, the SDSYS elevation gate, `delete.account`'s
   skip, the VOC-write fix, prompt defaults, …) — it still describes account tiers
-  on more than a dozen pages, which 64 made false. **Absorbs old 18:** rebuild the
-  sets with `tools\release.ps1` and copy the corrected bound PDFs from
+  on more than a dozen pages, which 64 made false. **Absorbs 61** (owner, 22 Sep,
+  moved here): at `Administrator/markdown/01-accounts-and-security.md:85`, `:88`,
+  `:165`; `03-operating-system-access.md:189`; `05a-managing-accounts.md:101`,
+  `:153`, *"Administrators have API access and `OS.EXECUTE` access automatically"*
+  is false since 58 removed it; and add the two facts — **only SDSYS administers**,
+  and an **ssh session's reach is bounded by NTFS, not by SD**. `SDCoreWindowsDocs`
+  was clean at `de44f8e`, matching its remote (22 Sep). 61's in-repo half is
+  already DONE (§5.25's correction box, §5.28's API-token and ssh rows); only the
+  shipped docs, in the other repository, remain — check every factual claim before
+  it ships (§5.29 and the "not isolated" line that was false). **Add a
+  security-posture section** (owner, 22 Sep): describe how the system is **secured
+  at delivery** — SD accounts tied to standard Windows accounts (no privileged
+  token), ssh users `ForceCommand`'d into SD with no `sh`/`OS.EXECUTE`, `os.users`
+  empty, `APIPORT` off until asked, `sdsshonly` denying the console, `BASIC`/`RUN`
+  removable and app-lock-at-login with the break key disabled available — **and
+  that the administrator can choose to open it up** (grant `os-on`, `sdapi`,
+  `sdssh`, leave `BASIC`/`RUN`) **based on their environment, which is their choice
+  and responsibility** (§5.29). **Absorbs old 18:**
+  rebuild the sets with `tools\release.ps1` and copy the corrected bound PDFs from
   `<Set>\book\` into the release's `documentation\` before zipping, so the 29
   `-ExecutionPolicy Bypass` fixes in `SDCoreWindowsDocs 76e1dce` reach the shipped
   PDFs (assembly is a hand step with no script). Linux starts its documentation
@@ -401,10 +343,10 @@ what would bring it back.
 ***Deferred to W1.2, ruled 21 Sep 2026 by the agent on the owner's delegation.*** It
 is the MSYS2 runtime's own design rather than SD code, the only remedy is to take the
 runtime out of the LocalSystem daemon, and that is the same re-architecture as 59's
-broker — so it goes with it, and 1.1 ships 59's hardening instead. **Until the
-deciding experiment is run, no document may say a local user *cannot influence* the
-service through this section** — the claim is unmeasured, and saying less is the
-honest wording for 1.1.
+broker — so it goes with it to W1.2 (59 itself is now closed by ruling, §5.29, and its
+hardening is no longer a 1.1 item). **Until the deciding experiment is run, no document
+may say a local user *cannot influence* the service through this section** — the claim
+is unmeasured, and saying less is the honest wording for 1.1.
 
 Measured 16 Sep unelevated (`probe-cygshared.c`): in `msys-2.0S5-11f4a83b0f193bff`
 (inferred to be SD's runtime — it holds LocalSystem's `S-1-5-18.1`), `shared.5` opened
@@ -664,12 +606,18 @@ application with the break key removed (his own two answers, same day). ***SO DO
 FINDING WHOSE WHOLE CONTENT IS "A USER LEFT AT TCL CAN DO X".*** Say what the default is and move on.
 
 ***THE ONE DISTINCTION THAT SURVIVES, AND IT IS THE LINE TO TRIAGE ON: A DEFAULT WE SHIP IS OURS; A GRANT AN
-ADMINISTRATOR MAKES IS THEIRS.*** Two things therefore remain open on merit and are not answered by this
-ruling: **59**, where an ordinary account reaches a segment a LocalSystem process reads — an
-unprivileged-to-SYSTEM path that needs **no grant from anybody**, which is why it stays B; and **104**, where
-two `sdsys` directories keep `sdusers:Modify` while their six siblings are locked by the installer — an
-inconsistency in **our own default**, not a delegation. Both are about what we deliver, which this ruling puts
-squarely in scope.
+ADMINISTRATOR MAKES IS THEIRS.*** **104** was on the "ours" side — two `sdsys` directories kept
+`sdusers:Modify` while their six siblings were locked, an inconsistency in our own default — and it was fixed
+and closed (22 Sep). **59 the owner has ruled the admin's side** (22 Sep, confirming this section governs it),
+on this reasoning: **every SD account is tied to a standard Windows account, so the account's own token cannot
+escalate**; an ssh user is `ForceCommand`'d into SD with **no `sh` and no `OS.EXECUTE`**; **`BASIC` and `RUN`
+can be removed from the account's VOC**, and the admin can **load the account into an app at login with the
+break key disabled**. So the shm-segment path (reached only via BASIC `OSWRITE`/`OPENSEQ` over ssh) is closed
+by default, and reaching it takes **several deliberate admin steps — his choice** — the same class as *"a user
+left at TCL can do X."* ***THE ORIGINAL CARVE-OUT HERE (last session) HELD 59 OPEN as an unprivileged-to-SYSTEM
+path that "needs no grant from anybody"; the owner overrode that*** — the reader-hardening remedy in 59's
+archived row remains a legitimate W1.2 improvement but is not a 1.1 blocker. So neither remains open: 104 was
+ours and is fixed; 59 is the administrator's after delivery.
 
 ### 5.28 The security model after RELEASE_1.1 64, evaluated (21 Sep 2026)
 
@@ -695,9 +643,12 @@ runtime claim is marked as reasoned.
 
 **Findings, worst first:**
 
-1. **59 (B)** — the LocalSystem daemon `sdwind` reads a segment every SD user can write.
-   Ruled in its entry: 1.1 hardens the reader so it trusts nothing in the segment; the
-   native-broker redesign is W1.2.
+1. **59 (CLOSED by ruling, 22 Sep — §5.29)** — the LocalSystem daemon `sdwind` reads a
+   segment every SD user can write. **The owner ruled it the administrator's side of
+   §5.29's line**, not a 1.1 blocker: reaching it needs BASIC `OSWRITE` over ssh, which the
+   default locked account cannot do (tied to a standard Windows account, no `sh`/`OS.EXECUTE`,
+   `BASIC`/`RUN` removable, app-lockable). The reader-hardening (trust nothing in the segment)
+   and the native-broker redesign remain **optional W1.2** improvements.
 2. **53 (deferred to W1.2)** — an ordinary local user can open the daemon's MSYS2 shared
    section for write; whether that can influence the service is **unmeasured**, so no
    document may claim it cannot.
@@ -721,7 +672,7 @@ runtime claim is marked as reasoned.
    Default-deny and this ruling are not in tension: the fields stay off until somebody sets
    them, and once set the product honours them on every route. **What is owed instead is
    disclosure** — an administrator turning `os-on` for an account that also holds `sdapi` or
-   `sdssh` should be able to find out what that combination means (61, 48).
+   `sdssh` should be able to find out what that combination means (gate 48).
 4. **Every account has the remote doors by default but no credential until an elevated
    interactive sign-in (69).** That fails closed — an account with no `$cred` cannot
    authenticate remotely — and the message now says so.
