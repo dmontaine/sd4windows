@@ -73,8 +73,9 @@ refused (10195/10176) rather than granted. Grant is post-identity and single-sit
 shape from Windows's bug (pre-identity seed + a missed clear). Not a fresh live witness — a
 source re-read against Windows's question, against the prior live witness on `60ac74a` (19 Sep
 2026, M8a-h). `sudo sd` as root itself is refused outright (10190), same ruling as Windows's W.5.
-Confirms Linux's `MODIFY.PASSWORD` self-service is still the same ruled-not-built gap
-(`set_acc_password:79-80`) — no new action, both records agree.
+**Corrected 15:30, same day** — Linux's `MODIFY.PASSWORD` self-service was
+already built and witnessed 19 Sep 2026 (W.10), before this audit's 22 Sep
+read of `set_acc_password`; the line numbers had moved. See 47's entry below.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
@@ -176,8 +177,8 @@ task above; 48 on 47; 49 on 48.**
 - **47 — Windows↔Linux parity audit.** *Done when* a written comparison exists
   and its findings are resolved or filed. **First pass done 22 Sep 2026** — a
   structured comparison across the major axes, not yet the full verb-by-verb
-  sweep (scoped at the bottom). Still open: the next-pass items and Linux's own
-  `MODIFY.PASSWORD` build.
+  sweep (scoped at the bottom). Still open: the next-pass items only —
+  `MODIFY.PASSWORD` turned out already built on Linux (corrected below).
 
   ***THE TEST FOR EVERY ROW, STATED BY THE OWNER ON BOTH SIDES: ONLY THE
   RESULT COUNTS. THE MECHANISM MAY DIFFER TO FIT EACH OS.*** Linux's own
@@ -258,21 +259,26 @@ task above; 48 on 47; 49 on 48.**
     lower-case work (`CLAUDE.md`: *"AND COMPLETE, WHICH THE PORT IS NOT"*)
     has already gone past it. Low priority, no functional effect either way.
 
-  **Open gap, needs work — not yet resolved on either side:**
-  - **`MODIFY.PASSWORD` self-service is ruled but not built on Linux.**
-    Owner ruled, 19 Sep 2026, on the Linux side, binding both ports under the
-    governance rule above: *"user can only change their own password, sdsys
-    can change any."* Matches Windows exactly (RELEASE_1.1 71, built and
-    witnessed). **Linux's own `set_acc_password:79-80` records the conflict
-    itself**: `$cred` is `sdsys:sdusers 0700`, so an ordinary Linux session
-    cannot write even its own record, and the verb refuses before any prompt
-    is even shown — the ruling and the file permissions disagree. A
-    mechanism is proposed there (`euid 0` for `$MODIFY.PASSWORD`, mirroring
-    how `CPROC` already grants it to `$CREATEA`/`$DELACC`/`$MODIFYA`) but
-    marked *"Needs the owner."* **Next Linux session: build it, or get the
-    owner's yes on the `euid 0` approach.** Reconfirmed by Linux's own
-    22 Sep 2026 mail reply (`done/2026-09-22T1500-linux-release-1.1-106-reply.md`):
-    still not built, same proposal, still needs the owner.
+  **CORRECTED 22 Sep 2026 — `MODIFY.PASSWORD` self-service was already built
+  on Linux before this audit ran; the line-number citation below was stale.**
+  The paragraph as first written cited `set_acc_password:79-80` at
+  `2d4a45a`(22 Sep) as still refusing before any prompt. Linux's mail reply
+  (`done/2026-09-22T1530-linux-modifypassword-correction.md`,
+  `SDCore4Linux main c88ab9e`) said the file had moved on since that read;
+  **checked directly against the pulled clone, not taken on the mail
+  alone**: `set_acc_password:71-97` at `c88ab9e` now describes a working
+  self-service path, and Linux's own `PROJECT_STATUS.md` row **W.10 is ✅,
+  built and witnessed 19 Sep 2026 on `60ac74a`** — three days before this
+  audit's 22 Sep pass, so the "open gap" finding was wrong from the moment
+  it was written, not a regression since. Mechanism, for gate 48's docs:
+  a setuid-root helper `sd-elevate cred-own` (`query`/`verify`/`set`),
+  reachable by every SD user through a scoped sudoers entry, taking the
+  caller's identity from `sudo` rather than from SD; `set_acc_password`
+  derives the credential record locally and hands it to the helper for an
+  ordinary account's own write, while an administrator (an actual `sdsys`
+  login) writes `$cred` directly through `!CRED_SET` — same process for
+  both, two write paths underneath, matching Windows's RELEASE_1.1 71
+  result with an OS-appropriate mechanism. **Aligned, not an open gap.**
 
   **Sent over the mailbox, 22 Sep 2026, and answered — closed:**
   - **RELEASE_1.1 106 (Windows, commit `17b0ae25`): "The only privileged
