@@ -135,9 +135,13 @@ control leg still plants the `os.users\SDSYS` fixture and still passes — confi
 `LOGTO`-based testing (already correctly scoped before this fix) is untouched, and only the
 *direct*-login path changed. **Not separately re-witnessed:** `verify-osusers` and
 `verify-doors-suite` both raise their own nested UAC prompts internally, which an agent cannot
-drive (§4.0.1) — left for a full milestone suite run, along with a check that the credential
-prompt (`login:1106`) — gated on the same flag, so it no longer fires for an ordinary elevated
-account at all — doesn't need a replacement trigger; not yet asked.
+drive (§4.0.1) — left for a full milestone suite run.
+
+**The credential prompt (`login:1106`) no longer firing for an ordinary elevated account is
+ruled, not a gap.** Owner, 22 Sep 2026: no replacement trigger — the installing administrator's
+account is ordinary like any other now, and granting it (or any account) a credential or
+`SH-ON`/`OS-ON` means signing in to Windows as SDSYS and running `sd` elevated, same as any other
+account. **Documented as a gate-48 item** (below) rather than built as a code change.
 
 ### 47 → 48 → 49 · B — the release gates, in order, none started
 
@@ -189,7 +193,14 @@ task above; 48 on 47; 49 on 48.**
   removable and app-lock-at-login with the break key disabled available — **and
   that the administrator can choose to open it up** (grant `os-on`, `sdapi`,
   `sdssh`, leave `BASIC`/`RUN`) **based on their environment, which is their choice
-  and responsibility** (§5.29). **Absorbs old 18:**
+  and responsibility** (§5.29). **Add, from 106 (owner, 22 Sep):** the installing
+  administrator's own account is an ordinary account like any other now — being a
+  Windows administrator, elevated or not, grants it nothing extra. There is no
+  longer a login prompt nudging them to set a credential. **To grant their own
+  account (or any account) `SH-ON`, `OS-ON`, or a remote-access credential, they
+  sign in to Windows as SDSYS and run `sd` elevated** — exactly the same
+  procedure as granting any other account, with no shortcut for the account that
+  happened to install SD. **Absorbs old 18:**
   rebuild the sets with `tools\release.ps1` and copy the corrected bound PDFs from
   `<Set>\book\` into the release's `documentation\` before zipping, so the 29
   `-ExecutionPolicy Bypass` fixes in `SDCoreWindowsDocs 76e1dce` reach the shipped
