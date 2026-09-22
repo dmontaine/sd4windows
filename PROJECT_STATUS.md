@@ -40,7 +40,8 @@ or *"— PRE_RELEASE_FIXES.md"*; grep the number there.
 it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
-***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 47's first pass done.***
+***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 47's first pass done; 106
+mail sent to Linux (DELIVERED, PENDING ack).***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -56,23 +57,17 @@ account now grants like any other — sign in to Windows as SDSYS, run `sd` elev
 
 ***47, 22 Sep 2026 — first-pass parity audit done, bidirectional (checked with a mechanical
 `newvoc`/`voc_template` diff, not just prose).*** Most axes align once "only the result counts,
-the mechanism may differ" is applied. Two real action items: **send 106 to Linux over the
-mailbox** (box was off this session — next time it's on) since Linux's privilege model may have
-the same bug shape in a different mechanism; and **Linux's own `MODIFY.PASSWORD` self-service is
-ruled but not built** (`set_acc_password:79-80` names the conflict itself). Full detail in 47's
-own entry — read it before starting 48.
+the mechanism may differ" is applied. One real action item remains: **Linux's own
+`MODIFY.PASSWORD` self-service is ruled but not built** (`set_acc_password:79-80` names the
+conflict itself). Full detail in 47's own entry — read it before starting 48.
 
-***OWNER'S STANDING INSTRUCTION FOR THE NEXT SESSION, 22 Sep 2026: SEND THE 106 MAIL AS SOON AS
-THE LINUX BOX IS CONFIRMED BACK ON.*** Do this before anything else that session touches 47/48/49
-— it's a short, cheap send and the Linux side can't start checking its own privilege model for
-the same bug shape until it has the message. **A full draft is already written**, covering 106's
-root cause/fix/witness, the "check your own sudo/root path for the same shape" ask, and the
-`MODIFY.PASSWORD` self-service reminder — at
-`C:\Users\Don\AppData\Local\Temp\claude\C--Users-Don-SDCoreProject-sd4windows\0420a4bb-ea8b-4b68-8f2e-c369e14daaf6\scratchpad\mail-to-linux-106.md`.
-**That path is a prior session's scratchpad and may not survive** — if it's gone, the same content
-is fully recoverable from commit `17b0ae25`, entry `106`, and entry `47`'s "needs to go out over
-the mailbox" paragraph, all in this file. Either way: `mail.sh send <draft> <YYYY-MM-DDTHHMM-windows-release-1.1-106.md>`,
-then `mail.sh status` to confirm ACKNOWLEDGED — do not report it sent on `send`'s DELIVERED alone.
+***106 mail sent to Linux, 22 Sep 2026*** —
+`mail.sh send` → `to-linux/2026-09-22T1300-windows-release-1.1-106.md`, sha256
+`a4056bd3f4...` verified against the draft (DELIVERED). `mail.sh status` at 13:22 read
+**DELIVERED, PENDING** — not yet ACKNOWLEDGED, Linux has not moved it to `done/` yet. A background
+watcher on `to-windows/` is running this session; check `mail.sh status` again next session if it
+still hasn't landed. **Next session, before touching 48:** confirm ACKNOWLEDGED (or read whatever
+Linux replied with) rather than assuming the send alone closed it.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
