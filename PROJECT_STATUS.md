@@ -54,9 +54,15 @@ restatement around them.
 
 ***22 Sep 2026 — 76's falsification check DONE AND CONFIRMING*** (`verify-apiadmin -NoFixture`
 23/24, `verify-privundetermined -NoFixture` 26/26, both owner-run elevated with SDSYS signed in —
-detail in OPEN TASKS entry 76). **Next, in order:** 76's remaining "full suite" item (none since
-18 Sep 10:30); 97's suite-speedup proposals; the 47 → 48 → 49 gates (parity audit → docs →
-staging/zips), none started.
+detail in OPEN TASKS entry 76).
+
+***22 Sep 2026 — THE OWED "76 FULL SUITE" RUN (`-Run b229`) FOUND A REAL DEFECT AND STOPPED AT IT:
+`SH`/`!` WERE MISSING FROM EVERY ORDINARY ACCOUNT'S VOC*** — RELEASE_1.1 105, ruled and fixed
+same day, see its entry below. **The tree is now STALE (source changed): `-Run b229`'s partial
+result is void, and any full-suite result before a fresh cycle is not to be trusted.** **Next, in
+order:** cycle, then the full suite again with a fresh `-Run b230` (this is 76's owed item and
+105's witness in one run); 97's suite-speedup proposals; the 47 → 48 → 49 gates (parity audit →
+docs → staging/zips), none started.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
@@ -72,8 +78,9 @@ joined string). `bbcmp` compiles `set_acc_password`/`createa`, not `login`. `ISC
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**5 open (ids across 3 entries): validated against the tree by the 27th pass,
-21 Sep 2026, plus 97; 59, 69, 71, 73, 75, 77, 84, 100–104, 64, 95, 96 and 99 all closed 22 Sep, and 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**6 open (ids across 4 entries): 59, 69, 71, 73, 75, 77, 84, 100–104, 64, 95, 96 and 99 all closed
+22 Sep, 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below the gates); 105
+filed and fixed the same day it was found.** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -83,6 +90,36 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
+
+### 105 · B — `sh`/`!` were absent from every ordinary account's VOC; ruled and fixed, owed a cycle+witness
+
+**Owner's ruling, 22 Sep 2026: *"sh and ! should go back because the admin may decide to allow an
+account os access and those verbs need to be ready if he does."*** Found the same day, mid-run,
+by `76`'s owed full-suite pass (`-Run b229`): `verify-osusers.ps1` refused cleanly — *"SH is not in
+Don's VOC"* — rather than measuring the OS.USERS gate at all.
+
+**Root cause, traced to source:** [d913eac](d913eac) (24 Aug 2026, tier split) deleted `sh` and
+`!` from `sdsys/newvoc`, correctly for the three-tier model of the time — they stayed
+ADMINISTRATOR-tier-only, reached via `TIER.ADD.ADMINISTRATOR` pulling them from
+`sdsys/voc_template`. **RELEASE_1.1 64 (18 Sep) then deleted the whole tier system**, including
+`TIER.ADD.ADMINISTRATOR` — so every ordinary account's VOC became `newvoc` directly, and nothing
+ever put `sh`/`!` back into it. Net effect: no SD account except SDSYS could even type the `SH`
+or `!` command — not gated, absent. This was an unintended casualty of 64's tier removal, not a
+deliberate tightening: §5.28's own table documents OS.EXECUTE/SH as "default deny, admin can
+grant" — a runtime gate — not "the verb does not exist."
+
+**Fixed 22 Sep 2026:** `sdsys/newvoc/sh` and `sdsys/newvoc/!` restored, byte-identical to their
+`voc_template` counterparts (`V\nOS\n`). **`SH-ON` is the switch that matters for the verb
+itself** (`CPROC`, OS.USERS field 1, `sh.rec<1> = 'YES'`) — separate from `OS-ON` (field 2,
+`os_user_permitted()`, gates the `OS.EXECUTE` BASIC statement and the screen editors). Both were
+already correctly wired and untouched by this fix; only the VOC records were missing.
+`sdsys/changelog` carries the user-facing entry with the right verb (`MODIFY.ACCOUNT <account>
+SH-ON`). Free tier re-run clean after the fix: `test-voctwins-units.py` (no case-collision
+introduced, `newvoc` now 397 records) and all 54 free guards, 0 failures.
+
+**Owed:** a cycle (the tree is stale — source changed) and a witnessed `verify-osusers.ps1` pass
+showing the OS.USERS gate actually measured rather than refused. This is the same run 76 already
+owed — one fresh full-suite pass covers both.
 
 ### 76 · B (harness) — the four verifiers are converted to the SDSYS seat; two are witnessed
 
