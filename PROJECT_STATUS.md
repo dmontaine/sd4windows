@@ -44,8 +44,13 @@ OPEN TASKS wins and this block is the stale one.
 ssh mechanism, console-login (S.27/S.41), message text, and a source-diff verb sweep. Owner's
 "parity goes both ways" ruling (relayed via Linux, S.42) acted on same-session: `nano` built here
 (not yet cycled), `UMASK` re-examined and confirmed structurally covered by NTFS inheritance, a
-real Python-list-creation gap found on Linux's side and sent. Only doc-parity (48) and a live
-witness run (not source-read) remain, both large enough to be their own pass.***
+real Python-list-creation gap found on Linux's side and sent (built there too, S.43). **48 started**:
+five pages rewritten against verified source in `SDCoreWindowsDocs` (05/05a/06/07,
+Administrator/01), a security-critical stale-ssh-tunnel claim fixed in Administrator/03, a
+tier-era tooling defect found (`verbcounts.py`/`tclmap.py` crash on deleted `TIER.*` files). Still
+open: the security-posture section, a 35-file scattered-sentence sweep (uncounted, likely mostly
+false positives), the tooling fix, and the PDF/book rebuild. A live witness run (not source-read)
+also remains, large enough to be its own pass.***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -493,22 +498,68 @@ task above; 48 on 47; 49 on 48.**
 - **48 — documentation current with 1.1.** Bring `SDCoreWindowsDocs` up to date
   with every W1.1 change (API TLS, the SDSYS elevation gate, `delete.account`'s
   skip, the VOC-write fix, prompt defaults, …) — it still describes account tiers
-  on more than a dozen pages, which 64 made false. ***CHECKED 22 Sep 2026: it is
-  worse than scattered sentences — `GettingStarted/markdown/05-account-types.md`
-  (169 lines), `06-administrator-commands.md` (295) and `07-programmer-commands.md`
-  (312) are each BUILT ENTIRELY AROUND the withdrawn three-tier model (verb
-  counts, VOC-record counts per tier, `modify.account` moving an account between
-  tiers) — 776 lines needing a rewrite or removal, not an edit, before the
-  scattered-sentence sweep even starts.*** **Absorbs 61** (owner, 22 Sep,
-  moved here): at `Administrator/markdown/01-accounts-and-security.md:85`, `:88`,
-  `:165`; `03-operating-system-access.md:189`; `05a-managing-accounts.md:101`,
-  `:153`, *"Administrators have API access and `OS.EXECUTE` access automatically"*
-  is false since 58 removed it; and add the two facts — **only SDSYS administers**,
-  and an **ssh session's reach is bounded by NTFS, not by SD**. `SDCoreWindowsDocs`
-  was clean at `de44f8e`, matching its remote (22 Sep). 61's in-repo half is
-  already DONE (§5.25's correction box, §5.28's API-token and ssh rows); only the
-  shipped docs, in the other repository, remain — check every factual claim before
-  it ships (§5.29 and the "not isolated" line that was false). **Add a
+  on more than a dozen pages, which 64 made false.
+
+  ***STARTED 22 Sep 2026 — five pages rewritten, verified, committed
+  (`SDCoreWindowsDocs` commits `b78dad6`, `67e4066`, `100cc67`, `ace7a0e`).***
+  `GettingStarted/markdown/05-account-types.md`, `05a-managing-accounts.md`,
+  `06-administrator-commands.md`, `07-programmer-commands.md`, and
+  `Administrator/markdown/01-accounts-and-security.md` were each rewritten
+  against **verified live source** (`createa`/`modifya`/`granta`/`set_acc_password`'s
+  actual current syntax messages and gates, not the old prose) rather than
+  patched. **The scope was worse than the 776-line estimate**: `01-accounts-and-security.md`
+  was flagged for three one-line fixes (absorbed 61) and turned out to be as
+  tier-saturated as the three `GettingStarted` pages, needing the same full
+  rewrite. **`03-operating-system-access.md`'s absorbed-61 line was fixed too**,
+  and turned up something worse than stale — its "an SD administrator is a shell
+  on this machine" section described a forwarded-ssh-tunnel bypass of the remote
+  refusal that does not exist any more: SDSYS is absent from `sshd_config`'s
+  `AllowGroups` entirely (this session's own ssh-mechanism audit, entry 47), so
+  there is no session for a tunnel to reach, and the page was steering a reader
+  toward hardening a route that was already structurally closed while not
+  naming the risk that actually persists (`os-on` + API access on *any*
+  account). **Each rewrite verified with the doc repo's own tooling**:
+  `mkdoc.py` renders clean, `checklinks.py` 0 broken (90→95→95→20→23 across the
+  five pages), `docmap.py` unchanged at 411/411. Two of absorbed 61's four
+  citations are done (`01-accounts-and-security.md`, `05a-managing-accounts.md`);
+  the two facts it also asked for (**only SDSYS administers**; **an ssh
+  session's reach is bounded by NTFS, not by SD**) are not yet added as a
+  standalone statement anywhere, though the rewritten pages say the first one
+  repeatedly in context.
+
+  ***A found tooling defect, not yet fixed***: `SDCoreWindowsDocs/tools/verbcounts.py`,
+  `tclmap.py` and `mktclsyntax.py` all crash or misbehave against the current
+  tree — they read `newvoc/TIER.OMIT.STANDARD` and `TIER.ADD.ADMINISTRATOR`,
+  both deleted by 64. `docmap.py` and `confmap.py` are unaffected (411/411,
+  clean) — the damage is confined to the tier-counting tools, matching where
+  the doc content itself broke. Needs a design decision before it can be
+  fixed, not just a patch: the old three-number story (Standard/Programmer/
+  Administrator verb counts) has no replacement of the same shape — there are
+  now two, an ordinary account's `newvoc` count and SDSYS's additional
+  `voc_template`-only verbs, matching this session's own `comm -23` count (20
+  real SDSYS-only verbs, `append.sd.path`/`clean.account`/`clear.locks`/
+  `config`/`create.account`/`delete.account`/`grant`/`list.grants`/`list.locks`/
+  `list.readu`/`listu`/`lock`/`modify.account`/`remote.api`/`remote.ssh`/
+  `revoke`/`set.date`/`ssh.server`/`unlock`/`update.accounts` — used directly
+  in the `06-administrator-commands.md` rewrite's "full list").
+
+  ***Still open, roughly in size order***: the **security-posture section**
+  (below, unchanged from the owner's 22 Sep instruction — not yet written);
+  the **scattered-sentence sweep** across the rest of the doc set — a loose
+  `grep -rl -i tier` found **35 files** with a hit, most likely false positives
+  from ordinary English ("standard subroutines," "administrator" used
+  generically) but not yet individually read, so that count is a ceiling, not
+  a result; `Administrator/markdown/03-operating-system-access.md`'s own
+  remaining sections (the `sh`/`os.users` mechanics, the `logto`-clears-
+  elevation section) were checked in the same pass and are accurate as
+  written, not rewritten; the tooling fix above; and the PDF/book rebuild
+  (absorbed old 18, `tools\release.ps1`).
+
+  ***What follows is the owner's original instruction, unchanged, for what the
+  security-posture section and the 106 addition still need to say — most of
+  the 106 half is already in `05-account-types.md`'s "SDSYS is the only
+  administrator" section, written this session; check there before
+  re-writing it.*** **Add a
   security-posture section** (owner, 22 Sep): describe how the system is **secured
   at delivery** — SD accounts tied to standard Windows accounts (no privileged
   token), ssh users `ForceCommand`'d into SD with no `sh`/`OS.EXECUTE`, `os.users`
