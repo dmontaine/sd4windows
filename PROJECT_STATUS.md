@@ -385,6 +385,18 @@ from it.** The remedy is a design, in the conditional, in the archived row.
 Linux's copy is broader (`shmget(… 0666)`); reported to the Linux agent
 18 Sep 2026.
 
+***IT NEEDS NO `SH` AND NO `OS.EXECUTE`, AND THAT IS THE THING TO BE CLEAR ABOUT.*** Asked
+22 Sep 2026 whether this and 53 are reachable only by an account holding OS access: **53 yes,
+this one no.** The segment is an ordinary FILE (`C:\ProgramData\SD\shm\sd_shm_*`) whose ACL
+grants `ace\sdusers:(RX,W)`, and `net_path_permitted()` returns TRUE for every path on a
+session that is not `CN_SOCKET` (`op_dio1.c:704`). An ssh session is `CN_CONSOLE`. **So plain
+BASIC file I/O — `OSWRITE`, `OPENSEQ` — reaches it from an ordinary account over ssh, with no
+OS grant of any kind.** Over the API it is blocked, that being the one transport the gate
+covers. **53 is different**: it was measured with a compiled program run as a local Windows
+user, which an SD-created account cannot become (`sdsshonly` denies console and RDP, ssh gives
+a `ForceCommand`'d SD session) — so for an SD account 53 does need `SH`/`OS.EXECUTE`, while its
+real population is any local Windows user, who needs no SD grant at all.
+
 **Ruled 21 Sep 2026 (agent, on the owner's delegation): it stays B and 1.1 does not ship
 without a hardening of the privileged reader; the broker re-architecture is deferred
 to W1.2.** The archived row's remedy — move the privileged surface into a small native
