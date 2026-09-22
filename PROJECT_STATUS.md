@@ -566,16 +566,46 @@ task above; 48 on 47; 49 on 48.**
   ~14,000 split guideline, worth a look before either grows further.
 
   ***THE THREE SETS WERE REBUILT, 22 Sep 2026***, `tools\release.ps1` for
-  `GettingStarted`, `Administrator`, `User`, run unelevated with no flags
-  beyond `-Set` (`python` on PATH is 3.14.7 with `markdown` 3.10.3 already
-  user-installed, so the 12 Sep PATH trap did not recur; Edge found at the
-  x86 path). All four roster checks (`docmap`, `tclmap`, `confmap`,
-  `verbcounts`) passed against the freshly-pulled `sd4windows` tree for every
-  set. `checklinks.py`: GettingStarted 108/0 broken, Administrator 25/0,
-  User 243/0. Bound-book PDFs and per-set zips written (`GettingStarted`
-  4,040,695 B sha256 `BA26DD73…`; `Administrator` 3,367,649 B sha256
-  `7653234745…`; `User` 16,182,909 B sha256 `58D34EC9…`) — all under
-  `SDCoreWindowsDocs\`, gitignored, nothing to commit there.
+  `GettingStarted`, `Administrator`, `User`, run unelevated (`python` on PATH
+  is 3.14.7 with `markdown` 3.10.3 already user-installed, so the 12 Sep PATH
+  trap did not recur; Edge found at the x86 path). All four roster checks
+  (`docmap`, `tclmap`, `confmap`, `verbcounts`) passed against the
+  freshly-pulled `sd4windows` tree for every set.
+
+  ***THEN A VERSION SWEEP, SAME SESSION: THE DOCS STILL SAID W1.0-0
+  EVERYWHERE THE PRODUCT ITSELF HAD ALREADY MOVED TO W1.1-0 ON 15 Sep.***
+  Checked against source, not assumed: `gplsrc/revstamp.h`, `gpl.bp/revstamp.h`,
+  `sdclilib/revstamp.h` and `sd.iss`'s `AppVer` all already read `W1.1-0`;
+  `op_sys.c:378-381` confirms `system(1012)` returns `SD_REV_STAMP`, `sd.c:554`
+  confirms `sd --version` reports the same string, `sd.iss:96` confirms the
+  installer filename derives from `AppVer`. **Bumped 8 current-version
+  statements only** — README's title, `00b-start-here.md`'s "what this release
+  is" and "quote the version", `01-installation.md`'s installer filename,
+  `10-client-distribution.md`'s "not what W1.0-0 ships", the `system(1012)`
+  table row, and both `config` transcript's "Virtual Machine Version Number"
+  lines. **Deliberately left alone**: every "run/compiled/witnessed on
+  W1.0-0" worked-example claim (sessions/locks, encryption, the TCL query/
+  select/index examples, the BASIC tutorial, dict conversions) — relabeling a
+  captured-run claim without re-running it on W1.1-0 would fabricate a
+  verification that didn't happen; and every reference to "the W1.0-0 audit"
+  as a named past event (README, `analysis/`). **Found and fixed along the
+  way**: `27-sd-tcl-micro.md`'s "Saving is broken ... in W1.0-0" section
+  described a bug already fixed 27 Aug 2026 (`PRE_RELEASE 29`) — stale
+  regardless of version, rewritten to describe the current per-user
+  `MICRO_CONFIG_HOME` behaviour, checked against `gpl.bp/EDIT`'s `micro.home`
+  gosub and `gplbld/micro-home.ps1`.
+
+  All three sets then rebuilt again, `-Version W1.1-0 -Force` (documented
+  flags, no new ones), so every page's header/footer/title carries the new
+  stamp rather than just the eight edited pages. `checklinks.py`:
+  GettingStarted 108/0 broken, Administrator 25/0, User 242/0 (one fewer link
+  — the removed `ed` cross-reference in the rewritten micro section). Bound
+  books and zips rewritten (`GettingStarted` 5,296,222 B sha256 `861D7324…`;
+  `Administrator` 4,520,858 B sha256 `32E47674…`; `User` 22,028,565 B sha256
+  `DE57D55C…`); stale `W1.0-0`-named zips deleted. All under
+  `SDCoreWindowsDocs\`, gitignored, nothing generated to commit — the
+  markdown fixes are `SDCoreWindowsDocs 1e54cd1`. **Not pushed** — ask before
+  pushing either repo's commits from this session.
 
   ***Both the security-posture section and the 106 addition are DONE, 22 Sep
   2026*** — the posture section is in `12-security.md` ("What ships secured,
