@@ -42,44 +42,57 @@ OPEN TASKS wins and this block is the stale one. The 26th pass's handoff and
 every older one are in HISTORY.md under *"ARCHIVE 21 Sep 2026 — PROJECT_STATUS.md
 before consolidation"*; what they still owed was carried into OPEN TASKS.
 
-***21 Sep 2026, ~13:10 — THE TREE IS CURRENT (12:26 cycle, upgraded over the top at 12:32); 64, 95, 96
-AND 99 ARE CLOSED; 76 IS HALF WITNESSED.*** This stretch, all elevated through the agent helper with SDSYS
-signed in: `verify-apiadmin` and `verify-privundetermined` green on `b211` after eight stale success
-anchors were fixed (`test-verifieranchors-units.py` guards the class); `verify-accountmodel` rewritten and
-green on `b213`/`b214` (no `newvoc` id missing from a new account; the four extras pinned), which found **100**.
-`verify-upgrade.ps1` was fixed and self-tested; `probe-filespeed.ps1` and `probe-sdsysvoc.ps1` are kept.
-The elevated helper stops after 60 idle minutes, or `agent-elevate.ps1 -Stop`.
+***22 Sep 2026, ~21:00 — TREE CURRENT AND CLEAN. FIVE ENTRIES CLOSED TODAY: 100, 101, 102, 103, 104.***
+`assert-current` **exit 0** against the 20:54 cycle, measured at handoff; working tree clean at `56539ff`;
+free tier **54/54**. **`-Run` tokens `b206`–`b219` are spent — start at `b220`.** Every closed entry is in
+HISTORY.md with its measurements; do not re-derive them.
 
-***CALL `agent-elevate.ps1` DIRECTLY FROM A POWERSHELL SESSION*** — `& <path>\agent-elevate.ps1 -Run
--Script <gplbld>\VerifyInstall2.ps1 -ScriptArgs '-Run','bNNN','-Only','<step>'`. Through `powershell -File`,
-or from bash, the comma list collapses into ONE argument and the runner answers *"-Run was not given"*
-before running anything. `-Run` tokens `b206`–`b214` are spent.
+***THE FULL SUITE HAS NOT RUN SINCE 18 Sep 10:30, AND CLAUDE.md WANTS ONE BEFORE A HANDOFF.*** This handoff
+is made without it. Nine steps ran green today (`verify-routes` 35/35 `b218`, `verify-sdsyslocal`,
+`verify-localconnect`, `verify-accountmodel` 10/10 `b219`, `verify-sysdiracl`, `verify-registersweep` twice),
+so this is a gap in coverage of the steps NOBODY touched, not a known failure. **Run one before believing the
+release is close.**
 
-***22 Sep 2026 — 101 IS DONE AND WITNESSED AND IS IN HISTORY.md.*** SDSYS is reached at the console and over
-`SDConnectLocal`, and by nothing else: `verify-sdsyslocal` exit 0 from an elevated Windows SDSYS session
-(admitted, `WHO -> 3 SDSYS`, and the administrator verb ran — so `IsInteractive()` answers true for a
-ConnectLocal child), `verify-routes` **35/35** on `b218`, `verify-localconnect` exit 0, `assert-current` clean
-against the 19:20:42 install. **It threw off two findings, 102 and 103, and the owner closed both the same
-day** — 103 because requiring an SD password at the console is correct (the defect was a comment), 102 because
-its subject was the installer-attached account, which he rules out of scope, and **the question he actually
-cares about — is a STANDARD user restricted — was already witnessed green on `b211`** by `verify-apiadmin`
-(*"API session was refused OS.EXECUTE by name"*, plus `$cred` refused both ways, on a real API connection).
-Both are in HISTORY.md; 102's documentation half moved to **61**. `-Run` tokens `b206`–`b218` are spent.
+***WHAT CHANGED TODAY, IN ONE LINE EACH.*** SDSYS is reached at the console and over `SDConnectLocal` and by
+nothing else (101); `MODIFY.ACCOUNT` refuses it with new message **12001**; `newvoc/%t` → `%T` so the `~`
+record finally reaches accounts (100, VOC 398 → 399); `sdsys\voc` and `sdsys\gpl.bp` are locked, making nine
+(104); and **§5.29 is new and governs triage** — the owner's *"we are responsible for the transport and the
+default unmodified system, after that it is the wild west."*
 
-***22 Sep 2026, LATE — 100 AND 104 ARE BOTH CLOSED ON THE 20:54 CYCLE.*** 100: `newvoc/%t` → `%T`,
-`verify-accountmodel` on `b219` **10/10**, `COUNT NEWVOC` and `LIST NEWVOC` agreeing at **395/395**, and a
-fresh account's VOC up from 398 to **399** — the `~` record reaches accounts. 104: `sdsys\voc` and
-`sdsys\gpl.bp` locked, `verify-sysdiracl` **unelevated** reporting **nine** paths read-only with `$ipc` still
-writable as the control. **`-Run` tokens `b206`–`b219` are spent.** Both entries are in HISTORY.md.
+> ***READ §5.29 BEFORE FILING ANY SECURITY FINDING.*** It rules out a whole class — *"a user left at TCL can
+> do X"* is not a defect, because the administrator can remove `BASIC`/`RUN` or lock the account into an
+> application. It also records a gate the owner REFUSED rather than deferred: **no transport test on
+> `os_permitted()`**. A grant an administrator makes is theirs; a default we ship is ours.
 
-***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
-whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
-`powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1
--Only verify-lcnames` from an **ordinary unelevated** prompt (it refuses an elevated one); its new
-"voc_template absent" row has never run. `sdtestuser-admin` is exercised by the full suite's door pair.
-Then a full suite by the owner — none has run since 18 Sep 10:30. (2) The ruled builds, which want one
-cycle together: 59's reader hardening (C), 71's SDSYS-only cross-account password rule, 77's retired-ids
-list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's proposals.
+***NEXT, IN ORDER, CHEAPEST FIRST.***
+
+1. **Owner, ordinary unelevated prompt:** 76's remainder, `verify-lcnames` — its "voc_template absent" row
+   has never run.
+   `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Only verify-lcnames`
+   (`sdtestuser-admin`, 76's other half, is exercised by the full suite's door pair.) **Then a full suite.**
+2. **84** — repoint `verify-apiidentity` at the real client library instead of `scram-probe.py`. Harness
+   only, no cycle to write, one run to witness.
+3. **61** — its local half is DONE (§5.25 carries a correction box; §5.28's table gained the API token and a
+   new ssh row). What remains is the SHIPPED documentation in `SDCoreWindowsDocs`, clean at `de44f8e`, at the
+   six `file:line` references the entry lists, plus: only SDSYS administers, and an ssh session's reach is
+   bounded by NTFS rather than by SD.
+4. **The ruled builds, which want one cycle together:** 59's reader hardening (C), 71's SDSYS-only
+   cross-account password rule, 77's retired-ids list (BASIC).
+5. **97's proposals**, then the 47 → 48 → 49 gates.
+
+***ONE THING RAISED WITH THE OWNER AND NOT FILED, SO IT IS NOT LOST:*** `voc_template` has no `~` record at
+all, and it is what SDSYS's own VOC is built from — so after 100, every ordinary account has that record and
+**SDSYS still does not**. It was never part of the fix he approved. Whether it matters rests on 100's own
+unmeasured question: whether `~` works as a keyword without a VOC record (HISTORY notes `<` and `>` cannot be
+VOC records here yet work, which would make it cosmetic). **Ask before building.**
+
+***TOOLING NOTES WORTH THE THIRTY SECONDS.*** `agent-elevate.ps1 -Start` gives one UAC click and then serves
+elevated runs for 60 idle minutes; call it **directly from PowerShell** with
+`-ScriptArgs '-Run','bNNN','-Only','<step>'`, because through `powershell -File` or bash the comma list
+collapses into one argument and the runner answers *"-Run was not given"*. `verify-routes` refuses any session
+but the **Windows SDSYS** one; `verify-sysdiracl` and `verify-localconnect` refuse an **elevated** one, each
+deliberately. **`ISCC` cannot compile `sd.iss` from here** — it needs `stage/upgrade.iss`, which `stage.py`
+generates — so an `sd.iss` edit is parse-unchecked until a cycle.
 
 ---
 
