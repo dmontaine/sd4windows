@@ -59,8 +59,8 @@ before running anything. `-Run` tokens `b206`–`b214` are spent.
 THE CONSOLE-ONLY SDSYS MODEL.*** What survives is one message (12001) and two findings the revert does not
 undo, now **102** (an API session's token is fully elevated, and §5.25/§5.28 do not say so) and **103**
 (LOGIN demands an SD password for SDSYS, which the owner says is not needed). ***CYCLED 21 Sep 2026 ~18:55 AND THE TREE IS CURRENT***: `assert-current` exit 0, `ace\SDSYS` in neither route
-group, the withdrawn messages gone, and `verify-localconnect` green. **Owed: `verify-routes` Step 5 from the
-Windows SDSYS session, and the local route's ADMIT side, which no harness covers.**
+group, the withdrawn messages gone, and `verify-localconnect` green. `verify-routes` **35/35 on `b218`**, Step 5 included. **Owed: only the local
+route's ADMIT side, which no harness covers.** `-Run` tokens `b206`–`b218` are spent.
 
 ***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
 whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
@@ -178,6 +178,11 @@ somebody typing `MODIFY.ACCOUNT SDSYS SSH` that they had the NAME wrong — the 
 child *"tests interactive when the parent did"*) **and has not been run.** If it answers false, SDSYS is
 refused and the route does nothing — it opens nothing either way.
 
+***`verify-routes` IS GREEN ON THE CYCLED TREE — `b218`, 21 Sep 2026 19:03, elevated in the Windows SDSYS
+session: 35/35, `assert-current` exit 0, install 18:56:39.*** Step 5's five rows all PASS — **`MODIFY.ACCOUNT
+SDSYS BOTH` and `... SSH` each answer 12001**, SDSYS holds no route either time, and it stays out of
+`sdsshonly`. `verify-registersweep` 7/7 behind it.
+
 ***THE CONTROL IS WITNESSED ON THE CYCLED TREE, 21 Sep 2026 18:58.*** `assert-current` **exit 0** (2,631 files;
 the two deleted messages are gone from the install and 12001 carries the new text), `ace\SDSYS` is in **neither**
 route group, and `VerifyInstall1 -Yes -Only verify-localconnect` **exit 0**: *"DON admitted, SDSYS refused"*,
@@ -226,9 +231,13 @@ recreates them empty), which is also why no `MODIFY.ACCOUNT SDSYS NONE` was ever
 cycle that `ace\SDSYS` is in neither group** — `Get-LocalGroupMember -Group sdapi` — because the revert
 above only stops it happening again.
 
-**Owed:** `verify-routes` Step 5 (elevated, and the rig refuses any session but Windows SDSYS's); then the
-**admit side by hand** — signed in as Windows SDSYS, elevated, a client calling `SDConnectLocal("SDSYS")`,
-with `WHO` and an administrator-only verb inside it. *(The cycle and `verify-localconnect` are done — above.)* **`make check-local` in `gplsrc/sdclilib` is the
+***OWED, AND IT IS THE LAST THING: THE ADMIT SIDE OF THE LOCAL ROUTE.*** Everything above measures that SDSYS
+is REFUSED where it should be; **nothing has yet shown it ADMITTED where it should be.** It needs an elevated
+session owned by Windows SDSYS running a client that calls `SDConnectLocal("SDSYS")`, then `WHO` and an
+administrator-only verb inside it. `make check-local`'s binary hardcodes the refusal and
+`verify-localconnect` refuses an elevated run by design, so this wants a small probe of its own — **not
+written.** ***IF `IsInteractive()` IS FALSE FOR A ConnectLocal CHILD, THIS IS WHERE IT SHOWS, AND THE ROUTE
+SIMPLY DOES NOT WORK*** — it opens nothing either way, so the failure is inert rather than dangerous. **`make check-local` in `gplsrc/sdclilib` is the
 nearest existing harness and its binary hardcodes the refusal**, so the admit side wants either a flag on
 that binary or a short probe; **neither is written.** *(The 21 Sep measurement that an API session's token is
 fully elevated was taken on the SOCKET path and says nothing about `CN_PIPE` — see 102.)*
