@@ -42,11 +42,11 @@ OPEN TASKS wins and this block is the stale one. The 26th pass's handoff and
 every older one are in HISTORY.md under *"ARCHIVE 21 Sep 2026 — PROJECT_STATUS.md
 before consolidation"*; what they still owed was carried into OPEN TASKS.
 
-***22 Sep 2026 — five entries closed (100–104). 22 Sep, later: 84's CODE landed, tree now reads STALE.***
-The 20:54 cycle was current at `56539ff`; **84's rewrite (this pass) edited `gplsrc/sdclilib/Makefile`, so
-`assert-current` now exits 1 (STALE by that one file) — the next elevated run needs a cycle first.** Free
-tier last measured **54/54** (+`test-apiidentity-units` green after the 84 rewrite). **`-Run` tokens through
-`b219` are spent — start at `b220`.** Every closed entry is in HISTORY.md; do not re-derive them.
+***22 Sep 2026 — five entries closed (100–104). Later: 84's CODE landed (probe + SDSYS-seat conversion).***
+The owner cycled (install 21:29:24) and `assert-current` is now **exit 0** — 84's verifier-only re-edits are
+exempt, so **the 84 re-witness needs no cycle**, just an elevated run with SDSYS signed in (see 84 / NEXT 2).
+Free tier **54/54**. **`-Run` token `b220` is spent (84's first witness); start at `b221`.** Every closed
+entry is in HISTORY.md; do not re-derive them.
 
 ***THE FULL SUITE HAS NOT RUN SINCE 18 Sep 10:30, AND CLAUDE.md WANTS ONE BEFORE A HANDOFF.*** This handoff
 is made without it. Nine steps ran green today (`verify-routes` 35/35 `b218`, `verify-sdsyslocal`,
@@ -71,11 +71,12 @@ default unmodified system, after that it is the wild west."*
    has never run.
    `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Only verify-lcnames`
    (`sdtestuser-admin`, 76's other half, is exercised by the full suite's door pair.) **Then a full suite.**
-2. **84** — CODE DONE this pass (uncommitted at handoff): `verify-apiidentity` now drives
-   `api_identity_probe.c` on the real `sdclilib`, compile/parse/guard all green, but the
-   `gplsrc/sdclilib/Makefile` edit makes the tree read STALE. **Owed: one cycle, then**
-   `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiidentity.ps1 -Prefix <fresh>`
-   in an **elevated** window. See entry 84 for the expected shape.
+2. **84** — CODE DONE: `verify-apiidentity` now drives `api_identity_probe.c` on the real
+   `sdclilib` AND its setup half is converted to the SDSYS seat (the `b220` witness caught
+   both the missing conversion and a stale password anchor). `assert-current` is exit 0, so
+   **no cycle needed** — with **SDSYS signed in**, re-witness in an **elevated** window:
+   `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiidentity.ps1 -Prefix sdapiidb221`
+   See entry 84 for the expected shape.
 3. **61** — its local half is DONE (§5.25 carries a correction box; §5.28's table gained the API token and a
    new ssh row). What remains is the SHIPPED documentation in `SDCoreWindowsDocs`, clean at `de44f8e`, at the
    six `file:line` references the entry lists, plus: only SDSYS administers, and an ssh session's reach is
@@ -219,23 +220,35 @@ real-client-library reading. **The `verify-apiidentity` half is now written**
 `bash`/`make`, exactly as `verify-apiremote` drives its probe. `scram-probe.py`
 stays — `verify-scramlogin`, `-apiwire`, `-vocwrite` still drive it.
 
+**Two blockers surfaced by the first witness (`b220`, owner, elevated) and both
+fixed this pass:** (1) the setup half still used the pre-101 `Invoke-SD` (a
+non-interactive `sd.exe` child), so `LOGTO SDSYS`/`CREATE.ACCOUNT` was refused
+10002 → "not in your VOC" — `verify-apiidentity` was the fifth verifier 76 never
+converted to the SDSYS seat, and is now converted (`Invoke-SDSys` /
+`Invoke-SDIn`, `Assert-SdSeat` plain+`-Internal` before anything is created).
+(2) Step 1's `'Password set'` anchor was stale — `set_acc_password:375` prints
+`Password accepted.` since 21 Sep; now anchored there, with the `ERROR: Unable
+to set password` disqualifier.
+
 **What was observed:** the probe compiles zero-warning under
 `-Wall -Wextra -Wpedantic` (`make build-api-identity`, a new build-only target
-in both Makefiles); its no-arg run prints usage and exits 5 with the runtime
-PATH; `verify-apiidentity.ps1` parses 0 errors / 15 functions;
-`test-apiidentity-units.ps1` passes; no BOM/CR in any of the four edited files.
-**Parser change, by design:** `sdclilib` exposes no wire `server_error` getter,
-so a refused open reads as `OPEN NAME: REFUSED: <SDError text>` and login+attach
-as `PROBE.CONNECT=YES`; `Get-ProbeOpen`'s boolean outcome (opened/refused/
-not-seen) is unchanged and message 5277 is still detected in the refusal text.
+in both Makefiles); its no-arg run prints usage / exit 5 with the runtime PATH;
+`verify-apiidentity.ps1` parses 0 errors / 16 functions; the seat wrappers load;
+`test-apiidentity-units.ps1` and the full free tier (54/54) pass; no BOM/CR; and
+`assert-current` is **exit 0** — the verifier-only re-edits are exempt, so the
+re-witness needs NO cycle. **Parser change, by design:** `sdclilib` exposes no
+wire `server_error` getter, so a refused open reads as
+`OPEN NAME: REFUSED: <SDError text>` and login+attach as `PROBE.CONNECT=YES`;
+`Get-ProbeOpen`'s boolean (opened/refused/not-seen) is unchanged and message
+5277 is still detected in the refusal text.
 
-**Owed — the end-to-end run, which nothing here has witnessed.** The
-`gplsrc/sdclilib/Makefile` edit makes the tree read STALE (`assert-current`
-exit 1, measured), so the witness is **one cycle, then**
-`verify-apiidentity.ps1 -Prefix <fresh>` in an ELEVATED window; it should
-reproduce the last green shape (ALLOW opens, DENY refused, USER-ONLY opens,
-`ZZAPI` owned by the API user, `ZZLOCAL` by the local session). If the DENY
-read differs, read it as a product finding before touching the probe.
+**Owed — the end-to-end run, which nothing here has witnessed.** With SDSYS
+signed in, `verify-apiidentity.ps1 -Prefix <fresh>` in an ELEVATED window (no
+cycle needed). It should reproduce the last green shape: ALLOW opens, DENY
+refused, USER-ONLY opens, `ZZAPI` owned by the API user, `ZZLOCAL` by the
+SDSYS-side identity (the seat's session — a LOGTO keeps the login name SDSYS, so
+the two owners differ and the control holds). If DENY reads differently, read it
+as a product finding before touching the probe.
 
 **Ruled 21 Sep 2026 (agent, on the owner's delegation): keep `verify-apiidentity`,
 not retired** — it is the only witness of 55's session-as-the-user property (see 97).
