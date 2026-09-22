@@ -44,13 +44,14 @@ OPEN TASKS wins and this block is the stale one.
 ssh mechanism, console-login (S.27/S.41), message text, and a source-diff verb sweep. Owner's
 "parity goes both ways" ruling (relayed via Linux, S.42) acted on same-session: `nano` built here
 (not yet cycled), `UMASK` re-examined and confirmed structurally covered by NTFS inheritance, a
-real Python-list-creation gap found on Linux's side and sent (built there too, S.43). **48 started**:
-five pages rewritten against verified source in `SDCoreWindowsDocs` (05/05a/06/07,
-Administrator/01), a security-critical stale-ssh-tunnel claim fixed in Administrator/03, a
-tier-era tooling defect found (`verbcounts.py`/`tclmap.py` crash on deleted `TIER.*` files). Still
-open: the security-posture section, a 35-file scattered-sentence sweep (uncounted, likely mostly
-false positives), the tooling fix, and the PDF/book rebuild. A live witness run (not source-read)
-also remains, large enough to be its own pass.***
+real Python-list-creation gap found on Linux's side and sent (built there too, S.43). **48: 17 pages
+rewritten** against verified source across all three `SDCoreWindowsDocs` sets — the security-posture
+section and the 106 addition are both done. **The sharpest finding: `LOGTO SDSYS` is refused
+unconditionally now**, not just elevation-gated (`cproc:2784-2787`) — seven pages told a reader to
+type it as a working command; all fixed. Still open: the rest of a 35-file scattered-sentence sweep
+(mostly probably false positives), a tier-era tooling defect (`verbcounts.py`/`tclmap.py` crash on
+deleted `TIER.*` files), and the PDF/book rebuild. A live witness run (not source-read) also
+remains, large enough to be its own pass.***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -500,32 +501,59 @@ task above; 48 on 47; 49 on 48.**
   skip, the VOC-write fix, prompt defaults, …) — it still describes account tiers
   on more than a dozen pages, which 64 made false.
 
-  ***STARTED 22 Sep 2026 — five pages rewritten, verified, committed
-  (`SDCoreWindowsDocs` commits `b78dad6`, `67e4066`, `100cc67`, `ace7a0e`).***
-  `GettingStarted/markdown/05-account-types.md`, `05a-managing-accounts.md`,
-  `06-administrator-commands.md`, `07-programmer-commands.md`, and
-  `Administrator/markdown/01-accounts-and-security.md` were each rewritten
-  against **verified live source** (`createa`/`modifya`/`granta`/`set_acc_password`'s
-  actual current syntax messages and gates, not the old prose) rather than
-  patched. **The scope was worse than the 776-line estimate**: `01-accounts-and-security.md`
-  was flagged for three one-line fixes (absorbed 61) and turned out to be as
-  tier-saturated as the three `GettingStarted` pages, needing the same full
-  rewrite. **`03-operating-system-access.md`'s absorbed-61 line was fixed too**,
-  and turned up something worse than stale — its "an SD administrator is a shell
-  on this machine" section described a forwarded-ssh-tunnel bypass of the remote
-  refusal that does not exist any more: SDSYS is absent from `sshd_config`'s
-  `AllowGroups` entirely (this session's own ssh-mechanism audit, entry 47), so
-  there is no session for a tunnel to reach, and the page was steering a reader
-  toward hardening a route that was already structurally closed while not
-  naming the risk that actually persists (`os-on` + API access on *any*
-  account). **Each rewrite verified with the doc repo's own tooling**:
-  `mkdoc.py` renders clean, `checklinks.py` 0 broken (90→95→95→20→23 across the
-  five pages), `docmap.py` unchanged at 411/411. Two of absorbed 61's four
-  citations are done (`01-accounts-and-security.md`, `05a-managing-accounts.md`);
-  the two facts it also asked for (**only SDSYS administers**; **an ssh
-  session's reach is bounded by NTFS, not by SD**) are not yet added as a
-  standalone statement anywhere, though the rewritten pages say the first one
-  repeatedly in context.
+  ***STARTED 22 Sep 2026, SUBSTANTIAL PROGRESS — 17 files rewritten, verified,
+  committed across 11 `SDCoreWindowsDocs` commits*** (`b78dad6` `67e4066`
+  `100cc67` `ace7a0e` `b99c2df` `b0b18af` `3ec3b26` `915ed81` `72275f2`
+  `af0f0f4` `f29ab9e`). Every fix was checked against **verified live source**
+  (`createa`/`modifya`/`granta`/`set_acc_password`/`login`/`cproc`'s actual
+  current syntax messages and gates), not the old prose. **The scope was
+  worse than the 776-line estimate at every turn**: `Administrator/01` was
+  flagged for three one-line fixes (absorbed 61) and needed the same full
+  rewrite as the three `GettingStarted` pages; the two `Security` pages, `ssh
+  access`, `API access`, `installation`, `first-run`, `scheduled jobs`,
+  `hardening`, `start here`, and two pages in the `User` set all turned out
+  to describe the withdrawn model too, not just the three pages named.
+
+  ***THE SHARPEST FINDING: `LOGTO SDSYS` IS REFUSED UNCONDITIONALLY NOW, NOT
+  JUST GATED BY ELEVATION*** — verified directly at `cproc:2784-2787`
+  (message 10002, audited `LOGTO REFUSED account=SDSYS reason=SDSYS is not
+  reachable by LOGTO`) and `login:606,778,815`. The only route into SDSYS is
+  signing in to Windows as the `sdsys` account itself and starting `sd` fresh,
+  elevated — never `logto` from a session that started anywhere else, however
+  elevated that session is. **Seven separate pages instructed a reader to type
+  `logto sdsys`** as a working command — GettingStarted's installation,
+  first-run walkthrough (step 5, "become an administrator"), scheduled-jobs,
+  hardening, and start-here pages, plus `User/00b-sd-introduction.md`'s own
+  "becoming an administrator" section and `19a-sd-tcl-the-command-stack.md`'s
+  worked example — every one now fixed. **One page's fix was itself wrong
+  the first time**: `Administrator/03`'s "logto clears elevation" section was
+  initially left as "accurate, not rewritten" in an earlier commit this
+  session; its worked example of *recovering* with `logto sdsys` was exactly
+  the broken route, caught on a second pass and corrected (`b0b18af`) — a
+  reminder that "checked and found accurate" needs the same scrutiny as a
+  rewrite, not less.
+
+  The `08-ssh-access.md`/`09-api-access.md` rewrites found the same shape of
+  error again: both claimed a *local* administrator connection (ssh loopback,
+  or an API client on `127.0.0.1`) still worked, only remote being refused.
+  False now — SDSYS is never joined to `sdssh` or `sdapi` at all (only
+  `create.account` does that, and SDSYS isn't created that way) and carries
+  no SD credential to authenticate an API session with, so there is no
+  local/remote distinction left to make: SDSYS has neither route, from
+  anywhere.
+
+  **Each rewrite verified with the doc repo's own tooling**: `mkdoc.py`
+  renders clean and `checklinks.py` reports 0 broken across every affected
+  set on every commit; `docmap.py` unchanged at 411/411 throughout. The
+  **security-posture section is written** (in `12-security.md`, "What ships
+  secured, before you change anything") — the BASIC/RUN-removal and
+  break-key items in the owner's original wording don't map to one named SD
+  mechanism, so they're phrased as available hand techniques
+  (`pterm break off`, deleting VOC records) rather than a built-in feature,
+  since that's what the source actually shows. Absorbed 61's two remaining
+  facts (**only SDSYS administers**; **an ssh session's reach is bounded by
+  NTFS, not by SD**) are said repeatedly in context across the rewritten
+  pages but not yet as one standalone sentence anywhere.
 
   ***A found tooling defect, not yet fixed***: `SDCoreWindowsDocs/tools/verbcounts.py`,
   `tclmap.py` and `mktclsyntax.py` all crash or misbehave against the current
@@ -543,38 +571,25 @@ task above; 48 on 47; 49 on 48.**
   `revoke`/`set.date`/`ssh.server`/`unlock`/`update.accounts` — used directly
   in the `06-administrator-commands.md` rewrite's "full list").
 
-  ***Still open, roughly in size order***: the **security-posture section**
-  (below, unchanged from the owner's 22 Sep instruction — not yet written);
-  the **scattered-sentence sweep** across the rest of the doc set — a loose
-  `grep -rl -i tier` found **35 files** with a hit, most likely false positives
-  from ordinary English ("standard subroutines," "administrator" used
-  generically) but not yet individually read, so that count is a ceiling, not
-  a result; `Administrator/markdown/03-operating-system-access.md`'s own
-  remaining sections (the `sh`/`os.users` mechanics, the `logto`-clears-
-  elevation section) were checked in the same pass and are accurate as
-  written, not rewritten; the tooling fix above; and the PDF/book rebuild
-  (absorbed old 18, `tools\release.ps1`).
+  ***Still open***: the **scattered-sentence sweep** across the rest of the
+  doc set — a loose `grep -rl -i tier` found **35 files** with a hit; the
+  highest-traffic ones (start-here, installation, first-run, security,
+  ssh/API access, scheduled jobs, hardening) are now individually read and
+  fixed, so the ceiling is smaller than 35, but the remainder (mostly `User`
+  set BASIC/TCL reference pages) has not been swept — likely mostly false
+  positives from ordinary English ("standard subroutines"), not yet
+  confirmed; the tooling fix above; `08-ssh-access.md` landed at 13,693 chars
+  and `13-hardening.md` at 14,042, both close to or just over the ~14,000
+  split guideline — worth checking before either grows further; and the
+  PDF/book rebuild (absorbed old 18, `tools\release.ps1`).
 
-  ***What follows is the owner's original instruction, unchanged, for what the
-  security-posture section and the 106 addition still need to say — most of
-  the 106 half is already in `05-account-types.md`'s "SDSYS is the only
-  administrator" section, written this session; check there before
-  re-writing it.*** **Add a
-  security-posture section** (owner, 22 Sep): describe how the system is **secured
-  at delivery** — SD accounts tied to standard Windows accounts (no privileged
-  token), ssh users `ForceCommand`'d into SD with no `sh`/`OS.EXECUTE`, `os.users`
-  empty, `APIPORT` off until asked, `sdsshonly` denying the console, `BASIC`/`RUN`
-  removable and app-lock-at-login with the break key disabled available — **and
-  that the administrator can choose to open it up** (grant `os-on`, `sdapi`,
-  `sdssh`, leave `BASIC`/`RUN`) **based on their environment, which is their choice
-  and responsibility** (§5.29). **Add, from 106 (owner, 22 Sep):** the installing
-  administrator's own account is an ordinary account like any other now — being a
-  Windows administrator, elevated or not, grants it nothing extra. There is no
-  longer a login prompt nudging them to set a credential. **To grant their own
-  account (or any account) `SH-ON`, `OS-ON`, or a remote-access credential, they
-  sign in to Windows as SDSYS and run `sd` elevated** — exactly the same
-  procedure as granting any other account, with no shortcut for the account that
-  happened to install SD. **Absorbs old 18:**
+  ***Both the security-posture section and the 106 addition are DONE, 22 Sep
+  2026*** — the posture section is in `12-security.md` ("What ships secured,
+  before you change anything"); the 106 content (installing administrator is
+  an ordinary account now, grant `SH-ON`/`OS-ON`/a remote credential by
+  signing in to Windows as SDSYS and running `sd` elevated) is in
+  `05-account-types.md`'s "SDSYS is the only administrator" section, written
+  this session. Neither needs re-writing. **Absorbs old 18, still open:**
   rebuild the sets with `tools\release.ps1` and copy the corrected bound PDFs from
   `<Set>\book\` into the release's `documentation\` before zipping, so the 29
   `-ExecutionPolicy Bypass` fixes in `SDCoreWindowsDocs 76e1dce` reach the shipped
