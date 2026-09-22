@@ -62,6 +62,15 @@ the same bug shape in a different mechanism; and **Linux's own `MODIFY.PASSWORD`
 ruled but not built** (`set_acc_password:79-80` names the conflict itself). Full detail in 47's
 own entry — read it before starting 48.
 
+***OWNER'S STANDING INSTRUCTION FOR THE NEXT SESSION, 22 Sep 2026: SEND THE 106 MAIL AS SOON AS
+THE LINUX BOX IS CONFIRMED BACK ON.*** Do this before anything else that session touches 47/48/49
+— it's a short, cheap send and the Linux side can't start checking its own privilege model for
+the same bug shape until it has the message. Content is already written: summarise 106 (commit
+`17b0ae25`, the changelog entry, and the "needs to go out over the mailbox" paragraph in 47's
+OPEN TASKS entry) into a normal `to-linux/` message via `mail.sh send`, then `mail.sh status` to
+confirm ACKNOWLEDGED per CLAUDE.md's mailbox section — do not report it sent on `send`'s DELIVERED
+alone.
+
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
 ***Tooling:*** `agent-elevate.ps1 -Start` = one UAC click, then
