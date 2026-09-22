@@ -127,6 +127,13 @@ record is unneeded; and **read the first red as a finding about the seat or the 
 before reverting anything** — the `-Internal` door itself was witnessed on 20 Sep for
 `verify-apiwire` and `verify-vocwrite`, which is the evidence it works, not for these two.
 
+***22 Sep 2026 — BOTH VERIFIERS NOW TAKE `-NoFixture`***, so the check no longer needs a
+manual edit: it skips planting `os.users\SDSYS` for the local control and reports the
+result under a differently-named check (`falsification: ...`), not a flipped expected
+value on the existing one. Not yet run — needs the same elevated-agent-helper + SDSYS-
+signed-in setup as the witnessed runs, and reaches SDSYS through the seat's own scheduled
+task (`sdsys-seat.ps1`), so the operator does not switch sessions to run it.
+
 ### 97 · S (harness) — the validation suites: upkeep cut, runtime still to do
 
 ***21 Sep 2026, overnight and unattended (owner asleep, judgement delegated; nothing
