@@ -158,6 +158,29 @@ this entry is about. *(Measured obliquely on 21 Sep: the probe's `SH whoami` ran
 returned `ace\sdsys` — a plain command, so it passed the check that was in force.)* **It also limits
 composition rather than power: one plain command still covers `net user … /add`.**
 
+***TWO CORRECTIONS FROM THE OWNER, 22 Sep 2026, AND THE SECOND ONE INVALIDATES THIS ENTRY'S ORIGINAL
+FRAMING.*** He asked *"why is it an elevated shell rather than a standard one, and even so it is a standard
+user's elevated shell"*, and both halves are right.
+
+1. ***SD ASKS FOR NO ELEVATION ANYWHERE.*** The token is issued by **S4U**, not `LogonUser`:
+   `win32s4u.c:294` calls `LsaLogonUser` with logon type **`Network`**, because SCRAM means the server never
+   holds the password and `LogonUser` needs one. **Nothing in `win32s4u.c` or `win32session.c` requests
+   `TokenLinkedToken`** or any elevated variant — grepped; the single occurrence of "elevat" in that file is a
+   remark that no interactive account holds `SeTcbPrivilege`. So the High integrity measured on 21 Sep is
+   **what LSA returned for that account**, not something SD did to it.
+2. ***AND "ELEVATED" IS EMPTY FOR A STANDARD ACCOUNT, WHICH IS EVERY ACCOUNT SD CREATES.*** A standard user
+   has one token carrying its own rights; there is no admin half to hand out. So the phrase only ever
+   described the one installer-attached administrator, and **this entry previously carried the SDSYS
+   measurement across to accounts it does not describe.** Corrected here rather than quietly reworded.
+
+**WHAT SURVIVES, NARROWLY:** for that one admin account, an S4U `Network` logon appears to yield the
+**unfiltered** admin token where Windows' own default for a network logon of a local administrator would
+normally filter it. ***THAT RESTS ON ONE MEASUREMENT, TAKEN ON SDSYS, AND IS NOT CHEAPLY REPEATABLE ON A
+STANDARD ACCOUNT***: `SH` needs `os.users` field 1 or the administrator flag (`cproc:3773`), and a standard
+API session has neither, so it is refused with 10053 before printing anything. **Comparing integrity levels
+across account types needs an instrument that does not go through `SH`** — `probe-s4u.c` already exists and is
+the place to look first.
+
 ***WHAT ALL OF THIS ADDS UP TO, AND IT LOWERS THE PRIORITY WITHOUT CLOSING THE ENTRY.*** Three independent
 things must ALL hold for anyone to get remote admin rights: the account must be the installer-attached
 administrator (every other SD account is a standard user), it must be in `sdapi`, and somebody must have set
