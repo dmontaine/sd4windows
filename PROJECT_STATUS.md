@@ -130,9 +130,18 @@ before reverting anything** — the `-Internal` door itself was witnessed on 20 
 ***22 Sep 2026 — BOTH VERIFIERS NOW TAKE `-NoFixture`***, so the check no longer needs a
 manual edit: it skips planting `os.users\SDSYS` for the local control and reports the
 result under a differently-named check (`falsification: ...`), not a flipped expected
-value on the existing one. Not yet run — needs the same elevated-agent-helper + SDSYS-
-signed-in setup as the witnessed runs, and reaches SDSYS through the seat's own scheduled
-task (`sdsys-seat.ps1`), so the operator does not switch sessions to run it.
+value on the existing one. Reaches SDSYS through the seat's own scheduled task
+(`sdsys-seat.ps1`), so the operator does not switch sessions to run it.
+
+***`verify-apiadmin -NoFixture` WITNESSED 22 Sep 2026, owner's own elevated run, SDSYS
+already signed in, `-Prefix sdapia13`: 23/24, the CONFIRMING result.*** Same shape as the
+witnessed `b211` run (23 decisive checks, 1 designed N/A on "not running as SYSTEM" —
+unmeasurable once OS.EXECUTE is refused) plus the new row: `falsification: WITHOUT the
+fixture, the control is refused` — **True/True, PASS.** Without the planted
+`os.users\SDSYS` record the local OS.EXECUTE control genuinely was refused, so
+`USR_ADMIN` does **not** survive the seat's `LOGTO` under `-Internal` — the fixture is
+doing real, necessary work, not papering over anything. **Still owed:**
+`verify-privundetermined -NoFixture`, same setup, entry 76 names both together.
 
 ### 97 · S (harness) — the validation suites: upkeep cut, runtime still to do
 
