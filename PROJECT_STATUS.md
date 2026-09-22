@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **104**, so **the next is 105** —
+`RELEASE_1.1`'s id space: the highest id issued is **106**, so **the next is 107** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -77,6 +77,67 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
+
+### 106 · B — elevation gave an ordinary account SD privileges; fixed and witnessed, owed a full suite
+
+**Owner's ruling, 22 Sep 2026, from a scoped security audit** (checked against §5.29's "transport
++ default unmodified system" framing): *"elevation should not give ANY user any additional SD
+privileges no matter if they are an administrator or not - making a user a Windows administrator
+does not change their use of SD in any way ... The only requirement is that only an administrator
+can install sd in an elevated session. The only privileged account is SDSYS."*
+
+**Measured, not assumed — a genuine elevated session was run and probed live:** `MODIFY.ACCOUNT`
+answered *"is not in your VOC"* for an ordinary elevated account, confirming `CREATE.ACCOUNT`,
+`DELETE.ACCOUNT`, `MODIFY.ACCOUNT`, `GRANT`, `UNLOCK`, `REMOTE.API`, `REMOTE.SSH`, `SSH.SERVER`
+are absent from `newvoc` entirely — already unreachable by any ordinary account regardless of
+elevation; their `K$ADMINISTRATOR` checks are defense-in-depth for SDSYS's own copy in
+`voc_template`, not a live boundary. **The live gap is narrower, in verbs `newvoc` actually
+ships**: `CATALOG ... GLOBAL`, `DELETE.CATALOG` (global/reserved-prefix), `SH`/`!`/`EDIT`/`MICRO`
+(elevation bypassed the `os.users` grant), `BREAK ON USER`, `PDUMP` of another user's process —
+all gated on `kernel(K$ADMINISTRATOR,-1)` with no account test, so an elevated Windows
+administrator got them in their own ordinary account.
+
+**Root cause, traced to source:** `kernel.c:299` seeds `USR_ADMIN` (`K$ADMINISTRATOR`) from
+`IsElevated()` at session start, for every interactive elevated session, before `LOGIN` has
+decided which account it lands in — it has to, so the SDSYS-login case (`login:771`) has
+something to test. `CPROC`'s `LOGTO` handler already clears the flag correctly on the way *out*
+of SDSYS (`cproc:2921`, "the privilege goes with them") — which is why the seat's `-Internal`
+`LOGTO` into a throwaway account already needed the `os.users\SDSYS` fixture for
+`verify-apiadmin.ps1`/`verify-privundetermined.ps1`'s local control leg (76). **But a *direct*
+login into an ordinary account never went through that clear at all**, so the seed's `TRUE` stood
+for the whole session.
+
+**Fixed 22 Sep 2026, one line, `login`'s ordinary-account case**, mirroring `cproc:2921`:
+`void kernel(K$ADMINISTRATOR, 0)`. Does not touch the SDSYS-login case (evaluated first, unaffected),
+`CPROC`'s `LOGTO` grant/revoke (already correct), or `-internal`/bootstrap (forced into SDSYS by
+`sd.c`, never reaches this branch). `verify-catgate.ps1` and the seat-based legs of
+`verify-apiadmin`/`verify-privundetermined` already test `CATALOG GLOBAL` and the OS.EXECUTE
+control via `LOGTO`, which this change doesn't touch — checked before writing the fix, not after.
+
+**A documented safety valve is deliberately removed by this**: `cproc:3773`'s comment says
+elevation bypassing the `SH`/`EDIT`/`MICRO` gate exists so "an administrator at the console has to
+keep SH whatever [os.users] says, or an empty OS.USERS locks the machine's own administrator out
+of the shell." Under the new ruling, fixing an empty `os.users` means signing in as SDSYS, not
+staying elevated in your own account.
+
+**`ED` was never part of this** — it's a separate program from `EDIT`/`MICRO` (same source file
+name, `edit`, caused the confusion) and its own error text says so twice: *"ed, the line editor,
+works anywhere... needs none of this."*
+
+**Cycled and witnessed 22 Sep 2026, `-Run b231`, elevated (agent-run, one direct UAC prompt each
+for the cycle and the targeted run — no nested elevation, per §4.0.1).** `assert-current` clean on
+the fresh install. Targeted (8 of 35 elevated steps, all exit 0): `verify-elevdoor`,
+`verify-createaccount` (18/18), `verify-catgate`, `verify-sdsysgate` (11/11), `verify-routes`,
+`verify-apiadmin` (24/25), `verify-privundetermined` (27 PASS + 0 N/A of 27), `verify-registersweep`
+(auto-included). **The two checks that matter most for this exact change both passed, and by
+construction rather than luck**: `verify-apiadmin`/`verify-privundetermined`'s local OS.EXECUTE
+control leg still plants the `os.users\SDSYS` fixture and still passes — confirming the seat's
+`LOGTO`-based testing (already correctly scoped before this fix) is untouched, and only the
+*direct*-login path changed. **Not separately re-witnessed:** `verify-osusers` and
+`verify-doors-suite` both raise their own nested UAC prompts internally, which an agent cannot
+drive (§4.0.1) — left for a full milestone suite run, along with a check that the credential
+prompt (`login:1106`) — gated on the same flag, so it no longer fires for an ordinary elevated
+account at all — doesn't need a replacement trigger; not yet asked.
 
 ### 47 → 48 → 49 · B — the release gates, in order, none started
 
