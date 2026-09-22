@@ -271,14 +271,16 @@ Windows admin can rewrite `$cred` by hand anyway) was about the admin→ordinary
 it does NOT hold for the SDSYS target — SDSYS carries no SD `$cred` by design and its
 tree is locked (104), so `modify.password sdsys` is a *one-command* administrator
 takeover with no by-hand equivalent an ordinary elevated account could perform. So the
-build is required, not optional. **To build:** the cross-account branch additionally
-requires the session's account to be SDSYS; install-time password setting runs as SDSYS through `sd -internal`
-and so is unaffected — **which is the thing to check first, because it is the one
-condition that would break the finish page** (does `@logname` read `SDSYS`, and in what
-case, inside an internal session?). Compile-check with `bbcmp`, then a cycle, then the
-two witnesses above plus `MODIFY.PASSWORD sdsys` from an **elevated** `don`, refused
-with 2001. **Not built** — a shipped-BASIC change would make the installed tree stale
-and force a cycle before the witnesses already owed can run.
+build is required, not optional. **BUILT 22 Sep 2026:** `set_acc_password:147` now reads
+`if not(own) and upcase(@logname) # 'SDSYS'` — the same identity the `own` check on the
+line above uses. **bbcmp clean** (mine and HEAD both exit 0 in a scratch root, no
+untracked leak). Install is unaffected: the finish page sets SDSYS's WINDOWS password
+(`Set-LocalUser`, never SD) and each account's SD password is that account's OWN step
+(`own = @true`), so no install path takes the cross-account branch. **Owed — the witness
+(a shipped-BASIC change makes the tree STALE, so it needs a cycle; rides Bundle A with
+77):** `MODIFY.PASSWORD sdsys` from an elevated `don` → refused 2001 (the bug);
+`MODIFY.PASSWORD alice` from an elevated `don` → refused 2001; own-password from `don`
+still works; `MODIFY.PASSWORD <acct>` from a genuine SDSYS session still works.
 
 ### 69 · S — first-login credential wording fixed in four copies; witness owed
 
