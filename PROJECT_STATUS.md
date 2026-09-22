@@ -307,6 +307,17 @@ task above; 48 on 47; 49 on 48.**
   `nano`/`UMASK` reply — their call whether anything in their tree actually
   needs list creation.
 
+  **Built on Linux, same day (S.43, `SDCore4Linux ac02525`)**: confirmed a
+  real gap the moment they checked. `PyListCrte` implemented following
+  `PyDictCrte`'s own shape — their tree links `libpython` directly
+  (`PyList_New()` + `PyMapping_SetItemString`), not our helper-process
+  dispatch, same result by a different route, matching this audit's
+  "mechanism may differ" rule even for a bug fix. New BASIC wrapper
+  `py_listcrte` (their own `py_list<verb>` naming), opcode uncommented in
+  both their `keys.h` copies, two new error codes in their own
+  already-diverged numbering. C build clean; **not yet cycled or witnessed**
+  on their side either.
+
   **CORRECTED 22 Sep 2026 — `MODIFY.PASSWORD` self-service was already built
   on Linux before this audit ran; the line-number citation below was stale.**
   The paragraph as first written cited `set_acc_password:79-80` at
