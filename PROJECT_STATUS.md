@@ -295,15 +295,61 @@ task above; 48 on 47; 49 on 48.**
     against the prior live witness on `60ac74a` (19 Sep 2026, M8a-h). `sudo
     sd` as root itself is refused outright (10190), matching Windows's W.5.
 
+  **Audited 22 Sep 2026, second pass — ssh mechanism: aligned, checked
+  against both sources directly.**
+  - **Windows** (`gplbld/allow-ssh-groups.ps1:217,265-276,292-296`):
+    default-*deny* at the door — `AllowGroups sdssh <COMPUTERNAME>\sdssh` is
+    the only membership sshd will even authenticate; global (not
+    Match-scoped) `ForceCommand "<sd.exe>"` + `DisableForwarding yes` force
+    every authenticated session into `sd` with no tunnel. SDSYS's own OS
+    account is never added to `sdssh` — only `CREATE.ACCOUNT`'s `set.access`
+    does that (`createa:2199`), and SDSYS is not created through
+    `CREATE.ACCOUNT` — so it is excluded from ssh entirely by omission from
+    the allowlist.
+  - **Linux** (`gplbld/ssh-forcecommand.sh:31-40`): default-*allow* at
+    sshd (no global `AllowGroups`), three ordered `Match` arms instead —
+    `Match User sdsys` → `DenyUsers sdsys` (explicit); `Match Group
+    sdusers,!sdsys,!sdssh` → `ForceCommand` to a refusal binary (message
+    10074) with all four forwarding types off; `Match Group sdusers,!sdsys`
+    → `ForceCommand` into `sd`. Order is load-bearing (sshd's
+    first-obtained-value rule).
+  - **Same three outcomes both sides**: SDSYS refused entirely, a
+    no-ssh-route account refused with no shell and no tunnel, a routed
+    account forced into `sd` with no tunnel. Mechanism differs
+    (allowlist-by-omission vs. explicit deny-plus-refusal arms) — result
+    matches. **No action.**
+
+  **Audited 22 Sep 2026, second pass — console/local-login restriction: open
+  question, sent to Linux, not assumed either way.**
+  - **Windows** (`sdsys/gpl.bp/createa:1209-1231`, `gplbld/deny-logon.ps1`):
+    every ordinary SD account is unconditionally joined to `sdsshonly` at
+    `CREATE.ACCOUNT` time (administrators and `ADOPT`ed pre-existing
+    accounts exempted, `:1209-1211`), which carries
+    `SeDenyInteractiveLogonRight` (console) and
+    `SeDenyRemoteInteractiveLogonRight` (RDP) — an SD account can never get
+    a local Windows desktop session. This is the mechanism behind §5.6.2,
+    "SD accounts are ssh-only; the console belongs to administrators."
+  - **Linux, checked, not found**: `sd-elevate useradd`
+    (`gplbld/sd-elevate:677`) runs `useradd -m -c "SD account" -- "$1"` with
+    no `-s` override, so the account gets the distribution's default login
+    shell. `ForceCommand` only reaches ssh `Match` blocks — nothing in
+    `ssh-forcecommand.sh`, `installsdai.sh`, `sdcore.sudoers`, or a PAM
+    config restricts a *local* (tty/console) login for an ordinary SD
+    account. Checked Linux's own `CLAUDE.md` and `PROJECT_STATUS.md`: no
+    existing reasoning found — the only console-access discussion there
+    (S.38/S.39) is about SDSYS's own text-console route, a different
+    question (the administrator, not an ordinary account).
+  - **The question sent, unresolved here**: does an ordinary Linux SD
+    account currently get a normal shell at the machine's physical
+    console/tty, and if so, is that a deliberate OS-appropriate divergence
+    (a shared machine's physical console is a different threat model on
+    Linux) or a gap to close? Mailed to Linux 22 Sep 2026
+    (`to-linux/2026-09-22T1600-windows-console-login-question.md`).
+
   **Not yet audited — scoped for a next pass, not started tonight:**
   - Full verb-surface semantic comparison (the diff above found *presence*,
     not *behaviour* — a verb existing on both sides was not re-checked for
     matching result).
-  - ssh mechanism: Windows's `ForceCommand`+`DisableForwarding`+`AllowGroups`
-    vs whatever (if anything) Linux relies on, given `SH` already runs at
-    native Linux permissions there.
-  - Console/interactive-login restriction: Windows's `sdsshonly` deny-rights
-    group vs Linux's equivalent, if any.
   - Full message-*text* comparison beyond the shared-legacy-block number
     check above (wording drift, not just numbering collisions).
   - Doc parity — gate 48 on each side; Linux's own S.22 explicitly waits for
