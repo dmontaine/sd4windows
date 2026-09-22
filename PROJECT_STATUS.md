@@ -41,8 +41,9 @@ it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
 ***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 47's second pass done for
-ssh mechanism, console-login (S.27/S.41) and message text — all aligned or filed, no live gaps
-found; verb-behaviour and doc-parity (48) still unaudited, both large enough to be their own pass.***
+ssh mechanism, console-login (S.27/S.41), message text, and a source-diff verb sweep — all aligned
+or filed, no live gaps found; only doc-parity (48) and a live (not source-read) witness run remain,
+both large enough to be their own pass.***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -372,10 +373,56 @@ task above; 48 on 47; 49 on 48.**
   collision (no contradicting meaning on one number, just less detail on one
   side).
 
-  **Not yet audited — scoped for a next pass, not started tonight:**
-  - Full verb-surface semantic comparison (the diff above found *presence*,
-    not *behaviour* — a verb existing on both sides was not re-checked for
-    matching result).
+  **Started 22 Sep 2026, second pass — verb-surface semantic comparison, by
+  source diff rather than live witness runs (no live Linux box here to test
+  against; this is what source-reading *can* answer).** Method: `comm -12` on
+  both trees' `sdsys/gpl.bp` filenames finds 212 verbs implemented in a
+  same-named file on both sides; `diff -w` each pair and rank by line count —
+  a large diff is where OS-specific logic lives and is worth reading, a small
+  one is very likely comment-attribution style only (`Windows port -` vs.
+  `dm`). **Every file at or above ~90 diff lines is already covered by this
+  audit's other findings** (`createa`, `login`, `apisrvr`, `cproc`, `modifya`,
+  `edit`, `set_acc_password`, `delacc`, `deletef`, `set_passwd`, `remoteapi`,
+  `cred_set`, `catalog`, `qproc` — the account/session/remote-door/credential
+  core). **Spot-checked below that line, for real content, not just size:**
+  - `pw_complex`: rewritten (variable names, `case` formatting) but the same
+    logic — 8-char minimum, same four ASCII-range tests, same all-four-
+    required policy. Aligned, cosmetic rewrite only.
+  - `is_grp_member`/`is_sd_user`/`is_user`/`is_group`: Windows calls a
+    PowerShell/`!valid_os_name` helper, Linux reads `/etc/passwd`/`/etc/group`
+    directly — expected OS-mechanism divergence, same question answered.
+  - `setacc`: Windows derives the account name with `upcase()` where Linux
+    uses `downcase()` — looked like a real case-convention bug at first, but
+    **`setacc` is not reachable from any `newvoc`/`voc_template` entry on
+    the Windows side** (checked directly, `grep` for `setacc` across both
+    VOC directories: no hits) — dead code inherited from upstream
+    (`Copyright (c) 2006 Ladybridge`), not a live path. No finding.
+  - `cred_verify`/`cred_set`: same `upcase` vs. `downcase` shape, but **live**
+    this time (APISRVR and `MODIFY.PASSWORD` call it) — checked both the
+    reader (`cred_verify`) and the writer (`cred_set`) on **both** trees:
+    Windows upcases in both; Linux downcases in both. Each side is
+    internally self-consistent — a credential written and read on the same
+    port always agrees — so this is "aligned, mechanism differs" like the
+    rest of §5.12's case-folding story, not a bug.
+  - `copy`/`cd`/`show`/`delete`/`listi`/`deletei`/`term`/`ct`: diffs are
+    almost entirely `START-HISTORY` attribution style (`Windows port - ...`
+    vs. `dm ...`, same rulings re-told in each port's own voice); the code
+    lines that do differ are case-fold lookup order, already exercised by
+    each side's own account-name-folding convention and not a behavioural
+    difference a caller would see.
+  - **Not yet read**: the ~150 files under ~10 diff lines each (very likely
+    comment-only, going by the pattern above, but not individually
+    confirmed) and every verb that is *not* implemented in a same-named file
+    on both sides — some are genuinely one-sided (recorded above already:
+    `os.users`, `UMASK`, `nano`, …), others may just be named or organised
+    differently and this filename-based method would miss them entirely.
+  - **No live witness run performed or claimed** — this is a source-level
+    read, not an execution test on either OS; Linux's own §12 precedent
+    (live, numbered, both platforms actually running SD) is still the
+    complete version of this item if it's wanted, and would need Linux to
+    run its half.
+
+  **Not yet audited — scoped for a next pass:**
   - Doc parity — gate 48 on each side; Linux's own S.22 explicitly waits for
     Windows's docs to be current first, so sequence 48 before returning here.
 
