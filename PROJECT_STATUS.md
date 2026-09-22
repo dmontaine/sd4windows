@@ -262,7 +262,13 @@ task above; 48 on 47; 49 on 48.**
 - **48 — documentation current with 1.1.** Bring `SDCoreWindowsDocs` up to date
   with every W1.1 change (API TLS, the SDSYS elevation gate, `delete.account`'s
   skip, the VOC-write fix, prompt defaults, …) — it still describes account tiers
-  on more than a dozen pages, which 64 made false. **Absorbs 61** (owner, 22 Sep,
+  on more than a dozen pages, which 64 made false. ***CHECKED 22 Sep 2026: it is
+  worse than scattered sentences — `GettingStarted/markdown/05-account-types.md`
+  (169 lines), `06-administrator-commands.md` (295) and `07-programmer-commands.md`
+  (312) are each BUILT ENTIRELY AROUND the withdrawn three-tier model (verb
+  counts, VOC-record counts per tier, `modify.account` moving an account between
+  tiers) — 776 lines needing a rewrite or removal, not an edit, before the
+  scattered-sentence sweep even starts.*** **Absorbs 61** (owner, 22 Sep,
   moved here): at `Administrator/markdown/01-accounts-and-security.md:85`, `:88`,
   `:165`; `03-operating-system-access.md:189`; `05a-managing-accounts.md:101`,
   `:153`, *"Administrators have API access and `OS.EXECUTE` access automatically"*
