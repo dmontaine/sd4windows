@@ -36437,6 +36437,31 @@ compile-check of that file.
 
 **Files:** `gplbld/sd.iss` (`LockSysDirs`), `gplbld/verify-sysdiracl.ps1`, `gplbld/probe-syswrites.ps1`.
 
+====
+
+## RELEASE_1.1 77 — an upgrade never removes a VOC record: CLOSED, no subject (22 Sep 2026)
+
+**Owner, 22 Sep 2026: *"I do not plan to offer an upgrade from 1.0 to 1.1"*, and *"there have been less than
+20 downloads and no one has had time to build a system."*** `update.voc` in `login` only ADDS/REPLACES from
+`newvoc`; a record deleted from `newvoc` (the two dead ones being `TIER.ADD.ADMINISTRATOR` /
+`TIER.OMIT.STANDARD`, removed by `a47526f`/64) would linger in an account created BEFORE the deletion and then
+UPGRADED. With no 1.0→1.1 upgrade offered and no real 1.0 deployments, **there is no such account** — a fresh
+1.1 cycle builds every account from the current `newvoc`, which lacks them (verified 22 Sep: the ids are in no
+`sdsys/newvoc`, no `voc_template`, no installed tree, and no account under `C:\ProgramData\SD`; the only source
+hits are `*`-comments in `createa`/`login` and `changelog`). So 77 has no subject for 1.1 and is closed.
+
+**A partial build was started and BACKED OUT** (the owner's call, before any of it was committed): a
+`sdsys/newvoc.retired` directory file (id = withdrawn id, field 1 `V`/`O`) and a removal walk in `update.voc`.
+It was not worth an **unverifiable** change to `login` — which `bbcmp` cannot compile, so the cycle is its
+only test — for a defect with no subject. The owner also surfaced that keying the list by the retired id puts
+a file literally named `TIER.ADD.ADMINISTRATOR` under `newvoc.retired/`, which reads as "the record is still
+here." **If an upgrade path is ever offered, the ruling to build to (21 Sep, owner-delegated):** a withdrawn
+VERB record is removed even if `[locked]` (verbs are not the user's to modify, and a stale `V|IN` field 3
+dispatches elsewhere); any other withdrawn record honours the lock; the retired list is shipped beside
+`newvoc`, named in the commit that withdraws a verb, and `update.voc` visits only those ids (so 10166's "only
+visits records SD ships" holds) — and prefer a single list record over one file per id, to avoid the naming
+confusion above.
+
 ## RELEASE_1.1 102 — an API session's token, and the question that actually mattered (22 Sep 2026)
 
 **CLOSED BY RULING. THE MEASUREMENT STANDS; THE CONCERN IT WAS FILED UNDER WAS THE WRONG ONE.** Filed after

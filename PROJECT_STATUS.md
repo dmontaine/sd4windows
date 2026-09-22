@@ -42,63 +42,60 @@ OPEN TASKS wins and this block is the stale one. The 26th pass's handoff and
 every older one are in HISTORY.md under *"ARCHIVE 21 Sep 2026 — PROJECT_STATUS.md
 before consolidation"*; what they still owed was carried into OPEN TASKS.
 
-***22 Sep 2026 — 84 DONE AND WITNESSED, then 75 and 59 closed by ruling and 61 folded into gate 48.*** 84:
-`verify-apiidentity` PASSED on `sdapiidb222` — the real `sdclilib` probe and the SDSYS-seat conversion both
-green, decisive ownership row `ZZAPI`=`ace\sdapiidb222` vs `ZZLOCAL`=`ace\SDSYS`. **75** closed (owner: SD
-password complexity is alright, only access to SD matters). **59** closed under §5.29 (owner: the shm path is
-the administrator's after delivery — SD accounts are tied to standard Windows accounts, ssh has no
-`sh`/`OS.EXECUTE`, `BASIC`/`RUN` are removable, app-lock available; §5.29's carve-out corrected). **61** folded
-into gate 48. The owner cycled (install 21:29:24), `assert-current` **exit 0**, free tier **54/54**. **Prefixes
-`sdapiidb220`–`b222` spent; `-Run` suite tokens start at `b222`.** ***THE FULL SUITE HAS NOT RUN SINCE 18 Sep
-10:30 — CLAUDE.md wants one before the release.*** Every closed entry is in HISTORY.md; do not re-derive them.
+***22 Sep 2026 (2nd pass of the day) — 84 DONE AND WITNESSED; 75, 59, 77 closed by ruling; 61 folded into
+gate 48; 71's fix BUILT and awaiting a cycle.*** 84: `verify-apiidentity` PASSED on `sdapiidb222` (real
+`sdclilib` probe + SDSYS-seat conversion, ownership row `ZZAPI`=`ace\sdapiidb222` vs `ZZLOCAL`=`ace\SDSYS`).
+**75** closed (SD password complexity is fine; only access to SD matters). **59** closed under §5.29 (the shm
+path is the admin's after delivery). **77** closed — **owner will not offer a 1.0→1.1 upgrade and there are
+<20 downloads, none built**, so an upgrade-only defect has no subject (the started build was backed out
+untouched; the ruling for any future upgrade path is in HISTORY). **61** folded into gate 48.
 
-***THE FULL SUITE HAS NOT RUN SINCE 18 Sep 10:30, AND CLAUDE.md WANTS ONE BEFORE A HANDOFF.*** This handoff
-is made without it. Nine steps ran green today (`verify-routes` 35/35 `b218`, `verify-sdsyslocal`,
-`verify-localconnect`, `verify-accountmodel` 10/10 `b219`, `verify-sysdiracl`, `verify-registersweep` twice),
-so this is a gap in coverage of the steps NOBODY touched, not a known failure. **Run one before believing the
-release is close.**
+***THE PRIORITY: 71 IS BUILT BUT UNWITNESSED, AND THE TREE IS NOW STALE.*** The owner witnessed a **B** on
+22 Sep: from an elevated `don`, `MODIFY.PASSWORD sdsys` was NOT refused — it offered to set SDSYS's first
+password (SDSYS is Windows-authenticated and has no SD `$cred`), an administrator takeover. `set_acc_password:147`
+gated cross-account on `K$ADMINISTRATOR` (any elevated session); it now requires the session to BE SDSYS
+(`upcase(@logname) # 'SDSYS'`). **Built, bbcmp-clean (mine and HEAD exit 0), committed `7cc169f` — so
+`assert-current` now exits 1 (STALE by `set_acc_password`), and the witness needs a cycle.**
 
-***WHAT CHANGED TODAY, IN ONE LINE EACH.*** SDSYS is reached at the console and over `SDConnectLocal` and by
-nothing else (101); `MODIFY.ACCOUNT` refuses it with new message **12001**; `newvoc/%t` → `%T` so the `~`
-record finally reaches accounts (100, VOC 398 → 399); `sdsys\voc` and `sdsys\gpl.bp` are locked, making nine
-(104); and **§5.29 is new and governs triage** — the owner's *"we are responsible for the transport and the
-default unmodified system, after that it is the wild west."*
+> ***READ §5.29 BEFORE FILING ANY SECURITY FINDING.*** Owner's triage rule: *"we are responsible for the
+> transport and the default unmodified system, after that it is the wild west."* *"A user left at TCL can do X"*
+> is not a defect (the admin can strip `BASIC`/`RUN` or app-lock the account). A default we ship is ours; a
+> grant an admin makes is theirs. It also records a gate the owner REFUSED: no transport test on `os_permitted()`.
 
-> ***READ §5.29 BEFORE FILING ANY SECURITY FINDING.*** It rules out a whole class — *"a user left at TCL can
-> do X"* is not a defect, because the administrator can remove `BASIC`/`RUN` or lock the account into an
-> application. It also records a gate the owner REFUSED rather than deferred: **no transport test on
-> `os_permitted()`**. A grant an administrator makes is theirs; a default we ship is ours.
+***NEXT — ONE CYCLE COVERS BUNDLE A, then the gates.***
 
-***NEXT, IN ORDER, CHEAPEST FIRST.***
+1. **One elevated cycle** (installs 71's fix):
+   `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\cycle.ps1`
+2. **Then, on that fresh install, witness what is owed — no more source changes until done (CLAUDE.md):**
+   - **71** (elevated, SDSYS signed in): `MODIFY.PASSWORD sdsys` and `MODIFY.PASSWORD <other acct>` from an
+     elevated `don` → refused **2001**; own-password from `don` still works; from a genuine SDSYS session
+     cross-account still works.
+   - **76** (ordinary unelevated): `VerifyInstall1.ps1 -Only verify-lcnames` (its "voc_template absent" row
+     has never run); `sdtestuser-admin` is the full suite's door pair.
+   - **73** (elevated): a file held open in an account dir during `DELETE.ACCOUNT` → message 10919 (never
+     witnessed). Covered by the suite's `verify-delaccount`.
+   - **69** (elevated): first login into a **hand-made no-`$cred`** account shows the corrected wording.
+   - **THE FULL SUITE** — none since 18 Sep 10:30; CLAUDE.md wants one before the release.
+3. **97's proposals**, then the **47 → 48 → 49** gates (48 now carries the old-61 shipped-docs work **and** a
+   new security-posture section: how the system is locked at delivery and that the admin may open it — §5.29).
 
-1. **Owner, ordinary unelevated prompt:** 76's remainder, `verify-lcnames` — its "voc_template absent" row
-   has never run.
-   `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Only verify-lcnames`
-   (`sdtestuser-admin`, 76's other half, is exercised by the full suite's door pair.) **Then a full suite.**
-2. **The ruled builds, which want one cycle together:** 71's SDSYS-only
-   cross-account password rule, and 77's retired-ids list (BASIC).
-3. **97's proposals**, then the 47 → 48 → 49 gates (48 now carries the shipped-docs work that was 61).
+***STILL OPEN, RAISED AND NOT FILED:*** `voc_template` has no `~` record, and it seeds SDSYS's VOC — so after
+100 every ordinary account has `~` but **SDSYS still does not**. Rests on 100's unmeasured question (does `~`
+work as a keyword with no VOC record — HISTORY notes `<`/`>` do). **Ask before building.**
 
-***ONE THING RAISED WITH THE OWNER AND NOT FILED, SO IT IS NOT LOST:*** `voc_template` has no `~` record at
-all, and it is what SDSYS's own VOC is built from — so after 100, every ordinary account has that record and
-**SDSYS still does not**. It was never part of the fix he approved. Whether it matters rests on 100's own
-unmeasured question: whether `~` works as a keyword without a VOC record (HISTORY notes `<` and `>` cannot be
-VOC records here yet work, which would make it cosmetic). **Ask before building.**
-
-***TOOLING NOTES WORTH THE THIRTY SECONDS.*** `agent-elevate.ps1 -Start` gives one UAC click and then serves
-elevated runs for 60 idle minutes; call it **directly from PowerShell** with
-`-ScriptArgs '-Run','bNNN','-Only','<step>'`, because through `powershell -File` or bash the comma list
-collapses into one argument and the runner answers *"-Run was not given"*. `verify-routes` refuses any session
-but the **Windows SDSYS** one; `verify-sysdiracl` and `verify-localconnect` refuse an **elevated** one, each
-deliberately. **`ISCC` cannot compile `sd.iss` from here** — it needs `stage/upgrade.iss`, which `stage.py`
-generates — so an `sd.iss` edit is parse-unchecked until a cycle.
+***TOOLING NOTES.*** `agent-elevate.ps1 -Start` = one UAC click, then serves elevated runs 60 idle min; call it
+**directly from PowerShell** with `-ScriptArgs '-Run','bNNN','-Only','<step>'` (a comma list collapses through
+`powershell -File`/bash → *"-Run was not given"*). `verify-routes` needs the **Windows SDSYS** session;
+`verify-sysdiracl`/`verify-localconnect` refuse an **elevated** one. **`bbcmp` compiles `set_acc_password`/
+`createa` but NOT `login`** (memory), and **`ISCC` cannot build `sd.iss`** outside a staged tree — both are
+parse-unchecked until a cycle. **Prefixes `sdapiidb220`–`b222` spent; `-Run` suite tokens start at `b222`.**
 
 ---
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**9 open (ids across 7 entries): validated against the tree by the 27th pass,
-21 Sep 2026, plus 97; 59, 75, 84, 100–104, 64, 95, 96 and 99 all closed 22 Sep, and 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**8 open (ids across 6 entries): validated against the tree by the 27th pass,
+21 Sep 2026, plus 97; 59, 75, 77, 84, 100–104, 64, 95, 96 and 99 all closed 22 Sep, and 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -203,34 +200,6 @@ witness of the alternate-key write path; `VerifyInstall2`'s own comment says so)
 in 8–31 runs, but a clean record is what a regression guard looks like; the run
 summaries do not say whether a failure was the product or the instrument.
 
-### 77 · M — an upgrade never removes a VOC record
-
-Reported by the Linux port 19 Sep 2026 and checked here. `login`'s `update.voc`
-opens `@sdsys/newvoc`, selects it and writes each record into the account's VOC;
-**it never walks the account's VOC**, so a verb deleted from `newvoc` stays in
-every existing account for ever (the routine's one `delete` is the case-rename
-arm). Reached by `UPDATE.ACCOUNTS`, the `$RELEASE` prompt and `upgrade-voc.ps1`'s
-installer walk. **No retired-ids list exists beside `newvoc`.** **Inert today,
-by measurement:** `v1.0-0` is `a2e04e4`, and exactly one `newvoc` deletion has
-landed since (`a47526f`, 13 Sep, which moved `TIER.ADD.ADMINISTRATOR` and
-`TIER.OMIT.STANDARD` to `tier.policy`; 64 then deleted `tier.policy`) — two dead
-records in an upgraded VOC that nothing reads.
-
-**Ruled 21 Sep 2026 (agent, on the owner's delegation), and the owner's one question
-is answered: a withdrawn VERB record is removed even if it carries `[locked]`; any
-other withdrawn record honours the lock.** Reasoning: his own ruling is that verbs are
-not the user's to modify (*"every verb (119) because users should not be modifying
-them"*), a withdrawn `V`/`IN` record's field 3 is a number that may now dispatch
-somewhere else entirely, and overruling a lock on a removal hands the site nothing
-where overruling it on a replacement hands them the new record. **To build, in the
-conditional:** a retired-ids list shipped beside `newvoc`, named in the commit that
-deletes a verb (the discipline `test-retired-wording-units`' `$RETIRED` table already
-runs); `update.voc` visits only those ids, so 10166's promise (*"only ever visits
-records SD ships"*) still holds; a walk of the account's VOC that deletes whatever
-`newvoc` lacks would break it and is not to be built. `login` cannot be compiled by
-`bbcmp`, so it needs a cycle and a witness: an account holding a retired verb loses it
-across `UPDATE.ACCOUNTS`, and a locked non-verb record survives. **Not built.**
-
 ### 73 · S — `DELETE.ACCOUNT` says when files could not be removed; installed, never witnessed
 
 Reported by Linux 19 Sep 2026. `delacc:307` discarded the result of the OS delete
@@ -277,8 +246,8 @@ line above uses. **bbcmp clean** (mine and HEAD both exit 0 in a scratch root, n
 untracked leak). Install is unaffected: the finish page sets SDSYS's WINDOWS password
 (`Set-LocalUser`, never SD) and each account's SD password is that account's OWN step
 (`own = @true`), so no install path takes the cross-account branch. **Owed — the witness
-(a shipped-BASIC change makes the tree STALE, so it needs a cycle; rides Bundle A with
-77):** `MODIFY.PASSWORD sdsys` from an elevated `don` → refused 2001 (the bug);
+(a shipped-BASIC change makes the tree STALE, so it needs a cycle):**
+`MODIFY.PASSWORD sdsys` from an elevated `don` → refused 2001 (the bug);
 `MODIFY.PASSWORD alice` from an elevated `don` → refused 2001; own-password from `don`
 still works; `MODIFY.PASSWORD <acct>` from a genuine SDSYS session still works.
 
