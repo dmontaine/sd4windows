@@ -40,27 +40,16 @@ or *"— PRE_RELEASE_FIXES.md"*; grep the number there.
 it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
-***22 Sep 2026 — Bundle A CLOSED: 71, 69, 73, 76's remaining witnesses, `verify-routes`' seat
-conversion, THEN 105 (found mid-run, ruled, fixed) AND 76 ITSELF, both closed same day.*** Detail:
-HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1 71`, `69`, `73`, `76`, `105`, `verify-routes`).
-`-Run` tokens spent through `b230` — **`-Run b229` found `sh`/`!` missing from every ordinary
-account's VOC** (105; the fix restored `sdsys/newvoc/sh` and `/!`), and after a cycle **`-Run
-b230` ran the full suite clean: 26 of 26 unelevated, 35 of 35 elevated, 61 of 61.** Next token:
-`b231`.
+***22 Sep 2026 — 71, 69, 73, 76, 97 and 105 all closed today.*** Detail: HISTORY.md, 22 Sep 2026
+(search `RELEASE_1.1` plus the id). §5/§6 also trimmed (329,082 → 142,944 bytes, `git show
+375c611:PROJECT_STATUS.md` for the pre-trim text). `-Run` tokens spent through `b230`; next is
+`b231`. **97 closed on the owner's scope call, 22 Sep**: one proposal shipped (per-step/whole-half
+duration logging in `VerifyInstall1.ps1`), the other three declined — *"we don't run the full
+suite that often, just drop this task."*
 
-***22 Sep 2026, overnight — §5/§6 TRIMMED*** to the owner's instruction, with retained entries
-shortened to their essential issues as well. PROJECT_STATUS.md: **329,082 → 142,944 bytes**
-(`wc -c`, 57% smaller). Full pre-trim text is `git show 375c611:PROJECT_STATUS.md`. HISTORY.md
-carries one entry naming what moved. §0's 350,000-byte cap and its maintenance rules are
-otherwise unchanged; no decision, rule, open task or distinct §6 trap lesson was dropped —
-only the narrated measurement trails, superseded corrections-of-corrections, and repeated
-restatement around them.
-
-**Next, in order:** 97's suite-speedup proposals (needs an attended, elevated session to test
-any runner edit); the 47 → 48 → 49 gates (parity audit → docs → staging/zips), none started —
-47 has a method/precedent pointer from the Linux side now (its own entry), and 48 has a scope
-check showing three `GettingStarted` pages need a rewrite, not an edit, for the withdrawn tier
-model.
+**Only one entry left open: 47 → 48 → 49**, the release gates, in order, none started. 47 has a
+method/precedent pointer from the Linux side now (its own entry); 48 has a scope check showing
+three `GettingStarted` pages need a rewrite, not an edit, for the withdrawn tier model.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
@@ -76,9 +65,9 @@ joined string). `bbcmp` compiles `set_acc_password`/`createa`, not `login`. `ISC
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**4 open (ids across 2 entries): 59, 69, 71, 73, 75, 76, 77, 84, 100–105, 64, 95, 96 and 99 all
-closed 22 Sep, 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below the gates).**
-Every call
+**3 open (ids across 1 entry — the gates): 59, 69, 71, 73, 75, 76, 77, 84, 97, 100–105, 64, 95, 96
+and 99 all closed 22 Sep, 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below
+the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -88,58 +77,6 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
-
-### 97 · S (harness) — the validation suites: upkeep cut, runtime still to do
-
-***21 Sep 2026, overnight and unattended (owner asleep, judgement delegated; nothing
-committed).*** **Done and verified:** `assert-current.ps1`'s 1,450-line hand-kept
-`$neverShipped` list is derived — every `verify-/test-/probe-/check-/clean-*` file in
-`gplbld` that `stage.py` and `sd.iss` do not name, plus a 40-name residual that
-should not grow (equivalence proved over all three watched trees; a new `verify-*`
-stays exempt and a non-family file still raises STALE, both run); `check-free-tier.ps1`
-takes the free list from the directory (52 guards, 57 s, no registration and no
-count); 14 unreferenced probes deleted; CLAUDE.md's 43 KB free-tier block archived
-to HISTORY. **Not done, and it needs an attended session** because every change to
-the elevated suite needs the owner's elevation to prove: **runtime**.
-
-**Measured:** a complete set is cycle 3–12 min + free 1 + unelevated ~4.6 (26 steps,
-no per-step logs exist) + elevated **15.4 (32 timed steps, 18 Sep)**. 30% of all
-commits touch the 192 validation scripts (69,873 lines); `assert-current.ps1` (205
-commits) and the two runners (46, 37) are the most-edited files in `gplbld` because
-each new script was registered by hand in up to four places. **Where elevated time
-goes:** literal `Start-Sleep` is only 32 s; it is account creation and deletion
-(`delaccount` 14 creates/10 deletes, 65 s; `accountrules` 16 creates, 47 s) and
-**service stop/start — each of the seven API-cluster steps (`apiremote`, `apiadmin`,
-`apiname`, `apiport`, `scramlogin`, `relayidentity`, `peerlog`) contains about six**,
-592 s together with `routes`, `sshadmin` and the account cluster.
-
-**Proposals, by payoff, each unproven until run:** (a) one shared *API on* window —
-the runner enables the API once, runs the cluster, disables it — with `verify-apiport`
-(whose subject is the toggling) left standalone; (b) one shared account fixture for
-`routes`, `accountrules`, `sshadmin`, `apiremote`, `createaccount`, `sshonly`,
-`profiledir`; (c) log per-step durations in `VerifyInstall1` (the unelevated half has
-none); (d) derive `VerifyInstall2`'s 20 hand-plumbed `*Prefix` parameters and their
-`-Run` derivation from the step declarations. **Not built tonight: (a)-(d) all edit
-the runners or the elevated verifiers, which cannot be run without him.**
-
-**Ruled 21 Sep 2026 by the agent, on the owner's delegation (*"i have no opinion, you
-make the call"*): all three verifiers stay.** `verify-privundetermined` (69 s, 1,035
-lines) — the tri-state's logging *"has never been executed by anything"*, and this step
-makes it non-zero on purpose three times, the only thing proving the path fires. Its
-unit guard `test-privundetermined-units` goes with it if it is ever retired.
-`verify-lcnames` (1,093 lines) — already converted in source; the lower-case standard
-is stable and this is its widest net, and the churn was the 5.12 conversion rather
-than steady-state; one witness run is owed (now done — HISTORY.md, 22 Sep 2026, "RELEASE_1.1 76
-closed"). `verify-apiidentity` —
-the only witness of 55's session-as-the-user property; 84's rewrite onto the real
-`sdclilib` and its SDSYS-seat conversion are DONE AND WITNESSED (22 Sep, `sdapiidb222`),
-and `scram-probe.py` stays. **What would reverse these:** a verifier failing for an
-*instrument* reason more than twice. **Examined and kept — do not retire on a second
-pass:** `probe-akwrite` (only witness of the alternate-key write path), `verify-nonet`
-(5 s), the eight case verifiers (each a distinct mechanism, 5–7 s), `verify-notyet`,
-`verify-cmdaudit`, `verify-elevdoor`. 32 of 65 steps have never failed in 8–31 runs, but
-a clean record is what a regression guard looks like; the run summaries do not say
-whether a failure was the product or the instrument.
 
 ### 47 → 48 → 49 · B — the release gates, in order, none started
 

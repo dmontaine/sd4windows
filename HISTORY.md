@@ -50,6 +50,36 @@ corrected.
 
 ---
 
+## 22 Sep 2026 — RELEASE_1.1 97 closed: upkeep done, one runtime proposal shipped, the rest declined
+
+**Upkeep, done 21 Sep 2026 (already recorded):** `assert-current.ps1`'s hand-kept exemption list
+derived from the directory; `check-free-tier.ps1` likewise; 14 unreferenced probes deleted;
+CLAUDE.md's free-tier block archived. **Verifier-retention ruled the same day** (agent, on the
+owner's delegation): `verify-privundetermined`, `verify-lcnames`, `verify-apiidentity` all stay —
+each is the only witness of something (a tri-state path, the widest lower-case net, 55's
+session-as-the-user property).
+
+**Runtime: measured 21 Sep** (cycle 3–12 min + free 1 min + unelevated ~4.6 min + elevated 15.4
+min), **four proposals by payoff, none built that night** because all four edit the runners or
+the elevated verifiers, which cannot be proven without the owner elevated.
+
+**22 Sep 2026: (c) built, witnessed, shipped** — per-step and whole-half duration logging in
+`VerifyInstall1.ps1`, same shape as `check-free-tier.ps1` (`Stopwatch`, `'{0:N1}s'`). Witnessed:
+`-Only verify-lcnames`, unelevated, no `-Run` needed — `verify-lcnames.ps1  16.2s  exit 0` /
+`this half took: 16.3s`. Free tier re-run clean, 54/54; no guard asserted on the changed
+summary-line format.
+
+**22 Sep 2026: (a), (b), (d) declined by the owner** — *"we don't run the full suite that often,
+just drop this task."* Not built: the shared *API on* window (a), the shared account fixture (b),
+and deriving `VerifyInstall2`'s 20 hand-plumbed `*Prefix` params from the step declarations (d).
+**What would bring them back:** the full suite being run often enough that its ~15-minute elevated
+half becomes the actual bottleneck it was measured as, rather than an occasional cost.
+
+| `gplbld/VerifyInstall1.ps1` (duration logging); `gplbld/check-free-tier.ps1` (the pattern
+copied); entries 45, 64, 76
+
+---
+
 ## 22 Sep 2026 — RELEASE_1.1 105 closed: `sh`/`!` restored to `newvoc`, witnessed on `b230`
 
 Found by 76's owed full-suite pass (`-Run b229`): `verify-osusers.ps1` refused cleanly — *"SH is
