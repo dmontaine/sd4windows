@@ -55,12 +55,13 @@ The elevated helper stops after 60 idle minutes, or `agent-elevate.ps1 -Stop`.
 or from bash, the comma list collapses into ONE argument and the runner answers *"-Run was not given"*
 before running anything. `-Run` tokens `b206`–`b214` are spent.
 
-***22 Sep 2026 — 101 WAS BUILT, WITNESSED AND THEN WITHDRAWN BY THE OWNER IN ONE SESSION; THE TREE IS BACK TO
-THE CONSOLE-ONLY SDSYS MODEL.*** What survives is one message (12001) and two findings the revert does not
-undo, now **102** (an API session's token is fully elevated, and §5.25/§5.28 do not say so) and **103**
-(LOGIN demands an SD password for SDSYS, which the owner says is not needed). ***CYCLED 21 Sep 2026 ~18:55 AND THE TREE IS CURRENT***: `assert-current` exit 0, `ace\SDSYS` in neither route
-group, the withdrawn messages gone, and `verify-localconnect` green. `verify-routes` **35/35 on `b218`**, Step 5 included. **Owed: only the local
-route's ADMIT side, which no harness covers.** `-Run` tokens `b206`–`b218` are spent.
+***22 Sep 2026 — 101 IS DONE AND WITNESSED AND IS IN HISTORY.md.*** SDSYS is reached at the console and over
+`SDConnectLocal`, and by nothing else: `verify-sdsyslocal` exit 0 from an elevated Windows SDSYS session
+(admitted, `WHO -> 3 SDSYS`, and the administrator verb ran — so `IsInteractive()` answers true for a
+ConnectLocal child), `verify-routes` **35/35** on `b218`, `verify-localconnect` exit 0, `assert-current` clean
+against the 19:20:42 install. **It left two findings open that the work itself did not cause: 102** (an API
+session's Windows token is fully elevated, and §5.25/§5.28 do not say so) **and 103** (LOGIN demands an SD
+password for SDSYS, which the owner says is not needed). `-Run` tokens `b206`–`b218` are spent.
 
 ***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
 whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
@@ -75,8 +76,8 @@ list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's propos
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**17 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100, 101, 102 and 103
-added since (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**16 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100, 102 and 103
+added since (101 closed 22 Sep) (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -140,155 +141,6 @@ restricted or filtered token for a socket session would need `sdwind`'s handover
 At minimum §5.25 and §5.28 must be amended to describe what is actually true, and the documentation pass
 (61) should carry it. **Nothing here is a regression** — it is the model, newly measured.
 
-### 101 · S — SDSYS is reached at the console and over `SDConnectLocal`, and nowhere else
-
-***THE DESIGN, SETTLED 22 SEP 2026 AFTER ONE FULL ROUND TRIP.*** The owner first asked for *"the SDSYS
-account like every other with the capacity to use api and ssh… off by default… opened up using the
-modify.account verb"*; that was built and witnessed, then withdrawn the same evening — ***"turns out the
-original design was correct - no remote access for sdsys and no need for a sd sdsys password"*** — and then
-corrected once more: ***"it will have local api too"***, with the mechanism his own: ***"local access through
-the api using the connectlocal() option"***. **The landing place is: SDSYS is reached at the console, and over
-`SDConnectLocal`, and by nothing else. No ssh. No socket API. No SD password.**
-
-**WHY THAT COSTS NO GATE AND NO GRANT, which is the point of choosing `SDConnectLocal` over a peer test.**
-`SDConnectLocal` opens **no socket at all** (`sdclilib.c:1451`): two anonymous pipes and `sd.exe` spawned as a
-**child of the caller**, selecting `CN_PIPE` (`sd.c:469`). So there is no address to spoof, nothing reachable
-from another machine, and **nothing an `ssh -L` tunnel can carry** — which is exactly the hole `PEER_LOCAL`
-documented and could not close, a tunnelled socket arriving from 127.0.0.1 and reading as local. Request 25
-(`vb.local.login`) sends **no credentials**: identity is the process owner, so being signed in as Windows
-SDSYS *is* the proof, as it is at the console. And the `sdapi` group is tested only in `vb.scram.final`, on
-the SCRAM path, so **no grant exists for this route to need** — which is what makes `MODIFY.ACCOUNT`'s
-refusal of SDSYS consistent rather than contradictory.
-
-**BUILT 22 Sep 2026, UNRUN.** `apisrvr`: `local.session` is recorded in `vb.local.login` and initialised
-`@false` beside `logname`, so every other transport leaves it false; `vb.account` admits SDSYS on
-**`local.session` AND process owner `SDSYS` AND `kernel(K$ADMINISTRATOR,-1)`** — the last mirroring LOGIN's
-landing case, without which an *unelevated* SDSYS process would reach the system tree through a door the
-console keeps shut. A refusal writes `branch=4 sdsys.not.local.elevated` to the audit trail. `modifya`
-refuses SDSYS exactly where it always did, now with message **12001** *"Remote access is never available to
-SDSYS; it is administered at this computer"* in place of **2202** *"Account name is invalid"*, which told
-somebody typing `MODIFY.ACCOUNT SDSYS SSH` that they had the NAME wrong — the one part they had right.
-`verify-routes` Step 5 asserts 12001 and sends `SSH` as well as `BOTH`. **`install-sdsys.ps1` and
-`sync-route-groups.ps1` are byte-restored to `305bca0`** and SDSYS joins neither route group.
-
-***THE ONE THING THAT COULD MAKE IT SIMPLY NOT WORK, AND IT IS NOT MEASURED.*** `K$ADMINISTRATOR` reads
-`USR_ADMIN`, which `kernel.c` seeds from `IsElevated()` **and** `connection_type # CN_SOCKET` **and**
-`IsInteractive()`. A ConnectLocal child is `CN_PIPE` and inherits its parent's token, so the first two hold;
-**whether `IsInteractive()` answers true for it is reasoned from the phantom case** (`kernel.c`: a forked
-child *"tests interactive when the parent did"*) **and has not been run.** If it answers false, SDSYS is
-refused and the route does nothing — it opens nothing either way.
-
-***`verify-routes` IS GREEN ON THE CYCLED TREE — `b218`, 21 Sep 2026 19:03, elevated in the Windows SDSYS
-session: 35/35, `assert-current` exit 0, install 18:56:39.*** Step 5's five rows all PASS — **`MODIFY.ACCOUNT
-SDSYS BOTH` and `... SSH` each answer 12001**, SDSYS holds no route either time, and it stays out of
-`sdsshonly`. `verify-registersweep` 7/7 behind it.
-
-***THE CONTROL IS WITNESSED ON THE CYCLED TREE, 21 Sep 2026 18:58.*** `assert-current` **exit 0** (2,631 files;
-the two deleted messages are gone from the install and 12001 carries the new text), `ace\SDSYS` is in **neither**
-route group, and `VerifyInstall1 -Yes -Only verify-localconnect` **exit 0**: *"DON admitted, SDSYS refused"*,
-`WHO -> 3 DON`, SDSYS refused with *"User not allowed in requested account"*. **The BASIC compiled** — the
-cycle's BCOMP is the first real compile `apisrvr` got, `bbcmp` being unable to reach pass 2 on it.
-
-***AND THE REFUSAL CAME THROUGH THE NEW BRANCH, WHICH IS PROVABLE WITHOUT THE AUDIT FILE.*** `vb.account` now
-handles `new.account = 'SDSYS'` in its own arm and the `is_grp_member` else-arm cannot run for that name, so
-there is no other path left that can refuse it; `acc.told` is set to 0 there, so the refusal is the existing
-`if not(acc.member)` below it, whose message is 10003 — the exact text the binary printed. **The audit line
-(`branch=4 sdsys.not.local.elevated`) was NOT read: `sdsys/audit` is ACL'd to SYSTEM and Administrators and
-this run was unelevated.** Reading it would confirm the same fact a second way and is worth doing on the next
-elevated pass.
-
-***AND THE EXISTING CONTROL SURVIVES, WHICH WAS THE RISK WORTH CHECKING.*** `verify-localconnect.ps1` exists
-to prove *"<account> admitted, SDSYS refused"*, with exit 2 for *"SDSYS was ADMITTED"*. It runs **unelevated
-as an ordinary user**, so the process-owner term is false and SDSYS is still refused: **the assertion is
-unchanged and still proves the grant check ran.** Only its stated reason went stale, and both copies of that
-reason — the verifier's header and `local_connect_test.c`'s — are corrected in the same commit. **What no
-test covers is the ADMIT side**, which needs an elevated session owned by SDSYS, and that script refuses an
-elevated run by design.
-
-***WHAT THE BUILT-THEN-REVERTED VERSION MEASURED, WHICH IS THE PART WORTH KEEPING.*** Two runs on the owner's
-17:25 cycle of 21 Sep 2026, one elevated as Windows SDSYS and one through `scram-probe.py` over TLS 1.3 to
-127.0.0.1:4243. **These are facts about the tree as it stands, not about the reverted code**, except where
-said:
-
-1. ***AN API SESSION'S WINDOWS TOKEN IS FULLY ELEVATED*** — **moved out to its own entry, 102**, because it
-   is a property of the tree rather than of this change and must not close when this does.
-2. **The administrator flag can be set from `apisrvr` and it works.** `MODIFY.ACCOUNT` inside the API session
-   answered 10080 rather than 2001, and `modifya`'s first statement is the `K$ADMINISTRATOR` refusal — so
-   reaching 10080 *is* the flag. `kernel.c` still withholds it from a `CN_SOCKET` session; the flag came from
-   the (now reverted) `kernel(K$ADMINISTRATOR, 1)` in `vb.account`.
-3. **The machine's API firewall rule `SD API (SDClient)` is `enabled, Allow, RemoteAddress = Any`**, and
-   `sdwind.c:419` binds `INADDR_ANY`. Measured 21 Sep. **So `remote.api local` is NOT this machine's state and
-   cannot be assumed anywhere** — the owner: *"the firewall is not closed, other users have access through
-   the api."*
-4. **LOGIN demands an SD credential on the first SDSYS sign-in** — **moved out to its own entry, 103**, for
-   the same reason.
-
-***THE EXPOSURE THAT EXISTED WHILE IT WAS BUILT, AND HOW IT WAS CLOSED.*** Between the grant and the revert
-this machine had a **network-reachable, fully elevated administrator shell gated only by SDSYS's SD
-password**: `ace\SDSYS` in `sdapi`, firewall `Any`, listener on every interface, flag set, `OS.EXECUTE`
-permitted. **The owner closed it with a cycle** (uninstall deletes `sdssh`/`sdapi`, `sync-route-groups`
-recreates them empty), which is also why no `MODIFY.ACCOUNT SDSYS NONE` was ever run. **Check after that
-cycle that `ace\SDSYS` is in neither group** — `Get-LocalGroupMember -Group sdapi` — because the revert
-above only stops it happening again.
-
-***THE ADMIT SIDE IS THE LAST CLAIM, AND THE PROBE FOR IT IS WRITTEN AND BUILT — BUT IT HAS NOT BEEN RUN
-AGAINST SDSYS, WHICH IS THE WHOLE POINT OF IT.*** Everything above measures that SDSYS is REFUSED where it
-should be; **nothing yet shows it ADMITTED where it should be.** New:
-`gplsrc/sdclilib/tests/local_sdsys_probe.c` → `localtest/local-sdsys-probe.exe`, built by `all` (so `make sd`
-and every cycle build it), and `gplbld/verify-sdsyslocal.ps1`, the wrapper that checks the principal.
-
-**Three separate claims, three exit codes, so a refusal cannot read as a pass:** admitted (1 if not); `WHO`
-names SDSYS (2 if it names something else — `vb.account`'s `revert.to.old.account` leaves a session open in
-the account it started in, so "connected" is not "in SDSYS"); and an administrator-only verb runs (**4** if
-refused). **The verb is `MODIFY.ACCOUNT` with no arguments**: MODIFYA's first statement is the
-`K$ADMINISTRATOR` test (2001) and its next act with no account name is to print its syntax block, so the two
-outcomes are one line apart and **nothing is read, written or changed either way**. Anchored on
-*"Command Syntax"*, with *"administrator privileges"* as a disqualifier, and **a reply carrying neither is its
-own failure (5)** rather than a pass.
-
-***THE WRAPPER REFUSES THE WRONG PRINCIPAL AND BOTH REFUSALS ARE PROVEN TO FIRE.*** It reads elevation and
-the owner from the token, prints both, and exits 2 on either. **Measured 21 Sep 2026:** run unelevated as
-`ace\Don` it printed `caller ace\Don`, `elevated False`, *"CANNOT RUN — this session is NOT elevated … Nothing
-was measured"*, exit 2; and the owner test evaluates `ace\Don` → refuse, `ace\SDSYS` → proceed. **It is in
-neither runner, deliberately**: `VerifyInstall1` is unelevated and `VerifyInstall2`'s elevated half runs as
-whoever started it, so neither can promise a session owned by SDSYS (§4.0.1). It also calls `assert-current`
-and refuses a stale tree.
-
-**Checked before hand-over, per CLAUDE.md:** `verify-sdsyslocal.ps1` **0 parse errors, 3 functions, no
-embedded BOM**; the probe **compiles under `gcc -Wall -Wextra -Wpedantic` with no warnings** and its Makefile
-rule **builds for real** (`make localtest/local-sdsys-probe.exe`, exit 0 — so the cycle's `make sd` will not
-break on it); and the probe's **null case refuses out loud**, exit 6, with no argument. ***WHAT REMAINS UNRUN
-IS EXACTLY THE MEASUREMENT: nobody has run it from an elevated SDSYS session.*** ***IF `IsInteractive()` IS
-FALSE FOR A ConnectLocal CHILD IT EXITS 4 AND THE ROUTE CARRIES NO RIGHTS*** — it opens nothing either way, so
-the failure is inert rather than dangerous.
-
-```
-powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-sdsyslocal.ps1
-```
-
-**Elevated, in the Windows SDSYS session.** Also in `P:\command-sdsyslocal2.txt`, with both options below.
-
-***AND ITS FIRST RUN REFUSED, WHICH IS THE GUARD WORKING AND IS WORTH RECORDING RATHER THAN JUST FIXING.***
-`assert-current` named **one** stale file — `gplsrc\sdclilib\Makefile`, edited to add this probe's own build
-target — and the new `.c` and the new `verify-*.ps1` were both correctly exempt (the harness count moved
-224 → 225). **A Makefile change genuinely can alter the shipped DLL and `assert-current` cannot know that this
-one only adds a target for a test binary**, so it refused, correctly. `-AcceptStaleTree` was added for exactly
-the case CLAUDE.md's override clause describes — name the warning, say why it does not apply — and it
-**bypasses `assert-current` ONLY**: the elevation and owner guards still refuse, which was run and confirmed.
-A run under it prints the caveat twice and its verdict reads ***"PASSED ON A STALE TREE"*** rather than
-"PASSED", so a transcript cannot be mistaken for a clean witness. **The clean witness still wants a cycle, and
-this entry is not closed by a stale-tree pass.** **`make check-local` in `gplsrc/sdclilib` is the
-nearest existing harness and its binary hardcodes the refusal**, so the admit side wants either a flag on
-that binary or a short probe; **neither is written.** *(The 21 Sep measurement that an API session's token is
-fully elevated was taken on the SOCKET path and says nothing about `CN_PIPE` — see 102.)*
-
-**Checks so far:** free tier **54/54**; `modifya` compiles under `bbcmp`; `apisrvr` reaches the same bbcmp
-pass-2 limit as HEAD, displaced by exactly the 14 lines added above it (342 → 356), which is the control
-saying the edit parses rather than that it is correct. ***`test-sysmsg-units` PASSES ONLY BY ACCIDENT UNTIL
-THE CYCLE***: it reads the INSTALLED messages, and the install still carries 12001 with the withdrawn text
-*"SDSYS accepts only API or NONE"*, plus 12002 and 12003 which source no longer has.
-
-**The two findings this entry produced are 102 and 103 and do not close with it.**
 
 ### 100 · M — `newvoc/%t` is a mis-cased escape: the record for `~` is undecodable and never reaches an account
 

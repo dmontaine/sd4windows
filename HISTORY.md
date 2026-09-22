@@ -36310,3 +36310,63 @@ were checked against the tierless model: verify-logtoaccess.ps1 (tier-only) and 
 scripts' tier leftovers removed, and four scripts ruled for conversion to the SDSYS seat.
 
 ====
+
+## RELEASE_1.1 101 — SDSYS's local API route, and one full round trip to reach it (22 Sep 2026)
+
+**DONE AND WITNESSED.** SDSYS is reached at the console and over `SDConnectLocal`, and by nothing else: no ssh,
+no socket API, no SD password for the route, no `MODIFY.ACCOUNT` grant. `verify-sdsyslocal` **exit 0** from an
+elevated Windows SDSYS session against the 19:20:42 install, `assert-current` clean, and its three rows are
+three different claims: **admitted**; **`WHO -> 3 SDSYS`**; and `MODIFY.ACCOUNT` with no arguments printing its
+**syntax block** rather than message 2001 — which is the administrator flag, and therefore
+***`IsInteractive()` ANSWERS TRUE FOR A ConnectLocal CHILD***, the one thing the design rested on and could not
+be read from source. `verify-routes` **35/35** (`b218`) and `verify-localconnect` **exit 0** are the refusal
+half: `MODIFY.ACCOUNT SDSYS BOTH` and `... SSH` both answer new message **12001**, and SDSYS is still refused
+over `SDConnectLocal` to a caller who is not SDSYS.
+
+**THE MECHANISM, AND IT IS THE OWNER'S CHOICE RATHER THAN THE ONE THIS SESSION FIRST PROPOSED.** `apisrvr`
+records the transport in `vb.local.login` (`local.session`, `@false` beside `logname` so every other transport
+leaves it false) and `vb.account` admits SDSYS on **`local.session` AND process owner `SDSYS` AND
+`kernel(K$ADMINISTRATOR,-1)`**. ***`SDConnectLocal` OPENS NO SOCKET AT ALL*** — two anonymous pipes and
+`sd.exe` spawned as a child, `CN_PIPE` — so there is no address to spoof, nothing reachable from another
+machine, and **nothing an `ssh -L` tunnel can carry**, which is exactly the hole `PEER_LOCAL` documented and
+could not close: a tunnelled socket arrives from 127.0.0.1 and a peer test answers "local" to it. Request 25
+sends **no credentials**, so being signed in as Windows SDSYS *is* the proof; and `sdapi` is tested only in
+`vb.scram.final`, so **no grant exists for this route to need**. The elevation term is this session's addition,
+not the owner's instruction: without it an *unelevated* SDSYS process would reach the system tree through a
+door the console keeps shut.
+
+***THE ROUND TRIP IS THE PART WORTH KEEPING, BECAUSE THE FIRST BUILD WAS WRONG IN A WAY THAT PASSED EVERY
+TEST.*** The owner first asked for SDSYS to have ssh and the API "like every other account", off by default,
+opened with `MODIFY.ACCOUNT`. That was built, and **witnessed green** — `verify-routes` 42/42 with a twelve-row
+Step 5, and a real SCRAM session in which `MODIFY.ACCOUNT` answered 10080 and `SH whoami` answered
+`ace\sdsys`. Then `SH whoami /groups` in that same session returned **`High Mandatory Level` with
+`BUILTIN\Administrators` enabled**, the firewall rule read `RemoteAddress = Any`, and the machine had a
+**network-reachable fully elevated administrator shell gated only by a 10-character password**. It was
+withdrawn the same evening — *"turns out the original design was correct"* — and then corrected again to
+*"it will have local api too"*, with `SDConnectLocal` named by the owner. **The green suite was not the
+problem; nobody had asked the question the suite did not cover.**
+
+**Three things fell out of it and outlive it:** **102** (an API session's Windows token is fully elevated,
+unreachable today only because `kernel.c` withholds `USR_ADMIN` from a `CN_SOCKET` session and `os.users` ships
+empty — §5.25 and §5.28 do not say so) and **103** (LOGIN demands an SD password for SDSYS at the console,
+which the owner says is not needed and `install-sdsys.ps1`'s header denies). Both are open. The third is
+smaller: **`MODIFY.ACCOUNT SDSYS <anything>` used to answer 2202 *"Account name is invalid"***, which told
+somebody typing `MODIFY.ACCOUNT SDSYS SSH` that they had the NAME wrong — the one part they had right. It now
+answers 12001.
+
+**New harness:** `gplsrc/sdclilib/tests/local_sdsys_probe.c` → `localtest/local-sdsys-probe.exe`, built by
+`all` so every cycle produces it, and `gplbld/verify-sdsyslocal.ps1`, which reads elevation and the process
+owner from the token and refuses either way round — **in neither runner, because `VerifyInstall1` is
+unelevated and `VerifyInstall2`'s elevated half runs as whoever started it, so neither can promise a session
+owned by SDSYS (§4.0.1).** It pairs with `verify-localconnect`, whose SDSYS row is now *"a caller who is not
+SDSYS is refused"* rather than *"SDSYS is always refused"*; that reason was stale in two copies and both were
+corrected. `-AcceptStaleTree` exists because the probe's own Makefile edit made `assert-current` refuse: it
+bypasses that check **only**, leaves the principal guards intact, and its verdict reads *"PASSED ON A STALE
+TREE"*. It was not needed in the end.
+
+**Files:** `sdsys/gpl.bp/apisrvr` (`local.session`, `vb.account`), `sdsys/gpl.bp/modifya` (12001),
+`sdsys/messages/12001`, `gplbld/verify-routes.ps1` (Step 5), `gplbld/verify-sdsyslocal.ps1`,
+`gplbld/verify-localconnect.ps1`, `gplsrc/sdclilib/tests/local_sdsys_probe.c`,
+`gplsrc/sdclilib/tests/local_connect_test.c`, `gplsrc/sdclilib/Makefile`, `sdsys/changelog`.
+
+====
