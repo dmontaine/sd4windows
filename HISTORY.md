@@ -36370,3 +36370,17 @@ TREE"*. It was not needed in the end.
 `gplsrc/sdclilib/tests/local_connect_test.c`, `gplsrc/sdclilib/Makefile`, `sdsys/changelog`.
 
 ====
+
+## RELEASE_1.1 103 — SDSYS is asked for an SD password at the console, and that is correct (22 Sep 2026)
+
+**CLOSED BY RULING, AND THE DEFECT WAS A COMMENT.** Signing in to SD as the Windows SDSYS account on 21 Sep
+2026 printed ***"Account SDSYS needs a password"*** and refused to continue without one. That looked like it
+contradicted the owner's *"no need for a sd sdsys password"*, and `install-sdsys.ps1`'s header asserted the
+same thing in its own words — *"a console login is by Windows identity, so SD needs no password of SDSYS's -
+this one is Windows'."* ***OWNER'S RULING, 22 Sep 2026: "it is fine to require a password at the console."***
+So LOGIN is right, his earlier remark was about the remote routes, and **the script header was the only thing
+wrong** — it stated as fact a conclusion nobody had tested, and it cost an hour of chasing. Corrected in
+place, naming the measurement and the ruling. No code changed. The password LOGIN asks for is an SD one in
+`$cred`; the one `install-sdsys.ps1` generates is the Windows one, and they are unrelated.
+
+====

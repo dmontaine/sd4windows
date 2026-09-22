@@ -76,8 +76,8 @@ list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's propos
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**16 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100, 102 and 103
-added since (101 closed 22 Sep) (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**15 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100 and 102
+added since (101 and 103 closed 22 Sep) (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -87,26 +87,6 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
-
-### 103 · M — LOGIN demands an SD password for SDSYS at the console, which the owner says is not needed
-
-**Observed 21 Sep 2026** on the owner's own machine, signing in to SD as the Windows SDSYS account after the
-17:25 cycle: the session printed ***"Account SDSYS needs a password"*** with LOGIN's paragraph about ssh and
-the API, and **would not continue without one** — *"A password is required. Pressing Enter on an empty line
-does not give you an account without one - it ends this session."* A password was set, so
-`C:\ProgramData\SD\sdsys\$cred\sdsys` exists on this machine from that date.
-
-***THE OWNER'S RULING, 22 Sep 2026: "no remote access for sdsys and no need for a sd sdsys password."***
-So either LOGIN should not ask SDSYS for one, or the ruling is about the API alone and the console prompt is
-correct. **`install-sdsys.ps1`'s header already states the opposite of what was observed** — *"SD's own
-credential register is empty at install (the cycle prints 'NO ACCOUNT HAS A PASSWORD') and a console login is
-by Windows identity, so SD needs no password of SDSYS's - this one is Windows'."* One of the two is wrong.
-
-**Not diagnosed. What to read:** LOGIN's `require.credential` path and message 10089, and which branch an
-SDSYS landing takes; RELEASE_1.1 69 is the neighbouring entry (first-login credential wording, in four
-copies). **Nothing was changed** — this is the tree's existing behaviour, found while building 101.
-**Why it matters beyond tidiness:** an SD password on SDSYS is a credential that can authenticate a remote
-API session, and 102 is what such a session turns out to hold.
 
 ### 102 · S — an API session's Windows token is FULLY ELEVATED, and §5.25 and §5.28 do not say so
 
@@ -136,13 +116,56 @@ session can run an OS command, and the elevated token is unreachable rather than
 the flag for SDSYS and the shell opened at once, which is how this was measured. ***THE TOKEN IS STILL THERE;
 ONLY THE DOOR IS SHUT.***
 
-**Owed:** a decision on whether the model should be written down as it is, or the token narrowed (a
-restricted or filtered token for a socket session would need `sdwind`'s handover to build one deliberately).
-At minimum §5.25 and §5.28 must be amended to describe what is actually true, and the documentation pass
-(61) should carry it. **Nothing here is a regression** — it is the model, newly measured.
+***OWNER'S RULING, 22 Sep 2026, AND IT IS A POLICY RATHER THAN A CHOICE BETWEEN THE TWO OPTIONS PUT TO HIM:
+"there is no remote administration at all, all administration happens at the computer or through something
+like Teamviewer. No remote user should have admin rights."*** So a remote-desktop tool is administration AT
+the computer — it drives the console session — and everything arriving over a socket is not.
+
+**WHAT THE RULING MAKES OF WHAT IS BUILT.** The `USR_ADMIN` half already enforces it: `kernel.c` withholds
+the flag from every `CN_SOCKET` session, so no API session holds SD administrator rights. **The gap the ruling
+closes is the other half, and it is not hypothetical:** `os_permitted()` also grants `OS.EXECUTE` on an
+`os.users` field-2 record, *whatever the transport*. Grant that to an SD account whose Windows account is a
+local administrator, and an API session of that account runs OS commands **with the elevated token measured
+above** — a remote user with admin rights, which is exactly what the ruling forbids. `os.users` ships empty,
+so nothing is exposed today; **the hole is that an administrator can open it by hand without being told what
+it costs.**
+
+**Owed, in this order.** (1) ***Amend §5.25 and §5.28 row 3 to state the ruling and the token*** — they
+currently describe neither, and the documentation pass (61) should carry it to the shipped docs. (2) **Gate
+the OS reach on the transport**: refuse `OS.EXECUTE`/`SH`/Python on a `CN_SOCKET` session regardless of
+`os.users`, which is one test in `op_sh.c` beside the `USR_ADMIN` one and needs no change to `sdwind`'s
+handover. **Narrowing the TOKEN itself is the alternative and is worse value** — it would mean building a
+filtered token in the handover that RELEASE_1.1 55 spent eight cycles getting right, to defend a door that
+(2) shuts with one condition. ***NEITHER IS BUILT.*** **Nothing here is a regression** — it is the model,
+newly measured, and now ruled.
 
 
-### 100 · M — `newvoc/%t` is a mis-cased escape: the record for `~` is undecodable and never reaches an account
+### 100 · M — `newvoc/%t` is a mis-cased escape: FIXED IN SOURCE 22 Sep 2026, witness owed
+
+***THE OWNER APPROVED THE FIX, 22 Sep 2026 ("a cycle is fine, it takes 90 seconds"), AND IT IS DONE IN
+SOURCE: `git mv newvoc/%t` → `newvoc/%T`***, a case-only rename through a temporary name because
+`core.ignorecase` is true and NTFS resolves the two to one file. `verify-accountmodel`'s `$KnownUnlisted` is
+**1 → 0**, which is what that constant was built to announce, and its two count rows now require
+`COUNT NEWVOC` and `LIST NEWVOC` to agree exactly. **Owed: a cycle, then `verify-accountmodel`.**
+
+***THE RECORDED OBJECTION IS ANSWERED BY MEASUREMENT RATHER THAN OVERRULED.*** It was that the decoder's
+case-handling had not been read. It has now: **`op_dio4.c:1135` decodes the `~` escape by testing
+`*(p + 1) == 'T'`, upper case and first character only**, so a lower-case `%t` falls through to the generic
+loop where PRE_RELEASE 128 keeps an unknown escape **literal** — the id reads back as `%t` and never as `~`.
+The `UpperCaseString()` at `:1119` does not rescue it: it sits under `CASE_INSENSITIVE_FILE_SYSTEM`, which
+`dh_open.c:581` records as *"a macro this tree never defines"*. So `%T` is what the decoder expects, and an
+escape letter is not a name, which is why this one file is exempt from the lower-case rule.
+
+**Still open underneath it, and NOT part of the approved fix:** `voc_template` has no `~` record at all
+(re-checked 22 Sep — it holds `%E`, `%G`, `%L`, `%P` and their pairs, no `%T`), so **SDSYS's own VOC still
+lacks it** even after this. That is a second change to a different file and was never ruled on. **And still
+not measured:** whether `~` works as a keyword without the record at all — HISTORY notes that `<` and `>`
+*"cannot be VOC records on this port"* yet work, which suggests the parser may not read them from the VOC,
+and would make the whole thing cosmetic.
+
+The original finding follows.
+
+### 100 (as found) — `newvoc/%t` is a mis-cased escape: the record for `~` is undecodable and never reaches an account
 
 Found 21 Sep 2026 by `verify-accountmodel` (its first passing run, `b213`). `COUNT NEWVOC` says
 **395** and `LIST NEWVOC` prints and reports **394**; ten of the eleven names the listing does
