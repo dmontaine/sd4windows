@@ -242,27 +242,37 @@ installed tree (`delacc:333-335`, message 10919; `assert-current` exit 0 on the
 `SD-verify`.** **Witness owed:** a file held open in an account's directory during
 `DELETE.ACCOUNT`.
 
-### 71 · S — every account gains `modify.password`; installed, neither witness has run
+### 71 · B — an elevated ordinary account can set SDSYS's password and take the administrator account
+
+***WITNESSED 22 Sep 2026 by the owner, and it RAISES THIS FROM S TO B.*** From his `don`
+account (elevated), `modify.password sdsys` was **NOT refused**: it answered *"Account
+SDSYS has no password set. Setting the first one."* and prompted for a new one. SDSYS
+authenticates with its **Windows** password and by design carries **no SD `$cred`**
+(`finish-install.ps1`: the installer sets SDSYS's Windows password with `Set-LocalUser`
+and never enters SD), so this lets any elevated ordinary session set SDSYS's first SD
+credential and then sign in as the administrator. The cause is `set_acc_password:147`:
+the cross-account guard is `not(own) and not(kernel(K$ADMINISTRATOR, -1))`, and
+`K$ADMINISTRATOR` means only *an elevated session* — not *SDSYS*. `MODIFY.ACCOUNT` was
+hardened to refuse SDSYS (`modifya:247`, 12001); `MODIFY.PASSWORD` never was.
 
 Owner chose (a), 19 Sep 2026: *"as long the user can only modify their own
 password, but the admin can change any password"*. `sdsys/newvoc/modify.password`
-added; the split was already enforced (`set_acc_password:87-92`, `:123-126`), so
-no code beyond the vocabulary entry. **Owed:** `MODIFY.PASSWORD` typed alone in
-`don` (asks for the current password, succeeds) and `MODIFY.PASSWORD sdsys` from
-`don` **unelevated**, refused with 2001. The false comment the row names now sits
+added; the own/other split was enforced (`set_acc_password:87-92`, `:123-126`), but the
+"other" side was gated on elevation, not on SDSYS. **Owed (own-password witnessed OK,
+22 Sep — current pw, new, confirm, "Password accepted."):** `MODIFY.PASSWORD sdsys`
+from an elevated `don` must be **refused with 2001** (currently is not — the bug above),
+and the unelevated form too. The false comment the row names now sits
 at `set_acc_password:172-175`, unchanged.
 
-**Ruled 21 Sep 2026 (agent, on the owner's delegation), on the nuance: an elevated
-ordinary session must NOT be able to set another account's password — only SDSYS may.**
-Today `K$ADMINISTRATOR` means *an elevated session*, so an elevated `don` can (checked:
-`set_acc_password:147` tests only that flag). That is the reading of §5.6.1 (*"a Windows
-administrator is an SD administrator"*), but 64 is newer and says there is one
-administrator, SDSYS, and every other Windows administrator is refused; the wider rule
-also buys no security, since an elevated Windows administrator can already rewrite
-`$cred` by hand, so it only muddies which identity is accountable. Owner-chosen (a)
-stands: everyone changes their own password (current one required). **To build, in
-the conditional:** the cross-account branch additionally requires the session's
-account to be SDSYS; install-time password setting runs as SDSYS through `sd -internal`
+**Ruled 21 Sep 2026 (agent, on the owner's delegation): an elevated ordinary session
+must NOT be able to set another account's password — only SDSYS may.** ***THE 22 Sep
+WITNESS SETTLES THE "BUYS NO SECURITY" DOUBT AGAINST IT:*** that caveat (an elevated
+Windows admin can rewrite `$cred` by hand anyway) was about the admin→ordinary case, and
+it does NOT hold for the SDSYS target — SDSYS carries no SD `$cred` by design and its
+tree is locked (104), so `modify.password sdsys` is a *one-command* administrator
+takeover with no by-hand equivalent an ordinary elevated account could perform. So the
+build is required, not optional. **To build:** the cross-account branch additionally
+requires the session's account to be SDSYS; install-time password setting runs as SDSYS through `sd -internal`
 and so is unaffected — **which is the thing to check first, because it is the one
 condition that would break the finish page** (does `@logname` read `SDSYS`, and in what
 case, inside an internal session?). Compile-check with `bbcmp`, then a cycle, then the
