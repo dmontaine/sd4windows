@@ -45,8 +45,8 @@ before consolidation"*; what they still owed was carried into OPEN TASKS.
 ***22 Sep 2026 — five entries closed (100–104). Later: 84's CODE landed (probe + SDSYS-seat conversion).***
 The owner cycled (install 21:29:24) and `assert-current` is now **exit 0** — 84's verifier-only re-edits are
 exempt, so **the 84 re-witness needs no cycle**, just an elevated run with SDSYS signed in (see 84 / NEXT 2).
-Free tier **54/54**. **`-Run` token `b220` is spent (84's first witness); start at `b221`.** Every closed
-entry is in HISTORY.md; do not re-derive them.
+Free tier **54/54**. **Prefixes `sdapiidb220`/`b221` spent on 84 witnesses; next `sdapiidb222`, and `-Run`
+suite tokens start at `b222`.** Every closed entry is in HISTORY.md; do not re-derive them.
 
 ***THE FULL SUITE HAS NOT RUN SINCE 18 Sep 10:30, AND CLAUDE.md WANTS ONE BEFORE A HANDOFF.*** This handoff
 is made without it. Nine steps ran green today (`verify-routes` 35/35 `b218`, `verify-sdsyslocal`,
@@ -75,8 +75,9 @@ default unmodified system, after that it is the wild west."*
    `sdclilib` AND its setup half is converted to the SDSYS seat (the `b220` witness caught
    both the missing conversion and a stale password anchor). `assert-current` is exit 0, so
    **no cycle needed** — with **SDSYS signed in**, re-witness in an **elevated** window:
-   `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiidentity.ps1 -Prefix sdapiidb221`
-   See entry 84 for the expected shape.
+   `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiidentity.ps1 -Prefix sdapiidb222`
+   `b221` got through setup to Step 4 (seat works) and caught a fixture-ownership gap now fixed (takeown);
+   Step 5, the API measurement itself, is not yet reached. See entry 84 for the expected shape.
 3. **61** — its local half is DONE (§5.25 carries a correction box; §5.28's table gained the API token and a
    new ssh row). What remains is the SHIPPED documentation in `SDCoreWindowsDocs`, clean at `de44f8e`, at the
    six `file:line` references the entry lists, plus: only SDSYS administers, and an ssh session's reach is
