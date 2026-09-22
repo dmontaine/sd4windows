@@ -41,9 +41,11 @@ it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
 ***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 47's second pass done for
-ssh mechanism, console-login (S.27/S.41), message text, and a source-diff verb sweep — all aligned
-or filed, no live gaps found; only doc-parity (48) and a live (not source-read) witness run remain,
-both large enough to be their own pass.***
+ssh mechanism, console-login (S.27/S.41), message text, and a source-diff verb sweep. Owner's
+"parity goes both ways" ruling (relayed via Linux, S.42) acted on same-session: `nano` built here
+(not yet cycled), `UMASK` re-examined and confirmed structurally covered by NTFS inheritance, a
+real Python-list-creation gap found on Linux's side and sent. Only doc-parity (48) and a live
+witness run (not source-read) remain, both large enough to be their own pass.***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -241,25 +243,69 @@ task above; 48 on 47; 49 on 48.**
     Windows's version is *narrower* in one respect worth knowing: `os.users`
     gives two independent switches (`SH-ON`, `OS-ON`) where Linux's native
     permissions answer only one all-or-nothing question.
-  - **`UMASK`**: Linux-only, and already reasoned on both sides — Windows
-    removed it (`d913eac`, 24 Aug 2026, *"essentially inert on Windows where
-    security is ACL-based"*); Linux kept it as *"a real mechanism here"*
-    (Linux `CLAUDE.md` "Project stance").
   - **`APPEND.PATH`, `SSH.SERVER`**: Windows-only, no Linux equivalent found
     or needed — Windows has no single shared PATH-management primitive and
     ships no ssh server by default the way virtually every Linux
     distribution does, so both are genuinely Windows-side installer/admin
     concerns with nothing to mirror.
-  - **`nano`**: Linux-only, and turns out to be cosmetic — its `voc_template`
-    record is `CA $EDIT`, the *same* catalogued program `MICRO`/`EDIT`
-    already point to on both sides, just a second, Linux-familiar name for
-    it. Easy to add on Windows if wanted; not a capability gap.
+
+  **CORRECTED 22 Sep 2026 — owner's ruling, relayed by Linux (S.42): "parity
+  goes both ways, if you have a feature that windows does not, then they need
+  to come into parity if possible."** The two rows below were filed as
+  "record, do not fix" under the old one-way reading; re-examined and acted
+  on directly under the parity-decision governance exception in this file's
+  own mailbox section (approved on one port is approved on both), and this
+  session's owner separately said in chat, "anything achieving parity is
+  approved."
+  - **`nano`**: Linux-only, cosmetic — its `voc_template` record is `CA
+    $EDIT`, the *same* catalogued program `MICRO`/`EDIT` already point to.
+    **Built 22 Sep 2026**: `newvoc/nano` and `voc_template/nano` added,
+    byte-identical to our own `micro`/`edit` (lower-case `$edit` per §5.12).
+    Free-tier clean — `test-vocverbs-units.ps1` all rows, `test-voctwins-
+    units.py` 9/9 with counts moved as expected (newvoc 397→398,
+    voc_template 430→431, no fold-collisions), full 54-guard sweep 54/0/0.
+    **Not yet cycled or witnessed** — rides the next milestone cycle rather
+    than a one-off install for one VOC record.
+  - **`UMASK`**: re-examined under the new bar, not just reasserted — still
+    inert, for a sharper reason than the pre-audit answer gave. Windows
+    already achieves what `umask` achieves — a predictable default
+    permission profile for every file an account creates — through **one
+    inheritable ACE the installer sets once on `C:\ProgramData\SD`**, which
+    NTFS applies at creation time to everything underneath, **including
+    files SD writes through the MSYS2 runtime** (§5.7, verified 13 Aug 2026:
+    *"files created through MSYS2 inside a locked directory still inherit
+    the restricted ACL correctly... NTFS applies inheritance at creation,
+    below the runtime"*). `createa`'s own history names the POSIX mechanism
+    this replaced (`:1059-1068`): the port used to run `sudo chmod g+s <dir>`
+    per account so new files inherited the directory's group; gone because
+    the installer's one-time ACE does the same job structurally. The shape
+    is inverted, not absent: Linux's `umask` is per-session and mutable;
+    Windows's equivalent is one-time and can't be forgotten. No verb to
+    build — there's no per-process mode-bits value SD passes when it writes
+    a file on Windows for a `UMASK`-shaped verb to expose. Sent to Linux
+    22 Sep 2026 (`to-linux/2026-09-22T1700-windows-parity-both-ways-reply.md`).
   - **`%T`/`%t`** (soundex-test keyword): identical content, differ only in
     record-name case — **not a feature gap, a Windows TODO**. Confirms §5.12
     (lower case everywhere) is genuinely unfinished for the `$`/`%`/`@`
     records Windows deliberately excluded from its sweep so far; Linux's own
     lower-case work (`CLAUDE.md`: *"AND COMPLETE, WHICH THE PORT IS NOT"*)
     has already gone past it. Low priority, no functional effect either way.
+
+  **Found 22 Sep 2026, this session's own verb-surface source-diff sweep —
+  the reverse direction, a real Windows-fixed bug Linux still has.** Windows
+  fixed *"a [Python] list could be appended to and read but never made"* on
+  14 Sep 2026 (`py_listcreate`, the 21st Python program, shaped like
+  `PY_CREATEDICT`). Checked Linux's tree the same way: `gplsrc/keys.h:443` —
+  `SD_PyListCrte` is commented out (`//#define SD_PyListCrte 2220`, the
+  number skipped between 2217 and 2221); `gplsrc/op_sdpyobj.c` has a
+  `PyDictCrte` case but no `PyListCrte` one — `PyListGet`/`PyListAppd`/
+  `PyListClr` exist, `PyListCrte` does not; no `py_listcreate`-equivalent
+  `.gpl.bp` file. Linux's dict CRUD is otherwise complete (Crte/Clr/Vset/
+  Vget/IDel/Keys/Values all present) — this looks like the exact same gap
+  Windows had, just not yet found there. Not filed as our own task (their
+  tree, their fix); sent as a finding, not a demand, in the same mail as the
+  `nano`/`UMASK` reply — their call whether anything in their tree actually
+  needs list creation.
 
   **CORRECTED 22 Sep 2026 — `MODIFY.PASSWORD` self-service was already built
   on Linux before this audit ran; the line-number citation below was stale.**
