@@ -40,8 +40,8 @@ or *"— PRE_RELEASE_FIXES.md"*; grep the number there.
 it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
-***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 47's first pass done; 106
-mail sent to Linux (DELIVERED, PENDING ack).***
+***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 106's mailbox round-trip
+closed — Linux checked, no gap on their side; 47's first pass still open (next-pass items below).***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -56,18 +56,25 @@ requirement is filed under gate 48**, not built as code: the installing administ
 account now grants like any other — sign in to Windows as SDSYS, run `sd` elevated.
 
 ***47, 22 Sep 2026 — first-pass parity audit done, bidirectional (checked with a mechanical
-`newvoc`/`voc_template` diff, not just prose).*** Most axes align once "only the result counts,
-the mechanism may differ" is applied. One real action item remains: **Linux's own
-`MODIFY.PASSWORD` self-service is ruled but not built** (`set_acc_password:79-80` names the
-conflict itself). Full detail in 47's own entry — read it before starting 48.
+`newvoc`/`voc_template` diff, not just prose); its two mailbox-dependent action items are now
+closed, but the "next pass" scope in 47's own entry (ssh mechanism, console-login restriction,
+full message-text comparison, doc parity) is still unaudited.*** Read 47's own entry before
+starting 48.
 
-***106 mail sent to Linux, 22 Sep 2026*** —
-`mail.sh send` → `to-linux/2026-09-22T1300-windows-release-1.1-106.md`, sha256
-`a4056bd3f4...` verified against the draft (DELIVERED). `mail.sh status` at 13:22 read
-**DELIVERED, PENDING** — not yet ACKNOWLEDGED, Linux has not moved it to `done/` yet. A background
-watcher on `to-windows/` is running this session; check `mail.sh status` again next session if it
-still hasn't landed. **Next session, before touching 48:** confirm ACKNOWLEDGED (or read whatever
-Linux replied with) rather than assuming the send alone closed it.
+***106 mail round-trip closed, 22 Sep 2026*** — sent 13:00, ACKNOWLEDGED (Linux moved it to
+`done/`); reply `2026-09-22T1500-linux-release-1.1-106-reply.md` (mailbox `done/`, `SDCore4Linux
+main c88ab9e`) read and filed here, per mailbox rule 5 (git is the record). **Linux checked
+against source, not assumed: no K$ADMINISTRATOR-shape leak on their port.** Their `USR_ADMIN`
+flag has no pre-identity seed to begin with (`my_uptr->flags = 0` at session init,
+`gplsrc/kernel.c:157`) — it is granted in exactly one place, `sdsys/gpl.bp/cproc:424,432`, and
+only *after* identity is known (OS user `sdsys` + local session + kernel-set audit loginuid
+`sdsys`), so `sudo sd`/`su - sdsys` from another account carries that account's loginuid and is
+refused (10195/10176) rather than granted. Grant is post-identity and single-site — the opposite
+shape from Windows's bug (pre-identity seed + a missed clear). Not a fresh live witness — a
+source re-read against Windows's question, against the prior live witness on `60ac74a` (19 Sep
+2026, M8a-h). `sudo sd` as root itself is refused outright (10190), same ruling as Windows's W.5.
+Confirms Linux's `MODIFY.PASSWORD` self-service is still the same ruled-not-built gap
+(`set_acc_password:79-80`) — no new action, both records agree.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
@@ -169,8 +176,8 @@ task above; 48 on 47; 49 on 48.**
 - **47 — Windows↔Linux parity audit.** *Done when* a written comparison exists
   and its findings are resolved or filed. **First pass done 22 Sep 2026** — a
   structured comparison across the major axes, not yet the full verb-by-verb
-  sweep (scoped at the bottom). Still open: the next-pass items, the mailbox
-  send for 106, and Linux's own `MODIFY.PASSWORD` build.
+  sweep (scoped at the bottom). Still open: the next-pass items and Linux's own
+  `MODIFY.PASSWORD` build.
 
   ***THE TEST FOR EVERY ROW, STATED BY THE OWNER ON BOTH SIDES: ONLY THE
   RESULT COUNTS. THE MECHANISM MAY DIFFER TO FIT EACH OS.*** Linux's own
@@ -263,26 +270,24 @@ task above; 48 on 47; 49 on 48.**
     mechanism is proposed there (`euid 0` for `$MODIFY.PASSWORD`, mirroring
     how `CPROC` already grants it to `$CREATEA`/`$DELACC`/`$MODIFYA`) but
     marked *"Needs the owner."* **Next Linux session: build it, or get the
-    owner's yes on the `euid 0` approach.**
+    owner's yes on the `euid 0` approach.** Reconfirmed by Linux's own
+    22 Sep 2026 mail reply (`done/2026-09-22T1500-linux-release-1.1-106-reply.md`):
+    still not built, same proposal, still needs the owner.
 
-  **Needs to go out over the mailbox — decided on Windows tonight, Linux not
-  yet told, and the governance rule says it binds Linux too unless an OS
-  difference is named:**
-  - **RELEASE_1.1 106 (22 Sep 2026, Windows, commit `17b0ae25`): "The only
-    privileged account is SDSYS."** An elevated Windows administrator no
-    longer gets any extra SD privilege in their own ordinary account —
-    `CATALOG GLOBAL`, `SH`/`EDIT`/`MICRO` without an `os.users` grant,
-    `BREAK ON USER`, `PDUMP` of another user's process all now require
-    actually being SDSYS. **Linux's privilege model is `sudo`/root-based,
-    not UAC-elevation-based, so the specific mechanism (`kernel.c`'s
-    `IsElevated()` seed) doesn't translate — but the *question* does: does a
-    Linux session started via `sudo sd` (or any root-equivalent path)
-    currently carry SD-level privilege into an *ordinary* account it lands
-    in, the same shape of bug Windows just closed?** This needs an actual
-    check on the Linux tree, not an assumption either way, per the
-    result-only test above. **Not sent yet — the Linux box was off this
-    session.** Send via `mail.sh` next time it's on, citing this entry and
-    commit `17b0ae25`.
+  **Sent over the mailbox, 22 Sep 2026, and answered — closed:**
+  - **RELEASE_1.1 106 (Windows, commit `17b0ae25`): "The only privileged
+    account is SDSYS."** Sent to Linux 13:00, ACKNOWLEDGED. **Linux's reply
+    (`done/2026-09-22T1500-linux-release-1.1-106-reply.md`, `SDCore4Linux
+    main c88ab9e`): no K$ADMINISTRATOR-shape leak.** Checked against source:
+    `USR_ADMIN` has no pre-identity seed (`my_uptr->flags = 0` at session
+    init, `gplsrc/kernel.c:157`); it is granted in exactly one place
+    (`sdsys/gpl.bp/cproc:424,432`), only after identity is already known (OS
+    user `sdsys` + local session + kernel-set audit loginuid `sdsys`), so
+    `sudo sd`/`su - sdsys` from another account carries that account's own
+    loginuid and is refused (10195/10176) rather than granted — the opposite
+    shape from Windows's bug. Not a fresh live witness, a source re-read
+    against the prior live witness on `60ac74a` (19 Sep 2026, M8a-h). `sudo
+    sd` as root itself is refused outright (10190), matching Windows's W.5.
 
   **Not yet audited — scoped for a next pass, not started tonight:**
   - Full verb-surface semantic comparison (the diff above found *presence*,
