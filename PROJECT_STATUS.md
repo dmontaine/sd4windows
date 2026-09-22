@@ -42,10 +42,11 @@ OPEN TASKS wins and this block is the stale one. The 26th pass's handoff and
 every older one are in HISTORY.md under *"ARCHIVE 21 Sep 2026 — PROJECT_STATUS.md
 before consolidation"*; what they still owed was carried into OPEN TASKS.
 
-***22 Sep 2026, ~21:00 — TREE CURRENT AND CLEAN. FIVE ENTRIES CLOSED TODAY: 100, 101, 102, 103, 104.***
-`assert-current` **exit 0** against the 20:54 cycle, measured at handoff; working tree clean at `56539ff`;
-free tier **54/54**. **`-Run` tokens `b206`–`b219` are spent — start at `b220`.** Every closed entry is in
-HISTORY.md with its measurements; do not re-derive them.
+***22 Sep 2026 — five entries closed (100–104). 22 Sep, later: 84's CODE landed, tree now reads STALE.***
+The 20:54 cycle was current at `56539ff`; **84's rewrite (this pass) edited `gplsrc/sdclilib/Makefile`, so
+`assert-current` now exits 1 (STALE by that one file) — the next elevated run needs a cycle first.** Free
+tier last measured **54/54** (+`test-apiidentity-units` green after the 84 rewrite). **`-Run` tokens through
+`b219` are spent — start at `b220`.** Every closed entry is in HISTORY.md; do not re-derive them.
 
 ***THE FULL SUITE HAS NOT RUN SINCE 18 Sep 10:30, AND CLAUDE.md WANTS ONE BEFORE A HANDOFF.*** This handoff
 is made without it. Nine steps ran green today (`verify-routes` 35/35 `b218`, `verify-sdsyslocal`,
@@ -70,8 +71,11 @@ default unmodified system, after that it is the wild west."*
    has never run.
    `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\VerifyInstall1.ps1 -Only verify-lcnames`
    (`sdtestuser-admin`, 76's other half, is exercised by the full suite's door pair.) **Then a full suite.**
-2. **84** — repoint `verify-apiidentity` at the real client library instead of `scram-probe.py`. Harness
-   only, no cycle to write, one run to witness.
+2. **84** — CODE DONE this pass (uncommitted at handoff): `verify-apiidentity` now drives
+   `api_identity_probe.c` on the real `sdclilib`, compile/parse/guard all green, but the
+   `gplsrc/sdclilib/Makefile` edit makes the tree read STALE. **Owed: one cycle, then**
+   `powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-apiidentity.ps1 -Prefix <fresh>`
+   in an **elevated** window. See entry 84 for the expected shape.
 3. **61** — its local half is DONE (§5.25 carries a correction box; §5.28's table gained the API token and a
    new ssh row). What remains is the SHIPPED documentation in `SDCoreWindowsDocs`, clean at `de44f8e`, at the
    six `file:line` references the entry lists, plus: only SDSYS administers, and an ssh session's reach is
@@ -204,26 +208,37 @@ witness of the alternate-key write path; `VerifyInstall2`'s own comment says so)
 in 8–31 runs, but a clean record is what a regression guard looks like; the run
 summaries do not say whether a failure was the product or the instrument.
 
-### 84 · M (harness) — `verify-apiidentity.ps1` still drives `scram-probe.py`, not the real client library
+### 84 · M (harness) — repoint `verify-apiidentity.ps1` at the real client library: code done, WITNESS OWED
 
-64's slice 5a deleted `verify-tierapi.ps1` and left a debt: `verify-apiremote.ps1`
-and `verify-apiidentity.ps1` were both owed the real-client-library reading it
-held. **Half is paid:** `verify-apiremote.ps1` was rewritten 20 Sep 2026
-(`5d435f9`) to drive `gplsrc/sdclilib/tests/api_admin_probe.c`
-(`SDConnect`/`SDExecute`/`SDError`). **`verify-apiidentity.ps1` is untouched** and
-still drives `scram-probe.py` (`f92e07a`, 42), a hand-written Python
-reimplementation of SCRAM+TLS built because .NET's `SslStream` could not export
-the RFC 9266 channel binding. **Built since (25th pass):**
-`gplsrc/sdclilib/tests/api_identity_probe.c` on `SDOpen()` alone — compiles clean,
-its connect half ran live against the real `sdwind` (wrong credentials refused,
-wording captured), and a `check-api-identity` Makefile target exists. **Not
-done: wiring it into `verify-apiidentity.ps1`.** It is not a drop-in swap:
-`SDStatus()` does not reflect `SDOpen`'s failure the way the wire-level
-`server_error` does, so it is a rewrite of a working file's core mechanism, and
-needs elevation and/or real credentials in a session that can watch it run.
-**Ruled 21 Sep 2026 (agent, on the owner's delegation): keep `verify-apiidentity` and
-do this rewrite; it is not retired** — it is the only witness of 55's
-session-as-the-user property (see 97).
+64's slice 5a left a debt: `verify-apiremote.ps1` (rewritten 20 Sep, `5d435f9`,
+onto `api_admin_probe.c`) and `verify-apiidentity.ps1` were both owed the
+real-client-library reading. **The `verify-apiidentity` half is now written**
+(this pass, uncommitted at time of writing): it drives
+`gplsrc/sdclilib/tests/api_identity_probe.c` on the shipped `sdclilib`
+(`SDConnect` = login+attach, `SDOpen`, `SDWrite`+`SDRead` readback) through
+`bash`/`make`, exactly as `verify-apiremote` drives its probe. `scram-probe.py`
+stays — `verify-scramlogin`, `-apiwire`, `-vocwrite` still drive it.
+
+**What was observed:** the probe compiles zero-warning under
+`-Wall -Wextra -Wpedantic` (`make build-api-identity`, a new build-only target
+in both Makefiles); its no-arg run prints usage and exits 5 with the runtime
+PATH; `verify-apiidentity.ps1` parses 0 errors / 15 functions;
+`test-apiidentity-units.ps1` passes; no BOM/CR in any of the four edited files.
+**Parser change, by design:** `sdclilib` exposes no wire `server_error` getter,
+so a refused open reads as `OPEN NAME: REFUSED: <SDError text>` and login+attach
+as `PROBE.CONNECT=YES`; `Get-ProbeOpen`'s boolean outcome (opened/refused/
+not-seen) is unchanged and message 5277 is still detected in the refusal text.
+
+**Owed — the end-to-end run, which nothing here has witnessed.** The
+`gplsrc/sdclilib/Makefile` edit makes the tree read STALE (`assert-current`
+exit 1, measured), so the witness is **one cycle, then**
+`verify-apiidentity.ps1 -Prefix <fresh>` in an ELEVATED window; it should
+reproduce the last green shape (ALLOW opens, DENY refused, USER-ONLY opens,
+`ZZAPI` owned by the API user, `ZZLOCAL` by the local session). If the DENY
+read differs, read it as a product finding before touching the probe.
+
+**Ruled 21 Sep 2026 (agent, on the owner's delegation): keep `verify-apiidentity`,
+not retired** — it is the only witness of 55's session-as-the-user property (see 97).
 
 ### 77 · M — an upgrade never removes a VOC record
 
