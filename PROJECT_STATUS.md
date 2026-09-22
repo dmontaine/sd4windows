@@ -130,6 +130,20 @@ above** — a remote user with admin rights, which is exactly what the ruling fo
 so nothing is exposed today; **the hole is that an administrator can open it by hand without being told what
 it costs.**
 
+***AND THE REACHABLE SURFACE IS ONE ACCOUNT PER MACHINE, WHICH IS THE OWNER'S POINT AND IS MEASURED.***
+Owner, 22 Sep 2026: *"all sd accounts are tied to standard windows accounts which restrict users … the only
+exception is the installer."* **Confirmed both halves.** `make.admin` was removed by RELEASE_1.1 64
+(`createa:21`, `:371`), so `CREATE.ACCOUNT` cannot put anyone in Administrators and every account SD creates
+is a standard user — an `OS.EXECUTE` from one of those runs as a standard user and the elevated token above is
+not in play at all. **The exception is the account the installer ATTACHES**, the installing Windows
+administrator, and on this machine it is real: `ace\Don` is in **Administrators**, holds SD account `don`, and
+is in **`sdapi`** (measured 22 Sep; Administrators reads `ace\Administrator`, `ace\Don`, `ace\SDSYS`, and the
+register holds `don` and `sdsys`). ***SO THE WHOLE OF 102's REACHABLE EXPOSURE IS: THAT ONE ACCOUNT, AND ONLY
+IF SOMEBODY ALSO SETS ITS `os.users` FIELD 2. `os.users` IS EMPTY — 0 RECORDS, MEASURED 22 Sep.*** **Not
+explained:** how `ace\Don` came to be in `sdapi` at all, since `sync-route-groups.ps1` never seeds that group
+— most likely a leftover from testing rather than anything the installer did, but it was not traced, and on a
+clean install the attached account should not be in it.
+
 ***AND THERE IS AN EXISTING COMMAND RESTRICTION, WHICH THE OWNER RAISED, 22 Sep 2026 — IT IS REAL, IT
 NARROWS THIS, AND IT DOES NOT COVER THE PATH THAT MATTERS HERE.*** `valid_shell_cmd`
 (`sdsys/gpl.bp/valid_shell_cmd`) refuses an empty command, CR, LF, and any of **`; | & $ \` < >`** — so an
@@ -143,6 +157,16 @@ metacharacter-checked at all**, and the narrowing applies to the interactive ver
 this entry is about. *(Measured obliquely on 21 Sep: the probe's `SH whoami` ran through an API session and
 returned `ace\sdsys` — a plain command, so it passed the check that was in force.)* **It also limits
 composition rather than power: one plain command still covers `net user … /add`.**
+
+***WHAT ALL OF THIS ADDS UP TO, AND IT LOWERS THE PRIORITY WITHOUT CLOSING THE ENTRY.*** Three independent
+things must ALL hold for anyone to get remote admin rights: the account must be the installer-attached
+administrator (every other SD account is a standard user), it must be in `sdapi`, and somebody must have set
+its `os.users` field 2. **The third is empty on a shipped install and the first is one account per machine**,
+so nothing is exposed as delivered — which is the 5.28 row-5 position (*"if users want to degrade security
+after the fact, that is their right"*) with one difference that matters: **here the administrator doing it is
+not told that `os-on` for that account means an elevated shell reachable over the network.** So the fix worth
+making is small and mostly about disclosure plus one cheap gate, not a redesign. ***IT IS NO LONGER A B AND
+WAS NEVER ONE; IT STAYS S BECAUSE THE DOCUMENTATION IS WRONG RATHER THAN BECAUSE THE PRODUCT IS OPEN.***
 
 **Owed, in this order.** (1) ***Amend §5.25 and §5.28 row 3 to state the ruling and the token*** — they
 currently describe neither, and the documentation pass (61) should carry it to the shipped docs. (2) **Gate
