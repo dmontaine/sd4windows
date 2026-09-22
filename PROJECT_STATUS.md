@@ -52,9 +52,11 @@ otherwise unchanged; no decision, rule, open task or distinct §6 trap lesson wa
 only the narrated measurement trails, superseded corrections-of-corrections, and repeated
 restatement around them.
 
-**Next, in order:** 76's falsification check (`verify-apiadmin`/`verify-privundetermined`, elevated,
-SDSYS signed in, *without* the planted `os.users\SDSYS` fixture); 97's suite-speedup proposals; the
-47 → 48 → 49 gates (parity audit → docs → staging/zips), none started.
+***22 Sep 2026 — 76's falsification check DONE AND CONFIRMING*** (`verify-apiadmin -NoFixture`
+23/24, `verify-privundetermined -NoFixture` 26/26, both owner-run elevated with SDSYS signed in —
+detail in OPEN TASKS entry 76). **Next, in order:** 76's remaining "full suite" item (none since
+18 Sep 10:30); 97's suite-speedup proposals; the 47 → 48 → 49 gates (parity audit → docs →
+staging/zips), none started.
 
 ***Open, not filed:*** `voc_template` has no `~` record; SDSYS's VOC never gets one. Ask before building.
 
@@ -104,8 +106,8 @@ clean, `-Run b225`). Two could not run on `b223`: `verify-routes` demanded the g
 Windows session (predated the seat); `verify-print` could not set its throwaway default printer
 in the helper's non-interactive session (cleaned up correctly, untested interactively).
 ***`verify-routes.ps1` CONVERTED TO THE SDSYS SEAT AND RE-WITNESSED SAME DAY, `-Run b226`:
-35 of 35, no account switch*** — see HISTORY.md, 22 Sep 2026. **Still owed:** the falsification
-check below (a local control run *without* the planted record was not done).
+35 of 35, no account switch*** — see HISTORY.md, 22 Sep 2026. **The falsification check
+below is also now done, confirming** — see below.
 
 Owner's ruling, 21 Sep 2026. **All four were converted in source:**
 `sdtestuser-admin.ps1` and `verify-lcnames.ps1` earlier that day, and
@@ -120,12 +122,12 @@ it and removes it immediately after, refuses to start if one already exists, and
 `finally` backstop (`Set-SeatOsUsersRecord`/`Remove-SeatOsUsersRecord`, never overwrite,
 never remove one they did not write); it adds two fixture rows to each verifier's tally.
 
-**Owed:** one elevated run with SDSYS signed in, then a full suite (none since
-18 Sep 10:30). **What would falsify the `os.users` fixture:** the local control passing
-*without* the record, meaning `USR_ADMIN` survives the LOGTO under `-Internal` and the
-record is unneeded; and **read the first red as a finding about the seat or the door
-before reverting anything** — the `-Internal` door itself was witnessed on 20 Sep for
-`verify-apiwire` and `verify-vocwrite`, which is the evidence it works, not for these two.
+**Owed:** a full suite (none since 18 Sep 10:30) — see the falsification result below,
+which is DONE. **What would have falsified the `os.users` fixture:** the local control
+passing *without* the record, meaning `USR_ADMIN` survives the LOGTO under `-Internal`
+and the record is unneeded — measured 22 Sep 2026, and it did not (below); the
+`-Internal` door itself was witnessed on 20 Sep for `verify-apiwire` and
+`verify-vocwrite`.
 
 ***22 Sep 2026 — BOTH VERIFIERS NOW TAKE `-NoFixture`***, so the check no longer needs a
 manual edit: it skips planting `os.users\SDSYS` for the local control and reports the
@@ -133,15 +135,17 @@ result under a differently-named check (`falsification: ...`), not a flipped exp
 value on the existing one. Reaches SDSYS through the seat's own scheduled task
 (`sdsys-seat.ps1`), so the operator does not switch sessions to run it.
 
-***`verify-apiadmin -NoFixture` WITNESSED 22 Sep 2026, owner's own elevated run, SDSYS
-already signed in, `-Prefix sdapia13`: 23/24, the CONFIRMING result.*** Same shape as the
-witnessed `b211` run (23 decisive checks, 1 designed N/A on "not running as SYSTEM" —
-unmeasurable once OS.EXECUTE is refused) plus the new row: `falsification: WITHOUT the
-fixture, the control is refused` — **True/True, PASS.** Without the planted
-`os.users\SDSYS` record the local OS.EXECUTE control genuinely was refused, so
+***BOTH VERIFIERS' `-NoFixture` RUNS WITNESSED 22 Sep 2026, owner's own elevated runs,
+SDSYS already signed in — THE FALSIFICATION CHECK IS DONE AND CONFIRMING, NOT
+FALSIFYING.*** `verify-apiadmin -Prefix sdapia13`: 23/24, same shape as the witnessed
+`b211` run (23 decisive checks, 1 designed N/A on "not running as SYSTEM" —
+unmeasurable once OS.EXECUTE is refused) plus the new row `falsification: WITHOUT the
+fixture, the control is refused` — **True/True, PASS.** `verify-privundetermined -Prefix
+sdpwb115`: **26/26, no N/A**, plus its new row `falsification: WITHOUT the fixture,
+OS.EXECUTE does NOT run` — **True/True, PASS.** Both agree: without the planted
+`os.users\SDSYS` record the local OS.EXECUTE control is genuinely refused, so
 `USR_ADMIN` does **not** survive the seat's `LOGTO` under `-Internal` — the fixture is
-doing real, necessary work, not papering over anything. **Still owed:**
-`verify-privundetermined -NoFixture`, same setup, entry 76 names both together.
+doing real, necessary work, not papering over anything. **Nothing to revert.**
 
 ### 97 · S (harness) — the validation suites: upkeep cut, runtime still to do
 
