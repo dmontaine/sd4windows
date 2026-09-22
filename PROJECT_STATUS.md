@@ -40,10 +40,9 @@ or *"— PRE_RELEASE_FIXES.md"*; grep the number there.
 it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
-***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 106's mailbox round-trip
-closed; 47's second pass done for ssh mechanism (aligned) and message text (no collisions, 107/108
-filed); console-login question sent to Linux, unanswered; verb-behaviour and doc-parity (48) still
-unaudited.***
+***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 47's second pass done for
+ssh mechanism, console-login (S.27/S.41) and message text — all aligned or filed, no live gaps
+found; verb-behaviour and doc-parity (48) still unaudited, both large enough to be their own pass.***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -321,32 +320,40 @@ task above; 48 on 47; 49 on 48.**
     (allowlist-by-omission vs. explicit deny-plus-refusal arms) — result
     matches. **No action.**
 
-  **Audited 22 Sep 2026, second pass — console/local-login restriction: open
-  question, sent to Linux, not assumed either way.**
+  **Audited 22 Sep 2026, second pass — console/local-login restriction:
+  answered by Linux, aligned, mechanism differs because the underlying
+  boundary differs.**
   - **Windows** (`sdsys/gpl.bp/createa:1209-1231`, `gplbld/deny-logon.ps1`):
     every ordinary SD account is unconditionally joined to `sdsshonly` at
     `CREATE.ACCOUNT` time (administrators and `ADOPT`ed pre-existing
     accounts exempted, `:1209-1211`), which carries
     `SeDenyInteractiveLogonRight` (console) and
     `SeDenyRemoteInteractiveLogonRight` (RDP) — an SD account can never get
-    a local Windows desktop session. This is the mechanism behind §5.6.2,
-    "SD accounts are ssh-only; the console belongs to administrators."
-  - **Linux, checked, not found**: `sd-elevate useradd`
-    (`gplbld/sd-elevate:677`) runs `useradd -m -c "SD account" -- "$1"` with
-    no `-s` override, so the account gets the distribution's default login
-    shell. `ForceCommand` only reaches ssh `Match` blocks — nothing in
-    `ssh-forcecommand.sh`, `installsdai.sh`, `sdcore.sudoers`, or a PAM
-    config restricts a *local* (tty/console) login for an ordinary SD
-    account. Checked Linux's own `CLAUDE.md` and `PROJECT_STATUS.md`: no
-    existing reasoning found — the only console-access discussion there
-    (S.38/S.39) is about SDSYS's own text-console route, a different
-    question (the administrator, not an ordinary account).
-  - **The question sent, unresolved here**: does an ordinary Linux SD
-    account currently get a normal shell at the machine's physical
-    console/tty, and if so, is that a deliberate OS-appropriate divergence
-    (a shared machine's physical console is a different threat model on
-    Linux) or a gap to close? Mailed to Linux 22 Sep 2026
-    (`to-linux/2026-09-22T1600-windows-console-login-question.md`).
+    a local Windows desktop session. This exists because `os.users` is a
+    *second* wall on Windows: `SH`/`OS.EXECUTE` can still be individually
+    denied inside SD even to an otherwise-fine account, and a console
+    session would walk around that wall entirely, reaching the full Windows
+    account unconditionally — `sdsshonly` is what stops that walk-around.
+  - **Linux's reply** (`done/2026-09-22T1615-linux-console-login-answer.md`,
+    `SDCore4Linux main 4ae3d79`, their **S.41**), **checked against their
+    source and their own `PROJECT_STATUS.md` row, not taken on the mail
+    alone**: the local-login door is genuinely open — no `-s` shell
+    override in `sd-elevate useradd`/`createa`, no `/etc/securetty`, no
+    `nologin.conf`, `pam_access.so` commented out, confirming exactly what
+    the Windows-side search had already found. **But there is no second
+    wall left to walk around**: their **S.27** (19 Sep 2026, witnessed)
+    already tore down the `os.users`-equivalent gate — `SH`/`OS.EXECUTE`
+    run *unconditionally* at the account's own Linux permissions from
+    inside `sd`, so an ssh session running `SH` and a local tty/GDM login
+    land at the exact same place: the account's own UID, its own groups,
+    its own files. Console access grants nothing beyond what `sd` already
+    hands out over ssh.
+  - **Aligned — not a gap.** The `sdsshonly`-shaped fix would solve a
+    problem Linux doesn't have, by its own earlier ruling (S.27) that OS
+    permissions are the only wall it keeps. Useful for gate 48's
+    security-posture section: the "why Windows needs `os.users` where Linux
+    uses native permissions" framing already planned there covers this case
+    too.
 
   **Audited 22 Sep 2026, second pass — message text: no collisions, two minor
   completeness gaps filed (not fixed here), read by hand with
