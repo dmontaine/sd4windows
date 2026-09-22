@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **106**, so **the next is 107** —
+`RELEASE_1.1`'s id space: the highest id issued is **108**, so **the next is 109** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -41,7 +41,9 @@ it lists as owed is also an entry under OPEN TASKS — if the two ever disagree,
 OPEN TASKS wins and this block is the stale one.
 
 ***22 Sep 2026 — 71, 69, 73, 76, 97, 105 and 106 all closed/fixed today; 106's mailbox round-trip
-closed — Linux checked, no gap on their side; 47's first pass still open (next-pass items below).***
+closed; 47's second pass done for ssh mechanism (aligned) and message text (no collisions, 107/108
+filed); console-login question sent to Linux, unanswered; verb-behaviour and doc-parity (48) still
+unaudited.***
 Detail: HISTORY.md, 22 Sep 2026 (search `RELEASE_1.1` plus the id) for 71–105; **106 and 47 are
 detailed directly in their OPEN TASKS entries below**, not archived — 106 because it's a live
 security-model change worth reading in full, 47 because it's still open. §5/§6 also trimmed
@@ -91,9 +93,9 @@ joined string). `bbcmp` compiles `set_acc_password`/`createa`, not `login`. `ISC
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**3 open (ids across 1 entry — the gates): 59, 69, 71, 73, 75, 76, 77, 84, 97, 100–105, 64, 95, 96
+**4 open (ids across 1 entry — the gates): 59, 69, 71, 73, 75, 76, 77, 84, 97, 100–105, 64, 95, 96
 and 99 all closed 22 Sep, 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below
-the gates).** Every call
+the gates); 107 and 108 filed 22 Sep from 47's message-text audit.** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -346,12 +348,27 @@ task above; 48 on 47; 49 on 48.**
     Linux) or a gap to close? Mailed to Linux 22 Sep 2026
     (`to-linux/2026-09-22T1600-windows-console-login-question.md`).
 
+  **Audited 22 Sep 2026, second pass — message text: no collisions, two minor
+  completeness gaps filed (not fixed here), read by hand with
+  `gplbld/scan-msgdiff.py`** (freshly pulled clone, `c88ab9e`). 102 ids shared
+  in the 10000-range; 16 differ on their first line, all read in full — every
+  one is either an identical platform-name substitution (`10024`, `10036`,
+  `10037`, `10038`, `10084`) or a genuinely different, correct mechanism
+  description for each OS (`10002` SDSYS entry, `10120` privilege refusal,
+  `10131`/`10133` API toggle, `10137`/`10139` ssh toggle, `10172` admin
+  route) — **no meaning collisions.** Two Linux records are missing a
+  reassurance/detail paragraph Windows's copy has (`10170`, `10919`) — filed
+  as **RELEASE_1.1 107 (M)** below, since it's their tree, not ours, to
+  amend. One Windows record is missing a changelog pointer Linux's copy has,
+  even though Windows ships the same file (`sdsys/changelog`) — filed as
+  **RELEASE_1.1 108 (M)** below. Neither blocks anything; neither is a
+  collision (no contradicting meaning on one number, just less detail on one
+  side).
+
   **Not yet audited — scoped for a next pass, not started tonight:**
   - Full verb-surface semantic comparison (the diff above found *presence*,
     not *behaviour* — a verb existing on both sides was not re-checked for
     matching result).
-  - Full message-*text* comparison beyond the shared-legacy-block number
-    check above (wording drift, not just numbering collisions).
   - Doc parity — gate 48 on each side; Linux's own S.22 explicitly waits for
     Windows's docs to be current first, so sequence 48 before returning here.
 
@@ -442,6 +459,30 @@ task above; 48 on 47; 49 on 48.**
   may not apply here — but the choice must be pinned and compared with Linux. No
   W1.1 staging directory or zip exists (only `SDCore-W1.0-0.zip` and the cycle's
   `sd-setup-W1.1-0.exe`).
+
+### 107 · M — Linux message 10170/10919 missing a sentence Windows's copy has
+
+Found in 47's message-text comparison, 22 Sep 2026. Not ours to fix — noted here so
+it isn't lost, and flagged to Linux by mail. `10170` (UPDATE.ACCOUNTS ALL help):
+Windows explains *why* ALL exists ("the form an upgrade runs, so a command this
+release adds can be typed in accounts that already existed"); Linux's copy omits
+that sentence. `10919` (account-directory-not-removed warning): Windows adds
+"Everything else about the deletion has been done. The usual reasons are a file
+still open in that directory and an access rule that denies the delete."; Linux's
+copy stops after the first sentence, dropping the reassurance and the reasons.
+Neither is a collision — same meaning, less detail on the Linux side.
+
+### 108 · M — Windows message 10149 doesn't mention the changelog it ships
+
+Found in 47's message-text comparison, 22 Sep 2026. Windows's F1 no-built-in-help
+message (`10149`, `sdsys/gpl.bp/cproc:2625`) points at the Start Menu's "Check the
+SD installation" diagnostic but says nothing about the changelog; Linux's copy of
+the same message (`cproc:2766`) passes `@sdsys:@ds:'changelog'` as `%1` and reads
+"What each release of SD changed, and why, is in %1". Windows ships the identical
+file at `sdsys/changelog` (confirmed on disk, 350 KB) but 10149 never names it.
+Low priority, cosmetic — add a changelog line to 10149 and pass the path the same
+way Linux does, in a session that's already touching `cproc` and can afford the
+cycle+witness this needs (CLAUDE.md: no message edit ships unwitnessed).
 
 ---
 
