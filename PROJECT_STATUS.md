@@ -266,7 +266,18 @@ the failure is inert rather than dangerous.
 powershell -ExecutionPolicy Bypass -File C:\Users\Don\SDCoreProject\sd4windows\sdb_ai\sd64\gplbld\verify-sdsyslocal.ps1
 ```
 
-**Elevated, in the Windows SDSYS session.** Also copied to `P:\command-sdsyslocal.txt`. **`make check-local` in `gplsrc/sdclilib` is the
+**Elevated, in the Windows SDSYS session.** Also in `P:\command-sdsyslocal2.txt`, with both options below.
+
+***AND ITS FIRST RUN REFUSED, WHICH IS THE GUARD WORKING AND IS WORTH RECORDING RATHER THAN JUST FIXING.***
+`assert-current` named **one** stale file — `gplsrc\sdclilib\Makefile`, edited to add this probe's own build
+target — and the new `.c` and the new `verify-*.ps1` were both correctly exempt (the harness count moved
+224 → 225). **A Makefile change genuinely can alter the shipped DLL and `assert-current` cannot know that this
+one only adds a target for a test binary**, so it refused, correctly. `-AcceptStaleTree` was added for exactly
+the case CLAUDE.md's override clause describes — name the warning, say why it does not apply — and it
+**bypasses `assert-current` ONLY**: the elevation and owner guards still refuse, which was run and confirmed.
+A run under it prints the caveat twice and its verdict reads ***"PASSED ON A STALE TREE"*** rather than
+"PASSED", so a transcript cannot be mistaken for a clean witness. **The clean witness still wants a cycle, and
+this entry is not closed by a stale-tree pass.** **`make check-local` in `gplsrc/sdclilib` is the
 nearest existing harness and its binary hardcodes the refusal**, so the admit side wants either a flag on
 that binary or a short probe; **neither is written.** *(The 21 Sep measurement that an API session's token is
 fully elevated was taken on the SOCKET path and says nothing about `CN_PIPE` — see 102.)*
