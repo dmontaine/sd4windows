@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **103**, so **the next is 104** —
+`RELEASE_1.1`'s id space: the highest id issued is **104**, so **the next is 105** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -82,7 +82,7 @@ list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's propos
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**14 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97 and 100
+**15 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100 and 104
 added since (101, 102 and 103 closed 22 Sep) (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
@@ -93,6 +93,40 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
+
+### 104 · S — `sdsys\voc` and `sdsys\gpl.bp` are writable by every SD user, and the installer's hardening list does not name them
+
+**Measured 22 Sep 2026, unelevated, on the 19:20:42 install.** `C:\ProgramData\SD\sdsys\voc` and
+`…\sdsys\gpl.bp` both carry **`ace\sdusers = Modify, Synchronize`**, inherited. So does `…\shm` (that is 59)
+and the `sdsys` and `SD` directories themselves. ***WHAT IS CORRECTLY LOCKED, AND IT IS MOST OF IT:***
+`gcat`, `newvoc`, `messages`, `accounts`, `cat` and `os.users` all read **no ordinary-user write**, `$cred`'s
+ACL is not even readable unelevated, and `C:\Program Files\SD` is clean. **The designed hardening works; these
+two are the gap.**
+
+***IT LOOKS LIKE AN OMISSION RATHER THAN A DECISION.*** `sd.iss:3444-3451` hands `secure-sysdirs.ps1` exactly
+**seven** paths — `accounts`, `$map`, `messages`, `newvoc`, `bp`, `cat`, `sd.conf` — and that script's own
+criterion is *"take Modify off the SDSYS system directories that nothing writes"*. `voc` and `gpl.bp` fit that
+criterion and are simply not on the list. **Both look safe to add**: SDSYS's own VOC is rewritten by
+`UPDATE.ACCOUNT` / `$LOGIN` mode 2 run **in SDSYS**, an administrator, and Administrators keep access through
+the same grant; recompiling `GPL.BP` is already documented as an elevated window (`secure-gcat.ps1`).
+***NOT VERIFIED — the `$ipc` precedent in `secure-sysdirs.ps1`'s header is exactly the trap*** ($ipc looks
+lockable and is written by every session), so each one needs `probe-syswrites.ps1`-style evidence before it is
+locked, and `verify-sysdiracl.ps1` is where a new row would go.
+
+**WHY IT MATTERS ON ONE TRANSPORT ONLY.** `net_path_permitted()` returns TRUE for every path unless the
+session is `CN_SOCKET` (`op_dio1.c:704`), and an ssh session is `CN_CONSOLE` — so from ssh, ordinary BASIC
+(`OSWRITE`, `OPENSEQ`) reaches any path NTFS allows. **On that transport the containment is the NTFS ACL, not
+SD.** An API session is contained and does not have this reach.
+
+***THE ADMINISTRATOR ALREADY HAS TWO ANSWERS, AND THE OWNER NAMED BOTH, 22 Sep 2026: "the admin can remove the
+ability to issue BASIC and RUN to any account, leaving them with only access to cataloged programs", and
+"they can also lock them into an application and remove the break key."*** Both are real and standard
+practice, and an account that never reaches TCL cannot reach any of this. ***THE OPEN QUESTION IS WHETHER
+REMOVING `BASIC`/`RUN` IS A BOUNDARY OR A SPEED BUMP, AND IT IS NOT ANSWERED HERE***: an account's own VOC is
+writable by that account (it must be), and `newvoc` is READABLE to it — so whether any remaining catalogued
+verb can copy a VOC record back, or write a file by path, decides it. **Read the verb set before relying on
+it.** That is a question about SD's shipped verbs, not about these ACLs, and the two fixes are independent:
+locking the two directories costs nothing and does not depend on how any site configures its accounts.
 
 ### 100 · M — `newvoc/%t` is a mis-cased escape: FIXED IN SOURCE 22 Sep 2026, witness owed
 
