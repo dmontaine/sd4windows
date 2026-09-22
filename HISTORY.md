@@ -50,6 +50,99 @@ corrected.
 
 ---
 
+## 22 Sep 2026 — RELEASE_1.1 69 closed on 10089's evidence; 10101 not pursued
+
+10089's corrected wording (*"you need only your Windows password... it still works here at the
+keyboard"*) was already shown live during 71's witness (SDSYS's own first login). Tried for 10101 (3
+mismatched passwords) with a throwaway account via the seat — blocked: every SD-created account joins
+`sdsshonly` and is denied console sign-in unconditionally, so `LOGTO` into one from SDSYS refuses
+("User not allowed in requested account") before any credential prompt is reached. Reaching 10101 for
+real needs a genuine Windows-admin identity doing its own first console login, not a throwaway — not
+built; low priority (S, wording already correct and installed).
+
+| `sdsys/messages/10089`, `10101`; `sdsys/gpl.bp/login:1353-1446`
+
+---
+
+`verify-delaccount.ps1` Step 7: pins a file inside the account's own data directory (not the profile),
+runs `DELETE.ACCOUNT`, message 10919 fires (*"Account directory ... was not removed; remove it by
+hand"*), directory survives, everything else (record, group, Windows account) still goes. `-Run b228`,
+exit 0. First check anchored on an exact path string and failed (`b227`) — SD prints it
+`C:/ProgramData/...` forward-slashed and upper-cased, not the backslash/lowercase string constructed;
+fixed to match the message's fixed wording only.
+
+---
+
+## 22 Sep 2026 — Correction: a dev door for SDSYS exists (`sd -internal`, the seat); `verify-routes.ps1` converted to it, 35/35
+
+First answer wrongly implied no dev-mode door to SDSYS exists. It does: `sd -internal` (`sdsys-seat.ps1`,
+RELEASE_1.1 76/82) — caller just needs to be elevated, SDSYS signed in somewhere, no account switch. What
+WAS rejected (20 Sep) was a global on/off flag; the seat is a scoped one-shot marker instead. Owner
+caught the bad answer.
+
+`verify-routes.ps1` was the one full-suite step (`b223`) that still required switching to a real SDSYS
+session — it predates the seat (18 Sep) and was never migrated. Converted (dot-sources
+`sdsys-seat.ps1`, `Invoke-SD` → `Invoke-SdSeatText`, preflight → `Assert-SdSeat`), re-witnessed `-Run
+b226`: 35/35. ~47 of 90 verify/probe scripts already use the seat; not individually audited beyond this
+one.
+
+| `gplbld/verify-routes.ps1`, `gplbld/sdsys-seat.ps1`; entries 76, 82
+
+---
+
+## 22 Sep 2026 — Full elevated suite (`b223`): two stale verifiers fixed, two "could not run", 73's "covered" claim was wrong
+
+`VerifyInstall2.ps1 -Run b223`, via the agent-elevate helper: 31 of 35 clean.
+
+**`verify-elevdoor.ps1` (2/5) and `verify-sdsysgate.ps1` (1/12) failed — both still asserted
+`RELEASE_1.1 45`'s withdrawn "elevation is the only door to SDSYS" model** (lands in SDSYS, `LOGTO`
+round-trips, reason `session did not start elevated`). `RELEASE_1.1 64` replaced all of that with an
+unconditional refusal, reason `SDSYS is not reachable by LOGTO` — not a product regression, the test
+was stale. Both fixed (elevdoor's elevated-half premise inverted; sdsysgate's expected string
+corrected) and re-witnessed `-Run b225`: elevdoor 6/6, sdsysgate 11/11.
+
+**`verify-routes.ps1` and `verify-print.ps1` could not run** (not findings): routes needed a real SDSYS
+Windows session (since converted — see the entry above); print couldn't set its throwaway default
+printer in the helper's non-interactive session (cleaned up correctly, untested interactively).
+
+**73's "covered by `verify-delaccount`" was wrong** — message 10919 appears nowhere in `b223`.
+`verify-delaccount` pins a *profile* (entry 36's rig); 73's subject is a file held open inside the
+account's *own directory*, a different mechanism. No verifier drove it (since built — see the entry
+above).
+
+| `gplbld/verify-elevdoor.ps1`, `verify-sdsysgate.ps1`; `sdsys/gpl.bp/cproc:2749-2787` (64); entries 45,
+64, 71, 73, 76, 97
+
+---
+
+## 22 Sep 2026 — RELEASE_1.1 71 closed: all four legs witnessed
+
+Commits `68612b9`, `7cc169f` built the fix; witnessed live, elevated `don` console + genuine SDSYS
+console. (1) `modify.password sdsys` from `don` → refused, 2001. (2) Own-password from `don` → still
+works. (3) `logto sdsys` from `don` → refused (`cproc:2749-2787`, RELEASE_1.1 64 withdrew LOGTO's door
+entirely, 18 Sep — confirmed correct, not a bug; the agent's first answer wrongly expected it to
+succeed, sourced from a stale memory file, corrected in `read-the-function-before-asserting` and
+`sdsys-access-differs-by-port`). (4) From a genuine SDSYS session: first login set SDSYS's own
+password (expected, had none), then `modify.password don` → succeeded. Side effect: SDSYS now has a
+`$cred`, so 69's witness needs a fresh no-`$cred` account instead.
+
+| `sdsys/gpl.bp/set_acc_password:147-148`; `cproc:2749-2787`; commits `68612b9`, `7cc169f`; entries 64, 69, 76
+
+---
+
+## 22 Sep 2026 — `verify-apiidentity` teardown left SDSYS-owned litter that blocked `cycle.ps1`'s Step 6
+
+`cycle.ps1` Step 6 refused to delete `C:\ProgramData\SD` (survived a reboot — not the stuck-hive class).
+Restart Manager found no lock; the real cause was ownership — 8 items under `verify-apiidentity`'s own
+`b222` fixture tree, owned by `ace\SDSYS`, because its `Reclaim-Ownership $base` (`:753`) runs once
+before Step 5, and Step 5 re-touches those files as the SDSYS seat, so teardown (`:1130`) misses them
+silently. Unblocked by hand (`takeown`/`icacls`); fixed by calling `Reclaim-Ownership` again immediately
+before teardown's delete. Witnessed clean on `b223`/`b226` (no WARNING, fixture tree gone).
+
+| `gplbld/verify-apiidentity.ps1:753,1130`; `cycle.ps1:714-729`; entries 84, 76, 97
+
+---
+
 ## ARCHIVE 21 Sep 2026 — CLAUDE.md's free-tier list and per-guard notes, in full
 
 Item 1 of CLAUDE.md's *"The full verify suite runs at milestones"* section, moved
