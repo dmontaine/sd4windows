@@ -346,6 +346,39 @@ task above; 48 on 47; 49 on 48.**
   `-ExecutionPolicy Bypass` fixes in `SDCoreWindowsDocs 76e1dce` reach the shipped
   PDFs (assembly is a hand step with no script). Linux starts its documentation
   from the finished Windows docs, so name the shape early.
+
+  ***THE SHAPE, SETTLED 22 Sep 2026: TWO SEPARATE DOC SETS, ONE FORKED FROM THE
+  OTHER — NOT ONE MERGED SET WITH INLINE PLATFORM DIFFERENCES.*** Grounded in
+  47's audit, not a general preference: the two systems are closely aligned in
+  *behaviour* (tiers, SDSYS-only-admin, message numbers, TLS/SCRAM all
+  converged) but diverge at the *mechanism* level (`os.users` vs native Unix
+  permissions, `GRANT` vs `usermod -aG`, PowerShell vs bash, install paths,
+  the installer itself) — exactly the procedural content that doesn't compress
+  into "on Windows do X, on Linux do Y" without cluttering every page for both
+  audiences, including the ~95% that's identical in outcome. **Already the
+  plan, not a new decision**: Linux's own `CLAUDE.md` (S.22) already says its
+  docs task *"starts from the updated Windows documentation and changes it
+  where Linux differs"* — a fork, not a merge — and Linux currently has **no
+  doc set of its own at all** (checked 22 Sep: no docs folder, nothing named
+  in its `CLAUDE.md`), so this is Windows finishing first and Linux forking
+  from it, not reconciling two existing things.
+
+  **The risk this creates, and the discipline that answers it: the two sets
+  silently drifting on the ~95% that's supposed to stay identical** — the same
+  shape as the message-number collisions the mailbox governance rule already
+  exists to prevent, applied to prose instead of code. **Conceptual content**
+  (what SDSYS is, why the security model works the way it does, the "secure
+  the transport, admin's choice after that" framing, §5.29) gets **written
+  once and ported**, not independently re-derived on each side, the same
+  discipline already used for code decisions crossing the mailbox.
+  **Procedural content** (install steps, exact paths, commands) stays
+  genuinely separate, because it has to. **One place a genuine platform
+  difference belongs INSIDE each set rather than on a shared page**: the
+  security-posture section above should explain, for a Windows reader with
+  Unix instincts, *why* Windows needs a separate `os.users` allow-list where
+  Linux just uses file permissions — the honest answer is Windows has no
+  native per-account OS sandboxing, and that belongs in Windows's own docs,
+  not a cross-reference.
 - **49 — the W1.1 staging directories and zips**, one Windows and one Linux.
   **Settle first, and before 48 documents an install procedure:** is a release
   zip a source snapshot (the installer would have to clone a *tag*) or an artefact
