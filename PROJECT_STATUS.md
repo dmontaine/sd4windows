@@ -130,6 +130,20 @@ above** — a remote user with admin rights, which is exactly what the ruling fo
 so nothing is exposed today; **the hole is that an administrator can open it by hand without being told what
 it costs.**
 
+***AND THERE IS AN EXISTING COMMAND RESTRICTION, WHICH THE OWNER RAISED, 22 Sep 2026 — IT IS REAL, IT
+NARROWS THIS, AND IT DOES NOT COVER THE PATH THAT MATTERS HERE.*** `valid_shell_cmd`
+(`sdsys/gpl.bp/valid_shell_cmd`) refuses an empty command, CR, LF, and any of **`; | & $ \` < >`** — so an
+account **not** listed in `os.users` field 1 gets a shell that runs one plain command and cannot pipe,
+redirect, chain or substitute. Being on the list buys the full shell (owner's ruling, 17 Aug 2026).
+***BUT IT HAS EXACTLY ONE CALLER: `cproc:3784`, THE `SH` VERB.*** `op_sh.c:167-171` states why it can have no
+other — *"OS.EXECUTE is its own BASIC statement … so neither `kernel(K$ADMINISTRATOR,-1)` nor
+`!valid_shell_cmd` is anywhere near it"* — and `os.users` field **2**, the one that would be granted to an API
+account, is the `OS.EXECUTE` field, not the `SH` field. **So a BASIC program's `OS.EXECUTE` is not
+metacharacter-checked at all**, and the narrowing applies to the interactive verb rather than to the route
+this entry is about. *(Measured obliquely on 21 Sep: the probe's `SH whoami` ran through an API session and
+returned `ace\sdsys` — a plain command, so it passed the check that was in force.)* **It also limits
+composition rather than power: one plain command still covers `net user … /add`.**
+
 **Owed, in this order.** (1) ***Amend §5.25 and §5.28 row 3 to state the ruling and the token*** — they
 currently describe neither, and the documentation pass (61) should carry it to the shipped docs. (2) **Gate
 the OS reach on the transport**: refuse `OS.EXECUTE`/`SH`/Python on a `CN_SOCKET` session regardless of
