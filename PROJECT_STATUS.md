@@ -58,9 +58,9 @@ before running anything. `-Run` tokens `b206`–`b214` are spent.
 ***22 Sep 2026 — 101 WAS BUILT, WITNESSED AND THEN WITHDRAWN BY THE OWNER IN ONE SESSION; THE TREE IS BACK TO
 THE CONSOLE-ONLY SDSYS MODEL.*** What survives is one message (12001) and two findings the revert does not
 undo, now **102** (an API session's token is fully elevated, and §5.25/§5.28 do not say so) and **103**
-(LOGIN demands an SD password for SDSYS, which the owner says is not needed). ***THE INSTALL IS STALE AGAINST
-SOURCE — `assert-current` exits 1, and `ace\SDSYS` IS STILL IN `sdapi` FROM THE WITHDRAWN BUILD.*** The next
-cycle removes both; until it runs, this machine still has the elevated API route open.
+(LOGIN demands an SD password for SDSYS, which the owner says is not needed). ***CYCLED 21 Sep 2026 ~18:55 AND THE TREE IS CURRENT***: `assert-current` exit 0, `ace\SDSYS` in neither route
+group, the withdrawn messages gone, and `verify-localconnect` green. **Owed: `verify-routes` Step 5 from the
+Windows SDSYS session, and the local route's ADMIT side, which no harness covers.**
 
 ***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
 whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
@@ -178,6 +178,20 @@ somebody typing `MODIFY.ACCOUNT SDSYS SSH` that they had the NAME wrong — the 
 child *"tests interactive when the parent did"*) **and has not been run.** If it answers false, SDSYS is
 refused and the route does nothing — it opens nothing either way.
 
+***THE CONTROL IS WITNESSED ON THE CYCLED TREE, 21 Sep 2026 18:58.*** `assert-current` **exit 0** (2,631 files;
+the two deleted messages are gone from the install and 12001 carries the new text), `ace\SDSYS` is in **neither**
+route group, and `VerifyInstall1 -Yes -Only verify-localconnect` **exit 0**: *"DON admitted, SDSYS refused"*,
+`WHO -> 3 DON`, SDSYS refused with *"User not allowed in requested account"*. **The BASIC compiled** — the
+cycle's BCOMP is the first real compile `apisrvr` got, `bbcmp` being unable to reach pass 2 on it.
+
+***AND THE REFUSAL CAME THROUGH THE NEW BRANCH, WHICH IS PROVABLE WITHOUT THE AUDIT FILE.*** `vb.account` now
+handles `new.account = 'SDSYS'` in its own arm and the `is_grp_member` else-arm cannot run for that name, so
+there is no other path left that can refuse it; `acc.told` is set to 0 there, so the refusal is the existing
+`if not(acc.member)` below it, whose message is 10003 — the exact text the binary printed. **The audit line
+(`branch=4 sdsys.not.local.elevated`) was NOT read: `sdsys/audit` is ACL'd to SYSTEM and Administrators and
+this run was unelevated.** Reading it would confirm the same fact a second way and is worth doing on the next
+elevated pass.
+
 ***AND THE EXISTING CONTROL SURVIVES, WHICH WAS THE RISK WORTH CHECKING.*** `verify-localconnect.ps1` exists
 to prove *"<account> admitted, SDSYS refused"*, with exit 2 for *"SDSYS was ADMITTED"*. It runs **unelevated
 as an ordinary user**, so the process-owner term is false and SDSYS is still refused: **the assertion is
@@ -212,9 +226,9 @@ recreates them empty), which is also why no `MODIFY.ACCOUNT SDSYS NONE` was ever
 cycle that `ace\SDSYS` is in neither group** — `Get-LocalGroupMember -Group sdapi` — because the revert
 above only stops it happening again.
 
-**Owed:** a cycle; then `verify-routes` (Step 5) and `verify-localconnect` (the control, unelevated); then the
+**Owed:** `verify-routes` Step 5 (elevated, and the rig refuses any session but Windows SDSYS's); then the
 **admit side by hand** — signed in as Windows SDSYS, elevated, a client calling `SDConnectLocal("SDSYS")`,
-with `WHO` and an administrator-only verb inside it. **`make check-local` in `gplsrc/sdclilib` is the
+with `WHO` and an administrator-only verb inside it. *(The cycle and `verify-localconnect` are done — above.)* **`make check-local` in `gplsrc/sdclilib` is the
 nearest existing harness and its binary hardcodes the refusal**, so the admit side wants either a flag on
 that binary or a short probe; **neither is written.** *(The 21 Sep measurement that an API session's token is
 fully elevated was taken on the SOCKET path and says nothing about `CN_PIPE` — see 102.)*
