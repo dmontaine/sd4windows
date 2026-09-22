@@ -94,7 +94,17 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
 
-### 104 · S — `sdsys\voc` and `sdsys\gpl.bp` are writable by every SD user, and the installer's hardening list does not name them
+### 104 · M — `sdsys\voc` and `sdsys\gpl.bp` keep `sdusers:Modify` while their six siblings are locked
+
+***SCOPED BY §5.29 (owner, 22 Sep 2026) AND KEPT ON ONE GROUND ONLY: THIS IS A DEFAULT WE SHIP, NOT A CHOICE
+AN ADMINISTRATOR MADE.*** His ruling is *"only make the transport tunnel secure … what the admin decides after
+the user arrives is his responsibility"*, and that correctly disposes of the larger claim this entry was first
+written around — *"an account at TCL with `BASIC`/`RUN` can write any path NTFS allows over ssh"* — which is
+true, is the administrator's to prevent (remove `BASIC` and `RUN`; lock the account into an application with
+no break key), and **is not a defect.** ***WHAT IS LEFT IS NARROW: the installer locks six `sdsys`
+directories and silently leaves two, on a criterion that fits all eight.*** Dropped from S to M accordingly.
+It is a consistency fix in our own delivered default, and nothing in it asks the product to defend a site
+against its own administrator.
 
 **Measured 22 Sep 2026, unelevated, on the 19:20:42 install.** `C:\ProgramData\SD\sdsys\voc` and
 `…\sdsys\gpl.bp` both carry **`ace\sdusers = Modify, Synchronize`**, inherited. So does `…\shm` (that is 59)
@@ -118,15 +128,13 @@ session is `CN_SOCKET` (`op_dio1.c:704`), and an ssh session is `CN_CONSOLE` —
 (`OSWRITE`, `OPENSEQ`) reaches any path NTFS allows. **On that transport the containment is the NTFS ACL, not
 SD.** An API session is contained and does not have this reach.
 
-***THE ADMINISTRATOR ALREADY HAS TWO ANSWERS, AND THE OWNER NAMED BOTH, 22 Sep 2026: "the admin can remove the
-ability to issue BASIC and RUN to any account, leaving them with only access to cataloged programs", and
-"they can also lock them into an application and remove the break key."*** Both are real and standard
-practice, and an account that never reaches TCL cannot reach any of this. ***THE OPEN QUESTION IS WHETHER
-REMOVING `BASIC`/`RUN` IS A BOUNDARY OR A SPEED BUMP, AND IT IS NOT ANSWERED HERE***: an account's own VOC is
-writable by that account (it must be), and `newvoc` is READABLE to it — so whether any remaining catalogued
-verb can copy a VOC record back, or write a file by path, decides it. **Read the verb set before relying on
-it.** That is a question about SD's shipped verbs, not about these ACLs, and the two fixes are independent:
-locking the two directories costs nothing and does not depend on how any site configures its accounts.
+***THE TCL QUESTION IS CLOSED BY §5.29 AND IS RECORDED HERE ONLY SO IT IS NOT RE-OPENED.*** The owner's two
+answers — *"the admin can remove the ability to issue BASIC and RUN to any account, leaving them with only
+access to cataloged programs"*, and *"they can also lock them into an application and remove the break key"* —
+are the site's to apply, and whether removing `BASIC`/`RUN` is a hard boundary or a speed bump (an account's
+own VOC is writable by it, and `newvoc` is readable to it) is **the administrator's problem, not the
+product's.** ***DO NOT RE-FILE IT.*** **The fix here is independent of all of that**: locking the two
+directories costs nothing and does not depend on how any site configures its accounts.
 
 ### 100 · M — `newvoc/%t` is a mis-cased escape: FIXED IN SOURCE 22 Sep 2026, witness owed
 
@@ -729,6 +737,36 @@ guard: `test-agentelevate-units.ps1`.
 ## 5. Decisions and why
 
 Do not undo these without reading the reasoning.
+
+### 5.29 SECURE THE TRANSPORT; WHAT THE ADMINISTRATOR DOES AFTER THAT IS THEIRS (owner, 22 Sep 2026)
+
+***HIS WORDS, VERBATIM, BECAUSE THIS GOVERNS HOW EVERY LATER FINDING IS TRIAGED:*** *"Pick systems have
+always had the attitude that security was possible, but it was up to the admin to enforce it. I have no
+problem retaining that philosophy as this is a Pick-like system. If it were something else, I would care
+more. My desire is to only make the transport tunnel secure. What the admin decides after the user arrives
+is his responsibility. By default we turn a lot of things off, leaving the default system locked out of the
+OS. If the admin changes that, then that is their concern."*
+
+**WHAT IS IN SCOPE, THEREFORE.** The tunnel: TLS and SCRAM (41, 42), the `sdapi`/`sdssh` grants, sshd's
+`AllowGroups`, `ForceCommand` and `DisableForwarding`, the API's containment gate, `$cred`'s ACL, and the
+shipped DEFAULTS being closed — `os.users` empty, `APIPORT` off until asked, `sdsshonly` denying the console.
+**What is out of scope:** hardening a site against its own administrator's later choices. An administrator
+who grants `os-on`, `sdapi` or `sdssh` has decided, and 5.28 row 5 already said the model defends the product
+**as delivered**; this states the same thing as a positive principle rather than an exception.
+
+**AND IT SETTLES A CLASS OF ARGUMENT RATHER THAN ONE CASE.** *"An account at TCL with `BASIC` and `RUN` can
+write any path NTFS allows on an ssh session"* is TRUE and is **not a defect** under this ruling: the
+administrator can remove `BASIC` and `RUN` and leave catalogued programs only, or lock the account into an
+application with the break key removed (his own two answers, same day). ***SO DO NOT FILE, OR RE-FILE, A
+FINDING WHOSE WHOLE CONTENT IS "A USER LEFT AT TCL CAN DO X".*** Say what the default is and move on.
+
+***THE ONE DISTINCTION THAT SURVIVES, AND IT IS THE LINE TO TRIAGE ON: A DEFAULT WE SHIP IS OURS; A GRANT AN
+ADMINISTRATOR MAKES IS THEIRS.*** Two things therefore remain open on merit and are not answered by this
+ruling: **59**, where an ordinary account reaches a segment a LocalSystem process reads — an
+unprivileged-to-SYSTEM path that needs **no grant from anybody**, which is why it stays B; and **104**, where
+two `sdsys` directories keep `sdusers:Modify` while their six siblings are locked by the installer — an
+inconsistency in **our own default**, not a delegation. Both are about what we deliver, which this ruling puts
+squarely in scope.
 
 ### 5.28 The security model after RELEASE_1.1 64, evaluated (21 Sep 2026)
 
