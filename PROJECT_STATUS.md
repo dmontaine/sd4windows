@@ -401,14 +401,18 @@ In `SDCoreWindowsDocs` (a separate repository, `de44f8e`, matching its remote):
 and `OS.EXECUTE` access automatically"* is half false. **This is a pointer, not a
 fix here.** Folded into 48's documentation task in practice.
 
-**Added 22 Sep 2026 from RELEASE_1.1 102, which closed into this one.** §5.25 (*"administration requires an
-interactive desktop"*) and §5.28 row 3 do not describe what an API session's Windows token actually is: for an
-account that holds administrator rights it comes back **High integrity with `BUILTIN\Administrators` enabled**
-(measured on SDSYS, 21 Sep 2026). **SD asks for no elevation** — `win32s4u.c:294` is `LsaLogonUser` with logon
-type `Network` and nothing requests `TokenLinkedToken` — so that is what LSA returns, and **for a standard
-account, which is every account `CREATE.ACCOUNT` makes, there is no admin half to return.** The documentation
-should say what is true rather than what was assumed, in this repository's §5.25/§5.28 and in the shipped
-pages this entry already lists.
+**Added 22 Sep 2026 from RELEASE_1.1 102, which closed into this one — and THIS REPOSITORY'S HALF IS NOW
+DONE.** §5.25 carries a correction box at its head (its `PEER_LOCAL` mechanism was deleted by 64 and the
+section described a gate that no longer exists; the rule itself is now satisfied by construction, since SDSYS
+is the only administrator and has no remote route), and §5.28's table gained the API session's token
+(unfiltered, so `High` + `Administrators` only if the account already holds them; a standard account gets a
+standard token, and SD requests no elevation — `win32s4u.c:294`) **plus a new row for an ssh session**, which
+had none and is the transport where `net_path_permitted()` does not confine anything.
+
+***WHAT IS STILL OWED HERE IS THE SHIPPED DOCUMENTATION, IN THE OTHER REPOSITORY***, at the six `file:line`
+references above, plus the same two facts: that only SDSYS administers, and that an ssh session's reach is
+bounded by NTFS rather than by SD. **`SDCoreWindowsDocs` is clean at `de44f8e`, matching its remote** (checked
+22 Sep), so nothing is half-edited there.
 
 ### 59 · B — SD's own system segment is writable by every SD user, and a LocalSystem process reads it
 
@@ -791,7 +795,8 @@ runtime claim is marked as reasoned.
 | any other Windows administrator | an ordinary SD account like everybody else; refused SDSYS | LOGIN |
 | every ordinary SD account, USER and GROUP | the whole of `newvoc` (the former PROGRAMMER level; no tiers); ssh and the API **by default** — silence means both (`createa:611-615`) | `createa`; the `sdssh` and `sdapi` Windows groups |
 | OS.EXECUTE, `SH` and Python, for that account | **default deny**: `os_user_permitted` (`op_sh.c`) allows only an internal program, the administrator flag, or `os.users\<login>` field 2 = `yes`; `os.users` ships empty and `CREATE.ACCOUNT` no longer writes a record | `op_sh.c`; the Python gate calls the same function (RELEASE_1.1 23) |
-| an API session | TLS + SCRAM; runs **as** the authenticated user (55); confined to its account root, nine read-only SDSYS entries and `NETDIRS` | `apisrvr`; the containment gate in `op_dio2.c` |
+| an API session | TLS + SCRAM; runs **as** the authenticated user (55); confined to its account root, nine read-only SDSYS entries and `NETDIRS`; **never holds the SD administrator flag** (`kernel.c` withholds it from `CN_SOCKET`), and its Windows token is whatever LSA returns for that account — **unfiltered, so `High` + `Administrators` enabled IF the account is an administrator, and an ordinary standard-user token otherwise** (measured 21 Sep 2026; SD requests no elevation, `win32s4u.c:294`) | `apisrvr`; the containment gate in `op_dio2.c`; `kernel.c:296` |
+| an **ssh** session | **NOT path-confined**: `net_path_permitted()` returns TRUE for every path unless the session is `CN_SOCKET`, and ssh is `CN_CONSOLE` (`op_dio1.c:704`), so ordinary BASIC file I/O reaches anything the account's NTFS rights allow — **the containment on this transport is the ACL, not SD** (RELEASE_1.1 59, 104) | sshd's `AllowGroups`/`ForceCommand`/`DisableForwarding`; NTFS |
 | the data tree | `$cred` readable only by SYSTEM and Administrators; the rest per the `secure-*.ps1` scripts | Windows ACLs |
 
 **Findings, worst first:**
@@ -3072,6 +3077,40 @@ owner for PRE_RELEASE_FIXES on 10 Sep 2026):
   connects to 4243. Read from the code, not run.
 
 ### 5.25 Administration requires an interactive desktop (owner, 5 Sep 2026)
+
+> ***READ THIS BOX BEFORE THE SECTION. THE RULE HOLDS; THE MECHANISM THIS
+> SECTION DESCRIBES WAS DELETED, AND MOST OF WHAT FOLLOWS IS THE HISTORY OF A
+> GATE THAT NO LONGER EXISTS.*** Corrected 22 Sep 2026, from RELEASE_1.1 102's
+> measurement and 61.
+>
+> **What is gone.** `PEER_LOCAL` / `!peer_local`, the `system(42)` API half, the
+> `vb.scram.final` administrator gate and `sd_admin_tier` were all removed by
+> **RELEASE_1.1 64** (`login:527-534` and `apisrvr:1712-1717` say so at the
+> sites). `sdsys/gpl.bp/PEER_LOCAL` is not in the tree; it is recoverable from
+> `87600d6` and its C half (`win32peer.c/.h`) survives, unused by SD.
+>
+> **What enforces the rule now, and it is stronger than a peer test.** There is
+> only ONE SD administrator — SDSYS (64) — and **SDSYS has no remote route at
+> all**: no ssh (`sdssh` never holds it; `MODIFY.ACCOUNT SDSYS SSH` answers
+> 12001), and no socket API (`vb.account` admits it only over `SDConnectLocal`,
+> which opens no socket — RELEASE_1.1 101). Every other account is an ordinary
+> account with no administrator flag to obtain. And `kernel.c:296` still seeds
+> `USR_ADMIN` only when `IsElevated()` **and** `connection_type # CN_SOCKET`
+> **and** `IsInteractive()` — so the desktop requirement is enforced at the flag,
+> per session, rather than by proving a peer address. **Nothing needs rebuilding:
+> the rule is satisfied by construction.**
+>
+> ***AND THE TOKEN PARAGRAPH BELOW IS TRUE BUT NO LONGER THE POINT.*** It is
+> right that sshd and `sdwind` build logon tokens as LocalSystem so
+> `LocalAccountTokenFilterPolicy` never applies, and that an administrator's
+> token therefore comes back **unfiltered** — measured again on 21 Sep 2026
+> inside an API session: `High Mandatory Level`, `BUILTIN\Administrators`
+> enabled. **But SD asks for no elevation anywhere** (`win32s4u.c:294` is
+> `LsaLogonUser` with logon type `Network`; nothing requests `TokenLinkedToken`),
+> and **for a standard account — every account `CREATE.ACCOUNT` makes — there is
+> no administrator half to return.** So the unfiltered token is reachable only by
+> an account that already holds administrator rights, which is the installer's
+> attached account and SDSYS. See §5.29 for whose problem that is.
 
 ***THE RULE.*** Administrative work happens **at the console, or through a
 remote-control product or single-user remote desktop**. **Not from another
