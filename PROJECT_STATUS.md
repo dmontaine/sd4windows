@@ -53,8 +53,10 @@ here — read those, not this block, for specifics. Full narrative: HISTORY.md, 
    both need a human at the keyboard (nested UAC prompts). See 106's entry.
 2. **47's live witness run** (not source-reading) is the one item its own entry still lists as
    unaudited — Linux's §12 precedent is the method if it's wanted; needs Linux's own half too.
-3. **48's PDF/book rebuild** (absorbed old 18, `tools\release.ps1`) is the only sizeable piece of
-   gate 48 left — everything else in it is done.
+3. **48's PDF/book rebuild is DONE, 22 Sep 2026** — all three sets rebuilt with `tools\release.ps1`
+   (unelevated, no owner flags added), 0 broken links each. What's left of old 18 is the copy step
+   (bound PDFs from `<Set>\book\` into the release's `documentation\`), and that needs 49's staging
+   directory decided first — see 48's entry.
 4. **Absorb 61's two remaining facts** (only SDSYS administers; an ssh session's reach is bounded
    by NTFS, not by SD) as one standalone sentence each in the docs — currently said only in
    context across the rewritten pages.
@@ -559,11 +561,21 @@ task above; 48 on 47; 49 on 48.**
 
   ***Still open***: absorbing 61's two facts (**only SDSYS administers**; **an
   ssh session's reach is bounded by NTFS, not by SD**) as one standalone
-  sentence each, rather than said only in context; `08-ssh-access.md` (13,693
-  chars) and `13-hardening.md` (14,042) sit at or just over the ~14,000 split
-  guideline, worth a look before either grows further; and the PDF/book
-  rebuild (absorbed old 18, `tools\release.ps1`) — the only sizeable piece of
-  gate 48 left.
+  sentence each, rather than said only in context; and `08-ssh-access.md`
+  (13,693 chars) and `13-hardening.md` (14,042) sit at or just over the
+  ~14,000 split guideline, worth a look before either grows further.
+
+  ***THE THREE SETS WERE REBUILT, 22 Sep 2026***, `tools\release.ps1` for
+  `GettingStarted`, `Administrator`, `User`, run unelevated with no flags
+  beyond `-Set` (`python` on PATH is 3.14.7 with `markdown` 3.10.3 already
+  user-installed, so the 12 Sep PATH trap did not recur; Edge found at the
+  x86 path). All four roster checks (`docmap`, `tclmap`, `confmap`,
+  `verbcounts`) passed against the freshly-pulled `sd4windows` tree for every
+  set. `checklinks.py`: GettingStarted 108/0 broken, Administrator 25/0,
+  User 243/0. Bound-book PDFs and per-set zips written (`GettingStarted`
+  4,040,695 B sha256 `BA26DD73…`; `Administrator` 3,367,649 B sha256
+  `7653234745…`; `User` 16,182,909 B sha256 `58D34EC9…`) — all under
+  `SDCoreWindowsDocs\`, gitignored, nothing to commit there.
 
   ***Both the security-posture section and the 106 addition are DONE, 22 Sep
   2026*** — the posture section is in `12-security.md` ("What ships secured,
@@ -572,11 +584,13 @@ task above; 48 on 47; 49 on 48.**
   signing in to Windows as SDSYS and running `sd` elevated) is in
   `05-account-types.md`'s "SDSYS is the only administrator" section, written
   this session. Neither needs re-writing. **Absorbs old 18, still open:**
-  rebuild the sets with `tools\release.ps1` and copy the corrected bound PDFs from
-  `<Set>\book\` into the release's `documentation\` before zipping, so the 29
-  `-ExecutionPolicy Bypass` fixes in `SDCoreWindowsDocs 76e1dce` reach the shipped
-  PDFs (assembly is a hand step with no script). Linux starts its documentation
-  from the finished Windows docs, so name the shape early.
+  the sets are rebuilt (above) — what's left is copying the corrected bound
+  PDFs from `<Set>\book\` into the release's `documentation\` before zipping,
+  so the 29 `-ExecutionPolicy Bypass` fixes in `SDCoreWindowsDocs 76e1dce`
+  reach the shipped PDFs (assembly is a hand step with no script). **Blocked
+  on 49**: there is no W1.1 staging `documentation\` directory to copy into
+  yet — settle 49's zip-vs-snapshot question first. Linux starts its
+  documentation from the finished Windows docs, so name the shape early.
 
   ***THE SHAPE, SETTLED 22 Sep 2026: TWO SEPARATE DOC SETS, ONE FORKED FROM THE
   OTHER — NOT ONE MERGED SET WITH INLINE PLATFORM DIFFERENCES.*** Grounded in
