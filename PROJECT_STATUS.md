@@ -140,19 +140,51 @@ restricted or filtered token for a socket session would need `sdwind`'s handover
 At minimum §5.25 and §5.28 must be amended to describe what is actually true, and the documentation pass
 (61) should carry it. **Nothing here is a regression** — it is the model, newly measured.
 
-### 101 · M — SDSYS keeps its console-only model; `MODIFY.ACCOUNT` now says why it refuses it
+### 101 · S — SDSYS is reached at the console and over `SDConnectLocal`, and nowhere else
 
-***RULED AND REVERTED, 22 Sep 2026, IN ONE SESSION. THE CODE THAT SHIPPED FROM THIS ENTRY IS ONE MESSAGE.***
-The owner first asked for *"the SDSYS account like every other with the capacity to use api and ssh… off by
-default… opened up using the modify.account verb"*; it was built, witnessed, and then withdrawn by him the
-same evening: ***"turns out the original design was correct - no remote access for sdsys and no need for a sd
-sdsys password"***, and ***"the modify.account verb should not accept api or ssh commands for the sdsys
-account — remote access is always off."*** **What remains built:** `modifya` refuses SDSYS exactly where and
-when it always did, with new message **12001** (`sdsys/messages/12001`) — *"Remote access is never available
-to SDSYS; it is administered at this computer"* — in place of **2202** *"Account name is invalid"*, which told
-somebody typing `MODIFY.ACCOUNT SDSYS SSH` that they had the NAME wrong, the one part they had right.
-`verify-routes` Step 5 asserts 12001 and adds an `SSH` row beside the `BOTH` one. `apisrvr`,
-`install-sdsys.ps1`, `sync-route-groups.ps1` and the rest of `verify-routes` are byte-restored to `305bca0`.
+***THE DESIGN, SETTLED 22 SEP 2026 AFTER ONE FULL ROUND TRIP.*** The owner first asked for *"the SDSYS
+account like every other with the capacity to use api and ssh… off by default… opened up using the
+modify.account verb"*; that was built and witnessed, then withdrawn the same evening — ***"turns out the
+original design was correct - no remote access for sdsys and no need for a sd sdsys password"*** — and then
+corrected once more: ***"it will have local api too"***, with the mechanism his own: ***"local access through
+the api using the connectlocal() option"***. **The landing place is: SDSYS is reached at the console, and over
+`SDConnectLocal`, and by nothing else. No ssh. No socket API. No SD password.**
+
+**WHY THAT COSTS NO GATE AND NO GRANT, which is the point of choosing `SDConnectLocal` over a peer test.**
+`SDConnectLocal` opens **no socket at all** (`sdclilib.c:1451`): two anonymous pipes and `sd.exe` spawned as a
+**child of the caller**, selecting `CN_PIPE` (`sd.c:469`). So there is no address to spoof, nothing reachable
+from another machine, and **nothing an `ssh -L` tunnel can carry** — which is exactly the hole `PEER_LOCAL`
+documented and could not close, a tunnelled socket arriving from 127.0.0.1 and reading as local. Request 25
+(`vb.local.login`) sends **no credentials**: identity is the process owner, so being signed in as Windows
+SDSYS *is* the proof, as it is at the console. And the `sdapi` group is tested only in `vb.scram.final`, on
+the SCRAM path, so **no grant exists for this route to need** — which is what makes `MODIFY.ACCOUNT`'s
+refusal of SDSYS consistent rather than contradictory.
+
+**BUILT 22 Sep 2026, UNRUN.** `apisrvr`: `local.session` is recorded in `vb.local.login` and initialised
+`@false` beside `logname`, so every other transport leaves it false; `vb.account` admits SDSYS on
+**`local.session` AND process owner `SDSYS` AND `kernel(K$ADMINISTRATOR,-1)`** — the last mirroring LOGIN's
+landing case, without which an *unelevated* SDSYS process would reach the system tree through a door the
+console keeps shut. A refusal writes `branch=4 sdsys.not.local.elevated` to the audit trail. `modifya`
+refuses SDSYS exactly where it always did, now with message **12001** *"Remote access is never available to
+SDSYS; it is administered at this computer"* in place of **2202** *"Account name is invalid"*, which told
+somebody typing `MODIFY.ACCOUNT SDSYS SSH` that they had the NAME wrong — the one part they had right.
+`verify-routes` Step 5 asserts 12001 and sends `SSH` as well as `BOTH`. **`install-sdsys.ps1` and
+`sync-route-groups.ps1` are byte-restored to `305bca0`** and SDSYS joins neither route group.
+
+***THE ONE THING THAT COULD MAKE IT SIMPLY NOT WORK, AND IT IS NOT MEASURED.*** `K$ADMINISTRATOR` reads
+`USR_ADMIN`, which `kernel.c` seeds from `IsElevated()` **and** `connection_type # CN_SOCKET` **and**
+`IsInteractive()`. A ConnectLocal child is `CN_PIPE` and inherits its parent's token, so the first two hold;
+**whether `IsInteractive()` answers true for it is reasoned from the phantom case** (`kernel.c`: a forked
+child *"tests interactive when the parent did"*) **and has not been run.** If it answers false, SDSYS is
+refused and the route does nothing — it opens nothing either way.
+
+***AND THE EXISTING CONTROL SURVIVES, WHICH WAS THE RISK WORTH CHECKING.*** `verify-localconnect.ps1` exists
+to prove *"<account> admitted, SDSYS refused"*, with exit 2 for *"SDSYS was ADMITTED"*. It runs **unelevated
+as an ordinary user**, so the process-owner term is false and SDSYS is still refused: **the assertion is
+unchanged and still proves the grant check ran.** Only its stated reason went stale, and both copies of that
+reason — the verifier's header and `local_connect_test.c`'s — are corrected in the same commit. **What no
+test covers is the ADMIT side**, which needs an elevated session owned by SDSYS, and that script refuses an
+elevated run by design.
 
 ***WHAT THE BUILT-THEN-REVERTED VERSION MEASURED, WHICH IS THE PART WORTH KEEPING.*** Two runs on the owner's
 17:25 cycle of 21 Sep 2026, one elevated as Windows SDSYS and one through `scram-probe.py` over TLS 1.3 to
@@ -180,11 +212,20 @@ recreates them empty), which is also why no `MODIFY.ACCOUNT SDSYS NONE` was ever
 cycle that `ace\SDSYS` is in neither group** — `Get-LocalGroupMember -Group sdapi` — because the revert
 above only stops it happening again.
 
-**Owed, and it is small:** a cycle, then `verify-routes` (Step 5 asserts 12001 and now sends `SSH` as well as
-`BOTH`). **Free tier 54/54 after the revert; `modifya` compiles under `bbcmp`.** ***`test-sysmsg-units`
-PASSES ONLY BY ACCIDENT UNTIL THAT CYCLE***: it reads the INSTALLED messages, and the install still carries
-12001 with the withdrawn text *"SDSYS accepts only API or NONE"*, plus 12002 and 12003 which source no longer
-has. **The two findings this entry produced are 102 and 103 and do not close with it.**
+**Owed:** a cycle; then `verify-routes` (Step 5) and `verify-localconnect` (the control, unelevated); then the
+**admit side by hand** — signed in as Windows SDSYS, elevated, a client calling `SDConnectLocal("SDSYS")`,
+with `WHO` and an administrator-only verb inside it. **`make check-local` in `gplsrc/sdclilib` is the
+nearest existing harness and its binary hardcodes the refusal**, so the admit side wants either a flag on
+that binary or a short probe; **neither is written.** *(The 21 Sep measurement that an API session's token is
+fully elevated was taken on the SOCKET path and says nothing about `CN_PIPE` — see 102.)*
+
+**Checks so far:** free tier **54/54**; `modifya` compiles under `bbcmp`; `apisrvr` reaches the same bbcmp
+pass-2 limit as HEAD, displaced by exactly the 14 lines added above it (342 → 356), which is the control
+saying the edit parses rather than that it is correct. ***`test-sysmsg-units` PASSES ONLY BY ACCIDENT UNTIL
+THE CYCLE***: it reads the INSTALLED messages, and the install still carries 12001 with the withdrawn text
+*"SDSYS accepts only API or NONE"*, plus 12002 and 12003 which source no longer has.
+
+**The two findings this entry produced are 102 and 103 and do not close with it.**
 
 ### 100 · M — `newvoc/%t` is a mis-cased escape: the record for `~` is undecodable and never reaches an account
 
