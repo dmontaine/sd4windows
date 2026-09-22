@@ -36371,6 +36371,46 @@ TREE"*. It was not needed in the end.
 
 ====
 
+## RELEASE_1.1 102 — an API session's token, and the question that actually mattered (22 Sep 2026)
+
+**CLOSED BY RULING. THE MEASUREMENT STANDS; THE CONCERN IT WAS FILED UNDER WAS THE WRONG ONE.** Filed after
+`SH whoami /groups` through a real API session returned **`Mandatory Label\High Mandatory Level`
+(S-1-16-12288)** with **`BUILTIN\Administrators` — `Enabled group, Group owner`** — taken on SDSYS while
+RELEASE_1.1 101's first, withdrawn build briefly set `USR_ADMIN` for it.
+
+***THE OWNER TOOK IT APART IN THREE STEPS, AND EACH ONE NARROWED IT.*** (1) *"all sd accounts are tied to
+standard windows accounts which restrict users … the only exception is the installer"* — confirmed:
+`make.admin` went with RELEASE_1.1 64 (`createa:21`, `:371`), so `CREATE.ACCOUNT` cannot put anyone in
+Administrators, and the only SD account tied to an administrator is the one the installer attaches (`ace\Don`
+here). (2) *"why is it an elevated shell rather than a standard one, and even so it is a standard user's
+elevated shell"* — **SD asks for no elevation anywhere**: `win32s4u.c:294` is `LsaLogonUser` with logon type
+`Network` (S4U, because SCRAM never holds the password), and nothing requests `TokenLinkedToken`. So the High
+integrity is what LSA returned for *that* account, and **for a standard account there is no admin half to
+return** — the entry had been carrying the SDSYS measurement across to accounts it did not describe.
+(3) *"I don't worry about the installer … they can always delete the account they used to install … this is an
+open source project … My concern is only is a standard user … restricted."*
+
+***AND THE ANSWER TO THAT QUESTION WAS ALREADY WITNESSED, WHICH IS WHY THIS CLOSES RATHER THAN BECOMING
+WORK.*** `verify-apiadmin.ps1` runs a throwaway ordinary account over a REAL API connection and asserts
+***"API session was refused OS.EXECUTE by name"*** — its own comment: *"Nothing about it is inferred from an
+absence"* — plus *"API session CANNOT run OS.EXECUTE"* gated on the probe having reached the attempt, *"CANNOT
+open $cred"*, *"CANNOT write $cred"*, and *"API REFUSES an account not in sdapi"*, with a local elevated
+session opening and writing `$cred` in the same run as the control that shows the instrument works. **Green on
+`b211`, 21 Sep 2026.** A standard user is restricted, measured, on the real transport.
+
+**What moved rather than died:** §5.25 and §5.28 row 3 still do not describe the token, and that correction is
+appended to RELEASE_1.1 61 with the shipped pages it already lists.
+
+***AND THE GATE THIS ENTRY PROPOSED IS REFUSED, NOT DEFERRED — WRITTEN DOWN SO NOBODY PROPOSES IT AGAIN.***
+The session put forward a `CN_SOCKET` test on `os_permitted()`, so that an `os.users` field-2 grant would not
+carry over a socket. ***OWNER, 22 Sep 2026: "if the admin chooses to give a user api access and os.execute
+access that should be respected as their choice", and "same thing with remote ssh."*** So an administrator's
+grant is the decision, and SD does not second-guess it by transport. **That is consistent with default-deny
+and does not weaken it**: `os.users` ships empty and both fields stay off until somebody sets them (§5.28
+row 3, ruled 21 Sep) — what is ruled here is that once they ARE set, the product honours them. **The residue
+is disclosure only**: an administrator should be able to find out what `os-on` plus `sdapi` (or `sdssh`)
+means, which is 61's and 48's job, not a gate's.
+
 ## RELEASE_1.1 103 — SDSYS is asked for an SD password at the console, and that is correct (22 Sep 2026)
 
 **CLOSED BY RULING, AND THE DEFECT WAS A COMMENT.** Signing in to SD as the Windows SDSYS account on 21 Sep

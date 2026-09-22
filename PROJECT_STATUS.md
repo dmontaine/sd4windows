@@ -59,9 +59,15 @@ before running anything. `-Run` tokens `b206`–`b214` are spent.
 `SDConnectLocal`, and by nothing else: `verify-sdsyslocal` exit 0 from an elevated Windows SDSYS session
 (admitted, `WHO -> 3 SDSYS`, and the administrator verb ran — so `IsInteractive()` answers true for a
 ConnectLocal child), `verify-routes` **35/35** on `b218`, `verify-localconnect` exit 0, `assert-current` clean
-against the 19:20:42 install. **It left two findings open that the work itself did not cause: 102** (an API
-session's Windows token is fully elevated, and §5.25/§5.28 do not say so) **and 103** (LOGIN demands an SD
-password for SDSYS, which the owner says is not needed). `-Run` tokens `b206`–`b218` are spent.
+against the 19:20:42 install. **It threw off two findings, 102 and 103, and the owner closed both the same
+day** — 103 because requiring an SD password at the console is correct (the defect was a comment), 102 because
+its subject was the installer-attached account, which he rules out of scope, and **the question he actually
+cares about — is a STANDARD user restricted — was already witnessed green on `b211`** by `verify-apiadmin`
+(*"API session was refused OS.EXECUTE by name"*, plus `$cred` refused both ways, on a real API connection).
+Both are in HISTORY.md; 102's documentation half moved to **61**. `-Run` tokens `b206`–`b218` are spent.
+
+***100 IS FIXED IN SOURCE AND NEEDS THE NEXT CYCLE*** (`newvoc/%t` → `%T`, `$KnownUnlisted` 1 → 0), then
+`verify-accountmodel`.
 
 ***NEXT, IN ORDER.*** (1) **Owner, one UAC click:** 76's remainder, `verify-lcnames`, is in `VerifyInstall1`,
 whose elevated legs start SD's own resident helper (the agent's helper cannot serve them) —
@@ -76,8 +82,8 @@ list (BASIC), and 100's rename if it is wanted. (3) 84's rewrite and 97's propos
 
 ## OPEN TASKS — RELEASE 1.1 (W1.1-0)
 
-**15 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97, 100 and 102
-added since (101 and 103 closed 22 Sep) (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
+**14 open: 12 validated against the tree by the 27th pass, 21 Sep 2026, and 97 and 100
+added since (101, 102 and 103 closed 22 Sep) (64, 95, 96 and 99 closed the same day); 53 is deferred to W1.2 (its own section, below the gates).** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -87,119 +93,6 @@ is in HISTORY.md under *"ARCHIVE 21 Sep 2026 — RELEASE_1.1_FIXES.md as it stoo
 (owner, 11 Sep 2026) were the defects SD Core for Linux found in this tree and
 embedded Python installed rather than shipped; the Python route is built and
 witnessed (`verify-pyapi`, `verify-pygate`, §5.27).
-
-### 102 · S — an API session's Windows token is FULLY ELEVATED, and §5.25 and §5.28 do not say so
-
-***MEASURED 21 Sep 2026, not inferred.*** `SH whoami /groups` inside a real API session (SCRAM over TLS 1.3
-to 127.0.0.1:4243, `scram-probe.py`) returned **`Mandatory Label\High Mandatory Level` (S-1-16-12288)** and
-**`BUILTIN\Administrators` — `Enabled group, Group owner`**, not deny-only, beside `NT AUTHORITY\NETWORK` and
-`S-1-5-114` (*local account and member of Administrators*). `SH whoami` returned **`ace\sdsys`**: the session
-runs as the authenticated user, which is 55's handover working, **and the 20 Aug finding that a remote API
-client got SYSTEM no longer describes this route.**
-
-**WHERE IT COMES FROM.** `sdwind` runs as LocalSystem and builds the logon token itself, so the
-`LocalAccountTokenFilterPolicy` filtering that would strip a local administrator's network logon never
-applies — the identical mechanism `kernel.c:262-266` already records for OpenSSH. **This is a property of the
-tree as it stands, for any account that reaches the API**; it was found while building 101 and it survives
-101's revert untouched.
-
-***WHAT IT CONTRADICTS.*** §5.25 is *"administration requires an interactive desktop"* (owner, 5 Sep 2026)
-and §5.28 row 3 records OS access as default-deny per account. A network-arriving session holding a
-High-integrity administrator token is not described by either. **`sdwind.c:419` binds `INADDR_ANY`** and this
-machine's firewall rule `SD API (SDClient)` reads **`enabled, Allow, RemoteAddress = Any`** (measured
-21 Sep) — the owner: *"the firewall is not closed, other users have access through the api."*
-
-***WHAT STOPS IT BEING REACHABLE TODAY, AND IT IS ONE THING ONLY.*** `os_permitted()` (`op_sh.c`) grants
-`OS.EXECUTE`, `SH` and Python to an internal program, to `USR_ADMIN`, or to an `os.users` field-2 grant.
-`kernel.c` withholds `USR_ADMIN` from every `CN_SOCKET` session and `os.users` ships empty — **so no API
-session can run an OS command, and the elevated token is unreachable rather than absent.** 101 briefly set
-the flag for SDSYS and the shell opened at once, which is how this was measured. ***THE TOKEN IS STILL THERE;
-ONLY THE DOOR IS SHUT.***
-
-***OWNER'S RULING, 22 Sep 2026, AND IT IS A POLICY RATHER THAN A CHOICE BETWEEN THE TWO OPTIONS PUT TO HIM:
-"there is no remote administration at all, all administration happens at the computer or through something
-like Teamviewer. No remote user should have admin rights."*** So a remote-desktop tool is administration AT
-the computer — it drives the console session — and everything arriving over a socket is not.
-
-**WHAT THE RULING MAKES OF WHAT IS BUILT.** The `USR_ADMIN` half already enforces it: `kernel.c` withholds
-the flag from every `CN_SOCKET` session, so no API session holds SD administrator rights. **The gap the ruling
-closes is the other half, and it is not hypothetical:** `os_permitted()` also grants `OS.EXECUTE` on an
-`os.users` field-2 record, *whatever the transport*. Grant that to an SD account whose Windows account is a
-local administrator, and an API session of that account runs OS commands **with the elevated token measured
-above** — a remote user with admin rights, which is exactly what the ruling forbids. `os.users` ships empty,
-so nothing is exposed today; **the hole is that an administrator can open it by hand without being told what
-it costs.**
-
-***AND THE REACHABLE SURFACE IS ONE ACCOUNT PER MACHINE, WHICH IS THE OWNER'S POINT AND IS MEASURED.***
-Owner, 22 Sep 2026: *"all sd accounts are tied to standard windows accounts which restrict users … the only
-exception is the installer."* **Confirmed both halves.** `make.admin` was removed by RELEASE_1.1 64
-(`createa:21`, `:371`), so `CREATE.ACCOUNT` cannot put anyone in Administrators and every account SD creates
-is a standard user — an `OS.EXECUTE` from one of those runs as a standard user and the elevated token above is
-not in play at all. **The exception is the account the installer ATTACHES**, the installing Windows
-administrator, and on this machine it is real: `ace\Don` is in **Administrators**, holds SD account `don`, and
-is in **`sdapi`** (measured 22 Sep; Administrators reads `ace\Administrator`, `ace\Don`, `ace\SDSYS`, and the
-register holds `don` and `sdsys`). ***SO THE WHOLE OF 102's REACHABLE EXPOSURE IS: THAT ONE ACCOUNT, AND ONLY
-IF SOMEBODY ALSO SETS ITS `os.users` FIELD 2. `os.users` IS EMPTY — 0 RECORDS, MEASURED 22 Sep.*** **Not
-explained:** how `ace\Don` came to be in `sdapi` at all, since `sync-route-groups.ps1` never seeds that group
-— most likely a leftover from testing rather than anything the installer did, but it was not traced, and on a
-clean install the attached account should not be in it.
-
-***AND THERE IS AN EXISTING COMMAND RESTRICTION, WHICH THE OWNER RAISED, 22 Sep 2026 — IT IS REAL, IT
-NARROWS THIS, AND IT DOES NOT COVER THE PATH THAT MATTERS HERE.*** `valid_shell_cmd`
-(`sdsys/gpl.bp/valid_shell_cmd`) refuses an empty command, CR, LF, and any of **`; | & $ \` < >`** — so an
-account **not** listed in `os.users` field 1 gets a shell that runs one plain command and cannot pipe,
-redirect, chain or substitute. Being on the list buys the full shell (owner's ruling, 17 Aug 2026).
-***BUT IT HAS EXACTLY ONE CALLER: `cproc:3784`, THE `SH` VERB.*** `op_sh.c:167-171` states why it can have no
-other — *"OS.EXECUTE is its own BASIC statement … so neither `kernel(K$ADMINISTRATOR,-1)` nor
-`!valid_shell_cmd` is anywhere near it"* — and `os.users` field **2**, the one that would be granted to an API
-account, is the `OS.EXECUTE` field, not the `SH` field. **So a BASIC program's `OS.EXECUTE` is not
-metacharacter-checked at all**, and the narrowing applies to the interactive verb rather than to the route
-this entry is about. *(Measured obliquely on 21 Sep: the probe's `SH whoami` ran through an API session and
-returned `ace\sdsys` — a plain command, so it passed the check that was in force.)* **It also limits
-composition rather than power: one plain command still covers `net user … /add`.**
-
-***TWO CORRECTIONS FROM THE OWNER, 22 Sep 2026, AND THE SECOND ONE INVALIDATES THIS ENTRY'S ORIGINAL
-FRAMING.*** He asked *"why is it an elevated shell rather than a standard one, and even so it is a standard
-user's elevated shell"*, and both halves are right.
-
-1. ***SD ASKS FOR NO ELEVATION ANYWHERE.*** The token is issued by **S4U**, not `LogonUser`:
-   `win32s4u.c:294` calls `LsaLogonUser` with logon type **`Network`**, because SCRAM means the server never
-   holds the password and `LogonUser` needs one. **Nothing in `win32s4u.c` or `win32session.c` requests
-   `TokenLinkedToken`** or any elevated variant — grepped; the single occurrence of "elevat" in that file is a
-   remark that no interactive account holds `SeTcbPrivilege`. So the High integrity measured on 21 Sep is
-   **what LSA returned for that account**, not something SD did to it.
-2. ***AND "ELEVATED" IS EMPTY FOR A STANDARD ACCOUNT, WHICH IS EVERY ACCOUNT SD CREATES.*** A standard user
-   has one token carrying its own rights; there is no admin half to hand out. So the phrase only ever
-   described the one installer-attached administrator, and **this entry previously carried the SDSYS
-   measurement across to accounts it does not describe.** Corrected here rather than quietly reworded.
-
-**WHAT SURVIVES, NARROWLY:** for that one admin account, an S4U `Network` logon appears to yield the
-**unfiltered** admin token where Windows' own default for a network logon of a local administrator would
-normally filter it. ***THAT RESTS ON ONE MEASUREMENT, TAKEN ON SDSYS, AND IS NOT CHEAPLY REPEATABLE ON A
-STANDARD ACCOUNT***: `SH` needs `os.users` field 1 or the administrator flag (`cproc:3773`), and a standard
-API session has neither, so it is refused with 10053 before printing anything. **Comparing integrity levels
-across account types needs an instrument that does not go through `SH`** — `probe-s4u.c` already exists and is
-the place to look first.
-
-***WHAT ALL OF THIS ADDS UP TO, AND IT LOWERS THE PRIORITY WITHOUT CLOSING THE ENTRY.*** Three independent
-things must ALL hold for anyone to get remote admin rights: the account must be the installer-attached
-administrator (every other SD account is a standard user), it must be in `sdapi`, and somebody must have set
-its `os.users` field 2. **The third is empty on a shipped install and the first is one account per machine**,
-so nothing is exposed as delivered — which is the 5.28 row-5 position (*"if users want to degrade security
-after the fact, that is their right"*) with one difference that matters: **here the administrator doing it is
-not told that `os-on` for that account means an elevated shell reachable over the network.** So the fix worth
-making is small and mostly about disclosure plus one cheap gate, not a redesign. ***IT IS NO LONGER A B AND
-WAS NEVER ONE; IT STAYS S BECAUSE THE DOCUMENTATION IS WRONG RATHER THAN BECAUSE THE PRODUCT IS OPEN.***
-
-**Owed, in this order.** (1) ***Amend §5.25 and §5.28 row 3 to state the ruling and the token*** — they
-currently describe neither, and the documentation pass (61) should carry it to the shipped docs. (2) **Gate
-the OS reach on the transport**: refuse `OS.EXECUTE`/`SH`/Python on a `CN_SOCKET` session regardless of
-`os.users`, which is one test in `op_sh.c` beside the `USR_ADMIN` one and needs no change to `sdwind`'s
-handover. **Narrowing the TOKEN itself is the alternative and is worse value** — it would mean building a
-filtered token in the handover that RELEASE_1.1 55 spent eight cycles getting right, to defend a door that
-(2) shuts with one condition. ***NEITHER IS BUILT.*** **Nothing here is a regression** — it is the model,
-newly measured, and now ruled.
-
 
 ### 100 · M — `newvoc/%t` is a mis-cased escape: FIXED IN SOURCE 22 Sep 2026, witness owed
 
@@ -465,6 +358,15 @@ In `SDCoreWindowsDocs` (a separate repository, `de44f8e`, matching its remote):
 58 removed the administrator's API access, so *"Administrators have API access
 and `OS.EXECUTE` access automatically"* is half false. **This is a pointer, not a
 fix here.** Folded into 48's documentation task in practice.
+
+**Added 22 Sep 2026 from RELEASE_1.1 102, which closed into this one.** §5.25 (*"administration requires an
+interactive desktop"*) and §5.28 row 3 do not describe what an API session's Windows token actually is: for an
+account that holds administrator rights it comes back **High integrity with `BUILTIN\Administrators` enabled**
+(measured on SDSYS, 21 Sep 2026). **SD asks for no elevation** — `win32s4u.c:294` is `LsaLogonUser` with logon
+type `Network` and nothing requests `TokenLinkedToken` — so that is what LSA returns, and **for a standard
+account, which is every account `CREATE.ACCOUNT` makes, there is no admin half to return.** The documentation
+should say what is true rather than what was assumed, in this repository's §5.25/§5.28 and in the shipped
+pages this entry already lists.
 
 ### 59 · B — SD's own system segment is writable by every SD user, and a LocalSystem process reads it
 
@@ -821,6 +723,17 @@ runtime claim is marked as reasoned.
    more to an attacker than it looks, and an administrator can still grant it per
    account. The documentation must say *no OS access until an administrator grants
    it*, not *Windows' limits*.
+
+   ***AND THE GRANT IS THE ADMINISTRATOR'S DECISION, NOT SD's — OWNER, 22 Sep 2026:
+   "if the admin chooses to give a user api access and os.execute access that should be
+   respected as their choice", and "same thing with remote ssh."*** This closes a question
+   RELEASE_1.1 102 opened and is recorded here because it is the kind of thing a later
+   session re-proposes: **a transport test on `os_permitted()` — refusing `OS.EXECUTE` on a
+   `CN_SOCKET` session even when `os.users` field 2 says yes — is REFUSED, not deferred.**
+   Default-deny and this ruling are not in tension: the fields stay off until somebody sets
+   them, and once set the product honours them on every route. **What is owed instead is
+   disclosure** — an administrator turning `os-on` for an account that also holds `sdapi` or
+   `sdssh` should be able to find out what that combination means (61, 48).
 4. **Every account has the remote doors by default but no credential until an elevated
    interactive sign-in (69).** That fails closed — an account with no `$cred` cannot
    authenticate remotely — and the message now says so.
