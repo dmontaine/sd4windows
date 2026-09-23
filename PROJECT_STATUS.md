@@ -53,10 +53,9 @@ here — read those, not this block, for specifics. Full narrative: HISTORY.md, 
    both need a human at the keyboard (nested UAC prompts). See 106's entry.
 2. **47's live witness run** (not source-reading) is the one item its own entry still lists as
    unaudited — Linux's §12 precedent is the method if it's wanted; needs Linux's own half too.
-3. **48's PDF/book rebuild is DONE, 22 Sep 2026** — all three sets rebuilt with `tools\release.ps1`
-   (unelevated, no owner flags added), 0 broken links each. What's left of old 18 is the copy step
-   (bound PDFs from `<Set>\book\` into the release's `documentation\`), and that needs 49's staging
-   directory decided first — see 48's entry.
+3. **48's PDF/book rebuild is DONE, 22 Sep 2026** — all three sets rebuilt with `tools\release.ps1`,
+   0 broken links each, and the copy step (bound PDFs into the release's `documentation\`) is done
+   too — see 49's entry, also closed this session.
 4. **Absorb 61's two remaining facts** (only SDSYS administers; an ssh session's reach is bounded
    by NTFS, not by SD) as one standalone sentence each in the docs — currently said only in
    context across the rewritten pages.
@@ -654,10 +653,10 @@ task above; 48 on 47; 49 on 48.**
   the sets are rebuilt (above) — what's left is copying the corrected bound
   PDFs from `<Set>\book\` into the release's `documentation\` before zipping,
   so the 29 `-ExecutionPolicy Bypass` fixes in `SDCoreWindowsDocs 76e1dce`
-  reach the shipped PDFs (assembly is a hand step with no script). **Blocked
-  on 49**: there is no W1.1 staging `documentation\` directory to copy into
-  yet — settle 49's zip-vs-snapshot question first. Linux starts its
-  documentation from the finished Windows docs, so name the shape early.
+  reach the shipped PDFs (assembly is a hand step with no script). **DONE,
+  22 Sep 2026** — see 49's entry: `SDCore-W1.1-0\documentation\` now holds
+  the three current bound PDFs. Linux starts its documentation from the
+  finished Windows docs, so name the shape early.
 
   ***THE SHAPE, SETTLED 22 Sep 2026: TWO SEPARATE DOC SETS, ONE FORKED FROM THE
   OTHER — NOT ONE MERGED SET WITH INLINE PLATFORM DIFFERENCES.*** Grounded in
@@ -692,13 +691,27 @@ task above; 48 on 47; 49 on 48.**
   native per-account OS sandboxing, and that belongs in Windows's own docs,
   not a cross-reference.
 - **49 — the W1.1 staging directories and zips**, one Windows and one Linux.
-  **Settle first, and before 48 documents an install procedure:** is a release
-  zip a source snapshot (the installer would have to clone a *tag*) or an artefact
-  the installer builds from? The Windows installer is an Inno `.iss` build of a
-  staged tree (`sd.iss`, `stage.py`), not a git clone, so the clone-a-tag hazard
-  may not apply here — but the choice must be pinned and compared with Linux. No
-  W1.1 staging directory or zip exists (only `SDCore-W1.0-0.zip` and the cycle's
-  `sd-setup-W1.1-0.exe`).
+  **The Windows half is DONE, 22 Sep 2026, on the owner's direct instruction**
+  (`C:\Users\Don\SDCoreProject\SDCore-W1.1-0\`, same structure as
+  `SDCore-W1.0-0\` — `README.txt`, `SDCore-W1.1-0-what-is-in-the-zip.txt`,
+  `clients\`, `documentation\`, `extras\`, `sd-setup-W1.1-0.exe`). **That
+  settles the snapshot-vs-built-artefact question for Windows, and the
+  answer is neither**: it's a hand-assembled folder of already-built
+  artefacts (installer, bound docs, client libraries), matching W1.0-0's own
+  precedent exactly — no git clone or tag involved, so the hazard this entry
+  used to flag never applied here. `clients\` now has a third folder,
+  `LinuxClient64\` (`sdclilib.so`, `libsdcli.so`, from `P:\SD1.1_Clients`,
+  alongside the existing `client32\`/`client64\` Windows DLLs from the same
+  drop) — the first time a Windows release has carried the Linux client.
+  **The installer inside it is the one this session rebuilt**, not the stale
+  noon one — see 106's entry above for why that mattered. `sd-setup-W1.1-0.exe`
+  sha256 `E714D35B…`, `cycle-20260922-172951.log`: `assert-current: the
+  installed tree matches source`. **This also closes 48's remaining
+  "copy step"**: the three bound PDFs in `documentation\` are the ones this
+  session rebuilt with `-Version W1.1-0`, including the new "Differences
+  from W1.0-0" pages (page counts 20/15/54). **Linux's half is not started**
+  — separate port, not touched here; their own staging directory and zip
+  are still owed on their side.
 
 ### 107 · M — Linux message 10170/10919 missing a sentence Windows's copy has
 
