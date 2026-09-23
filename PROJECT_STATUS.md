@@ -709,9 +709,14 @@ task above; 48 on 47; 49 on 48.**
   installed tree matches source`. **This also closes 48's remaining
   "copy step"**: the three bound PDFs in `documentation\` are the ones this
   session rebuilt with `-Version W1.1-0`, including the new "Differences
-  from W1.0-0" pages (page counts 20/15/54). **Linux's half is not started**
-  — separate port, not touched here; their own staging directory and zip
-  are still owed on their side.
+  from W1.0-0" pages (page counts 20/15/54). **Zipped, 22 Sep 2026**:
+  `C:\Users\Don\SDCoreProject\SDCore-W1.1-0.zip`, 45,167,908 bytes, sha256
+  `0345D5D1…`, 18 entries — flat, no wrapper folder, matching
+  `SDCore-W1.0-0.zip`'s own layout exactly (confirmed by reading that zip's
+  entry list first rather than assuming); its 16 entries plus the 2 new
+  `LinuxClient64\` files. **Linux's half is not started** — separate port,
+  not touched here; their own staging directory and zip are still owed on
+  their side.
 
 ### 107 · M — Linux message 10170/10919 missing a sentence Windows's copy has
 
