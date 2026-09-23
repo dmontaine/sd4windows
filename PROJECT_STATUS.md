@@ -622,6 +622,28 @@ task above; 48 on 47; 49 on 48.**
   `-Force`, just the 3 changed pages): `checklinks.py` 119/0 broken (up
   from 108 — the new page's own cross-references). Pushed with the rest.
 
+  ***SAME PAGE ADDED TO Administrator (`12-`) AND User (`41-`), 22 Sep
+  2026***, tailored per audience rather than duplicated (`SDCoreWindowsDocs
+  4b24c8a`) — Administrator's angle: tier removal, the `tier.policy` file
+  that existed for five days before tiers were removed outright, password
+  policy, API-session-runs-as-you, TLS 1.3/`sdrelay` again (still nobody's
+  fixed job but this page's own), installer/upgrade/uninstall, session
+  cleanup. User's angle: case-insensitivity everywhere, the lower-casing
+  and its typed/lower/upper lookup order, `PY_` functions and the
+  `sdpy.exe` model, ten prompt-default fixes. **A second doc-currency gap
+  found alongside the first**: `User/37-sd-client-api.md`'s "A session is
+  confined to its own account" predates the API-session-identity change
+  (an API session now runs as the logged-in Windows user, not the service
+  account) and TLS 1.3 — noted on the new page rather than fixed there,
+  since fixing it means rewriting an existing page. Cross-set references
+  are prose only, no hyperlink (`checklinks.py`'s `LINK` regex requires an
+  unqualified `NN-name.html` target — a cross-set link would either go
+  unchecked or resolve against the wrong page under the other set's own
+  numbering, e.g. User's own page 11 is CSV files). Rebuilt both:
+  Administrator `checklinks.py` 35/0 broken (up from 25, page count
+  14→15), User 245/0 (up from 242, page count 53→54). Pushed with the
+  rest.
+
   ***Both the security-posture section and the 106 addition are DONE, 22 Sep
   2026*** — the posture section is in `12-security.md` ("What ships secured,
   before you change anything"); the 106 content (installing administrator is
