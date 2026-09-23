@@ -604,8 +604,23 @@ task above; 48 on 47; 49 on 48.**
   `Administrator` 4,520,858 B sha256 `32E47674…`; `User` 22,028,565 B sha256
   `DE57D55C…`); stale `W1.0-0`-named zips deleted. All under
   `SDCoreWindowsDocs\`, gitignored, nothing generated to commit — the
-  markdown fixes are `SDCoreWindowsDocs 1e54cd1`. **Not pushed** — ask before
-  pushing either repo's commits from this session.
+  markdown fixes are `SDCoreWindowsDocs 1e54cd1`. **Pushed** (owner asked):
+  `sd4windows 6ec93508..56845b89`, `SDCoreWindowsDocs d0e3057..1e54cd1`.
+
+  ***NEW PAGE, 22 Sep 2026: "Differences from W1.0-0"***
+  (`GettingStarted/01b-differences-from-w1-0-0.md`, `SDCoreWindowsDocs
+  8d44f8a`), synthesising the changelog's whole "Changes since W1.0-0"
+  section (~40 entries) into a themed summary with a "what might stop
+  working" checklist, cross-checked against the already-audited pages
+  rather than the changelog alone where they disagreed. **Found while
+  writing it, not yet fixed**: the API's TLS 1.3 wrapping and the new
+  `sdrelay` service account have zero documentation anywhere in any of
+  the three sets (`grep -rln -i "TLS 1.3\|sdrelay"` across all three
+  `markdown\` trees: no hits) — `09-api-access.md` and `12-security.md`
+  are where a reader would look. Spun off rather than folded in here
+  (`task_784dacaf`). Rebuilt GettingStarted again (`-Version W1.1-0`, no
+  `-Force`, just the 3 changed pages): `checklinks.py` 119/0 broken (up
+  from 108 — the new page's own cross-references). Pushed with the rest.
 
   ***Both the security-posture section and the 106 addition are DONE, 22 Sep
   2026*** — the posture section is in `12-security.md` ("What ships secured,
