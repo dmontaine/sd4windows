@@ -709,14 +709,40 @@ task above; 48 on 47; 49 on 48.**
   installed tree matches source`. **This also closes 48's remaining
   "copy step"**: the three bound PDFs in `documentation\` are the ones this
   session rebuilt with `-Version W1.1-0`, including the new "Differences
-  from W1.0-0" pages (page counts 20/15/54). **Zipped, 22 Sep 2026**:
-  `C:\Users\Don\SDCoreProject\SDCore-W1.1-0.zip`, 45,167,908 bytes, sha256
-  `0345D5D1…`, 18 entries — flat, no wrapper folder, matching
-  `SDCore-W1.0-0.zip`'s own layout exactly (confirmed by reading that zip's
-  entry list first rather than assuming); its 16 entries plus the 2 new
-  `LinuxClient64\` files. **Linux's half is not started** — separate port,
-  not touched here; their own staging directory and zip are still owed on
-  their side.
+  from W1.0-0" pages (page counts 20/15/54). **Zipped, 22 Sep 2026**, and
+  **re-zipped the same day after the Python-chapter fix below** —
+  `C:\Users\Don\SDCoreProject\SDCore-W1.1-0.zip` is now 45,294,016 bytes,
+  sha256 `6979FF72…`, 18 entries, same flat layout as `SDCore-W1.0-0.zip`
+  (confirmed by reading that zip's entry list first). **Linux's half is not
+  started** — separate port, not touched here; their own staging directory
+  and zip are still owed on their side.
+
+  ***FOUND WHILE PACKAGING, 22 Sep 2026: THE PYTHON CHAPTER GAP WAS ON
+  WINDOWS TOO, AND WORSE.*** Owner reported Linux's audit found their whole
+  Python chapter missing. Checked ours the same way: no chapter existed
+  here either, and two pages (`Administrator/04-sd-encryption.md`,
+  `User/00b-sd-introduction.md`) still said Python/SDEXT was
+  "removed"/"dropped" permanently — true before 12 Sep 2026, false since.
+  **Fixed both, and wrote `User/37a-sd-basic-python-integration.md`**: the
+  `sdpy.exe` helper-process model, the `os.users` field 2 gate
+  (`-12040`/`-12041`/`-12042`), all 21 `PY_*` functions by family, the full
+  `-12001..-12042` error table (`sdsys/syscom/err.h`), a worked example
+  adapted from `gplbld/verify-pyapi.ps1`'s own witnessed probe.
+  **Coordinated with Linux over the mailbox before finalizing any
+  cross-port claim** (`P:\sdcore-mail`, sent 1853/1857/1905, received and
+  moved to done 0157) rather than assume parity: their Python integration
+  has **no permission gate at all** (S.27 already tore theirs down, same as
+  `SH`/`OS.EXECUTE`) — a real difference, now stated in the chapter rather
+  than implied shared. Error codes `-12001..-12034` match name-for-name on
+  both ports; `-12035` and up do not — checked our own
+  `gplsrc/sdpy/sdpy.c` (`verb_listappd`/`verb_listclr`/`verb_listcrte`)
+  directly to answer their specific question, and Windows reuses
+  `-12014`/`-12033`/`-12034`/`-12012` rather than needing dedicated codes,
+  so nothing was missing on our side. All 21 function names/signatures
+  match except `PY_LISTCREATE` (ours) vs `PY_LISTCRTE` (theirs), now noted
+  in the chapter for anyone writing cross-port code. `SDCoreWindowsDocs
+  b2cc3b3`. Rebuilt all three sets again: GettingStarted 119/0 broken
+  links, Administrator 35/0, User 247/0.
 
 ### 107 · M — Linux message 10170/10919 missing a sentence Windows's copy has
 
