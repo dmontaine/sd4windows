@@ -723,8 +723,15 @@ task above; 48 on 47; 49 on 48.**
   inside the zip, `unzip -t` clean. **Tagged 24 Sep 2026, owner's request**,
   annotated like `v1.0-0`: `sd4windows v1.1-0` → `59b29843` (the installer's
   exact source), `SDCoreWindowsDocs v1.1-0` → `b2cc3b3` (the PDFs' commit);
-  both confirmed on GitHub by `ls-remote`. The sd4windows tag message says
-  the full verify suite was NOT run on this build. **Linux's half is not
+  both confirmed on GitHub by `ls-remote`. ***OWNER'S RULING, 24 Sep 2026: the
+  release stands without the full verify suite*** — *"the owner is satisfied,
+  the changes were in the installer and the installer ran on two different
+  computers with two versions of powershell"*. Checked before it went in the
+  tag: `30b28844..59b29843` touches only `gplbld/` (installer, `stage.py`,
+  shipped helper scripts), `sdsys/changelog` and the two record files — no C,
+  no BASIC; this host has no PowerShell 7 (5.1 only), the test machine 7.6.5.
+  The sd4windows tag was re-cut with that text on the same commit and
+  force-pushed (tag object `5549a746`). **Linux's half is not
   started** — separate port, not touched here; their own staging directory
   and zip are still owed on their side.
 
