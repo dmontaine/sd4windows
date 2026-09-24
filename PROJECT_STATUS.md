@@ -720,10 +720,11 @@ task above; 48 on 47; 49 on 48.**
   `59b29843`), `README.txt`'s checksum updated to match; the new
   `SDCore-W1.1-0.zip` is 45,298,566 bytes, sha256 `B4E4B71B…89BD2A5`, the same
   18 paths as the pulled zip (compared by script), installer hashed from
-  inside the zip, `unzip -t` clean. **Owed:** `README.txt` says both repos are
-  *"tagged v1.1-0 for this release"* — no such tag exists in either repo
-  (local or GitHub, checked 24 Sep); `sd4windows` should get it on
-  `59b29843` or later. **Linux's half is not
+  inside the zip, `unzip -t` clean. **Tagged 24 Sep 2026, owner's request**,
+  annotated like `v1.0-0`: `sd4windows v1.1-0` → `59b29843` (the installer's
+  exact source), `SDCoreWindowsDocs v1.1-0` → `b2cc3b3` (the PDFs' commit);
+  both confirmed on GitHub by `ls-remote`. The sd4windows tag message says
+  the full verify suite was NOT run on this build. **Linux's half is not
   started** — separate port, not touched here; their own staging directory
   and zip are still owed on their side.
 
