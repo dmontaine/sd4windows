@@ -24,7 +24,7 @@ two checkers existed only to compare them. **They are gone.** What remains:
 task that finishes is deleted from OPEN TASKS in the same commit and, if its
 story is worth keeping, appended to HISTORY. **Do not strike a row, do not keep a
 "done" list, do not add a second status anywhere.** New tasks continue
-`RELEASE_1.1`'s id space: the highest id issued is **108**, so **the next is 109** —
+`RELEASE_1.1`'s id space: the highest id issued is **111**, so **the next is 112** —
 take it here and cite it as `RELEASE_1.1 97`, never as a bare number (the old
 `PRE_RELEASE` space overlaps it). A citation such as
 `RELEASE_1.1 64` or `PRE_RELEASE 96` in a source comment names an entry that is
@@ -76,7 +76,10 @@ joined string). `bbcmp` compiles `set_acc_password`/`createa`, not `login`. `ISC
 
 **4 open (ids across 1 entry — the gates): 59, 69, 71, 73, 75, 76, 77, 84, 97, 100–105, 64, 95, 96
 and 99 all closed 22 Sep, 61 folded into gate 48; 53 is deferred to W1.2 (its own section, below
-the gates); 107 and 108 filed 22 Sep from 47's message-text audit.** Every call
+the gates); 107 and 108 filed 22 Sep from 47's message-text audit; 109 filed 24 Sep, a user report
+of the OpenSSH install/limit/firewall cascade with no diagnosable reason; 110 filed and closed
+24 Sep (HISTORY.md); 111 filed 24 Sep, 110's PowerShell module clash reachable through SD's own
+script runner.** Every call
 that was the owner's has been ruled — he delegated them, 21 Sep 2026 — and each ruling
 is in its entry. `B` blocks
 the release, `S` should be fixed, `M` is minor. Each entry says what is open and
@@ -767,6 +770,90 @@ file at `sdsys/changelog` (confirmed on disk, 350 KB) but 10149 never names it.
 Low priority, cosmetic — add a changelog line to 10149 and pass the path the same
 way Linux does, in a session that's already touching `cproc` and can afford the
 cycle+witness this needs (CLAUDE.md: no message edit ships unwitnessed).
+
+### 109 · S — user report: OpenSSH install/limit/firewall all "failed" with no captured reason
+
+Reported 23 Sep 2026 by the owner, relaying a user hitting all three closing-box failure
+lines together ("OpenSSH server could NOT be installed" / "ssh was NOT limited" / "Who
+may reach ssh has NOT been set"). **Traced to source, not reproduced on the reporter's
+machine.** The three are one cascade, not three defects: `install-ssh.ps1`'s `[Run]` entry
+(gated `SshServerWanted and not TrueUpgrade`, `sd.iss:1087`) failed first, and
+`allow-ssh-groups.ps1`/`ssh-firewall.ps1 -Installed -Restrict` (`sd.iss:2156,2268`) both
+require `sshd_config`, which only exists after sshd's first start — so once OpenSSH itself
+doesn't install, the other two fail as a direct consequence (`sd.iss:2100-2106` documents
+this as expected outcome 2). Ruled out: the shell launching setup.exe (elevated PowerShell
+vs. elevated cmd) — the `Exec()` calls run `powershell.exe` directly off the installer's own
+already-elevated token, no nested UAC involved (§4.0.1 doesn't apply here).
+
+**Root cause of the OpenSSH failure itself is still unknown.** A separate, unrelated
+diagnostic on a different (customized-local-account) machine returned `Get-WindowsCapability:
+Class not registered` — evidence that this class of error exists on *some* machines, not
+evidence about the reporter's, who is on stock Windows and hasn't been reached to run the
+same check.
+
+**Fixed this session, built and directly verified, not yet cycled through the installer:**
+`install-ssh.ps1`, `allow-ssh-groups.ps1`, `ssh-firewall.ps1` now append every line they'd
+have printed — including the `catch` block's exception message, the one line that would
+have named the real cause — to `C:\ProgramData\SD\ssh-setup.log`, because `sd.iss`'s
+`Exec()` calls (`Flags: runhidden`, no redirection) discarded stdout entirely and there is
+no `SetupLogging=yes`, so that text went nowhere. Verified: all three parse clean
+(`Parser]::ParseFile`, 0 errors); each run directly with the exact invocation `sd.iss` uses
+(`powershell -ExecutionPolicy Bypass -File ...`) and confirmed both console output and the
+log line appear; `test-outputtrap-units.ps1` (54/0/0 full free-tier run) confirms the one
+tricky spot — `allow-ssh-groups.ps1`'s `Get-Patterns`, which already uses `Write-Host`
+instead of `Write-Output` specifically because its return value would otherwise absorb
+printed text — still logs via a separate `Append-Log` call rather than `Write-Log`, so the
+fix does not reintroduce that exact bug. **Cycled and witnessed 24 Sep 2026 on the dev host, with OpenSSH removed first
+(`remove-ssh.ps1`, reboot, `C:\ProgramData\ssh` renamed to `ssh.before-sshtest` so
+`ssh-preflight.ps1:264` would not stop the install), `sshserver` ticked:** the fresh-install
+path works here end to end — download 00:50:49→00:58:47 (8 min), sshd Running/Automatic,
+firewall rule applied, `AllowGroups sdssh ACE\sdssh` written — and the log captured every
+line. **So the failure does not reproduce on this host; it is machine-specific.** The one
+machine known to reproduce the cascade is the owner's test machine (customized local
+account), where `Get-WindowsCapability` itself throws `Class not registered` — so there
+`install-ssh.ps1:52` fails before any download.
+
+**Cause found, same day, on the test machine, elevated:** `Get-WindowsCapability` waited
+minutes then threw `Class not registered`; `dism /online /get-capabilities` in the same kind of
+prompt listed every capability. So PowerShell's DISM module is broken there, not servicing.
+*(A first `winmgmt`/`dism` pair was run unelevated in cmd and is void; the elevated `winmgmt`
+line was pasted doubled and is void too — not needed once `dism` answered.)*
+
+**Fixed in source, owner's go-ahead:** new shipped `gplbld/dism-capability.ps1` (`stage.py`
+tuple) — `Invoke-Dism` (`/Online /English`, `/NoRestart` on add/remove, returns
+Command/Code/Lines, prints nothing) and `Get-CapabilityState` (State line, spaces stripped).
+`install-ssh.ps1` and `remove-ssh.ps1` use it **outright, not as a fallback**; exit contracts
+unchanged, 3010 = restart (exit 2 / staged). Changelog entry 24 Sep 26. **Checked here,
+unelevated:** all five ssh scripts parse (0 errors, function counts right); State parse right
+for `Installed`/`Not Present`/`Uninstall Pending`/`UninstallPending`/no line; a real `dism` call
+returned 740 with its three lines and an empty state (so `install-ssh.ps1` would report FAILED,
+not pass); no BOMs; `stage.py` compiles; free tier 54/0/0.
+
+***WITNESSED 24 Sep 2026.*** Dev host, elevated: `remove-ssh.ps1 -Show` printed `state :
+Installed` (first real `/Get-CapabilityInfo` State read). Cycle `cycle-20260924-013316.log`,
+`assert-current` clean; installed `dism-capability.ps1`/`install-ssh.ps1`/`remove-ssh.ps1`
+byte-identical to source; installer 01:33:51, sha256 `eb8b75ba…a24c19`, copied to `P:\` and
+read back identical. **Test machine** (SD uninstalled; OpenSSH removed with `dism
+/remove-capability`, reboot), new installer, box ticked — its `ssh-setup.log`: `State : Not
+Present` → `/Add-Capability` exit **0** 01:53→02:04 → sshd Running/Automatic → firewall →
+`AllowGroups sdssh HPNBK\sdssh`. **The machine that failed at line 1 now installs.** Still
+unseen: exit 3010 (restart) through `dism`. The logging was asked for as **temporary** (owner,
+24 Sep 2026) and is not in the changelog; keep or strip is his call. Nothing committed yet.
+
+### 111 · S — SD's own script runner can hit 110's module clash
+
+Filed 24 Sep 2026 beside 110, **not measured**. `gpl.bp/ps_script` starts Windows PowerShell for
+the administrative verbs, and nothing in `sdsys/gpl.bp` or `gplsrc` sets `PSModulePath` (grep,
+24 Sep). An `sd` session started from a PowerShell 7 window would pass PowerShell 7's module
+folders on, and any script using a `Microsoft.PowerShell.Security` cmdlet (`ConvertTo-
+SecureString`, `Get-Acl`, `Set-Acl`) would fail as 110 did. **First step:** start `sd` from a
+window whose `PSModulePath` has a stand-in module first (110's reproduction) and run a verb that
+reaches one of those cmdlets. **Likely fix:** set `$env:PSModulePath` at the top of the script
+text `ps_script` builds. **Same exposure, wider:** every recovery command SD prints as
+`powershell -ExecutionPolicy Bypass -File ...` (finish page, messages, docs), typed into a
+PowerShell 7 window, starts 5.1 with PS7's `PSModulePath` — the 110 fix is Setup-process-only and
+does not reach those. Candidate: each shipped script that uses a Security-module cmdlet resets
+`$env:PSModulePath` itself, first line.
 
 ---
 

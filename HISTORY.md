@@ -36810,3 +36810,30 @@ would also dissolve 53) — **remains a legitimate W1.2 improvement but is not r
 closing paragraph is corrected to match. Nothing changed in code to close it.
 
 ====
+
+## RELEASE_1.1 110 — the installer did not make SDSYS where PowerShell 7 was in the environment (24 Sep 2026)
+
+**DONE AND WITNESSED on the owner's test machine.** Two installs there ended "SD Core could NOT
+create its administrator account"; `install-sdsys.log` held only its header line, and the same
+script run by hand (inside PowerShell 7, as `.\install-sdsys.ps1`) worked. **Instrumented first,
+because the cause was invisible**: a script-level `trap` that logs type, message and line; `Say`
+retrying a failed log write 5× and noting it; the Finished page appended to
+`C:\ProgramData\SD\install-summary.log` (its `(code N)` separates ran-and-failed from
+never-started). Each tested on scratch copies against a control — the committed script with a
+planted error reproduced the header-only log.
+
+**The instrument named it on the next run**: `ConvertTo-SecureString` at `install-sdsys.ps1:216`,
+`CmdletInvocationException ... ObjectSecurity: The member AuditToString is already present`.
+Windows PowerShell 5.1 had loaded PowerShell 7's `Microsoft.PowerShell.Security`, whose types file
+redefines what 5.1's `types.ps1xml:3004` already defines, through a `PSModulePath` inherited from
+the owner's **PowerShell 7.6.5** window. Reproduced on the dev host with a stand-in module first
+in `PSModulePath`. **Fix**: `sd.iss` `UseWindowsPowerShellModules`, first in `InitializeSetup` and
+in a new `InitializeUninstall`, SETS Setup's own `PSModulePath` to the two Windows PowerShell
+module folders (`SetEnvironmentVariableW`) — set, not removed, because a removed variable is
+rebuilt from machine/user settings. **Witnessed**: `cycle-20260924-025058.log`, installer
+`449766b6…23b215`, test machine from the PS7 window → SDSYS made with no hand step, clean
+Finished page. The same clash through SD's own script runner and hand-typed recovery commands is
+**RELEASE_1.1 111**, open. Also fixed on the way: the script printed "No SD password is needed",
+false since 103.
+
+====
