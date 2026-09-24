@@ -713,10 +713,17 @@ task above; 48 on 47; 49 on 48.**
   "copy step"**: the three bound PDFs in `documentation\` are the ones this
   session rebuilt with `-Version W1.1-0`, including the new "Differences
   from W1.0-0" pages (page counts 20/15/54). **Zipped, 22 Sep 2026**, and
-  **re-zipped the same day after the Python-chapter fix below** —
-  `C:\Users\Don\SDCoreProject\SDCore-W1.1-0.zip` is now 45,294,016 bytes,
-  sha256 `6979FF72…`, 18 entries, same flat layout as `SDCore-W1.0-0.zip`
-  (confirmed by reading that zip's entry list first). **Linux's half is not
+  **re-zipped the same day after the Python-chapter fix below.** ***SLIPSTREAMED
+  24 Sep 2026***: that zip was pulled from SourceForge before any download
+  (owner) and kept as `SDCore-W1.1-0-pulled-20260922.zip`. The staging tree's
+  installer is now the 109/110 build (sha256 `449766B6…23B215`, source =
+  `59b29843`), `README.txt`'s checksum updated to match; the new
+  `SDCore-W1.1-0.zip` is 45,298,566 bytes, sha256 `B4E4B71B…89BD2A5`, the same
+  18 paths as the pulled zip (compared by script), installer hashed from
+  inside the zip, `unzip -t` clean. **Owed:** `README.txt` says both repos are
+  *"tagged v1.1-0 for this release"* — no such tag exists in either repo
+  (local or GitHub, checked 24 Sep); `sd4windows` should get it on
+  `59b29843` or later. **Linux's half is not
   started** — separate port, not touched here; their own staging directory
   and zip are still owed on their side.
 
