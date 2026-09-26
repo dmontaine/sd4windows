@@ -768,7 +768,10 @@ task above; 48 on 47; 49 on 48.**
   hashes read from inside it. **Tags re-cut and force-pushed, owner's go-ahead,
   26 Sep 2026:** `sd4windows v1.1-0` → `4ad67e5a` (tag object `9a130528`),
   `SDCoreWindowsDocs v1.1-0` → `a00ba60` (`fa42d11`); both confirmed by
-  `ls-remote`. Uploading the zip to SourceForge is the owner's.
+  `ls-remote`. **Uploaded to SourceForge by the owner, 26 Sep 2026**; he
+  confirmed its SHA-1 `60c23ec8…0454ac79` and MD5 `a6fd58c1…36e1374` match
+  (a first upload of the wrong zip was replaced). The older local zips now carry
+  `_discontinued` names; `SDCore-W1.1-0.zip` is the released one.
 
   ***FOUND WHILE PACKAGING, 22 Sep 2026: THE PYTHON CHAPTER GAP WAS ON
   WINDOWS TOO, AND WORSE.*** Owner reported Linux's audit found their whole
