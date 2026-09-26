@@ -747,6 +747,17 @@ task above; 48 on 47; 49 on 48.**
   generated), mvDeveloper is named nowhere in the release or the docs, and the
   docs PDFs are rebuilt (`SDCoreWindowsDocs`, `release.ps1 -Version W1.1-0`, all
   three sets). Solo still carries the linking-exception paragraph in the same files.
+  ***AND PYTHON, owner same day:*** the release carries python.org's
+  `python\python-3.14.7-amd64.exe` (sha256 `9D9EB270…F6AE9649` = python.org's,
+  PSF-signed); `sd.iss` task `installpython` (unchecked, `Check: PythonExeOffered`
+  = exe beside setup and no HKLM64 PythonCore 3.13+ with an existing InstallPath)
+  runs it `/quiet InstallAllUsers=1 PrependPath=1` at ssPostInstall after the ACL
+  steps; pass = exit 0/3010 AND HKLM registration. ISCC compiles; *never run*.
+  Witness owed: cycle FIRST (a build with no HKLM Python skips `sdpy.exe`
+  silently — `stage.py` "optional"), then owner removes Python 3.14, uninstalls
+  SD, runs the STAGING copy of the installer (the box needs `python\` beside it;
+  an upgrade skips the tasks page). *Unmeasured:* whether the running SD service
+  sees the new PATH without a restart — the docs say restart.
 
   ***FOUND WHILE PACKAGING, 22 Sep 2026: THE PYTHON CHAPTER GAP WAS ON
   WINDOWS TOO, AND WORSE.*** Owner reported Linux's audit found their whole
