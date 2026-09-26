@@ -734,6 +734,16 @@ task above; 48 on 47; 49 on 48.**
   force-pushed (tag object `5549a746`). **Linux's half is not
   started** — separate port, not touched here; their own staging directory
   and zip are still owed on their side.
+  ***RE-SLIPSTREAM IN PROGRESS, 26 Sep 2026 (owner):*** licensing error — the
+  client library was LGPL, now GPL everywhere (Solo's `f484e8e`/`5496900` patch
+  applied here; "Black Oak" → "Blue Oak"). Owner removed `extras\` (mvDeveloper,
+  not GPL-compatible) from the staging tree and made a 25 Sep zip without it;
+  `SDCore-W1.1-0_discontinued.zip` is the 24 Sep one. Owed: installer rebuilt from
+  this commit by a full `cycle.ps1`, copied into `SDCore-W1.1-0\`; `README.txt`
+  (extras line, mvDeveloper checksum, installer checksum) and
+  `SDCore-W1.1-0-what-is-in-the-zip.txt` (item 4) edited; re-zipped; `v1.1-0` tag
+  re-cut on the new source. *Open:* nine `sdclilib` files still carry a GPL
+  "Linking exception" paragraph (so does Solo) — owner to rule keep or remove.
 
   ***FOUND WHILE PACKAGING, 22 Sep 2026: THE PYTHON CHAPTER GAP WAS ON
   WINDOWS TOO, AND WORSE.*** Owner reported Linux's audit found their whole
