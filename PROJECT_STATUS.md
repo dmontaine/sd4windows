@@ -765,8 +765,10 @@ task above; 48 on 47; 49 on 48.**
   **New `SDCore-W1.1-0.zip`**, 70,394,622 bytes, sha256 `0498028B…9861C26D`, top
   folder `SDCore-W1.1-0/` like the owner's 25 Sep zip (kept as
   `SDCore-W1.1-0-20260925.zip`), 17 files byte-identical to staging, both exe
-  hashes read from inside it. **Still owed:** `v1.1-0` tags re-cut and pushed
-  (owner's go-ahead).
+  hashes read from inside it. **Tags re-cut and force-pushed, owner's go-ahead,
+  26 Sep 2026:** `sd4windows v1.1-0` → `4ad67e5a` (tag object `9a130528`),
+  `SDCoreWindowsDocs v1.1-0` → `a00ba60` (`fa42d11`); both confirmed by
+  `ls-remote`. Uploading the zip to SourceForge is the owner's.
 
   ***FOUND WHILE PACKAGING, 22 Sep 2026: THE PYTHON CHAPTER GAP WAS ON
   WINDOWS TOO, AND WORSE.*** Owner reported Linux's audit found their whole
