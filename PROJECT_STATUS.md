@@ -742,8 +742,11 @@ task above; 48 on 47; 49 on 48.**
   this commit by a full `cycle.ps1`, copied into `SDCore-W1.1-0\`; `README.txt`
   (extras line, mvDeveloper checksum, installer checksum) and
   `SDCore-W1.1-0-what-is-in-the-zip.txt` (item 4) edited; re-zipped; `v1.1-0` tag
-  re-cut on the new source. *Open:* nine `sdclilib` files still carry a GPL
-  "Linking exception" paragraph (so does Solo) — owner to rule keep or remove.
+  re-cut on the new source. Owner, same day: the linking exception goes (removed
+  from the 8 tracked `sdclilib` files that still had it; `qmclient.def` is
+  generated), mvDeveloper is named nowhere in the release or the docs, and the
+  docs PDFs are rebuilt (`SDCoreWindowsDocs`, `release.ps1 -Version W1.1-0`, all
+  three sets). Solo still carries the linking-exception paragraph in the same files.
 
   ***FOUND WHILE PACKAGING, 22 Sep 2026: THE PYTHON CHAPTER GAP WAS ON
   WINDOWS TOO, AND WORSE.*** Owner reported Linux's audit found their whole
