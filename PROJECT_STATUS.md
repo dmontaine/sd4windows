@@ -752,12 +752,21 @@ task above; 48 on 47; 49 on 48.**
   PSF-signed); `sd.iss` task `installpython` (unchecked, `Check: PythonExeOffered`
   = exe beside setup and no HKLM64 PythonCore 3.13+ with an existing InstallPath)
   runs it `/quiet InstallAllUsers=1 PrependPath=1` at ssPostInstall after the ACL
-  steps; pass = exit 0/3010 AND HKLM registration. ISCC compiles; *never run*.
-  Witness owed: cycle FIRST (a build with no HKLM Python skips `sdpy.exe`
-  silently — `stage.py` "optional"), then owner removes Python 3.14, uninstalls
-  SD, runs the STAGING copy of the installer (the box needs `python\` beside it;
-  an upgrade skips the tasks page). *Unmeasured:* whether the running SD service
-  sees the new PATH without a restart — the docs say restart.
+  steps; pass = exit 0/3010 AND HKLM registration. ***WITNESSED 26 Sep 2026:***
+  cycle `cycle-20260926-004848.log` from `4ad67e5a` (`sdpy.exe` staged,
+  assert-current green); owner removed Python 3.14, uninstalled SD, ran the
+  staging installer, ticked the box — Finished page "Python: installed for all
+  users"; `python-detect.ps1` USABLE 3.14 HKLM, HKCU none, machine PATH carries
+  `C:\Program Files\Python314\`. **Order matters:** cycle BEFORE removing Python —
+  a build with no HKLM Python skips `sdpy.exe` with only a printed note (`stage.py`
+  "optional"); the box needs `python\` beside setup and a non-upgrade install.
+  *Unmeasured:* whether the running SD service sees the new PATH without a
+  restart — the docs say restart. Staging installer sha256 `08C5BB85…8D73A410`.
+  **New `SDCore-W1.1-0.zip`**, 70,394,622 bytes, sha256 `0498028B…9861C26D`, top
+  folder `SDCore-W1.1-0/` like the owner's 25 Sep zip (kept as
+  `SDCore-W1.1-0-20260925.zip`), 17 files byte-identical to staging, both exe
+  hashes read from inside it. **Still owed:** `v1.1-0` tags re-cut and pushed
+  (owner's go-ahead).
 
   ***FOUND WHILE PACKAGING, 22 Sep 2026: THE PYTHON CHAPTER GAP WAS ON
   WINDOWS TOO, AND WORSE.*** Owner reported Linux's audit found their whole
